@@ -31,7 +31,7 @@ public class Test1Test {
         driver.findElement(By.id("password")).clear();
         driver.findElement(By.id("password")).sendKeys("ic_admin");
         driver.findElement(By.linkText("LOGIN")).click();
-        driver.findElement(By.linkText("Reference Data")).click();
+        driver.findElement(By.linkText("Actions")).click();
         driver.findElement(By.linkText("(Rule_tables) VIP клиенты БИКСЧЕТ")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/preceding::img[1]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Бик банка VIP:'])[1]/following::input[1]")).sendKeys("123456789");
