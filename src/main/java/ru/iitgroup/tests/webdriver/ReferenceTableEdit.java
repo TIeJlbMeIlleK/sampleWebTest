@@ -4,26 +4,25 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class ReferenceTableDetails {
+public class ReferenceTableEdit extends ICView{
 
     private static final String SAVE_ACTION = "Save";
 
-    private final RemoteWebDriver driver;
 
-    public ReferenceTableDetails(RemoteWebDriver driver) {
-        this.driver = driver;
+    public ReferenceTableEdit(RemoteWebDriver driver) {
+       super(driver);
     }
 
     public static void deleteRecord() {
         throw new IllegalStateException("Not implemented yet");
     }
 
-    public ReferenceTableDetails fillMasked(String fieldName, String fieldText) {
+    public ReferenceTableRecord fillMasked(String fieldName, String fieldText) {
         final WebElement field;
         field = driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='" + fieldName + "'])[1]/following::input[1]"));
         field.clear();
         field.sendKeys(fieldText);
-        return this;
+        return new ReferenceTableRecord( driver);
     }
 
     public void save() {

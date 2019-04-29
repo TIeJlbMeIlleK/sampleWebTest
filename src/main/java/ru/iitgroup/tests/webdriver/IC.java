@@ -1,7 +1,17 @@
 package ru.iitgroup.tests.webdriver;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.RemoteWebDriver;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.Calendar;
 
 public class IC {
 
@@ -12,6 +22,15 @@ public class IC {
         this.driver = driver;
     }
 
+    void takeScreenshot() throws IOException {
+        File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+
+        final String date = LocalDateTime.now().toString()
+                .replace("T","_")
+                .replace(":","-");
+
+        Files.copy(scrFile.toPath(), Paths.get(String.format("c:\\tmp\\IC%s.png", date)));
+    }
 
     public void close() {
         try {
@@ -49,7 +68,6 @@ public class IC {
         public final String heading;
 
         AllTables(String heading) {
-
             this.heading = heading;
         }
     }
