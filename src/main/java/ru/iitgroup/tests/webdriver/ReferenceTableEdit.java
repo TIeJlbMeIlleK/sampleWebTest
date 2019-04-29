@@ -17,12 +17,12 @@ public class ReferenceTableEdit extends ICView{
         throw new IllegalStateException("Not implemented yet");
     }
 
-    public ReferenceTableRecord fillMasked(String fieldName, String fieldText) {
-        final WebElement field;
-        field = driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='" + fieldName + "'])[1]/following::input[1]"));
-        field.clear();
-        field.sendKeys(fieldText);
-        return new ReferenceTableRecord( driver);
+    public ReferenceTableEdit fillMasked(AllFields field, String fieldText) {
+        final WebElement element;
+        element = driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='" + field.heading+ "'])[1]/following::input[1]"));
+        element.clear();
+        element.sendKeys(fieldText);
+        return this;
     }
 
     public void save() {

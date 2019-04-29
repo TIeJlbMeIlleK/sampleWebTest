@@ -3,7 +3,8 @@ package ru.iitgroup.tests.demo;
 import ru.iitgroup.tests.webdriver.IC;
 import ru.iitgroup.tests.webdriver.ICFactory;
 
-import static ru.iitgroup.tests.webdriver.IC.AllTables.VIP_БИК_СЧЁТ;
+import static ru.iitgroup.tests.webdriver.IC.AllTables.*;
+import static ru.iitgroup.tests.webdriver.AllFields.*;
 
 public class DemoTest {
     public static void main(String[] args) {
@@ -15,7 +16,7 @@ public class DemoTest {
 
         ic.locateTable(VIP_БИК_СЧЁТ)
                 .addRecord()
-                .fillMasked("Бик банка VIP:", "123456789")
+                .fillMasked(VIP_БИК_СЧЁТ$БИК, "123456789")
                 .save();
 
         ic.close();
