@@ -1,26 +1,21 @@
 package ru.iitgroup.tests.webdriver;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-
-import static ru.iitgroup.tests.webdriver.InvestigationCenter.driver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class ReferenceTable {
 
-    private static final String SAVE_ACTION = "Save";
 
-    public static void fillText(String fieldName, String fieldText) {
-        final WebElement field;
-        field = driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='" + fieldName + "'])[1]/following::input[1]"));
-        field.clear();
-        field.sendKeys(fieldText);
+    private final RemoteWebDriver driver;
+
+    public ReferenceTable(RemoteWebDriver driver) {
+        this.driver = driver;
     }
 
-    public static void addRecord() {
+
+    public ReferenceTableDetails addRecord() {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/preceding::img[1]")).click();
+        return new ReferenceTableDetails(driver);
     }
 
-    public static void save() {
-        driver.findElement(By.linkText(SAVE_ACTION)).click();
-    }
 }
