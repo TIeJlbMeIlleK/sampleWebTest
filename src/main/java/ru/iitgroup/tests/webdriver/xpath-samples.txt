@@ -1,0 +1,30 @@
+//*[@id="qtip-2-content"]/a[3]
+//*[@id="qtip-2-content"]/a[4]
+
+#qtip-2-content > a:nth-child(3)
+
+
+//*[@id="qtip-1-content"]/a[3]
+
+
+
+(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/img[1]
+
+
+
+
+(.//*[text() ='Actions'])
+
+(.//*[text() ='Deactivate'])
+
+
+//*[@class="qtip-content"]//*[text() ='Deactivate']
+
+
+//*[@class="qtip-content"]//*[text() ='Deactivate']/ancestor::div[contains(@class,"qtip") and contains(@aria-hidden, "false")]
+
+
+#нужный DIV
+//div[contains(@class,"qtip") and contains(@aria-hidden, "false")]
+
+//*[contains(@id,"content") and contains(@id, "qtip" ))]/a[4]
