@@ -64,20 +64,22 @@ public class DemoTest {
                 ws.getErrorMessage()));
     }
 
-    private static void checkDBData(TestProperties props) throws SQLException {
-        Database db = new Database( props);
-        final String[][] rows = db.select()
-                .field("id")
-                .field("NAME")
-                .from("BE_BRANCH")
-                .with("id", "=", "1")
-                .with("id", "=", "2")
-                .setFormula("1 OR 2")
-                .get();
-
-        for (String[] row : rows) {
-            System.out.println( String.join("\t",row));
+    private static void checkDBData(TestProperties props) throws Exception {
+        final String[][] rows;
+        try (Database db = new Database(props)) {
+            rows = db.select()
+                    .field("id")
+                    .field("NAME")
+                    .from("BE_BRANCH")
+                    .with("id", "=", "1")
+                    .with("id", "=", "2")
+                    .setFormula("1 OR 2")
+                    .get();
+            for (String[] row : rows) {
+                System.out.println( String.join("\t",row));
+            }
         }
+
     }
 
 }
