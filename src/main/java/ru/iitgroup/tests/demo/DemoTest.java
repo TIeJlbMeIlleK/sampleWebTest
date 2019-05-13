@@ -2,21 +2,23 @@ package ru.iitgroup.tests.demo;
 
 import ru.iitgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitgroup.tests.apidriver.Transaction;
+import ru.iitgroup.tests.dbdriver.Database;
 import ru.iitgroup.tests.properties.TestProperties;
 import ru.iitgroup.tests.webdriver.IC;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Properties;
+import java.sql.SQLException;
 import java.util.Random;
 
 public class DemoTest {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         System.out.println("Starting...");
         TestProperties props = new TestProperties();
         props.load(new FileInputStream("resources/test.properties"));
-        enableRule(props);
+        //enableRule(props);
         //callAntifraudWS();
+        checkDBData( props);
         System.out.println("Finished Ok.");
     }
 
@@ -60,6 +62,22 @@ public class DemoTest {
                 ws.getSuccessCode(),
                 ws.getErrorCode(),
                 ws.getErrorMessage()));
+    }
+
+    private static void checkDBData(TestProperties props) throws SQLException {
+        Database db = new Database( props);
+        final String[][] rows = db.select()
+                .field("id")
+                .field("NAME")
+                .from("BE_BRANCH")
+                .with("id", "=", "1")
+                .with("id", "=", "2")
+                .setFormula("1 OR 2")
+                .get();
+
+        for (String[] row : rows) {
+            System.out.println( String.join("\t",row));
+        }
     }
 
 }
