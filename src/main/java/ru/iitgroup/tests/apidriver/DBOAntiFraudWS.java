@@ -22,30 +22,6 @@ public class DBOAntiFraudWS {
         DBOAntiFraudWS.urlIC = urlIC;
     }
 
-    public static void main(String[] args) throws IOException {
-
-        //TODO: Добавлять и удалять теги
-
-        Random r = new Random();
-
-        DBOAntiFraudWS ws = new DBOAntiFraudWS("http://192.168.7.151:7780/InvestigationCenter/api/webservices/DBOAntiFraudWS");
-
-        Transaction t = Transaction.fromFile("tran1.xml");
-        t.withDBOId( 2);
-        t.withCIFId( 1);
-        t.withTransactionId( 5_000_000+r.nextInt(100000));
-
-        ws.send(t);
-
-        System.out.println(String.format("Response code: %d\n",ws.getResponseCode()));
-        System.out.println(String.format("Code: %s, Error: %s, ErrorMessage: %s.",
-                ws.getSuccessCode(),
-                ws.getErrorCode(),
-                ws.getErrorMessage()));
-    }
-
-
-
 
     public DBOAntiFraudWS send(Transaction t) throws IOException {
 

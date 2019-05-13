@@ -3,31 +3,66 @@ package ru.iitgroup.tests.webdriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import ru.iitgroup.tests.properties.TestProperties;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 public class IC {
 
     private final String CLOSE_ACTION = "Close";
     RemoteWebDriver driver;
 
-    public IC(RemoteWebDriver driver) {
-        this.driver = driver;
+
+    public IC(TestProperties props) {
+        //TODO: перенести путь в файл настроек - оно системно-специфическое
+        System.setProperty("webdriver.chrome.driver", props.getChromeDriverPath());
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(7, TimeUnit.SECONDS);
+        try {
+            driver.get(props.getICUrl());
+            driver.findElement(By.id("username")).clear();
+            driver.findElement(By.id("username")).sendKeys(props.getICUser());
+            driver.findElement(By.id("password")).clear();
+            driver.findElement(By.id("password")).sendKeys(props.getICPassword());
+            driver.findElement(By.linkText("LOGIN")).click();
+        } catch (Exception e) {
+            takeScreenshot("Open IC");
+            driver.close();
+            e.printStackTrace();
+        }
     }
 
-    void takeScreenshot() throws IOException {
-        File scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+    private static String normalized(String value) {
+        return "[normalize-space(text()) and normalize-space(.)='" + value + "']";
+    }
+
+    public void takeScreenshot() {
+        takeScreenshot(null);
+    }
+
+    public void takeScreenshot(String name){
+        File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+
 
         final String date = LocalDateTime.now().toString()
-                .replace("T","_")
-                .replace(":","-");
+                .replace("T", " ")
+                .replace(":", ".");
 
-        Files.copy(scrFile.toPath(), Paths.get(String.format("c:\\tmp\\IC%s.png", date)));
+        String pictureName = name == null ? "IC" : name;
+
+        //TODO: перенести путь в файл настроек - оно системно-специфическое
+        try {
+            Files.copy(scrFile.toPath(), Paths.get(String.format("c:\\tmp\\%s at %s.png", pictureName, date)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void close() {
@@ -55,15 +90,10 @@ public class IC {
         driver.findElement(By.linkText(item.heading)).click();
     }
 
-    public RemoteWebDriver getDriver() {
-        return driver;
-    }
-
     public enum TopMenu {
         REFERENCE_DATA("Reference Data"),
         ANALYTICS("Analytics"),
-        RULES("Rules")
-        ;
+        RULES("Rules");
         public final String heading;
 
         TopMenu(String heading) {
@@ -79,5 +109,9 @@ public class IC {
         AllTables(String heading) {
             this.heading = heading;
         }
+    }
+
+    public RemoteWebDriver getDriver() {
+        return driver;
     }
 }
