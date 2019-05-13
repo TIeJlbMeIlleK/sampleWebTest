@@ -32,6 +32,7 @@ public class VesMock {
     }
 
     private void initMocks() {
+        checkRequirements();
         this.clientAndServer.when(
                 request()
                         .withMethod("GET")
@@ -45,18 +46,24 @@ public class VesMock {
     }
 
     public void run() {
-        Objects.requireNonNull(vesResponse, "Необходимо установить ответ ВЭС1");
-        Objects.requireNonNull(vesExtendResponse, "Необходимо установить ответ ВЭС2");
         clientAndServer = new ClientAndServer(this.port);
         initMocks();
-
     }
 
-    public static VesMock onPort(Integer port) {
-        if(port == null){
-            return new VesMock();
-        }
+    private void checkRequirements() {
+        Objects.requireNonNull(vesResponse, "Необходимо установить ответ ВЭС1");
+        Objects.requireNonNull(vesExtendResponse, "Необходимо установить ответ ВЭС2");
+    }
+
+    public void update(){
+        initMocks();
+    }
+
+    public static VesMock create(Integer port) {
         return new VesMock(port);
+    }
+    public static VesMock create(){
+        return new VesMock();
     }
 
     public VesMock withVesPath(String vesPath) {
