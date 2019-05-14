@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,37 +69,23 @@ public class DBOAntiFraudWS {
         return this;
     }
 
-    public Integer getResponseCode() {
-        return lastResponseCode;
-    }
-
-    public String getResponse() {
-        return lastResponse;
-    }
-
-    public String getSuccessCode(){
-        verifyHTTPanswer();
-        return getValue("com:Success");
-    }
-
-    public String getErrorCode(){
-        verifyHTTPanswer();
-        return getValue("com:ErrorCode");
-    }
-
-    public String getErrorMessage(){
-        verifyHTTPanswer();
-        return getValue("com:ErrorMessage");
-    }
-
-    private void verifyHTTPanswer() {
+    public void verifyHTTPanswer() {
         if (lastResponseCode != 200 || lastResponse == null) throw
                 new ICMalfunctionError(String.format("No data, IC Respone code %d", lastResponse));
     }
 
 
-    private  String getValue( String tagName){
-        final String regex = String.format(".+<%s>(.+)<.%s>.+",tagName,tagName);
+    public String getOptional(String tagName) {
+        return getValue(tagName, true);
+    }
+
+    public String getMandatory(String tagName) {
+        return getValue(tagName, false);
+    }
+
+
+    public String getValue(String tagName, boolean optional) {
+        final String regex = String.format(".+<%s>(.+)<.%s>.+", tagName, tagName);
 
         final Pattern pattern = Pattern.compile(regex);
 
@@ -109,9 +94,35 @@ public class DBOAntiFraudWS {
         if (matcher.matches()) {
             return matcher.group(1);
         } else {
-            throw new Error(String.format("No tag [%s] in response: %s" ,tagName,lastResponse));
+            if (optional) {
+                return null;
+            } else {
+                throw new Error(String.format("No tag [%s] in response: %s", tagName, lastResponse));
+            }
         }
+    }
 
+    public Integer getResponseCode() {
+        return lastResponseCode;
+    }
+
+    public String getResponse() {
+        return lastResponse;
+    }
+
+    public String getSuccessCode() {
+        verifyHTTPanswer();
+        return getMandatory("com:Success");
+    }
+
+    public String getErrorCode() {
+        verifyHTTPanswer();
+        return getOptional("com:ErrorCode");
+    }
+
+    public String getErrorMessage() {
+        verifyHTTPanswer();
+        return getOptional("com:ErrorMessage");
     }
 
 }

@@ -1,5 +1,7 @@
 package ru.iitgroup.tests.webdriver;
 
+import javax.xml.xpath.XPath;
+
 public class ICXPath {
     public static final String ANYWHERE = ".//*";
     protected StringBuilder sb = new StringBuilder();
@@ -21,7 +23,6 @@ public class ICXPath {
         ;
         return this;
     }
-
 
     public ICXPath preceding(WebElements element, int nth) {
         sb
@@ -53,9 +54,13 @@ public class ICXPath {
         return this;
     }
 
-
     public String get() {
         return sb.toString();
+    }
+
+    public ICXPath specific(String xpathText){
+        sb.append( xpathText);
+        return this;
     }
 
     public enum WebElements {
@@ -69,6 +74,11 @@ public class ICXPath {
         WebElements(String name) {
             this.name = name;
         }
+
     }
 
+    @Override
+    public String toString() {
+        return get();
+    }
 }

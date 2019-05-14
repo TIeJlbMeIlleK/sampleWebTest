@@ -20,4 +20,12 @@ public abstract class  ICView <RealView extends ICView> {
         return new ICXPath();
     }
 
+    public RealView sleep(double seconds) {
+        try {
+            Thread.sleep( (int)(seconds*1000));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return (RealView) this;
+    }
 }

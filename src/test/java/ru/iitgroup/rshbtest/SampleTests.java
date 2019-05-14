@@ -1,48 +1,46 @@
-package ru.iitgroup.tests.demo;
+package ru.iitgroup.rshbtest;
 
+
+import org.testng.annotations.Test;
 import ru.iitgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitgroup.tests.apidriver.Transaction;
 import ru.iitgroup.tests.dbdriver.Database;
-import ru.iitgroup.tests.properties.TestProperties;
 import ru.iitgroup.tests.webdriver.IC;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Random;
 
-public class DemoTest {
-    public static void main(String[] args) throws Exception {
-        System.out.println("Starting...");
-        TestProperties props = new TestProperties();
-        props.load(new FileInputStream("resources/test.properties"));
-        enableRule(props);
-        //callAntifraudWS();
-        //checkDBData( props);
-        System.out.println("Finished Ok.");
-    }
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
-    private static void enableRule(TestProperties props) {
+public class SampleTests extends RSHBTests {
 
+    @Test
+    public void enableRule() {
         IC ic = new IC(props);
         try {
 
             ic.locateRules()
                     .selectVisible()
                     .deactivate()
+                    //FIXME: что-то в IC не успевает отрабатывать, и надо бы ловить это не задержкой по времени, а появлением соответствующего элемента на странице
+                    .sleep(0.5)
                     .selectRule("R01_ExR_04_InfectedDevice")
+                    .sleep(0.5)
                     .activate();
 
 
             ic.close();
         } catch (Exception ex) {
-            System.err.println(String.format("IC error: %s", ex.getMessage()));
+            final String message = String.format("IC error: %s", ex.getMessage());
             ic.takeScreenshot();
             ic.getDriver().close();
+            fail(message);
         }
     }
 
-
-    public static void callAntifraudWS(TestProperties props) throws IOException {
+    @Test
+    public void callAntifraudWS() throws IOException {
         //TODO: Добавлять и удалять теги
 
         Random r = new Random();
@@ -56,14 +54,17 @@ public class DemoTest {
 
         ws.send(t);
 
-        System.out.println(String.format("Response code: %d\n", ws.getResponseCode()));
-        System.out.println(String.format("Code: %s, Error: %s, ErrorMessage: %s.",
+        assertEquals(200, ws.getResponseCode().intValue());
+
+        System.out.println(String.format("Response code: %d", ws.getResponseCode()));
+        System.out.println(String.format("Code: %s, Error: %s, ErrorMessage: %s",
                 ws.getSuccessCode(),
                 ws.getErrorCode(),
                 ws.getErrorMessage()));
     }
 
-    private static void checkDBData(TestProperties props) throws Exception {
+    @Test
+    private void checkDBData() throws Exception {
         final String[][] rows;
         try (Database db = new Database(props)) {
             rows = db.select()
@@ -74,11 +75,11 @@ public class DemoTest {
                     .with("id", "=", "2")
                     .setFormula("1 OR 2")
                     .get();
-            for (String[] row : rows) {
-                System.out.println(String.join("\t", row));
-            }
+            assertEquals("1", rows[0][0]);
+            assertEquals("2", rows[1][0]);
+//            for (String[] row : rows) {
+//                System.out.println(String.join("\t", row));
+//            }
         }
-
     }
-
 }
