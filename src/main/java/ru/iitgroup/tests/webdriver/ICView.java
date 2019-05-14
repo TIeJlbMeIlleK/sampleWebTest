@@ -15,4 +15,9 @@ public abstract class  ICView <RealView extends ICView> {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Name'])[2]/preceding::input[1]")).click();
         return (RealView) this;
     }
+
+    public ICXPath xpath( ){
+        return new ICXPath();
+    }
+
 }

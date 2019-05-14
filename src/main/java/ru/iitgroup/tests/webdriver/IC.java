@@ -39,10 +39,6 @@ public class IC {
         }
     }
 
-    private static String normalized(String value) {
-        return "[normalize-space(text()) and normalize-space(.)='" + value + "']";
-    }
-
     public void takeScreenshot() {
         takeScreenshot(null);
     }

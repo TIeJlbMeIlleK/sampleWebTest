@@ -8,7 +8,6 @@ import ru.iitgroup.tests.webdriver.IC;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Random;
 
 public class DemoTest {
@@ -16,15 +15,15 @@ public class DemoTest {
         System.out.println("Starting...");
         TestProperties props = new TestProperties();
         props.load(new FileInputStream("resources/test.properties"));
-        //enableRule(props);
+        enableRule(props);
         //callAntifraudWS();
-        checkDBData( props);
+        //checkDBData( props);
         System.out.println("Finished Ok.");
     }
 
     private static void enableRule(TestProperties props) {
 
-        IC ic = new IC( props);
+        IC ic = new IC(props);
         try {
 
             ic.locateRules()
@@ -76,7 +75,7 @@ public class DemoTest {
                     .setFormula("1 OR 2")
                     .get();
             for (String[] row : rows) {
-                System.out.println( String.join("\t",row));
+                System.out.println(String.join("\t", row));
             }
         }
 
