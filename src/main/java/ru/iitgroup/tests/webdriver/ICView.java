@@ -1,6 +1,7 @@
 package ru.iitgroup.tests.webdriver;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 public abstract class  ICView <RealView extends ICView> {
@@ -16,8 +17,8 @@ public abstract class  ICView <RealView extends ICView> {
         return (RealView) this;
     }
 
-    public ICXPath xpath( ){
-        return new ICXPath();
+    public ICXPath icxpath( ){
+        return new ICXPath (driver);
     }
 
     public RealView sleep(double seconds) {
@@ -28,4 +29,9 @@ public abstract class  ICView <RealView extends ICView> {
         }
         return (RealView) this;
     }
+
+    public WebElement locate(ICXPath icxpath){
+        return driver.findElement(By.xpath(icxpath.get()));
+    }
+
 }

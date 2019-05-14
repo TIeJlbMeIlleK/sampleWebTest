@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
-public class IC {
+public class IC implements AutoCloseable {
 
     private final String CLOSE_ACTION = "Close";
     RemoteWebDriver driver;
@@ -64,16 +64,16 @@ public class IC {
     public void close() {
         try {
             //FIXME: не работает logoff
-            //driver.findElement(By.linkText("Logoff")).click();
+            //driver.element(By.linkText("Logoff")).click();
         } finally {
             driver.quit();
         }
     }
 
-    public ReferenceTable locateTable(AllTables table) {
+    public ReferenceTable<ReferenceTable> locateTable(AllTables table) {
         locateView(TopMenu.REFERENCE_DATA);
         driver.findElement(By.linkText(table.heading)).click();
-        return new ReferenceTable(driver);
+        return new ReferenceTable<>(driver);
     }
 
     public Rules locateRules() {

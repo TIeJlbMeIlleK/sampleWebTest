@@ -28,3 +28,7 @@
 //div[contains(@class,"qtip") and contains(@aria-hidden, "false")]
 
 //*[contains(@id,"content") and contains(@id, "qtip" ))]/a[4]
+
+## Поиск текста в таблице для выделения строчек
+.//tr//*[contains(text(),'123456789') and  contains(text(),'123456789123')]
+

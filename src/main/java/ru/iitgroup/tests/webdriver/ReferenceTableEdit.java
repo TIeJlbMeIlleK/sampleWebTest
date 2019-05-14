@@ -4,7 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class ReferenceTableEdit extends ICView{
+public class ReferenceTableEdit<T extends ICView> extends ICView<T>{
 
     private static final String SAVE_ACTION = "Save";
 
@@ -17,16 +17,18 @@ public class ReferenceTableEdit extends ICView{
         throw new IllegalStateException("Not implemented yet");
     }
 
-    public ReferenceTableEdit fillMasked(AllFields field, String fieldText) {
+    public ReferenceTableEdit<T> fillMasked(AllFields field, String fieldText) {
         final WebElement element;
-        element = driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='" + field.heading+ "'])[1]/following::input[1]"));
-        element.clear();
-        element.sendKeys(fieldText);
+        icxpath()
+                .element(field.heading)
+                .following(ICXPath.WebElements.INPUT)
+                .type(fieldText);
         return this;
     }
 
-    public void save() {
+    public ReferenceTableRecord<T> save() {
         driver.findElement(By.linkText(SAVE_ACTION)).click();
+        return  new ReferenceTableRecord<>(driver);
     }
 
 }

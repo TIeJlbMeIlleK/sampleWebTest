@@ -1,9 +1,8 @@
 package ru.iitgroup.tests.webdriver;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class ReferenceTable extends ICView{
+public class ReferenceTable<T extends ICView> extends ICView<T>{
 
 
 
@@ -13,8 +12,18 @@ public class ReferenceTable extends ICView{
     }
 
     public ReferenceTableEdit addRecord() {
-        driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/preceding::img[1]")).click();
+        icxpath()
+                .element("Actions",1)
+                .preceding(ICXPath.WebElements.IMG,1)
+                .click();
         return new ReferenceTableEdit(driver);
+    }
+
+    public ReferenceTableRecord<T> selectRecord(String... rowValues) {
+        icxpath()
+                .row("123456789","123456789123")
+                .click();
+        return new ReferenceTableRecord<>(driver);
     }
 
 }

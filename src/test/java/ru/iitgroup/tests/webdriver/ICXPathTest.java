@@ -3,9 +3,6 @@ package ru.iitgroup.tests.webdriver;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-
 import static org.testng.Assert.assertEquals;
 import static ru.iitgroup.tests.webdriver.ICXPath.WebElements.*;
 
@@ -15,7 +12,7 @@ public class ICXPathTest {
 
     @BeforeMethod
     public void setUp() {
-        icxp = new ICXPath();
+        icxp = new ICXPath( null);
     }
 
     @Test
@@ -49,4 +46,16 @@ public class ICXPathTest {
                 .get();
         assertEquals(xpath, expected);
     }
+
+    @Test
+    public void testRow() {
+        final String expected = ".//*[contains(text(),'123456789') and contains(text(),'123456789123')]";
+
+        final String xpath = icxp
+                .row("123456789","123456789123")
+                .get();
+        assertEquals(xpath, expected);
+    }
+
+
 }

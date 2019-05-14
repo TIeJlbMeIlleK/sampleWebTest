@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import ru.iitgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitgroup.tests.apidriver.Transaction;
 import ru.iitgroup.tests.dbdriver.Database;
+import ru.iitgroup.tests.webdriver.AllFields;
 import ru.iitgroup.tests.webdriver.IC;
 
 import java.io.IOException;
@@ -28,14 +29,14 @@ public class SampleTests extends RSHBTests {
                     .selectRule("R01_ExR_04_InfectedDevice")
                     .sleep(0.5)
                     .activate();
-
-
-            ic.close();
         } catch (Exception ex) {
             final String message = String.format("IC error: %s", ex.getMessage());
             ic.takeScreenshot();
-            ic.getDriver().close();
             fail(message);
+        }
+        finally {
+            ic.getDriver().close();
+
         }
     }
 
@@ -64,7 +65,7 @@ public class SampleTests extends RSHBTests {
     }
 
     @Test
-    private void checkDBData() throws Exception {
+    public void checkDBData() throws Exception {
         final String[][] rows;
         try (Database db = new Database(props)) {
             rows = db.select()
@@ -82,4 +83,39 @@ public class SampleTests extends RSHBTests {
 //            }
         }
     }
+
+
+    @Test
+    public void addReferenceTable() throws Exception {
+        IC ic = new IC(props);
+        try {
+            ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ)
+                    .addRecord()
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$БИК,"123456789")
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$СЧЁТ,"12345678912345678912")
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$ПРИЧИНА_ЗАНЕСЕНИЯ,"Автоматическая обработка")
+                    .save();
+        } finally {
+            ic.close();
+        }
+    }
+
+    @Test
+    public void editReferenceTable() throws Exception {
+        IC ic = new IC(props);
+        try {
+            ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ)
+                    .selectRecord("123456789","123456789123")
+                    .edit()
+                    //FIXME: что-то в IC не успевает отрабатывать, и надо бы ловить это не задержкой по времени, а появлением соответствующего элемента на странице
+                    .sleep(0.5)
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$БИК,"987654321")
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$СЧЁТ,"98765432198765432198")
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$ПРИЧИНА_ЗАНЕСЕНИЯ,"Автоматическая обработка")
+                    .save();
+        } finally {
+            ic.close();
+        }
+    }
+
 }

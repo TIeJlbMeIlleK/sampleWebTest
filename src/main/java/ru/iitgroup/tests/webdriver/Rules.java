@@ -17,7 +17,7 @@ public class Rules extends ICView<Rules> {
 
     public Rules activate() {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/img[1]")).click();
-//        driver.findElement(By.xpath("//*[@class=\"qtip-content\"]//*[text() ='Activate']")).click();
+//        driver.element(By.xpath("//*[@class=\"qtip-content\"]//*[text() ='Activate']")).click();
         driver.findElement(By.xpath("//div[contains(@class,\"qtip\") and contains(@aria-hidden, \"false\")]//div[@class='qtip-content']/a[text()='Activate']")).click();
         return this;
     }
