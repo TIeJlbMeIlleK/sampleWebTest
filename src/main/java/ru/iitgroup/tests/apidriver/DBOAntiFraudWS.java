@@ -71,7 +71,7 @@ public class DBOAntiFraudWS {
 
     public void verifyHTTPanswer() {
         if (lastResponseCode != 200 || lastResponse == null) throw
-                new ICMalfunctionError(String.format("No data, IC Respone code %d", lastResponse));
+                new ICMalfunctionError(String.format("No data, IC Respone code %s", lastResponse));
     }
 
 

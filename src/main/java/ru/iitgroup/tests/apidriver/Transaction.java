@@ -14,14 +14,6 @@ public class Transaction {
     private static List<String> lines;
     private String body;
 
-    public static void main(String[] args) throws IOException {
-        final String x = Transaction.fromFile("tran1.xml")
-                .withDBOId(11111111)
-                .withTransactionId(222222222)
-                .toString();
-
-        System.out.println(x);
-    }
 
     public static Transaction fromFile(String fileName) throws IOException {
         Transaction t = new Transaction();
@@ -57,7 +49,7 @@ public class Transaction {
     }
 
     public Transaction replaceTag(String tagName, Object replaceBy) {
-        final String regex = " (.+>)(.+)(<.+)";
+        final String regex = "(.+>)(.+)(<.+)";
         final Pattern pattern = Pattern.compile(regex);
 
         for (int i = 0; i < lines.size(); i++) {
