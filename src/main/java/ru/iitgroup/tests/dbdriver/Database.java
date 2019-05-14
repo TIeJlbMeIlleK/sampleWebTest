@@ -75,4 +75,12 @@ public class Database implements AutoCloseable {
         checkFormula(formula);
         this.formula = formula;
     }
+
+    public String[][] getSQLData(String sql){
+        try {
+            return SQLUtil.getSQLData( conn, sql);
+        } catch (SQLException e) {
+            throw new RuntimeException( SQLUtil.explainSQLException(e),e);
+        }
+    }
 }
