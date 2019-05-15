@@ -4,7 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class ReferenceTableEdit<T extends ICView> extends ICView<T>{
+public class ReferenceTableEdit extends ICView{
 
     private static final String SAVE_ACTION = "Save";
 
@@ -17,7 +17,7 @@ public class ReferenceTableEdit<T extends ICView> extends ICView<T>{
         throw new IllegalStateException("Not implemented yet");
     }
 
-    public ReferenceTableEdit<T> fillMasked(AllFields field, String fieldText) {
+    public ReferenceTableEdit fillMasked(AllFields field, String fieldText) {
         final WebElement element;
         icxpath()
                 .element(field.heading)
@@ -26,9 +26,20 @@ public class ReferenceTableEdit<T extends ICView> extends ICView<T>{
         return this;
     }
 
-    public ReferenceTableRecord<T> save() {
+    public ReferenceTableRecord save() {
         driver.findElement(By.linkText(SAVE_ACTION)).click();
-        return  new ReferenceTableRecord<>(driver);
+        return new ReferenceTableRecord(driver);
     }
 
+    @Override
+    public ReferenceTableEdit selectVisible() {
+        super.selectVisible();
+        return this;
+    }
+
+    @Override
+    public ReferenceTableEdit sleep(double seconds) {
+        super.sleep(seconds);
+        return this;
+    }
 }

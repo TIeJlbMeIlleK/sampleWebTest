@@ -3,8 +3,19 @@ package ru.iitgroup.tests.webdriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class Rules extends ICView<Rules> {
+public class Rules extends ICView {
 
+    @Override
+    public Rules selectVisible() {
+         super.selectVisible();
+         return this;
+    }
+
+    @Override
+    public Rules sleep(double seconds) {
+        super.sleep(seconds);
+        return this;
+    }
 
     public Rules(RemoteWebDriver driver) {
         super(driver);

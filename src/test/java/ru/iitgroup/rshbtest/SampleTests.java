@@ -28,7 +28,9 @@ public class SampleTests extends RSHBTests {
                     .sleep(0.5)
                     .selectRule("R01_ExR_04_InfectedDevice")
                     .sleep(0.5)
-                    .activate();
+                    .activate()
+                    .sleep(3)
+                    ;
         } catch (Exception ex) {
             final String message = String.format("IC error: %s", ex.getMessage());
             ic.takeScreenshot();

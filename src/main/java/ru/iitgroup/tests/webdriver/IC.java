@@ -70,10 +70,10 @@ public class IC implements AutoCloseable {
         }
     }
 
-    public ReferenceTable<ReferenceTable> locateTable(AllTables table) {
+    public ReferenceTable locateTable(AllTables table) {
         locateView(TopMenu.REFERENCE_DATA);
         driver.findElement(By.linkText(table.heading)).click();
-        return new ReferenceTable<>(driver);
+        return new ReferenceTable(driver);
     }
 
     public Rules locateRules() {
