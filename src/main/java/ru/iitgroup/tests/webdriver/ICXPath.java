@@ -127,6 +127,19 @@ public class ICXPath {
         return get();
     }
 
+    public ICXPath specify(String additionalCondition) {
+        final String current = sb.toString();
+        sb.setLength(0);
+        sb
+                .append("(")
+                .append(current)
+                .append(")")
+                .append("[")
+                .append(additionalCondition)
+                .append("]");
+        return this;
+    }
+
 
     public enum WebElements {
         INPUT("input"),

@@ -5,7 +5,10 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
+
+import ru.iitgroup.classnames.BaseNameTable;
 import ru.iitgroup.tests.properties.TestProperties;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -73,6 +76,11 @@ public class IC implements AutoCloseable {
     public ReferenceTable locateTable(AllTables table) {
         locateView(TopMenu.REFERENCE_DATA);
         driver.findElement(By.linkText(table.heading)).click();
+        return new ReferenceTable(driver);
+    }
+    public ReferenceTable locateTable(BaseNameTable table) {
+        locateView(TopMenu.REFERENCE_DATA);
+        driver.findElement(By.linkText(table.tableName)).click();
         return new ReferenceTable(driver);
     }
 

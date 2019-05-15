@@ -1,16 +1,15 @@
 package ru.iitgroup.tests.webdriver;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class ReferenceTableEdit extends ICView{
+public class ReferenceTableEdit extends ICView {
 
     private static final String SAVE_ACTION = "Save";
 
 
     public ReferenceTableEdit(RemoteWebDriver driver) {
-       super(driver);
+        super(driver);
     }
 
     public static void deleteRecord() {
@@ -18,9 +17,12 @@ public class ReferenceTableEdit extends ICView{
     }
 
     public ReferenceTableEdit fillMasked(AllFields field, String fieldText) {
-        final WebElement element;
+        return fillMasked(field.heading, fieldText);
+    }
+
+    public ReferenceTableEdit fillMasked(String fieldName, String fieldText) {
         icxpath()
-                .element(field.heading)
+                .element(fieldName)
                 .following(ICXPath.WebElements.INPUT)
                 .type(fieldText);
         return this;

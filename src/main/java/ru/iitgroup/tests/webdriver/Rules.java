@@ -1,6 +1,7 @@
 package ru.iitgroup.tests.webdriver;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class Rules extends ICView {
@@ -22,7 +23,27 @@ public class Rules extends ICView {
     }
 
     public Rules selectRule(String heading) {
-        driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='" + heading + "'])[1]/preceding::input[2]")).click();
+        //language=XPath
+        final String xpath = ".//*[normalize-space(text())='" + heading + "'][1]/preceding::input[2][@type='checkbox']";
+
+        final WebElement ruleCheckBox = driver.findElement(By.xpath(".//*[text()='R01_ExR_04_InfectedDevice'][1]/preceding::input[2][@type='checkbox']"));
+
+
+//
+//        WebElement ruleCheckBox = icxpath()
+//                .element(heading)
+//                .preceding(ICXPath.WebElements.INPUT,2)
+//                .specify("@type='checkbox'")
+//                .locate();
+        ruleCheckBox.click();
+        while ( !ruleCheckBox.isSelected()){
+            System.out.println("waiting 1ms");
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         return this;
     }
 

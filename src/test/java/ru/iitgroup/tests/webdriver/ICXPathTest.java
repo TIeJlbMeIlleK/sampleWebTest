@@ -4,7 +4,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
-import static ru.iitgroup.tests.webdriver.ICXPath.WebElements.*;
+import static ru.iitgroup.tests.webdriver.ICXPath.WebElements.IMG;
+import static ru.iitgroup.tests.webdriver.ICXPath.WebElements.INPUT;
 
 public class ICXPathTest {
 
@@ -12,11 +13,12 @@ public class ICXPathTest {
 
     @BeforeMethod
     public void setUp() {
-        icxp = new ICXPath( null);
+        icxp = new ICXPath(null);
     }
 
     @Test
     public void testPreceding() {
+        //language=XPath
         final String expected = "(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/preceding::img[1]";
         final String xpath = icxp
                 .element("Actions", 1)
@@ -28,6 +30,7 @@ public class ICXPathTest {
 
     @Test
     public void testFollowing() {
+        //language=XPath
         final String expected = "(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/following::input[1]";
         final String xpath = icxp
                 .element("Actions", 1)
@@ -39,6 +42,7 @@ public class ICXPathTest {
 
     @Test
     public void testSubelement() {
+        //language=XPath
         final String expected = "(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/img[1]";
         final String xpath = icxp
                 .element("Actions", 1)
@@ -49,13 +53,25 @@ public class ICXPathTest {
 
     @Test
     public void testRow() {
+        //language=XPath
         final String expected = ".//*[contains(text(),'123456789') and contains(text(),'123456789123')]";
 
         final String xpath = icxp
-                .row("123456789","123456789123")
+                .row("123456789", "123456789123")
                 .get();
         assertEquals(xpath, expected);
     }
 
+    @Test
+    public void testSpecify() {
+        //language=XPath
+        final String expected = ".//*[normalize-space(text())='R01_ExR_04_InfectedDevice'][1]/preceding::input[2][@type='checkbox']";
+        final String xpath = icxp
+                .element("R01_ExR_04_InfectedDevice")
+                .preceding(INPUT, 2)
+                .specify("@type='checkbox'")
+                .get();
+        assertEquals(xpath, expected);
+    }
 
 }
