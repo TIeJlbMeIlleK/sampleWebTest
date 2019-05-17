@@ -2,11 +2,13 @@ package ru.iitgroup.tests.ves.mock;
 
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpResponse;
-import ru.iitdgroup.solution.utils.file.FileUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.mockserver.model.HttpRequest.request;
 
@@ -78,7 +80,10 @@ public class VesMock {
 
     public VesMock withVesResponse(String vesResponseFile) {
         try {
-            String vesResponse = FileUtil.readFile(vesResponseFile, StandardCharsets.UTF_8);
+            this.vesResponse = Files.lines(
+                    Paths.get(vesResponseFile),
+                    StandardCharsets.UTF_8)
+                    .collect(Collectors.joining(System.lineSeparator()));
             this.vesResponse = vesResponse;
         } catch (IOException e) {
             e.printStackTrace();
@@ -88,8 +93,10 @@ public class VesMock {
 
     public VesMock withVesExtendResponse(String vesExtendResponseFile) {
         try {
-            String vesExtendResponse = FileUtil.readFile(vesExtendResponseFile, StandardCharsets.UTF_8);
-            this.vesExtendResponse = vesExtendResponse;
+            this.vesResponse = Files.lines(
+                    Paths.get(vesExtendResponseFile),
+                    StandardCharsets.UTF_8)
+                    .collect(Collectors.joining(System.lineSeparator()));
         } catch (IOException e) {
             e.printStackTrace();
         }
