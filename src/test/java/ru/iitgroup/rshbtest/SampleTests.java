@@ -1,6 +1,8 @@
 package ru.iitgroup.rshbtest;
 
 
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.annotations.Test;
 import ru.iitgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitgroup.tests.apidriver.Transaction;
@@ -30,13 +32,12 @@ public class SampleTests extends RSHBTests {
                     .sleep(0.5)
                     .activate()
                     .sleep(3)
-                    ;
+            ;
         } catch (Exception ex) {
             final String message = String.format("IC error: %s", ex.getMessage());
             ic.takeScreenshot();
             fail(message);
-        }
-        finally {
+        } finally {
             ic.getDriver().close();
 
         }
@@ -93,9 +94,9 @@ public class SampleTests extends RSHBTests {
         try {
             ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ)
                     .addRecord()
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$БИК,"123456789")
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$СЧЁТ,"12345678912345678912")
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$ПРИЧИНА_ЗАНЕСЕНИЯ,"Автоматическая обработка")
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$БИК, "123456789")
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$СЧЁТ, "12345678912345678912")
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$ПРИЧИНА_ЗАНЕСЕНИЯ, "Автоматическая обработка")
                     .save();
         } finally {
             ic.close();
@@ -107,17 +108,65 @@ public class SampleTests extends RSHBTests {
         IC ic = new IC(props);
         try {
             ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ)
-                    .selectRecord("123456789","123456789123")
+                    .selectRecord("123456789", "123456789123")
                     .edit()
                     //FIXME: что-то в IC не успевает отрабатывать, и надо бы ловить это не задержкой по времени, а появлением соответствующего элемента на странице
                     .sleep(0.5)
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$БИК,"987654321")
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$СЧЁТ,"98765432198765432198")
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$ПРИЧИНА_ЗАНЕСЕНИЯ,"Автоматическая обработка")
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$БИК, "987654321")
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$СЧЁТ, "98765432198765432198")
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$ПРИЧИНА_ЗАНЕСЕНИЯ, "Автоматическая обработка")
                     .save();
         } finally {
             ic.close();
         }
+    }
+
+    @Test
+    public void testSelectRowByJava() throws Exception {
+        try (IC ic = new IC(props)) {
+            ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ);
+            final RemoteWebDriver d = ic.getDriver();
+
+            /*
+            для элементов заголовка - перебирать tr[1] через th[*]
+            //div[@class='panelTable af_table']/table[2]/tbody/tr[1]/th[4]//span
+
+            для элементов таблицы - перебирать tr[2-*] через td[*]
+            //div[@class='panelTable af_table']/table[2]/tbody/tr[2]/td[4]//span
+             */
+
+
+            final String ROW = "%row%";
+            final String COL = "%col%";
+            final String thXpath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[1]/th[*]//span";
+            final String tdXpath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[%col%]//span";
+
+
+            final String[] heads = d.findElementsByXPath(thXpath.replaceAll(ROW, "1").replaceAll(COL, "*"))
+                    .stream()
+                    .map(WebElement::getText)
+                    .toArray(String[]::new);
+            final int rowCount = d.findElementsByXPath("//div[@class='panelTable af_table']//table[2]/tbody/tr[*]")
+                    .size() - 1; //первая строка - заголовок
+
+
+            final String[][] data = new String[rowCount][heads.length];
+            for (int i = 0; i < rowCount; i++) {
+                for (int j = 0; j < heads.length; j++) {
+                    final String xpath = tdXpath
+                            .replaceAll(ROW, String.valueOf(i + 2))  //начина со второй (по меркам XPath) строки
+                            .replaceAll(COL, String.valueOf(j + 4));
+                    data[i][j] = d.findElementByXPath(xpath  //данные начинаются с 4 столбца
+                    ).getText();
+                }
+            }
+
+            System.out.println(String.join("\t",heads));
+            for (String[] row : data) {
+                System.out.println(String.join("\t", row));
+            }
+        }
+
     }
 
 }

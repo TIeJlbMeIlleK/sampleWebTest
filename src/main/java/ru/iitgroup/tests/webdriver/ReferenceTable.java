@@ -21,7 +21,7 @@ public class ReferenceTable extends ICView{
 
     public ReferenceTableRecord selectRecord(String... rowValues) {
         icxpath()
-                .row("123456789","123456789123")
+                .row(rowValues)
                 .click();
         return new ReferenceTableRecord(driver);
     }
