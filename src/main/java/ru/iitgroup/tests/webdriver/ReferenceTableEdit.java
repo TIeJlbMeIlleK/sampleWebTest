@@ -1,6 +1,7 @@
 package ru.iitgroup.tests.webdriver;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class ReferenceTableEdit extends ICView {
@@ -29,7 +30,9 @@ public class ReferenceTableEdit extends ICView {
     }
 
     public ReferenceTableRecord save() {
-        driver.findElement(By.linkText(SAVE_ACTION)).click();
+        final WebElement element = driver.findElementByXPath("//a[@id='btnSave']");
+       // System.out.println("============ enabled ========= "+element.isEnabled());
+        element.click();
         return new ReferenceTableRecord(driver);
     }
 

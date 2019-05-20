@@ -1,6 +1,7 @@
 package ru.iitgroup.tests.webdriver;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -117,9 +118,28 @@ public class ICXPath {
 
     public WebElement type(String newText) {
         final WebElement element = locate();
-        element.clear();
+        //waitFor( element);
+        clear(element);
         element.sendKeys(newText);
         return element;
+    }
+
+
+    private void clear(WebElement element){
+       // waitFor(element);
+        //element.sendKeys(Keys.chord(Keys.CONTROL, "A"), "55");
+        element.clear();
+    }
+
+    private void waitFor(WebElement element) {
+        while ( !(element.isDisplayed() && element.isEnabled())){
+            try {
+                Thread.sleep(100);
+                System.out.println("Waiting for element: "+get());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

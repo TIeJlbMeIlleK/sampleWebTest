@@ -32,6 +32,7 @@ public class ReferenceTable extends ICView {
         return new ReferenceTableEdit(driver);
     }
 
+
     public ReferenceTable readData() {
         /*
             для элементов заголовка - перебирать tr[1] через th[*]
@@ -92,13 +93,14 @@ public class ReferenceTable extends ICView {
         return matchedRows;
     }
 
-    public ReferenceTable clickOn(int row) {
+    public ReferenceTableRecord click(int row) {
         final String xpath = firstColXPath.replaceAll(ROW, String.valueOf(row + 2));
         driver.findElementByXPath(xpath).click();
-        return this;
+        return new ReferenceTableRecord( driver);
     }
 
     public RowMatches findRowsBy() {
+        readData();
         return new RowMatches(this);
     }
 
@@ -112,11 +114,15 @@ public class ReferenceTable extends ICView {
     }
 
 
+    public ReferenceTable select(int nth) {
+        final String xpath = checkBoxXPath.replaceAll(ROW, String.valueOf(nth));
+        WebElement cbx = driver.findElementByXPath(xpath);
+        cbx.click();
+        return this;
+    }
+
     public class RowMatches {
-
-
         private final ReferenceTable parent;
-
         private final List<RowMatch> matches = new ArrayList<>();
 
         public RowMatches(ReferenceTable parent) {
@@ -128,25 +134,18 @@ public class ReferenceTable extends ICView {
             return this;
         }
 
-        public ReferenceTable click() {
+        public ReferenceTableRecord click() {
             return click(1);
         }
 
-        public ReferenceTable click(int nth) {
-            return clickOn(nth - 1);
+        public ReferenceTableRecord click(int nth) {
+            return ReferenceTable.this.click(getAll().get(nth-1));
         }
 
         public ReferenceTable select() {
             for (Integer rowNum : getAll()) {
-                select(rowNum);
+                ReferenceTable.this.select(rowNum);
             }
-            return parent;
-        }
-
-        public ReferenceTable select(int nth) {
-            final String xpath = checkBoxXPath.replaceAll(ROW, String.valueOf(nth));
-            WebElement cbx = driver.findElementByXPath(xpath);
-            cbx.click();
             return parent;
         }
 

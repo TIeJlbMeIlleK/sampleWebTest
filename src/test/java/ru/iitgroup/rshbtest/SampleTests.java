@@ -3,6 +3,7 @@ package ru.iitgroup.rshbtest;
 
 import org.testng.annotations.Test;
 import ru.iitgroup.tests.apidriver.DBOAntiFraudWS;
+import ru.iitgroup.tests.apidriver.ICMalfunctionError;
 import ru.iitgroup.tests.apidriver.Transaction;
 import ru.iitgroup.tests.dbdriver.Database;
 import ru.iitgroup.tests.webdriver.AllFields;
@@ -10,6 +11,7 @@ import ru.iitgroup.tests.webdriver.IC;
 import ru.iitgroup.tests.webdriver.ReferenceTable;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Random;
 
@@ -108,15 +110,27 @@ public class SampleTests extends RSHBTests {
         IC ic = new IC(props);
         try {
             ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ)
-                    .selectRecord("123456789", "123456789123")
+                    //.selectRecord("123456789", "123456789123")
+                    .findRowsBy()
+                    .match("Бик банка VIP", "987654321")
+                    .match("Счет получатель VIP", "98765432198765432198")
+                    .click()
                     .edit()
                     //FIXME: что-то в IC не успевает отрабатывать, и надо бы ловить это не задержкой по времени, а появлением соответствующего элемента на странице
                     .sleep(0.5)
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$БИК, "987654321")
+                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$БИК, "987654322")
                     .fillMasked(AllFields.VIP_БИК_СЧЁТ$СЧЁТ, "98765432198765432198")
                     .fillMasked(AllFields.VIP_БИК_СЧЁТ$ПРИЧИНА_ЗАНЕСЕНИЯ, "Автоматическая обработка")
+                    .sleep(2)
                     .save();
-        } finally {
+
+        }
+        catch (Exception e){
+            Path pic = ic.takeScreenshot();
+            throw  new ICMalfunctionError(e.getMessage()+", picture at "+pic.toAbsolutePath(),e);
+        }
+
+        finally {
             ic.close();
         }
     }
@@ -146,12 +160,12 @@ public class SampleTests extends RSHBTests {
             rm
                     .select()
                     .sleep(2);
-                    //TODO: дописать тестовый код, позволяющий убедиться в том, что строки действительно выбрались, а пока - смотреть глазами
+            //TODO: дописать тестовый код, позволяющий убедиться в том, что строки действительно выбрались, а пока - смотреть глазами
 
             final List<Integer> foundRows = rm.getAll();
             assertEquals(foundRows.size(), 2);
 
-            referenceTable.clickOn(foundRows.get(0));
+            referenceTable.click(foundRows.get(0));
 
             referenceTable.sleep(2);
 
