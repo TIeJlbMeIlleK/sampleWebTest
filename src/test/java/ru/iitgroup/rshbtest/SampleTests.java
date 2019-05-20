@@ -133,16 +133,26 @@ public class SampleTests extends RSHBTests {
 //                System.out.println(String.join("\t", row));
 //            }
 
-            final List<Integer> foundRows = referenceTable
-                    .findRowsBy()
-                    .match("Бик банка VIP", "987654321")
-                    .match("Счет получатель VIP", "98765432198765432198")
+
+            ReferenceTable.RowMatches rm =
+
+
+                    referenceTable
+                            .findRowsBy()
+                            .match("Бик банка VIP", "987654321")
+                            .match("Счет получатель VIP", "98765432198765432198")
 //                    .match("Comment","123")
-                    .getAll();
+                    ;
+            rm
+                    .select()
+                    .sleep(2);
+                    //TODO: дописать тестовый код, позволяющий убедиться в том, что строки действительно выбрались, а пока - смотреть глазами
 
-            assertEquals(foundRows.size(),2);
+            final List<Integer> foundRows = rm.getAll();
+            assertEquals(foundRows.size(), 2);
 
-            referenceTable.clickOn( foundRows.get(0));
+            referenceTable.clickOn(foundRows.get(0));
+
             referenceTable.sleep(2);
 
         }

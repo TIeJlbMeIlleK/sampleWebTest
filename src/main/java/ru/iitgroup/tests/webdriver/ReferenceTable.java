@@ -8,13 +8,14 @@ import java.util.List;
 
 public class ReferenceTable extends ICView {
 
+    private final String ROW = "%row%";
+    private final String COL = "%col%";
+    private final String thXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[1]/th[*]//span";
+    private final String tdXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[%col%]//span";
+    private final String allRowsXPath = "//div[@class='panelTable af_table']//table[2]/tbody/tr[*]";
+    private final String firstColXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[4]//span";
+    private final String checkBoxXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[1]/input";
 
-    final String ROW = "%row%";
-    final String COL = "%col%";
-    final String thXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[1]/th[*]//span";
-    final String tdXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[%col%]//span";
-    final String allRowsXPath = "//div[@class='panelTable af_table']//table[2]/tbody/tr[*]";
-    final String firstColXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[4]//span";
     public String[] heads;
     public String[][] data;
 
@@ -29,14 +30,6 @@ public class ReferenceTable extends ICView {
                 .preceding(ICXPath.WebElements.IMG)
                 .click();
         return new ReferenceTableEdit(driver);
-    }
-
-    public ReferenceTableRecord selectRecord(String... rowValues) {
-        icxpath()
-                .row(rowValues)
-                .click();
-        return new ReferenceTableRecord(driver);
-
     }
 
     public ReferenceTable readData() {
@@ -69,8 +62,7 @@ public class ReferenceTable extends ICView {
         return this;
     }
 
-
-     List<Integer> matchedRows(List<RowMatch> rowMatches) {
+    List<Integer> matchedRows(List<RowMatch> rowMatches) {
         List<Integer> matchedRows = new ArrayList<>();
         for (int row = 0; row < data.length; row++) {
             boolean found = true;
@@ -107,22 +99,29 @@ public class ReferenceTable extends ICView {
     }
 
     public RowMatches findRowsBy() {
-        return new RowMatches();
+        return new RowMatches(this);
     }
 
     @Deprecated
-    public void setData(String[][] data) {
-        this.data = data;
-    }
+    public ReferenceTableRecord selectRecord(String... rowValues) {
+        icxpath()
+                .row(rowValues)
+                .click();
+        return new ReferenceTableRecord(driver);
 
-    @Deprecated
-    public void setHeads(String[] heads) {
-        this.heads = heads;
     }
 
 
     public class RowMatches {
+
+
+        private final ReferenceTable parent;
+
         private final List<RowMatch> matches = new ArrayList<>();
+
+        public RowMatches(ReferenceTable parent) {
+            this.parent = parent;
+        }
 
         public RowMatches match(String colHeading, String rowText) {
             matches.add(new RowMatch(colHeading, rowText));
@@ -137,16 +136,29 @@ public class ReferenceTable extends ICView {
             return clickOn(nth - 1);
         }
 
+        public ReferenceTable select() {
+            for (Integer rowNum : getAll()) {
+                select(rowNum);
+            }
+            return parent;
+        }
+
+        public ReferenceTable select(int nth) {
+            final String xpath = checkBoxXPath.replaceAll(ROW, String.valueOf(nth));
+            WebElement cbx = driver.findElementByXPath(xpath);
+            cbx.click();
+            return parent;
+        }
+
+        List<RowMatch> get() {
+            return matches;
+        }
+
         public List<Integer> getAll() {
             return matchedRows(matches);
         }
 
-        List<RowMatch> get(){
-            return matches;
-        }
-
     }
-
 
     public class RowMatch {
         private final String colHeading;
@@ -157,5 +169,15 @@ public class ReferenceTable extends ICView {
             this.rowText = rowText;
         }
 
+    }
+
+    @Deprecated
+    public void setData(String[][] data) {
+        this.data = data;
+    }
+
+    @Deprecated
+    public void setHeads(String[] heads) {
+        this.heads = heads;
     }
 }
