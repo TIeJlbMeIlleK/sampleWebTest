@@ -91,7 +91,7 @@ public class SampleTests extends RSHBTests {
 
 
     @Test
-    public void addReferenceTable() throws Exception {
+    public void addRecord() throws Exception {
         IC ic = new IC(props);
         try {
             ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ)
@@ -106,7 +106,7 @@ public class SampleTests extends RSHBTests {
     }
 
     @Test
-    public void editReferenceTable() throws Exception {
+    public void editRecord() throws Exception {
         IC ic = new IC(props);
         try {
             ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ)
@@ -114,20 +114,16 @@ public class SampleTests extends RSHBTests {
                     .findRowsBy()
                     .match("Бик банка VIP", "987654321")
                     .match("Счет получатель VIP", "98765432198765432198")
-                    .click()
                     .edit()
-                    //FIXME: что-то в IC не успевает отрабатывать, и надо бы ловить это не задержкой по времени, а появлением соответствующего элемента на странице
-                    .sleep(0.5)
                     .fillMasked(AllFields.VIP_БИК_СЧЁТ$БИК, "987654322")
                     .fillMasked(AllFields.VIP_БИК_СЧЁТ$СЧЁТ, "98765432198765432198")
                     .fillMasked(AllFields.VIP_БИК_СЧЁТ$ПРИЧИНА_ЗАНЕСЕНИЯ, "Автоматическая обработка")
-                    .sleep(2)
+                    //.sleep(2)
                     .save();
-
         }
         catch (Exception e){
-            Path pic = ic.takeScreenshot();
-            throw  new ICMalfunctionError(e.getMessage()+", picture at "+pic.toAbsolutePath(),e);
+
+            throw  new ICMalfunctionError(e,ic.takeScreenshot());
         }
 
         finally {
@@ -135,6 +131,25 @@ public class SampleTests extends RSHBTests {
         }
     }
 
+
+    @Test
+    public void testDeleteRecord() throws Exception {
+        IC ic = new IC(props);
+        try {
+            ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ)
+                    .findRowsBy()
+                    .match("ID","00044")
+                    .delete();
+        } catch (Exception e){
+            throw new ICMalfunctionError(e,ic.takeScreenshot());
+        }
+        finally {
+
+            ic.close();
+        }
+        ;
+    }
+    
     @Test
     public void testSelectRowByJava() throws Exception {
         try (IC ic = new IC(props)) {
@@ -148,7 +163,7 @@ public class SampleTests extends RSHBTests {
 //            }
 
 
-            ReferenceTable.RowMatches rm =
+            ReferenceTable.Formula rm =
 
 
                     referenceTable
@@ -162,7 +177,7 @@ public class SampleTests extends RSHBTests {
                     .sleep(2);
             //TODO: дописать тестовый код, позволяющий убедиться в том, что строки действительно выбрались, а пока - смотреть глазами
 
-            final List<Integer> foundRows = rm.getAll();
+            final List<Integer> foundRows = rm.getMatchedRows().get();
             assertEquals(foundRows.size(), 2);
 
             referenceTable.click(foundRows.get(0));

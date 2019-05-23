@@ -8,6 +8,8 @@ import java.util.List;
 
 public class ReferenceTable extends ICView {
 
+    public  static final int FIRST_ROW = 2; //данные в IC начинаются со 2-ой строчки
+    public  static final int FIRST_COL = 4; //данные в IC начинаются с 4-ой колонки
     private final String ROW = "%row%";
     private final String COL = "%col%";
     private final String thXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[1]/th[*]//span";
@@ -24,15 +26,6 @@ public class ReferenceTable extends ICView {
 
     }
 
-    public ReferenceTableEdit addRecord() {
-        icxpath()
-                .element("Actions")
-                .preceding(ICXPath.WebElements.IMG)
-                .click();
-        return new ReferenceTableEdit(driver);
-    }
-
-
     public ReferenceTable readData() {
         /*
             для элементов заголовка - перебирать tr[1] через th[*]
@@ -41,6 +34,8 @@ public class ReferenceTable extends ICView {
             для элементов таблицы - перебирать tr[2-*] через td[*]
             //div[@class='panelTable af_table']/table[2]/tbody/tr[2]/td[4]//span
             */
+
+        if (data != null) return this;
 
         heads = driver.findElementsByXPath(thXPath)
                 .stream()
@@ -53,9 +48,13 @@ public class ReferenceTable extends ICView {
         data = new String[rowCount][heads.length];
         for (int i = 0; i < rowCount; i++) {
             for (int j = 0; j < heads.length; j++) {
+                //FIXME: ускорить загрузку данных - загружать по колонкам, через XPath
+                /*
+                div[@class='panelTable af_table']/table[2]/tbody/tr[*]/td[%col%]//span
+                 */
                 final String xpath = tdXPath
-                        .replaceAll(ROW, String.valueOf(i + 2))  //начина со второй  строки
-                        .replaceAll(COL, String.valueOf(j + 4)); //данные начинаются с четвёртого столбца
+                        .replaceAll(ROW, String.valueOf(i + FIRST_ROW))  //начина со второй  строки
+                        .replaceAll(COL, String.valueOf(j + FIRST_COL)); //данные начинаются с четвёртого столбца
                 data[i][j] = driver.findElementByXPath(xpath
                 ).getText().trim();
             }
@@ -63,107 +62,166 @@ public class ReferenceTable extends ICView {
         return this;
     }
 
-    List<Integer> matchedRows(List<RowMatch> rowMatches) {
-        List<Integer> matchedRows = new ArrayList<>();
-        for (int row = 0; row < data.length; row++) {
-            boolean found = true;
-            for (RowMatch rowMatch : rowMatches) {
-                /*
-                Поиск номера колонки по тексту
-                 */
-                Integer foundCol = null;
-                for (int col = 0; col < heads.length; col++) {
-                    if (heads[col].equals(rowMatch.colHeading)) {
-                        foundCol = col;
-                        break;
-                    }
-                }
-                if (foundCol == null) {
-                    throw new IllegalStateException(String.format("Не найдена колонка с названием [%s]", rowMatch.colHeading));
-                }
-                if (!data[row][foundCol].equals(rowMatch.rowText)) {
-                    found = false;
-                    break;
-                }
-            }
-            if (found) {
-                matchedRows.add(row);
-            }
-        }
-        return matchedRows;
-    }
-
-    public ReferenceTableRecord click(int row) {
-        final String xpath = firstColXPath.replaceAll(ROW, String.valueOf(row + 2));
-        driver.findElementByXPath(xpath).click();
-        return new ReferenceTableRecord( driver);
-    }
-
-    public RowMatches findRowsBy() {
-        readData();
-        return new RowMatches(this);
-    }
-
-    @Deprecated
-    public ReferenceTableRecord selectRecord(String... rowValues) {
+    /**
+     * Добавить запись
+     *
+     * @return
+     */
+    public ReferenceTableEdit addRecord() {
         icxpath()
-                .row(rowValues)
+                .element("Actions")
+                .preceding(ICXPath.WebElements.IMG)
                 .click();
-        return new ReferenceTableRecord(driver);
+        return new ReferenceTableEdit(driver);
+    }
 
+    /**
+     * Щёлкнуть на стрке в таблице
+     *
+     * @param technicalRow точный (в терминах XPath) номер строки, на который кликать.
+     *                     В IC - начиная со второй
+     * @return
+     */
+    public ReferenceTableRecord click(int technicalRow) {
+        final String xpath = firstColXPath.replaceAll(ROW, String.valueOf(technicalRow));
+        driver.findElementByXPath(xpath).click();
+        return new ReferenceTableRecord(driver);
+    }
+
+    /**
+     * Войти в контекст задания условий отбора строчек
+     *
+     * @return
+     */
+    public Formula findRowsBy() {
+        readData();
+        return new Formula();
     }
 
 
-    public ReferenceTable select(int nth) {
-        final String xpath = checkBoxXPath.replaceAll(ROW, String.valueOf(nth));
+    /**
+     * Выбрать строчку в таблице (установить checkbox)
+     *
+     * @param technicalRow точный (в терминах XPath) номер строки, на который кликать.
+     *                     *                     В IC - начиная со второй
+     * @return
+     */
+    public ReferenceTable select(int technicalRow) {
+        final String xpath = checkBoxXPath.replaceAll(ROW, String.valueOf(technicalRow));
         WebElement cbx = driver.findElementByXPath(xpath);
         cbx.click();
         return this;
     }
 
-    public class RowMatches {
-        private final ReferenceTable parent;
-        private final List<RowMatch> matches = new ArrayList<>();
+    /**
+     * Удалить запись из таблицы
+     *
+     * @param technicalRow точный (в терминах XPath) номер строки, на который кликать.
+     *                     *                     В IC - начиная со второй
+     * @return
+     */
+    public ReferenceTable delete(int technicalRow) {
+        if (data == null) readData();
+        select(technicalRow);
+        return delete();
+    }
 
-        public RowMatches(ReferenceTable parent) {
-            this.parent = parent;
-        }
 
-        public RowMatches match(String colHeading, String rowText) {
-            matches.add(new RowMatch(colHeading, rowText));
+    public ReferenceTable delete() {
+        driver.findElementByXPath("//span[text()='Actions']").click();
+        driver.findElementByXPath("//div[contains(@class,'qtip') and contains(@aria-hidden, 'false')]//div[@class='qtip-content']/a[text()='Delete']").click();
+        driver.findElementsByXPath("//button[2]/span[text()='Yes']")
+                .forEach( e-> System.out.println(String.format("Displayed: %b, Enabled: %b, Text: %s",e.isDisplayed(),e.isEnabled(),e.getText())));
+        sleep(5);
+
+
+        return this;
+    }
+
+
+    public class Formula {
+        private final List<Expression> matches = new ArrayList<>();
+        private MatchedRows matchedRows;
+
+        public Formula match(String colHeading, String rowText) {
+            matches.add(new Expression(colHeading, rowText));
             return this;
         }
 
-        public ReferenceTableRecord click() {
-            return click(1);
+        public MatchedRows getMatchedRows(){
+            return matchedRows==null? new MatchedRows(matches): matchedRows;
         }
 
-        public ReferenceTableRecord click(int nth) {
-            return ReferenceTable.this.click(getAll().get(nth-1));
+        public ReferenceTableRecord click() {
+            return ReferenceTable.this.click(getMatchedRows().get(1));
         }
+
 
         public ReferenceTable select() {
-            for (Integer rowNum : getAll()) {
+            for (Integer rowNum : getMatchedRows().get()) {
                 ReferenceTable.this.select(rowNum);
             }
-            return parent;
+            return ReferenceTable.this;
         }
 
-        List<RowMatch> get() {
-            return matches;
+        public ReferenceTableEdit edit() {
+            return click().edit();
         }
 
-        public List<Integer> getAll() {
-            return matchedRows(matches);
+        public ReferenceTable delete() {
+            return select().delete();
         }
 
     }
 
-    public class RowMatch {
+    public class MatchedRows {
+        final List<Integer> matchedRows;
+
+        public MatchedRows(List<Expression> expressions) {
+            matchedRows = new ArrayList<>();
+            if (data == null) readData();
+            for (int row = 0; row < data.length; row++) {
+                boolean found = true;
+                for (Expression expression : expressions) {
+                /*
+                Поиск номера колонки по тексту
+                 */
+                    Integer foundCol = null;
+                    for (int col = 0; col < heads.length; col++) {
+                        if (heads[col].equals(expression.colHeading)) {
+                            foundCol = col;
+                            break;
+                        }
+                    }
+                    if (foundCol == null) {
+                        throw new IllegalStateException(String.format("Не найдена колонка с названием [%s]", expression.colHeading));
+                    }
+                    if (!data[row][foundCol].equals(expression.rowText)) {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found) {
+                    matchedRows.add(row + FIRST_ROW); //в виде, пригодном для XPath
+                }
+            }
+        }
+
+        public Integer get( int index){
+          return  matchedRows.get(index);
+        }
+
+        public List<Integer> get(){
+            return  matchedRows;
+        }
+    }
+
+
+    public class Expression {
         private final String colHeading;
         private final String rowText;
 
-        RowMatch(String colHeading, String rowText) {
+        Expression(String colHeading, String rowText) {
             this.colHeading = colHeading;
             this.rowText = rowText;
         }

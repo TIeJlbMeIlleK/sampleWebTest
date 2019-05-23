@@ -2,6 +2,7 @@ package ru.iitgroup.tests.webdriver;
 
 import org.testng.annotations.Test;
 import static  org.testng.Assert.*;
+import static ru.iitgroup.tests.webdriver.ReferenceTable.FIRST_ROW;
 
 import java.util.List;
 
@@ -32,16 +33,14 @@ public class ReferenceTableTest {
 
         t.setData(data);
 
-        final List<ReferenceTable.RowMatch> rowMatches = t.findRowsBy()
+        final List<Integer> rowNums = t.findRowsBy()
                 .match(heads[2], data[7][2])
                 .match(heads[3], data[7][3])
+                .getMatchedRows()
                 .get();
 
-
-        final List<Integer> rowNums = t.matchedRows(rowMatches);
-
         assertEquals(rowNums.size(),2);
-        assertEquals(rowNums.get(0).intValue(),7);
-        assertEquals(rowNums.get(1).intValue(),8);
+        assertEquals(rowNums.get(0).intValue(),7+FIRST_ROW);
+        assertEquals(rowNums.get(1).intValue(),8+FIRST_ROW);
     }
 }
