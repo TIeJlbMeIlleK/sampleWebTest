@@ -1,15 +1,17 @@
-package ru.iitgroup.tests.webdriver;
+package ru.iitgroup.tests.webdriver.referencetable;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import ru.iitgroup.tests.webdriver.ic.ICView;
+import ru.iitgroup.tests.webdriver.ic.ICXPath;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ReferenceTable extends ICView {
 
-    public  static final int FIRST_ROW = 2; //данные в IC начинаются со 2-ой строчки
-    public  static final int FIRST_COL = 4; //данные в IC начинаются с 4-ой колонки
+    public static final int FIRST_ROW = 2; //данные в IC начинаются со 2-ой строчки
+    public static final int FIRST_COL = 4; //данные в IC начинаются с 4-ой колонки
     private final String ROW = "%row%";
     private final String COL = "%col%";
     private final String thXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[1]/th[*]//span";
@@ -18,12 +20,11 @@ public class ReferenceTable extends ICView {
     private final String firstColXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[4]//span";
     private final String checkBoxXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[1]/input";
 
-    public String[] heads;
-    public String[][] data;
+    private String[] heads;
+    private String[][] data;
 
     public ReferenceTable(RemoteWebDriver driver) {
         super(driver);
-
     }
 
     public ReferenceTable readData() {
@@ -98,12 +99,11 @@ public class ReferenceTable extends ICView {
         return new Formula();
     }
 
-
     /**
      * Выбрать строчку в таблице (установить checkbox)
      *
      * @param technicalRow точный (в терминах XPath) номер строки, на который кликать.
-     *                     *                     В IC - начиная со второй
+     *                     В IC - начиная со второй
      * @return
      */
     public ReferenceTable select(int technicalRow) {
@@ -117,7 +117,7 @@ public class ReferenceTable extends ICView {
      * Удалить запись из таблицы
      *
      * @param technicalRow точный (в терминах XPath) номер строки, на который кликать.
-     *                     *                     В IC - начиная со второй
+     *                     В IC - начиная со второй
      * @return
      */
     public ReferenceTable delete(int technicalRow) {
@@ -126,18 +126,15 @@ public class ReferenceTable extends ICView {
         return delete();
     }
 
-
     public ReferenceTable delete() {
         driver.findElementByXPath("//span[text()='Actions']").click();
         driver.findElementByXPath("//div[contains(@class,'qtip') and contains(@aria-hidden, 'false')]//div[@class='qtip-content']/a[text()='Delete']").click();
         driver.findElementsByXPath("//button[2]/span[text()='Yes']")
-                .forEach( e-> System.out.println(String.format("Displayed: %b, Enabled: %b, Text: %s",e.isDisplayed(),e.isEnabled(),e.getText())));
+                .forEach(e -> System.out.println(String.format("Displayed: %b, Enabled: %b, Text: %s", e.isDisplayed(), e.isEnabled(), e.getText())));
         sleep(5);
-
 
         return this;
     }
-
 
     public class Formula {
         private final List<Expression> matches = new ArrayList<>();
@@ -148,14 +145,13 @@ public class ReferenceTable extends ICView {
             return this;
         }
 
-        public MatchedRows getMatchedRows(){
-            return matchedRows==null? new MatchedRows(matches): matchedRows;
+        public MatchedRows getMatchedRows() {
+            return matchedRows == null ? new MatchedRows(matches) : matchedRows;
         }
 
         public ReferenceTableRecord click() {
             return ReferenceTable.this.click(getMatchedRows().get(1));
         }
-
 
         public ReferenceTable select() {
             for (Integer rowNum : getMatchedRows().get()) {
@@ -207,15 +203,14 @@ public class ReferenceTable extends ICView {
             }
         }
 
-        public Integer get( int index){
-          return  matchedRows.get(index);
+        public Integer get(int index) {
+            return matchedRows.get(index);
         }
 
-        public List<Integer> get(){
-            return  matchedRows;
+        public List<Integer> get() {
+            return matchedRows;
         }
     }
-
 
     public class Expression {
         private final String colHeading;
@@ -225,7 +220,6 @@ public class ReferenceTable extends ICView {
             this.colHeading = colHeading;
             this.rowText = rowText;
         }
-
     }
 
     @Deprecated

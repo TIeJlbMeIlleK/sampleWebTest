@@ -1,15 +1,15 @@
-package ru.iitgroup.tests.webdriver;
+package ru.iitgroup.tests.webdriver.ic;
 
-import com.sun.xml.internal.bind.api.impl.NameConverter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
 import ru.iitgroup.classnames.BaseNameTable;
 import ru.iitgroup.tests.properties.TestProperties;
-
+import ru.iitgroup.tests.webdriver.Rules;
+import ru.iitgroup.tests.webdriver.referencetable.ReferenceTable;
+import ru.iitgroup.tests.webdriver.importruletable.Context;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +24,8 @@ public class IC implements AutoCloseable {
 
     private final String CLOSE_ACTION = "Close";
     private final TestProperties props;
-    RemoteWebDriver driver;
 
+    private RemoteWebDriver driver;
 
     public IC(TestProperties props) {
         this.props = props;
@@ -85,36 +85,31 @@ public class IC implements AutoCloseable {
         }
     }
 
+    public Context locateImportRuleTable() {
+        locateView(TopMenuItem.IMPORT_RULE_TABLES);
+        return new Context(driver);
+    }
+
     public ReferenceTable locateTable(AllTables table) {
-        locateView(TopMenu.REFERENCE_DATA);
+        locateView(TopMenuItem.REFERENCE_DATA);
         driver.findElement(By.linkText(table.heading)).click();
         return new ReferenceTable(driver);
     }
+
     public ReferenceTable locateTable(BaseNameTable table) {
-        locateView(TopMenu.REFERENCE_DATA);
+        locateView(TopMenuItem.REFERENCE_DATA);
         driver.findElement(By.linkText(table.tableName)).click();
         return new ReferenceTable(driver);
     }
 
     public Rules locateRules() {
-        locateView(TopMenu.ANALYTICS);
-        locateView(TopMenu.RULES);
+        locateView(TopMenuItem.ANALYTICS);
+        locateView(TopMenuItem.RULES);
         return new Rules(driver);
     }
 
-    private void locateView(TopMenu item) {
-        driver.findElement(By.linkText(item.heading)).click();
-    }
-
-    public enum TopMenu {
-        REFERENCE_DATA("Reference Data"),
-        ANALYTICS("Analytics"),
-        RULES("Rules");
-        public final String heading;
-
-        TopMenu(String heading) {
-            this.heading = heading;
-        }
+    private void locateView(TopMenuItem item) {
+        driver.findElement(By.linkText(item.getHeading())).click();
     }
 
     public enum AllTables {

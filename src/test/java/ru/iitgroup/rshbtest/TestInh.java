@@ -1,4 +1,4 @@
-package ru.iitgroup.tests.webdriver;
+package ru.iitgroup.rshbtest;
 
 public class TestInh {
 

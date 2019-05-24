@@ -1,13 +1,14 @@
-package ru.iitgroup.tests.webdriver;
+package ru.iitgroup.tests.webdriver.referencetable;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import ru.iitgroup.tests.webdriver.AllFields;
+import ru.iitgroup.tests.webdriver.ic.ICView;
+import ru.iitgroup.tests.webdriver.ic.ICXPath;
 
 public class ReferenceTableEdit extends ICView {
 
     private static final String SAVE_ACTION = "Save";
-
 
     public ReferenceTableEdit(RemoteWebDriver driver) {
         super(driver);
@@ -34,17 +35,5 @@ public class ReferenceTableEdit extends ICView {
        // System.out.println("============ enabled ========= "+element.isEnabled());
         element.click();
         return new ReferenceTableRecord(driver);
-    }
-
-    @Override
-    public ReferenceTableEdit selectVisible() {
-        super.selectVisible();
-        return this;
-    }
-
-    @Override
-    public ReferenceTableEdit sleep(double seconds) {
-        super.sleep(seconds);
-        return this;
     }
 }
