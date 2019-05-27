@@ -1,22 +1,22 @@
 package ru.iitgroup.rshbtest;
 
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
+
 import org.testng.annotations.Test;
 import ru.iitgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitgroup.tests.apidriver.ICMalfunctionError;
 import ru.iitgroup.tests.apidriver.Transaction;
 import ru.iitgroup.tests.dbdriver.Database;
 import ru.iitgroup.tests.webdriver.AllFields;
-import ru.iitgroup.tests.webdriver.IC;
-import ru.iitgroup.tests.webdriver.ReferenceTable;
+import ru.iitgroup.tests.webdriver.ic.IC;
+import ru.iitgroup.tests.webdriver.importruletable.ImportRuleDictionary;
+import ru.iitgroup.tests.webdriver.referencetable.ReferenceTable;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Random;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
 
 public class SampleTests extends RSHBTests {
 
@@ -24,7 +24,6 @@ public class SampleTests extends RSHBTests {
     public void enableRule() {
         IC ic = new IC(props);
         try {
-
             ic.locateRules()
                     .selectVisible()
                     .deactivate()
@@ -120,13 +119,10 @@ public class SampleTests extends RSHBTests {
                     .fillMasked(AllFields.VIP_БИК_СЧЁТ$ПРИЧИНА_ЗАНЕСЕНИЯ, "Автоматическая обработка")
                     //.sleep(2)
                     .save();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
 
-            throw  new ICMalfunctionError(e,ic.takeScreenshot());
-        }
-
-        finally {
+            throw new ICMalfunctionError(e, ic.takeScreenshot());
+        } finally {
             ic.close();
         }
     }
@@ -138,18 +134,17 @@ public class SampleTests extends RSHBTests {
         try {
             ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ)
                     .findRowsBy()
-                    .match("ID","00044")
+                    .match("ID", "00044")
                     .delete();
-        } catch (Exception e){
-            throw new ICMalfunctionError(e,ic.takeScreenshot());
-        }
-        finally {
+        } catch (Exception e) {
+            throw new ICMalfunctionError(e, ic.takeScreenshot());
+        } finally {
 
             ic.close();
         }
         ;
     }
-    
+
     @Test
     public void testSelectRowByJava() throws Exception {
         try (IC ic = new IC(props)) {
@@ -188,4 +183,14 @@ public class SampleTests extends RSHBTests {
 
     }
 
+    @Test(description = "Пример теста загрузки правил на экранной форме импорта правил")
+    public void importRulesThroughImportRuleTablesForm() {
+        IC ic = new IC(props);
+
+        ic.locateImportRuleTable()
+                .chooseTable(ImportRuleDictionary.VIP_CLIENTS_BIC_ACCOUNT)
+                .chooseFile("ru/itdgroup/rshbtest/csv.csv")
+                .load()
+                .returnLoaded();
+    }
 }

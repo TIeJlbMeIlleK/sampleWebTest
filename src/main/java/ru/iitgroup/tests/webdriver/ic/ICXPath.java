@@ -1,7 +1,6 @@
-package ru.iitgroup.tests.webdriver;
+package ru.iitgroup.tests.webdriver.ic;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -9,8 +8,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class ICXPath {
+
     public static final String ANYWHERE = ".//*";
+
     private final RemoteWebDriver driver;
+
     protected StringBuilder sb = new StringBuilder();
 
     public ICXPath(RemoteWebDriver driver) {
@@ -125,17 +127,17 @@ public class ICXPath {
     }
 
 
-    private void clear(WebElement element){
-       // waitFor(element);
+    private void clear(WebElement element) {
+        // waitFor(element);
         //element.sendKeys(Keys.chord(Keys.CONTROL, "A"), "55");
         element.clear();
     }
 
     private void waitFor(WebElement element) {
-        while ( !(element.isDisplayed() && element.isEnabled())){
+        while (!(element.isDisplayed() && element.isEnabled())) {
             try {
                 Thread.sleep(100);
-                System.out.println("Waiting for element: "+get());
+                System.out.println("Waiting for element: " + get());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -165,7 +167,6 @@ public class ICXPath {
         INPUT("input"),
         EDIT("edit"),
         IMG("img");
-
 
         private final String name;
 

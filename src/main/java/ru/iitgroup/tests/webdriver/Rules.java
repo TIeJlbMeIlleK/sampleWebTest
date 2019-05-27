@@ -3,20 +3,9 @@ package ru.iitgroup.tests.webdriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import ru.iitgroup.tests.webdriver.ic.ICView;
 
-public class Rules extends ICView {
-
-    @Override
-    public Rules selectVisible() {
-         super.selectVisible();
-         return this;
-    }
-
-    @Override
-    public Rules sleep(double seconds) {
-        super.sleep(seconds);
-        return this;
-    }
+public class Rules extends ICView<Rules> {
 
     public Rules(RemoteWebDriver driver) {
         super(driver);
@@ -60,7 +49,6 @@ public class Rules extends ICView {
         return this;
     }
 
-
     public enum Actions {
         CHANGE_WORKSPACE(1),
         DELETE(2),
@@ -68,10 +56,9 @@ public class Rules extends ICView {
         DEACTIVATE(4);
 
         private final int pos;
+
         Actions(int pos) {
             this.pos = pos;
         }
-
-
     }
 }

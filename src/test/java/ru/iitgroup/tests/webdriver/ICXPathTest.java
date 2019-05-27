@@ -2,10 +2,11 @@ package ru.iitgroup.tests.webdriver;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import ru.iitgroup.tests.webdriver.ic.ICXPath;
 
 import static org.testng.Assert.assertEquals;
-import static ru.iitgroup.tests.webdriver.ICXPath.WebElements.IMG;
-import static ru.iitgroup.tests.webdriver.ICXPath.WebElements.INPUT;
+import static ru.iitgroup.tests.webdriver.ic.ICXPath.WebElements.IMG;
+import static ru.iitgroup.tests.webdriver.ic.ICXPath.WebElements.INPUT;
 
 public class ICXPathTest {
 

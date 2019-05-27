@@ -1,8 +1,10 @@
 package ru.iitgroup.tests.webdriver;
 
 import org.testng.annotations.Test;
+import ru.iitgroup.tests.webdriver.referencetable.ReferenceTable;
+
 import static  org.testng.Assert.*;
-import static ru.iitgroup.tests.webdriver.ReferenceTable.FIRST_ROW;
+import static ru.iitgroup.tests.webdriver.referencetable.ReferenceTable.FIRST_ROW;
 
 import java.util.List;
 
