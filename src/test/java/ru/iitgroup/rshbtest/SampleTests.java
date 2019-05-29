@@ -1,9 +1,6 @@
 package ru.iitgroup.rshbtest;
 
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
-
 import org.testng.annotations.Test;
 import ru.iitgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitgroup.tests.apidriver.ICMalfunctionError;
@@ -14,11 +11,13 @@ import ru.iitgroup.tests.webdriver.Table;
 import ru.iitgroup.tests.webdriver.ic.IC;
 import ru.iitgroup.tests.webdriver.referencetable.AllFields;
 import ru.iitgroup.tests.webdriver.referencetable.ReferenceTableContext;
-import ru.iitgroup.tests.webdriver.ruleconfiguration.RuleEditorContext;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 public class SampleTests extends RSHBTests {
 
@@ -200,8 +199,12 @@ public class SampleTests extends RSHBTests {
     public void createRuleThroughRulesForm() {
         IC ic = new IC(props);
         ic.locateRules()
-                .createRule()
-                .chooseRuleTemplate(RuleTemplate.BR_01_PayeeInBlackList)
-                .editRule(new RuleEditorContext());
+                .createRule(RuleTemplate.BR_01_PayeeInBlackList)
+                .fillTextArea("Description", "Моё новое правило")
+                .fillCheckBox("isTest", true)
+                //.selectIncidentType(...)
+                .save();
+
+
     }
 }

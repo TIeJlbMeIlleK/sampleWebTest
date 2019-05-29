@@ -5,6 +5,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitgroup.tests.webdriver.ic.ICView;
 import ru.iitgroup.tests.webdriver.ic.ICXPath;
 
+//TODO: унаследовать от ICEdit
 public class ReferenceTableEditContext extends ICView {
 
     private static final String SAVE_ACTION = "Save";
@@ -17,6 +18,7 @@ public class ReferenceTableEditContext extends ICView {
         throw new IllegalStateException("Not implemented yet");
     }
 
+    //TODO: вынести в ICEdit extends ICView
     public ReferenceTableEditContext fillMasked(AllFields field, String fieldText) {
         return fillMasked(field.heading, fieldText);
     }

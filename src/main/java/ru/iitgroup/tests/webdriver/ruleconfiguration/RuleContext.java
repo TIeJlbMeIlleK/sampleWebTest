@@ -20,22 +20,16 @@ public class RuleContext extends ICView<RuleContext> {
         this.wait = new WebDriverWait(driver, 1);
     }
 
-    public RuleContext createRule() {
+    public RuleEdit createRule(RuleTemplate template) {
         driver.findElementByXPath("//div[@id='toolbarActions']//td[@class='toolbarCell']//*[contains(@class,'newRule')]").click();
-        return this;
-    }
-
-    public RuleContext chooseRuleTemplate(RuleTemplate template) {
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@id='ruleTemplateSearchText']")));
         driver.findElementByXPath("//input[@id='ruleTemplateSearchText']").click();
         driver.findElementByXPath(String.format("//a[contains(text(),'%s')]", template.name())).click();
         driver.findElementByXPath("//button[text()='OK']").click();
-        return this;
+        return new RuleEdit( this);
     }
 
-    public RuleContext editRule(RuleEditorContext editorContext) {
-        return this;
-    }
+
 
 //new Select(dнфтriver.findElementByXPath("//li[a[text()='BR_02_AbnormalSpeed']]"))
 //new Select(driver.findElementByXPath("//select[option[text()='BR_02_AbnormalSpeed']]")).getOptions().get(1).click();

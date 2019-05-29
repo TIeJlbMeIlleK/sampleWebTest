@@ -12,6 +12,8 @@ public abstract class ICView<T extends ICView> {
         this.driver = driver;
     }
 
+
+
     public T selectVisible() {
         //driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Name'])[2]/preceding::input[1]")).click();
         icxpath()
