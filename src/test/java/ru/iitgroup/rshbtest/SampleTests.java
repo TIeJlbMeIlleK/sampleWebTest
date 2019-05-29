@@ -9,10 +9,12 @@ import ru.iitgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitgroup.tests.apidriver.ICMalfunctionError;
 import ru.iitgroup.tests.apidriver.Transaction;
 import ru.iitgroup.tests.dbdriver.Database;
-import ru.iitgroup.tests.webdriver.AllFields;
+import ru.iitgroup.tests.webdriver.RuleTemplate;
+import ru.iitgroup.tests.webdriver.Table;
 import ru.iitgroup.tests.webdriver.ic.IC;
-import ru.iitgroup.tests.webdriver.importruletable.ImportRuleDictionary;
-import ru.iitgroup.tests.webdriver.referencetable.ReferenceTable;
+import ru.iitgroup.tests.webdriver.referencetable.AllFields;
+import ru.iitgroup.tests.webdriver.referencetable.ReferenceTableContext;
+import ru.iitgroup.tests.webdriver.ruleconfiguration.RuleEditorContext;
 
 import java.io.IOException;
 import java.util.List;
@@ -93,7 +95,7 @@ public class SampleTests extends RSHBTests {
     public void addRecord() throws Exception {
         IC ic = new IC(props);
         try {
-            ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ)
+            ic.locateTable(Table.VIP_CLIENTS_BIC_ACCOUNT)
                     .addRecord()
                     .fillMasked(AllFields.VIP_БИК_СЧЁТ$БИК, "123456789")
                     .fillMasked(AllFields.VIP_БИК_СЧЁТ$СЧЁТ, "12345678912345678912")
@@ -108,7 +110,7 @@ public class SampleTests extends RSHBTests {
     public void editRecord() throws Exception {
         IC ic = new IC(props);
         try {
-            ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ)
+            ic.locateTable(Table.VIP_CLIENTS_BIC_ACCOUNT)
                     //.selectRecord("123456789", "123456789123")
                     .findRowsBy()
                     .match("Бик банка VIP", "987654321")
@@ -132,7 +134,7 @@ public class SampleTests extends RSHBTests {
     public void testDeleteRecord() throws Exception {
         IC ic = new IC(props);
         try {
-            ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ)
+            ic.locateTable(Table.VIP_CLIENTS_BIC_ACCOUNT)
                     .findRowsBy()
                     .match("ID", "00044")
                     .delete();
@@ -148,7 +150,7 @@ public class SampleTests extends RSHBTests {
     @Test
     public void testSelectRowByJava() throws Exception {
         try (IC ic = new IC(props)) {
-            final ReferenceTable referenceTable = ic.locateTable(IC.AllTables.VIP_БИК_СЧЁТ);
+            final ReferenceTableContext referenceTable = ic.locateTable(Table.VIP_CLIENTS_BIC_ACCOUNT);
 
 
             referenceTable.readData();
@@ -158,7 +160,7 @@ public class SampleTests extends RSHBTests {
 //            }
 
 
-            ReferenceTable.Formula rm =
+            ReferenceTableContext.Formula rm =
 
 
                     referenceTable
@@ -188,9 +190,18 @@ public class SampleTests extends RSHBTests {
         IC ic = new IC(props);
 
         ic.locateImportRuleTable()
-                .chooseTable(ImportRuleDictionary.VIP_CLIENTS_BIC_ACCOUNT)
+                .chooseTable(Table.VIP_CLIENTS_BIC_ACCOUNT)
                 .chooseFile("ru/itdgroup/rshbtest/csv.csv")
                 .load()
                 .returnLoaded();
+    }
+
+    @Test(description = "Пример теста создания правила на экранной форме правил")
+    public void createRuleThroughRulesForm() {
+        IC ic = new IC(props);
+        ic.locateRules()
+                .createRule()
+                .chooseRuleTemplate(RuleTemplate.BR_01_PayeeInBlackList)
+                .editRule(new RuleEditorContext());
     }
 }

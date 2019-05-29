@@ -4,6 +4,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.iitgroup.tests.webdriver.Table;
 import ru.iitgroup.tests.webdriver.ic.ICView;
 
 import java.util.List;
@@ -12,17 +13,17 @@ import java.util.stream.Collectors;
 /**
  * Контекст для работы с экранной формой импорта правил.
  */
-public class Context extends ICView {
+public class ImportRuleTableContext extends ICView {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Context.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ImportRuleTableContext.class);
 
     private String fileName;
 
-    public Context(RemoteWebDriver driver) {
+    public ImportRuleTableContext(RemoteWebDriver driver) {
         super(driver);
     }
 
-    public Context chooseTable(ImportRuleDictionary table) {
+    public ImportRuleTableContext chooseTable(Table table) {
         String idOfRadioButton = driver.findElementByXPath(
                 String.format("%s%s%s", "//table//label[text()='", table.getTableName(), "']")
         ).getAttribute("for");
@@ -34,7 +35,7 @@ public class Context extends ICView {
         return this;
     }
 
-    public Context chooseFile(String fileName) {
+    public ImportRuleTableContext chooseFile(String fileName) {
         this.fileName = fileName;
 
         String absolutePath = System.getProperty("user.dir") + "/src/test/resource/" + fileName;
@@ -43,7 +44,7 @@ public class Context extends ICView {
         return this;
     }
 
-    public Context load() {
+    public ImportRuleTableContext load() {
         driver.findElementByXPath("//button[contains(.,'Загрузить')]").click();
         List<WebElement> errors = driver.findElementsByXPath("//li[@class='globalMessagesError']");
 
@@ -61,7 +62,7 @@ public class Context extends ICView {
         return this;
     }
 
-    public Context returnLoaded() {
+    public ImportRuleTableContext returnLoaded() {
         driver.findElementByXPath("//button[contains(.,'Возврат')]").click();
 
         try {

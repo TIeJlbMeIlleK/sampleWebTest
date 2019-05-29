@@ -1,12 +1,12 @@
-package ru.iitgroup.tests.webdriver.importruletable;
+package ru.iitgroup.tests.webdriver;
 
 /**
- * Названия таблиц, в которые можно импортировать правила.
+ * Справочники правил.
  */
-public enum ImportRuleDictionary {
+public enum Table {
 
-    VIP_CLIENTS_CARD_NUMBER("(Rule_tables) VIP клиенты БИКСЧЕТ"),
-    VIP_CLIENTS_BIC_ACCOUNT("(Rule_tables) VIP клиенты НомерКарты"),
+    VIP_CLIENTS_CARD_NUMBER("(Rule_tables) VIP клиенты НомерКарты"),
+    VIP_CLIENTS_BIC_ACCOUNT("(Rule_tables) VIP клиенты БИКСЧЕТ"),
     PROHIBITED_RECIPIENTS_CARD_NUMBER("(Rule_tables) Запрещенные получатели НомерКарты"),
     PROHIBITED_RECIPIENTS_BIC_ACCOUNT("(Rule_tables) Запрещенные получатели БИКСЧЕТ"),
     SUSPICIOUS_DEVICES_IMSI("(Rule_tables) Подозрительные устройства IMSI"),
@@ -26,7 +26,7 @@ public enum ImportRuleDictionary {
 
     private final String tableName;
 
-    ImportRuleDictionary(String tableName) {
+    Table(String tableName) {
         this.tableName = tableName;
     }
 
@@ -34,3 +34,4 @@ public enum ImportRuleDictionary {
         return this.tableName;
     }
 }
+

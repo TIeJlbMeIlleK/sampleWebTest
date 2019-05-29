@@ -8,7 +8,7 @@ import ru.iitgroup.tests.webdriver.ic.ICXPath;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReferenceTable extends ICView {
+public class ReferenceTableContext extends ICView {
 
     public static final int FIRST_ROW = 2; //данные в IC начинаются со 2-ой строчки
     public static final int FIRST_COL = 4; //данные в IC начинаются с 4-ой колонки
@@ -23,11 +23,11 @@ public class ReferenceTable extends ICView {
     private String[] heads;
     private String[][] data;
 
-    public ReferenceTable(RemoteWebDriver driver) {
+    public ReferenceTableContext(RemoteWebDriver driver) {
         super(driver);
     }
 
-    public ReferenceTable readData() {
+    public ReferenceTableContext readData() {
         /*
             для элементов заголовка - перебирать tr[1] через th[*]
             //div[@class='panelTable af_table']/table[2]/tbody/tr[1]/th[4]//span
@@ -68,12 +68,12 @@ public class ReferenceTable extends ICView {
      *
      * @return
      */
-    public ReferenceTableEdit addRecord() {
+    public ReferenceTableEditContext addRecord() {
         icxpath()
                 .element("Actions")
                 .preceding(ICXPath.WebElements.IMG)
                 .click();
-        return new ReferenceTableEdit(driver);
+        return new ReferenceTableEditContext(driver);
     }
 
     /**
@@ -83,10 +83,10 @@ public class ReferenceTable extends ICView {
      *                     В IC - начиная со второй
      * @return
      */
-    public ReferenceTableRecord click(int technicalRow) {
+    public ReferenceTableRecordContext click(int technicalRow) {
         final String xpath = firstColXPath.replaceAll(ROW, String.valueOf(technicalRow));
         driver.findElementByXPath(xpath).click();
-        return new ReferenceTableRecord(driver);
+        return new ReferenceTableRecordContext(driver);
     }
 
     /**
@@ -106,7 +106,7 @@ public class ReferenceTable extends ICView {
      *                     В IC - начиная со второй
      * @return
      */
-    public ReferenceTable select(int technicalRow) {
+    public ReferenceTableContext select(int technicalRow) {
         final String xpath = checkBoxXPath.replaceAll(ROW, String.valueOf(technicalRow));
         WebElement cbx = driver.findElementByXPath(xpath);
         cbx.click();
@@ -120,13 +120,13 @@ public class ReferenceTable extends ICView {
      *                     В IC - начиная со второй
      * @return
      */
-    public ReferenceTable delete(int technicalRow) {
+    public ReferenceTableContext delete(int technicalRow) {
         if (data == null) readData();
         select(technicalRow);
         return delete();
     }
 
-    public ReferenceTable delete() {
+    public ReferenceTableContext delete() {
         driver.findElementByXPath("//span[text()='Actions']").click();
         driver.findElementByXPath("//div[contains(@class,'qtip') and contains(@aria-hidden, 'false')]//div[@class='qtip-content']/a[text()='Delete']").click();
         driver.findElementsByXPath("//button[2]/span[text()='Yes']")
@@ -149,22 +149,22 @@ public class ReferenceTable extends ICView {
             return matchedRows == null ? new MatchedRows(matches) : matchedRows;
         }
 
-        public ReferenceTableRecord click() {
-            return ReferenceTable.this.click(getMatchedRows().get(1));
+        public ReferenceTableRecordContext click() {
+            return ReferenceTableContext.this.click(getMatchedRows().get(1));
         }
 
-        public ReferenceTable select() {
+        public ReferenceTableContext select() {
             for (Integer rowNum : getMatchedRows().get()) {
-                ReferenceTable.this.select(rowNum);
+                ReferenceTableContext.this.select(rowNum);
             }
-            return ReferenceTable.this;
+            return ReferenceTableContext.this;
         }
 
-        public ReferenceTableEdit edit() {
+        public ReferenceTableEditContext edit() {
             return click().edit();
         }
 
-        public ReferenceTable delete() {
+        public ReferenceTableContext delete() {
             return select().delete();
         }
 
