@@ -2,13 +2,13 @@ package ru.iitgroup.tests.webdriver.referencetable;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import ru.iitgroup.tests.webdriver.ic.ICView;
+import ru.iitgroup.tests.webdriver.ic.AbstractICViewContext;
 import ru.iitgroup.tests.webdriver.ic.ICXPath;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReferenceTableContext extends ICView {
+public class ReferenceTableContext extends AbstractICViewContext<ReferenceTableContext> {
 
     public static final int FIRST_ROW = 2; //данные в IC начинаются со 2-ой строчки
     public static final int FIRST_COL = 4; //данные в IC начинаются с 4-ой колонки
@@ -25,6 +25,11 @@ public class ReferenceTableContext extends ICView {
 
     public ReferenceTableContext(RemoteWebDriver driver) {
         super(driver);
+    }
+
+    @Override
+    protected ReferenceTableContext getSelf() {
+        return this;
     }
 
     public ReferenceTableContext readData() {

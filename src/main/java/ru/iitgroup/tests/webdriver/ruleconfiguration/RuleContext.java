@@ -3,39 +3,31 @@ package ru.iitgroup.tests.webdriver.ruleconfiguration;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.iitgroup.tests.webdriver.RuleTemplate;
-import ru.iitgroup.tests.webdriver.ic.ICView;
+import ru.iitgroup.tests.webdriver.ic.AbstractICViewContext;
 
 /**
  * Контекст для работы с экранной формой правил.
  */
-public class RuleContext extends ICView<RuleContext> {
-
-    private final WebDriverWait wait;
+public class RuleContext extends AbstractICViewContext<RuleContext> {
 
     public RuleContext(RemoteWebDriver driver) {
         super(driver);
-        this.wait = new WebDriverWait(driver, 1);
     }
 
-    public RuleEdit createRule(RuleTemplate template) {
+    @Override
+    protected RuleContext getSelf() {
+        return this;
+    }
+
+    public RuleEditorContext createRule(RuleTemplate template) {
         driver.findElementByXPath("//div[@id='toolbarActions']//td[@class='toolbarCell']//*[contains(@class,'newRule')]").click();
-        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@id='ruleTemplateSearchText']")));
+        waitUntil("//input[@id='ruleTemplateSearchText']");
         driver.findElementByXPath("//input[@id='ruleTemplateSearchText']").click();
         driver.findElementByXPath(String.format("//a[contains(text(),'%s')]", template.name())).click();
-        driver.findElementByXPath("//button[text()='OK']").click();
-        return new RuleEdit( this);
+        waitUntil("//button[text()='OK']").click();
+        return new RuleEditorContext(driver);
     }
-
-
-
-//new Select(dнфтriver.findElementByXPath("//li[a[text()='BR_02_AbnormalSpeed']]"))
-//new Select(driver.findElementByXPath("//select[option[text()='BR_02_AbnormalSpeed']]")).getOptions().get(1).click();
-
-//driver.findElementByXPath("//select[option[text()='BR_02_AbnormalSpeed']
-
 
     public RuleContext selectRule(String heading) {
         //language=XPath

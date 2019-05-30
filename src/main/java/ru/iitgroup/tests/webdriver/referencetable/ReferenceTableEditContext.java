@@ -2,16 +2,22 @@ package ru.iitgroup.tests.webdriver.referencetable;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import ru.iitgroup.tests.webdriver.ic.ICView;
+import ru.iitgroup.tests.webdriver.ic.AbstractICEditorContext;
 import ru.iitgroup.tests.webdriver.ic.ICXPath;
 
 //TODO: унаследовать от ICEdit
-public class ReferenceTableEditContext extends ICView {
+public class ReferenceTableEditContext
+        extends AbstractICEditorContext<ReferenceTableEditContext> {
 
     private static final String SAVE_ACTION = "Save";
 
     public ReferenceTableEditContext(RemoteWebDriver driver) {
         super(driver);
+    }
+
+    @Override
+    protected ReferenceTableEditContext getSelf() {
+        return this;
     }
 
     public static void deleteRecord() {

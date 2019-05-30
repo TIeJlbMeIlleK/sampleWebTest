@@ -5,7 +5,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.iitgroup.tests.webdriver.Table;
-import ru.iitgroup.tests.webdriver.ic.ICView;
+import ru.iitgroup.tests.webdriver.ic.AbstractICViewContext;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Контекст для работы с экранной формой импорта правил.
  */
-public class ImportRuleTableContext extends ICView {
+public class ImportRuleTableContext extends AbstractICViewContext<ImportRuleTableContext> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImportRuleTableContext.class);
 
@@ -21,6 +21,11 @@ public class ImportRuleTableContext extends ICView {
 
     public ImportRuleTableContext(RemoteWebDriver driver) {
         super(driver);
+    }
+
+    @Override
+    protected ImportRuleTableContext getSelf() {
+        return this;
     }
 
     public ImportRuleTableContext chooseTable(Table table) {

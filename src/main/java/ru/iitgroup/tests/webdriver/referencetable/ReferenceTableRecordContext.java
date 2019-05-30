@@ -2,11 +2,17 @@ package ru.iitgroup.tests.webdriver.referencetable;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import ru.iitgroup.tests.webdriver.ic.ICView;
+import ru.iitgroup.tests.webdriver.ic.AbstractICEditorContext;
 
-public class ReferenceTableRecordContext extends ICView<ReferenceTableRecordContext> {
+public class ReferenceTableRecordContext extends AbstractICEditorContext<ReferenceTableRecordContext> {
+
     public ReferenceTableRecordContext(RemoteWebDriver driver) {
         super(driver);
+    }
+
+    @Override
+    protected ReferenceTableRecordContext getSelf() {
+        return this;
     }
 
     public ReferenceTableEditContext edit(){

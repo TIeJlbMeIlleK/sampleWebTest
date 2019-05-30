@@ -11,6 +11,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 public abstract class RSHBTests {
+
     protected TestProperties props;
 
     @BeforeClass

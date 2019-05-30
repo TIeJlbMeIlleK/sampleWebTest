@@ -4,40 +4,41 @@ public class TestInh {
 
 
     public static void main(String[] args) {
-
         TestInh ti = new TestInh();
         ti.doStuff();
 
     }
 
     private void doStuff() {
-        B b = new B();
-        b
-                .bMeth()
+        new B().bMeth()
                 .getObject()
                 .bMeth()
+                .getObject()
+                .getObject()
+                .getObject()
+                .bMeth()
+                .bMeth()
                 .getObject();
-
-
-
     }
 
-    public class A {
+    public abstract class A<T> {
 
-        A getObject() {
-            return  this;
+        protected abstract T getSelf();
+
+        T getObject() {
+            return getSelf();
         }
     }
 
-    public class B extends A {
+    public class B extends A<B> {
 
         public B bMeth() {
             return this;
         }
 
         @Override
-        B getObject() {
-            return (B) super.getObject();
+        protected B getSelf() {
+            return this;
         }
     }
 
