@@ -13,7 +13,6 @@ import ru.iitgroup.tests.webdriver.RuleTemplate;
 import ru.iitgroup.tests.webdriver.Table;
 import ru.iitgroup.tests.webdriver.ic.IC;
 import ru.iitgroup.tests.webdriver.referencetable.AllFields;
-import ru.iitgroup.tests.webdriver.referencetable.ReferenceTableContext;
 
 import java.io.IOException;
 import java.util.List;
@@ -148,8 +147,8 @@ public class SampleTests extends RSHBTests {
     @Test
     public void testSelectRowByJava() throws Exception {
         try (IC ic = new IC(props)) {
-            final ReferenceTableContext referenceTable = ic.locateTable(Table.VIP_CLIENTS_BIC_ACCOUNT);
-
+            final ru.iitgroup.tests.webdriver.referencetable.Context referenceTable =
+                    ic.locateTable(Table.VIP_CLIENTS_BIC_ACCOUNT);
 
             referenceTable.readData();
 //            System.out.println(String.join("\t",referenceTable.heads));
@@ -157,18 +156,13 @@ public class SampleTests extends RSHBTests {
 //                System.out.println(String.join("\t", row));
 //            }
 
-
-            ReferenceTableContext.Formula rm =
-
-
-                    referenceTable
-                            .findRowsBy()
+            ru.iitgroup.tests.webdriver.referencetable.Context.Formula rm =
+                    referenceTable.findRowsBy()
                             .match("Бик банка VIP", "987654321")
-                            .match("Счет получатель VIP", "98765432198765432198")
-//                    .match("Comment","123")
-                    ;
-            rm
-                    .select()
+                            .match("Счет получатель VIP", "98765432198765432198");
+//                    .match("Comment","123");
+
+            rm.select()
                     .sleep(2);
             //TODO: дописать тестовый код, позволяющий убедиться в том, что строки действительно выбрались, а пока - смотреть глазами
 
@@ -187,9 +181,9 @@ public class SampleTests extends RSHBTests {
 
         ic.locateImportRuleTable()
                 .chooseTable(Table.VIP_CLIENTS_BIC_ACCOUNT)
-                .chooseFile("ru/itdgroup/rshbtest/csv.csv")
+                .chooseFile("VIP клиенты БИКСЧЕТ.csv")
                 .load()
-                .returnLoaded();
+                .rollback();
     }
 
     @Test(description = "Пример теста создания правила на экранной форме правил")

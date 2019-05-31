@@ -8,9 +8,6 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitgroup.classnames.BaseNameTable;
 import ru.iitgroup.tests.properties.TestProperties;
 import ru.iitgroup.tests.webdriver.Table;
-import ru.iitgroup.tests.webdriver.importruletable.ImportRuleTableContext;
-import ru.iitgroup.tests.webdriver.referencetable.ReferenceTableContext;
-import ru.iitgroup.tests.webdriver.ruleconfiguration.RuleContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,27 +83,27 @@ public class IC implements AutoCloseable {
         }
     }
 
-    public ImportRuleTableContext locateImportRuleTable() {
+    public ru.iitgroup.tests.webdriver.importruletable.Context locateImportRuleTable() {
         locateView(TopMenuItem.IMPORT_RULE_TABLES);
-        return new ImportRuleTableContext(driver);
+        return new ru.iitgroup.tests.webdriver.importruletable.Context(driver);
     }
 
-    public ReferenceTableContext locateTable(Table table) {
+    public ru.iitgroup.tests.webdriver.referencetable.Context locateTable(Table table) {
         locateView(TopMenuItem.REFERENCE_DATA);
         driver.findElement(By.linkText(table.getTableName())).click();
-        return new ReferenceTableContext(driver);
+        return new ru.iitgroup.tests.webdriver.referencetable.Context(driver);
     }
 
-    public ReferenceTableContext locateTable(BaseNameTable table) {
+    public ru.iitgroup.tests.webdriver.referencetable.Context locateTable(BaseNameTable table) {
         locateView(TopMenuItem.REFERENCE_DATA);
         driver.findElement(By.linkText(table.tableName)).click();
-        return new ReferenceTableContext(driver);
+        return new ru.iitgroup.tests.webdriver.referencetable.Context(driver);
     }
 
-    public RuleContext locateRules() {
+    public ru.iitgroup.tests.webdriver.ruleconfiguration.Context locateRules() {
         locateView(TopMenuItem.ANALYTICS);
         locateView(TopMenuItem.RULES);
-        return new RuleContext(driver);
+        return new ru.iitgroup.tests.webdriver.ruleconfiguration.Context(driver);
     }
 
     private void locateView(TopMenuItem item) {

@@ -1,24 +1,24 @@
 package ru.iitgroup.tests.webdriver.ruleconfiguration;
 
 import org.openqa.selenium.remote.RemoteWebDriver;
-import ru.iitgroup.tests.webdriver.ic.AbstractICEditorContext;
+import ru.iitgroup.tests.webdriver.ic.AbstractEditContext;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Контекст для редактирования правил.
  */
-public class RuleEditorContext extends AbstractICEditorContext<RuleEditorContext> {
+public class EditContext extends AbstractEditContext<EditContext> {
 
-    public RuleEditorContext(RemoteWebDriver driver) {
+    public EditContext(RemoteWebDriver driver) {
         super(driver);
     }
 
     @Override
-    protected RuleEditorContext getSelf() {
+    protected EditContext getSelf() {
         return this;
     }
 
-    public RuleContext save() {
+    public Context save() {
         throw new NotImplementedException();
 
 //        return new RuleContext(driver);

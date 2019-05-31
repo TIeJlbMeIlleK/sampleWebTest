@@ -2,13 +2,13 @@ package ru.iitgroup.tests.webdriver.referencetable;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import ru.iitgroup.tests.webdriver.ic.AbstractICViewContext;
+import ru.iitgroup.tests.webdriver.ic.AbstractViewContext;
 import ru.iitgroup.tests.webdriver.ic.ICXPath;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReferenceTableContext extends AbstractICViewContext<ReferenceTableContext> {
+public class Context extends AbstractViewContext<Context> {
 
     public static final int FIRST_ROW = 2; //данные в IC начинаются со 2-ой строчки
     public static final int FIRST_COL = 4; //данные в IC начинаются с 4-ой колонки
@@ -23,16 +23,16 @@ public class ReferenceTableContext extends AbstractICViewContext<ReferenceTableC
     private String[] heads;
     private String[][] data;
 
-    public ReferenceTableContext(RemoteWebDriver driver) {
+    public Context(RemoteWebDriver driver) {
         super(driver);
     }
 
     @Override
-    protected ReferenceTableContext getSelf() {
+    protected Context getSelf() {
         return this;
     }
 
-    public ReferenceTableContext readData() {
+    public Context readData() {
         /*
             для элементов заголовка - перебирать tr[1] через th[*]
             //div[@class='panelTable af_table']/table[2]/tbody/tr[1]/th[4]//span
@@ -73,12 +73,12 @@ public class ReferenceTableContext extends AbstractICViewContext<ReferenceTableC
      *
      * @return
      */
-    public ReferenceTableEditContext addRecord() {
+    public EditContext addRecord() {
         icxpath()
                 .element("Actions")
                 .preceding(ICXPath.WebElements.IMG)
                 .click();
-        return new ReferenceTableEditContext(driver);
+        return new EditContext(driver);
     }
 
     /**
@@ -88,10 +88,10 @@ public class ReferenceTableContext extends AbstractICViewContext<ReferenceTableC
      *                     В IC - начиная со второй
      * @return
      */
-    public ReferenceTableRecordContext click(int technicalRow) {
+    public RecordContext click(int technicalRow) {
         final String xpath = firstColXPath.replaceAll(ROW, String.valueOf(technicalRow));
         driver.findElementByXPath(xpath).click();
-        return new ReferenceTableRecordContext(driver);
+        return new RecordContext(driver);
     }
 
     /**
@@ -111,7 +111,7 @@ public class ReferenceTableContext extends AbstractICViewContext<ReferenceTableC
      *                     В IC - начиная со второй
      * @return
      */
-    public ReferenceTableContext select(int technicalRow) {
+    public Context select(int technicalRow) {
         final String xpath = checkBoxXPath.replaceAll(ROW, String.valueOf(technicalRow));
         WebElement cbx = driver.findElementByXPath(xpath);
         cbx.click();
@@ -125,13 +125,13 @@ public class ReferenceTableContext extends AbstractICViewContext<ReferenceTableC
      *                     В IC - начиная со второй
      * @return
      */
-    public ReferenceTableContext delete(int technicalRow) {
+    public Context delete(int technicalRow) {
         if (data == null) readData();
         select(technicalRow);
         return delete();
     }
 
-    public ReferenceTableContext delete() {
+    public Context delete() {
         driver.findElementByXPath("//span[text()='Actions']").click();
         driver.findElementByXPath("//div[contains(@class,'qtip') and contains(@aria-hidden, 'false')]//div[@class='qtip-content']/a[text()='Delete']").click();
         driver.findElementsByXPath("//button[2]/span[text()='Yes']")
@@ -154,22 +154,22 @@ public class ReferenceTableContext extends AbstractICViewContext<ReferenceTableC
             return matchedRows == null ? new MatchedRows(matches) : matchedRows;
         }
 
-        public ReferenceTableRecordContext click() {
-            return ReferenceTableContext.this.click(getMatchedRows().get(1));
+        public RecordContext click() {
+            return Context.this.click(getMatchedRows().get(1));
         }
 
-        public ReferenceTableContext select() {
+        public Context select() {
             for (Integer rowNum : getMatchedRows().get()) {
-                ReferenceTableContext.this.select(rowNum);
+                Context.this.select(rowNum);
             }
-            return ReferenceTableContext.this;
+            return Context.this;
         }
 
-        public ReferenceTableEditContext edit() {
+        public EditContext edit() {
             return click().edit();
         }
 
-        public ReferenceTableContext delete() {
+        public Context delete() {
             return select().delete();
         }
 

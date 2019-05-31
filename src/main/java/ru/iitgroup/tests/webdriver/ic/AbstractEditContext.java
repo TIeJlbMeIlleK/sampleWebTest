@@ -8,13 +8,13 @@ import org.openqa.selenium.remote.RemoteWebDriver;
  *
  * @param <S> 'Self' класс-наследник этой абстракции
  */
-public abstract class AbstractICEditorContext<S extends AbstractICViewContext> extends AbstractICViewContext<S> {
+public abstract class AbstractEditContext<S> extends AbstractViewContext<S> {
 
     private static final String DEFAULT_X_PATH_TEMPLATE = "//*[text()='%s']//following::%s";
     private static final String INPUT_TAG = "input";
     private static final String TEXTAREA_TAG = "textarea";
 
-    public AbstractICEditorContext(RemoteWebDriver driver) {
+    public AbstractEditContext(RemoteWebDriver driver) {
         super(driver);
     }
 

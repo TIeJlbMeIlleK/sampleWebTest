@@ -1,10 +1,10 @@
 package ru.iitgroup.tests.webdriver;
 
-import org.testng.annotations.Test;
-import ru.iitgroup.tests.webdriver.referencetable.ReferenceTableContext;
+import static org.testng.Assert.assertEquals;
+import static ru.iitgroup.tests.webdriver.referencetable.Context.FIRST_ROW;
 
-import static  org.testng.Assert.*;
-import static ru.iitgroup.tests.webdriver.referencetable.ReferenceTableContext.FIRST_ROW;
+import org.testng.annotations.Test;
+import ru.iitgroup.tests.webdriver.referencetable.Context;
 
 import java.util.List;
 
@@ -13,13 +13,13 @@ public class ReferenceTableTest {
     @Test
     public void testMatchedRows() {
 
-        ReferenceTableContext t = new ReferenceTableContext(null);
+        Context t = new Context(null);
 
 
         final String[] heads = {"ID", "Comment", "Бик банка VIP", "Причина занесения", "Счет получатель VIP", "Дата занесения записи"};
         t.setHeads(heads);
 
-        final String data[][] = {
+        final String[][] data = {
                 {"00001", "kjh", "44525593", "4,08E+19", "11.02.2019", "16:32:53"},
                 {"00002", "kjh", "44525594", "4,08E+19", "11.02.2019", "16:32:53"},
                 {"00003", "kjh", "44525595", "4,08E+19", "11.02.2019", "16:32:53"},

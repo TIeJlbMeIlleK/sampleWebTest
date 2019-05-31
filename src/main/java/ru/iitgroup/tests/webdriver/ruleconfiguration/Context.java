@@ -4,32 +4,32 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitgroup.tests.webdriver.RuleTemplate;
-import ru.iitgroup.tests.webdriver.ic.AbstractICViewContext;
+import ru.iitgroup.tests.webdriver.ic.AbstractViewContext;
 
 /**
  * Контекст для работы с экранной формой правил.
  */
-public class RuleContext extends AbstractICViewContext<RuleContext> {
+public class Context extends AbstractViewContext<Context> {
 
-    public RuleContext(RemoteWebDriver driver) {
+    public Context(RemoteWebDriver driver) {
         super(driver);
     }
 
     @Override
-    protected RuleContext getSelf() {
+    protected Context getSelf() {
         return this;
     }
 
-    public RuleEditorContext createRule(RuleTemplate template) {
+    public EditContext createRule(RuleTemplate template) {
         driver.findElementByXPath("//div[@id='toolbarActions']//td[@class='toolbarCell']//*[contains(@class,'newRule')]").click();
         waitUntil("//input[@id='ruleTemplateSearchText']");
         driver.findElementByXPath("//input[@id='ruleTemplateSearchText']").click();
         driver.findElementByXPath(String.format("//a[contains(text(),'%s')]", template.name())).click();
         waitUntil("//button[text()='OK']").click();
-        return new RuleEditorContext(driver);
+        return new EditContext(driver);
     }
 
-    public RuleContext selectRule(String heading) {
+    public Context selectRule(String heading) {
         //language=XPath
         final String xpath = ".//*[normalize-space(text())='" + heading + "'][1]/preceding::input[2][@type='checkbox']";
 
@@ -54,14 +54,14 @@ public class RuleContext extends AbstractICViewContext<RuleContext> {
         return this;
     }
 
-    public RuleContext activate() {
+    public Context activate() {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/img[1]")).click();
 //        driver.element(By.xpath("//*[@class=\"qtip-content\"]//*[text() ='Activate']")).click();
         driver.findElement(By.xpath("//div[contains(@class,\"qtip\") and contains(@aria-hidden, \"false\")]//div[@class='qtip-content']/a[text()='Activate']")).click();
         return this;
     }
 
-    public RuleContext deactivate() {
+    public Context deactivate() {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/img[1]")).click();
         driver.findElement(By.xpath("//div[contains(@class,\"qtip\") and contains(@aria-hidden, \"false\")]//div[@class='qtip-content']/a[text()='Deactivate']")).click();
         return this;

@@ -11,12 +11,12 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  *
  * @param <S> Класс-наследник этой абстракции
  */
-public abstract class AbstractICViewContext<S extends AbstractICViewContext> {
+public abstract class AbstractViewContext<S> {
 
     protected final RemoteWebDriver driver;
     protected final WebDriverWait wait;
 
-    public AbstractICViewContext(RemoteWebDriver driver) {
+    public AbstractViewContext(RemoteWebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, 1);
     }
