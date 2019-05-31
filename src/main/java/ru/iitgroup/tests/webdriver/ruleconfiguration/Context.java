@@ -24,6 +24,7 @@ public class Context extends AbstractViewContext<Context> {
         driver.findElementByXPath("//div[@id='toolbarActions']//td[@class='toolbarCell']//*[contains(@class,'newRule')]").click();
         waitUntil("//input[@id='ruleTemplateSearchText']");
         driver.findElementByXPath("//input[@id='ruleTemplateSearchText']").click();
+
         driver.findElementByXPath(String.format("//a[contains(text(),'%s')]", template.name())).click();
         waitUntil("//button[text()='OK']").click();
         return new EditContext(driver);
@@ -64,6 +65,7 @@ public class Context extends AbstractViewContext<Context> {
     public Context deactivate() {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/img[1]")).click();
         driver.findElement(By.xpath("//div[contains(@class,\"qtip\") and contains(@aria-hidden, \"false\")]//div[@class='qtip-content']/a[text()='Deactivate']")).click();
+        waitUntil("//*[contains(text(),'Operation succeeded')]");
         return this;
     }
 

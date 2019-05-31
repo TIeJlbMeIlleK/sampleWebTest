@@ -28,9 +28,8 @@ public class SampleTests extends RSHBTests {
                     .selectVisible()
                     .deactivate()
                     //FIXME: что-то в IC не успевает отрабатывать, и надо бы ловить это не задержкой по времени, а появлением соответствующего элемента на странице
-                    .sleep(0.5)
                     .selectRule("R01_ExR_04_InfectedDevice")
-                    .sleep(0.5)
+                    .sleep(1)
                     .activate()
                     .sleep(3)
             ;

@@ -49,7 +49,7 @@ public abstract class AbstractViewContext<S> {
         return getSelf();
     }
 
-    protected WebElement waitUntil(String xPath) { // TODO: 30.05.19 Возможно переименовать метод?
+    public WebElement waitUntil(String xPath) { // TODO: 30.05.19 Возможно переименовать метод?
         return wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xPath)));
     }
 
