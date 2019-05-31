@@ -2,23 +2,23 @@ package ru.iitgroup.tests.webdriver.referencetable;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import ru.iitgroup.tests.webdriver.ic.AbstractEditContext;
+import ru.iitgroup.tests.webdriver.ic.AbstractEdit;
 
-public class RecordContext extends AbstractEditContext<RecordContext> {
+public class Record extends AbstractEdit<Record> {
 
-    public RecordContext(RemoteWebDriver driver) {
+    public Record(RemoteWebDriver driver) {
         super(driver);
     }
 
     @Override
-    protected RecordContext getSelf() {
+    protected Record getSelf() {
         return this;
     }
 
-    public EditContext edit() {
+    public TableEdit edit() {
         driver.findElement(By.xpath("//a[@id='btnEdit']/img")).click();
         //FIXME: что-то в IC не успевает отрабатывать, и надо бы ловить это не задержкой по времени, а появлением соответствующего элемента на странице
         sleep(0.5);
-        return new EditContext(driver);
+        return new TableEdit(driver);
     }
 }

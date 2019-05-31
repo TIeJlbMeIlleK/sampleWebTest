@@ -2,19 +2,19 @@ package ru.iitgroup.tests.webdriver.referencetable;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import ru.iitgroup.tests.webdriver.ic.AbstractEditContext;
+import ru.iitgroup.tests.webdriver.ic.AbstractEdit;
 import ru.iitgroup.tests.webdriver.ic.ICXPath;
 
-public class EditContext extends AbstractEditContext<EditContext> {
+public class TableEdit extends AbstractEdit<TableEdit> {
 
     private static final String SAVE_ACTION = "Save";
 
-    public EditContext(RemoteWebDriver driver) {
+    public TableEdit(RemoteWebDriver driver) {
         super(driver);
     }
 
     @Override
-    protected EditContext getSelf() {
+    protected TableEdit getSelf() {
         return this;
     }
 
@@ -23,11 +23,11 @@ public class EditContext extends AbstractEditContext<EditContext> {
     }
 
     //TODO: вынести в ICEdit extends ICView
-    public EditContext fillMasked(AllFields field, String fieldText) {
+    public TableEdit fillMasked(AllFields field, String fieldText) {
         return fillMasked(field.heading, fieldText);
     }
 
-    public EditContext fillMasked(String fieldName, String fieldText) {
+    public TableEdit fillMasked(String fieldName, String fieldText) {
         icxpath()
                 .element(fieldName)
                 .following(ICXPath.WebElements.INPUT)
@@ -35,10 +35,10 @@ public class EditContext extends AbstractEditContext<EditContext> {
         return this;
     }
 
-    public RecordContext save() {
+    public Record save() {
         final WebElement element = driver.findElementByXPath("//a[@id='btnSave']");
        // System.out.println("============ enabled ========= "+element.isEnabled());
         element.click();
-        return new RecordContext(driver);
+        return new Record(driver);
     }
 }

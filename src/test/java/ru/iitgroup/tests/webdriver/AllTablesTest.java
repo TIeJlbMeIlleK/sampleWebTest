@@ -1,20 +1,42 @@
 package ru.iitgroup.tests.webdriver;
 
 import static org.testng.Assert.assertEquals;
-import static ru.iitgroup.tests.webdriver.referencetable.Context.FIRST_ROW;
+import static ru.iitgroup.tests.webdriver.referencetable.Table.FIRST_ROW;
 
-import org.testng.annotations.Test;
-import ru.iitgroup.tests.webdriver.referencetable.Context;
+import org.bouncycastle.util.Properties;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.*;
+import ru.iitgroup.tests.properties.TestProperties;
+import ru.iitgroup.tests.webdriver.referencetable.Table;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
-public class ReferenceTableTest {
+public class AllTablesTest {
+
+    private ChromeDriver driver;
+
+
+    @BeforeClass
+    public void setUp() throws IOException {
+        TestProperties props = new TestProperties();
+        props.load(new FileInputStream("resources/test.properties"));
+        System.setProperty("webdriver.chrome.driver", props.getChromeDriverPath());
+        driver = new ChromeDriver();
+    }
+
+    @AfterClass
+    public void tearDown(){
+      driver.close();
+      driver=null;
+    }
 
     @Test
     public void testMatchedRows() {
 
-        Context t = new Context(null);
-
+        Table t = new Table(driver);
 
         final String[] heads = {"ID", "Comment", "Бик банка VIP", "Причина занесения", "Счет получатель VIP", "Дата занесения записи"};
         t.setHeads(heads);

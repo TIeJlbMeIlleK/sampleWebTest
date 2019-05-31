@@ -1,7 +1,9 @@
 #Подключение к интерфейсу IC
 ic.url=http://192.168.7.151:7780/InvestigationCenter/
-ic.user=ic_admin
-ic.password=ic_admin
+#ic.user=ic_admin
+#ic.password=ic_admin
+ic.user=user1
+ic.password=user1
 chromedriver.path=c:/webdrivers/chromedriver.exe
 pictures.folder=c:/tmp
 
@@ -11,7 +13,7 @@ ws.url=http://192.168.7.151:7780/InvestigationCenter/api/webservices/DBOAntiFrau
 
 #Подключение к базе данных для проверки операций
 db.driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
-db.url=jdbc:sqlserver://localhost:1433;database=alfa_acol_dev
+db.url=jdbc:sqlserver://192.168.101.25;database=rshb-53-57-db
 db.user=sa
 db.password=A123456b
 

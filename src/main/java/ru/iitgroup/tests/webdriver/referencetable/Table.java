@@ -2,13 +2,13 @@ package ru.iitgroup.tests.webdriver.referencetable;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import ru.iitgroup.tests.webdriver.ic.AbstractViewContext;
+import ru.iitgroup.tests.webdriver.ic.AbstractView;
 import ru.iitgroup.tests.webdriver.ic.ICXPath;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Context extends AbstractViewContext<Context> {
+public class Table extends AbstractView<Table> {
 
     public static final int FIRST_ROW = 2; //данные в IC начинаются со 2-ой строчки
     public static final int FIRST_COL = 4; //данные в IC начинаются с 4-ой колонки
@@ -23,16 +23,16 @@ public class Context extends AbstractViewContext<Context> {
     private String[] heads;
     private String[][] data;
 
-    public Context(RemoteWebDriver driver) {
+    public Table(RemoteWebDriver driver) {
         super(driver);
     }
 
     @Override
-    protected Context getSelf() {
+    protected Table getSelf() {
         return this;
     }
 
-    public Context readData() {
+    public Table readData() {
         /*
             для элементов заголовка - перебирать tr[1] через th[*]
             //div[@class='panelTable af_table']/table[2]/tbody/tr[1]/th[4]//span
@@ -73,12 +73,12 @@ public class Context extends AbstractViewContext<Context> {
      *
      * @return
      */
-    public EditContext addRecord() {
+    public TableEdit addRecord() {
         icxpath()
                 .element("Actions")
                 .preceding(ICXPath.WebElements.IMG)
                 .click();
-        return new EditContext(driver);
+        return new TableEdit(driver);
     }
 
     /**
@@ -88,10 +88,10 @@ public class Context extends AbstractViewContext<Context> {
      *                     В IC - начиная со второй
      * @return
      */
-    public RecordContext click(int technicalRow) {
+    public Record click(int technicalRow) {
         final String xpath = firstColXPath.replaceAll(ROW, String.valueOf(technicalRow));
         driver.findElementByXPath(xpath).click();
-        return new RecordContext(driver);
+        return new Record(driver);
     }
 
     /**
@@ -111,7 +111,7 @@ public class Context extends AbstractViewContext<Context> {
      *                     В IC - начиная со второй
      * @return
      */
-    public Context select(int technicalRow) {
+    public Table select(int technicalRow) {
         final String xpath = checkBoxXPath.replaceAll(ROW, String.valueOf(technicalRow));
         WebElement cbx = driver.findElementByXPath(xpath);
         cbx.click();
@@ -125,13 +125,13 @@ public class Context extends AbstractViewContext<Context> {
      *                     В IC - начиная со второй
      * @return
      */
-    public Context delete(int technicalRow) {
+    public Table delete(int technicalRow) {
         if (data == null) readData();
         select(technicalRow);
         return delete();
     }
 
-    public Context delete() {
+    public Table delete() {
         driver.findElementByXPath("//span[text()='Actions']").click();
         driver.findElementByXPath("//div[contains(@class,'qtip') and contains(@aria-hidden, 'false')]//div[@class='qtip-content']/a[text()='Delete']").click();
         driver.findElementsByXPath("//button[2]/span[text()='Yes']")
@@ -154,22 +154,22 @@ public class Context extends AbstractViewContext<Context> {
             return matchedRows == null ? new MatchedRows(matches) : matchedRows;
         }
 
-        public RecordContext click() {
-            return Context.this.click(getMatchedRows().get(1));
+        public Record click() {
+            return Table.this.click(getMatchedRows().get(1));
         }
 
-        public Context select() {
+        public Table select() {
             for (Integer rowNum : getMatchedRows().get()) {
-                Context.this.select(rowNum);
+                Table.this.select(rowNum);
             }
-            return Context.this;
+            return Table.this;
         }
 
-        public EditContext edit() {
+        public TableEdit edit() {
             return click().edit();
         }
 
-        public Context delete() {
+        public Table delete() {
             return select().delete();
         }
 

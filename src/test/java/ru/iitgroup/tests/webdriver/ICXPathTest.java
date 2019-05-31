@@ -66,7 +66,10 @@ public class ICXPathTest {
     @Test
     public void testSpecify() {
         //language=XPath
-        final String expected = ".//*[normalize-space(text())='R01_ExR_04_InfectedDevice'][1]/preceding::input[2][@type='checkbox']";
+        //FIXME: Потенциально работает и более простая форма. Но пока оставм сложную.
+        //final String expected = "//*[text()='R01_ExR_04_InfectedDevice'][1]/preceding::input[2][@type='checkbox']";
+        //language=XPath
+        final String expected = "((.//*[normalize-space(text()) and normalize-space(.)='R01_ExR_04_InfectedDevice'])[1]/preceding::input[2])[@type='checkbox']";
         final String xpath = icxp
                 .element("R01_ExR_04_InfectedDevice")
                 .preceding(INPUT, 2)

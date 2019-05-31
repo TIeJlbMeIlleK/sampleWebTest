@@ -3,7 +3,7 @@ package ru.iitgroup.tests.webdriver;
 /**
  * Справочники правил.
  */
-public enum Table {
+public enum AllTables {
 
     VIP_CLIENTS_CARD_NUMBER("(Rule_tables) VIP клиенты НомерКарты"),
     VIP_CLIENTS_BIC_ACCOUNT("(Rule_tables) VIP клиенты БИКСЧЕТ"),
@@ -26,7 +26,7 @@ public enum Table {
 
     private final String tableName;
 
-    Table(String tableName) {
+    AllTables(String tableName) {
         this.tableName = tableName;
     }
 

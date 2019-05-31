@@ -7,7 +7,10 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitgroup.classnames.BaseNameTable;
 import ru.iitgroup.tests.properties.TestProperties;
-import ru.iitgroup.tests.webdriver.Table;
+import ru.iitgroup.tests.webdriver.AllTables;
+import ru.iitgroup.tests.webdriver.importruletable.ImportRuleTable;
+import ru.iitgroup.tests.webdriver.referencetable.Table;
+import ru.iitgroup.tests.webdriver.ruleconfiguration.Rules;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,27 +86,27 @@ public class IC implements AutoCloseable {
         }
     }
 
-    public ru.iitgroup.tests.webdriver.importruletable.Context locateImportRuleTable() {
+    public ImportRuleTable locateImportRuleTable() {
         locateView(TopMenuItem.IMPORT_RULE_TABLES);
-        return new ru.iitgroup.tests.webdriver.importruletable.Context(driver);
+        return new ImportRuleTable(driver);
     }
 
-    public ru.iitgroup.tests.webdriver.referencetable.Context locateTable(Table table) {
+    public Table locateTable(AllTables allTables) {
         locateView(TopMenuItem.REFERENCE_DATA);
-        driver.findElement(By.linkText(table.getTableName())).click();
-        return new ru.iitgroup.tests.webdriver.referencetable.Context(driver);
+        driver.findElement(By.linkText(allTables.getTableName())).click();
+        return new Table(driver);
     }
 
-    public ru.iitgroup.tests.webdriver.referencetable.Context locateTable(BaseNameTable table) {
+    public Table locateTable(BaseNameTable table) {
         locateView(TopMenuItem.REFERENCE_DATA);
         driver.findElement(By.linkText(table.tableName)).click();
-        return new ru.iitgroup.tests.webdriver.referencetable.Context(driver);
+        return new Table(driver);
     }
 
-    public ru.iitgroup.tests.webdriver.ruleconfiguration.Context locateRules() {
+    public Rules locateRules() {
         locateView(TopMenuItem.ANALYTICS);
         locateView(TopMenuItem.RULES);
-        return new ru.iitgroup.tests.webdriver.ruleconfiguration.Context(driver);
+        return new Rules(driver);
     }
 
     private void locateView(TopMenuItem item) {

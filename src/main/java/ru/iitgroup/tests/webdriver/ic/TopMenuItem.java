@@ -8,7 +8,7 @@ public enum TopMenuItem {
     REFERENCE_DATA("Reference Data"),
     ANALYTICS("Analytics"),
     RULES("Rules"),
-    IMPORT_RULE_TABLES("Import Rule Tables");
+    IMPORT_RULE_TABLES("Import Rules Tables");
 
     private final String heading;
 

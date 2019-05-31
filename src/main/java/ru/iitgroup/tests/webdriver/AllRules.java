@@ -3,7 +3,7 @@ package ru.iitgroup.tests.webdriver;
 /**
  * Шаблоны правил.
  */
-public enum RuleTemplate {
+public enum AllRules {
     BR_01_PayeeInBlackList,
     BR_02_AbnormalSpeed,
     ExR_01_AuthenticationContactChanged,

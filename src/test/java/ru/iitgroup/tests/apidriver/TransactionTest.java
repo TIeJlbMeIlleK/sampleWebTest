@@ -19,7 +19,7 @@ public class TransactionTest {
                 .withTransactionId(222222222)
                 .toString();
 
-        final String expected = Files.lines( Transaction.templates.resolve("tran1.TestInh").toAbsolutePath())
+        final String expected = Files.lines( Transaction.templates.resolve("tran1.test").toAbsolutePath())
                 .collect(Collectors.joining("\r\n"));
 
         assertEquals(filled,expected);

@@ -2,10 +2,9 @@ package ru.iitgroup.tests.webdriver.importruletable;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import ru.iitgroup.tests.webdriver.Table;
-import ru.iitgroup.tests.webdriver.ic.AbstractViewContext;
+import ru.iitgroup.tests.webdriver.AllTables;
+import ru.iitgroup.tests.webdriver.ic.AbstractView;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,36 +12,30 @@ import java.util.stream.Collectors;
 /**
  * Контекст для работы с экранной формой импорта правил.
  */
-public class Context extends AbstractViewContext<Context> {
+public class ImportRuleTable extends AbstractView<ImportRuleTable> {
 
-    private final static Path RULES_DATA_BASE_DIR = Paths.get("resources/ruletables");
     private String fileName;
 
-    public Context(RemoteWebDriver driver) {
+    public ImportRuleTable(RemoteWebDriver driver) {
         super(driver);
     }
 
-    @Override
-    protected Context getSelf() {
-        return this;
-    }
-
-    public Context chooseTable(Table table) {
+    public ImportRuleTable chooseTable(AllTables allTables) {
         String idOfRadioButton = driver.findElementByXPath(
-                String.format("//table//label[text()='%s']", table.getTableName())
+                String.format("//allTables//label[text()='%s']", allTables.getTableName())
         ).getAttribute("for");
 
         driver.findElementByXPath(
-                String.format("//table//input[@id='%s']", idOfRadioButton)
+                String.format("//allTables//input[@id='%s']", idOfRadioButton)
         ).click();
 
         return this;
     }
 
-    public Context chooseFile(String fileName) {
+    public ImportRuleTable chooseFile(String fileName) {
         this.fileName = fileName;
 
-        String absolutePath = RULES_DATA_BASE_DIR.resolve(Paths.get(fileName))
+        String absolutePath = Paths.get("resources/ruletables").resolve(Paths.get(fileName))
                 .toAbsolutePath()
                 .toString();
         driver.findElementByXPath("//table//input[@type='file']").sendKeys(absolutePath);
@@ -50,7 +43,7 @@ public class Context extends AbstractViewContext<Context> {
         return this;
     }
 
-    public Context load() {
+    public ImportRuleTable load() {
         driver.findElementByXPath("//button[contains(.,'Загрузить')]").click();
         List<WebElement> errors = driver.findElementsByXPath("//li[@class='globalMessagesError']");
 
@@ -71,7 +64,7 @@ public class Context extends AbstractViewContext<Context> {
         return this;
     }
 
-    public Context rollback() {
+    public ImportRuleTable rollback() {
         driver.findElementByXPath("//button[contains(.,'Возврат')]").click();
 
         try {
@@ -95,12 +88,16 @@ public class Context extends AbstractViewContext<Context> {
             }
         } catch (Error ex) {
             throw new Error(
-                    "Произошла ошибка, во время возврата импортированных правил, " +
-                            "связанная с взаимодействием с экранной формой.",
+                    "Произошла ошибка, во время отката импорта rule_tables связанная с взаимодействием с экранной формой",
                     ex
             );
         }
 
+        return this;
+    }
+
+    @Override
+    protected ImportRuleTable getSelf() {
         return this;
     }
 }
