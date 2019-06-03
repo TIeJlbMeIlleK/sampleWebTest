@@ -1,7 +1,9 @@
 package ru.iitgroup.tests.webdriver.ic;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -60,5 +62,29 @@ public abstract class AbstractView<S> {
 
     public RemoteWebDriver getDriver() {
         return driver;
+    }
+
+
+    /**
+     * Отметить элемент красной рамкой, выполнить scroll к нему
+     * @param xpath путь
+     * @return найденный элемент
+     */
+    public WebElement mark(String xpath) {
+        WebElement elem = driver.findElementByXPath(xpath);
+        return mark( elem);
+    }
+
+    /**
+     * Отметить элемент красной рамкой, выполнить scroll к нему
+     * @param elem элемент для обработки
+     * @return входной параметр
+     */
+    public WebElement mark(WebElement elem) {
+        Actions actions = new Actions(driver);
+        actions.moveToElement(elem);
+        actions.perform();
+        ((JavascriptExecutor)driver).executeScript("arguments[0].style.border='3px solid red'", elem);
+        return elem;
     }
 }

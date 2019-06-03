@@ -26,7 +26,9 @@ public class IC implements AutoCloseable {
     private final String CLOSE_ACTION = "Close";
     private final TestProperties props;
 
-    private RemoteWebDriver driver;
+    private final RemoteWebDriver driver;
+    private final View view;
+
 
     public IC(TestProperties props) {
         this.props = props;
@@ -41,10 +43,11 @@ public class IC implements AutoCloseable {
             driver.findElement(By.id("password")).clear();
             driver.findElement(By.id("password")).sendKeys(props.getICPassword());
             driver.findElement(By.linkText("LOGIN")).click();
+            view = new View(driver);
         } catch (Exception e) {
             takeScreenshot("Open IC");
             driver.close();
-            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -52,7 +55,7 @@ public class IC implements AutoCloseable {
         return takeScreenshot(null);
     }
 
-    public Path takeScreenshot(String name){
+    public Path takeScreenshot(String name) {
         File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         String pageSource = driver.getPageSource();
 
@@ -106,11 +109,31 @@ public class IC implements AutoCloseable {
     public Rules locateRules() {
         locateView(TopMenuItem.ANALYTICS);
         locateView(TopMenuItem.RULES);
+        driver.findElementByXPath("//span[text()='All Rules']/..").click();
+        view.sleep(1);
         return new Rules(driver);
     }
 
     private void locateView(TopMenuItem item) {
         driver.findElement(By.linkText(item.getHeading())).click();
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        if (driver != null) driver.close();
+        super.finalize();
+
+    }
+
+    class View extends AbstractView<View> {
+        public View(RemoteWebDriver driver) {
+            super(driver);
+        }
+
+        @Override
+        protected View getSelf() {
+            return this;
+        }
     }
 
     public RemoteWebDriver getDriver() {

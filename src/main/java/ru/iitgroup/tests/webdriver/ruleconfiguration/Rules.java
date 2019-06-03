@@ -14,11 +14,6 @@ public class Rules extends AbstractView<Rules> {
         super(driver);
     }
 
-    @Override
-    protected Rules getSelf() {
-        return this;
-    }
-
     public RuleEdit createRule(AllRules template) {
         driver.findElementByXPath("//div[@id='toolbarActions']//td[@class='toolbarCell']//*[contains(@class,'newRule')]").click();
         waitUntil("//input[@id='ruleTemplateSearchText']");
@@ -29,39 +24,81 @@ public class Rules extends AbstractView<Rules> {
         return new RuleEdit(driver);
     }
 
+    public RuleEdit editRule(String ruleName) {
+        return openRecord(ruleName).edit();
+    }
+
+    private RuleRecord openRecord(String ruleName) {
+        //FIXME: не работает с правилами в конце списка - в IC некликабельно то, что не помещается полностью на экран
+        final String xpath = String.format("//span[@style=' ' and text()='%s']/../..", ruleName);
+        driver.findElementByXPath(xpath).click();
+        return new RuleRecord(driver);
+    }
+
     public Rules selectRule(String heading) {
         //language=XPath
         final String xpath = ".//*[normalize-space(text())='" + heading + "'][1]/preceding::input[2][@type='checkbox']";
 
 
-        final String ruleName = String.format(".//*[text()='%s'][1]/preceding::input[2][@type='checkbox']",heading);
+        final String ruleName = String.format(".//*[text()='%s'][1]/preceding::input[2][@type='checkbox']", heading);
         driver.findElementByXPath(ruleName).click();
-        return this;
+        return new Rules(driver);
     }
 
     public Rules activate() {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/img[1]")).click();
         driver.findElement(By.xpath("//div[contains(@class,\"qtip\") and contains(@aria-hidden, \"false\")]//div[@class='qtip-content']/a[text()='Activate']")).click();
+        waitSuccess();
         return this;
     }
 
     public Rules deactivate() {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/img[1]")).click();
         driver.findElement(By.xpath("//div[contains(@class,\"qtip\") and contains(@aria-hidden, \"false\")]//div[@class='qtip-content']/a[text()='Deactivate']")).click();
-        waitUntil("//*[contains(text(),'Operation succeeded')]");
+        waitSuccess();
         return this;
     }
 
-    public enum Action {
-        CHANGE_WORKSPACE(1),
-        DELETE(2),
-        ACTIVATE(3),
-        DEACTIVATE(4);
+    private void waitSuccess() {
+        waitUntil("//div[contains(text(),'Operation succeeded - ') and @class='actionsMessage']");
+    }
 
-        private final int pos;
 
-        Action(int pos) {
-            this.pos = pos;
+    protected void executeAction(Action action) {
+        driver.findElementByXPath("(.//*[text()='Actions'])[1]/img[1]").click();
+        final String xPath = String.format("//div[contains(@class,\"qtip\") and contains(@aria-hidden, \"false\")]//div[@class='qtip-content']/a[text()='%s']", action.name);
+        driver.findElementByXPath(xPath).click();
+        waitSuccess();
+    }
+
+    public Rules deleteRule(String heading) {
+        selectRule(heading);
+        executeAction(Action.Delete);
+        //TODO: разобраться с диалогом подтверждения
+        return this;
+    }
+
+
+    protected enum Action {
+        Activate("Activate"),
+        Deactivate("Deactivate"),
+        Delete("Delete"),
+        ChangeWorkspace("Change Workspace");
+
+        private final String name;
+
+        Action(String name) {
+            this.name = name;
         }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    @Override
+    protected Rules getSelf() {
+        return this;
     }
 }

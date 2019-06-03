@@ -29,7 +29,6 @@ public class SampleTests extends RSHBTests {
                     .selectVisible()
                     .deactivate()
                     .selectRule("R01_ExR_04_InfectedDevice")
-                    .sleep(1)
                     .activate()
                     .sleep(3)
             ;
@@ -174,8 +173,8 @@ public class SampleTests extends RSHBTests {
         }
     }
 
-    @Test(description = "Пример теста загрузки правил на экранной форме импорта правил")
-    public void importRulesThroughImportRuleTablesForm() {
+    @Test(description = "Загрузки rule_table")
+    public void importRukleTable() {
         IC ic = new IC(props);
 
         ic.locateImportRuleTable()
@@ -185,13 +184,40 @@ public class SampleTests extends RSHBTests {
                 .rollback();
     }
 
-    @Test(description = "Пример теста создания правила на экранной форме правил")
-    public void createRuleThroughRulesForm() {
+    @Test(description = "Пример отката загрузки")
+    public void rollbackRuleTable() {
+        IC ic = new IC(props);
+
+        ic.locateImportRuleTable()
+                .chooseTable(AllTables.VIP_CLIENTS_BIC_ACCOUNT)
+                .chooseFile("VIP клиенты БИКСЧЕТ.csv")
+                .load()
+                .rollback();
+    }
+
+    @Test(description = "Пример создания правила")
+    public void createRule() {
         IC ic = new IC(props);
         ic.locateRules()
                 .createRule(AllRules.BR_01_PayeeInBlackList)
-                .fillInputText("Name:", "name")
+                .fillInputText("Name:", "__test_rule__")
                 .fillCheckBox("Active:", true)
                 .save();
+    }
+
+    @Test(description = "Пример редактирования правила")
+    public void editRule() {
+        IC ic = new IC(props);
+        ic.locateRules()
+                .editRule("__test_rule__")
+                .fillTextArea("Description:","Пример описания правила")
+                .save();
+    }
+
+    @Test(description = "Пример удаления правила")
+    public void deleteRule() {
+        IC ic = new IC(props);
+        ic.locateRules()
+                .deleteRule("__test_rule__");
     }
 }

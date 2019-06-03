@@ -19,7 +19,12 @@ public abstract class AbstractEdit<S> extends AbstractView<S> {
     }
 
     public S fillTextArea(String fieldName, String input) {
-        WebElement inputTextField = driver.findElementByXPath(String.format(DEFAULT_X_PATH_TEMPLATE, fieldName, TEXTAREA_TAG));
+
+        final String xpath = String.format("//*[text()='%s']//following::textarea[1]",fieldName);
+
+        WebElement inputTextField = driver.findElementByXPath(xpath);
+
+        //mark(inputTextField);
 
         inputTextField.clear();
         inputTextField.sendKeys(input);
