@@ -5,7 +5,6 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import ru.iitgroup.classnames.BaseNameTable;
 import ru.iitgroup.tests.properties.TestProperties;
 import ru.iitgroup.tests.webdriver.importruletable.ImportRuleTable;
 import ru.iitgroup.tests.webdriver.referencetable.Table;
@@ -88,9 +87,9 @@ public class IC implements AutoCloseable {
         }
     }
 
-    public ImportRuleTable locateImportRuleTable() {
+    public ImportRuleTable locateImportRuleTable(String tableHeading) {
         locateView(TopMenuItem.IMPORT_RULE_TABLES);
-        return new ImportRuleTable(driver);
+        return new ImportRuleTable(tableHeading, driver);
     }
 
     public Table locateTable(String tableHeading) {
@@ -99,11 +98,6 @@ public class IC implements AutoCloseable {
         return new Table(driver);
     }
 
-    public Table locateTable(BaseNameTable table) {
-        locateView(TopMenuItem.REFERENCE_DATA);
-        driver.findElement(By.linkText(table.tableName)).click();
-        return new Table(driver);
-    }
 
     public Rules locateRules() {
         locateView(TopMenuItem.ANALYTICS);

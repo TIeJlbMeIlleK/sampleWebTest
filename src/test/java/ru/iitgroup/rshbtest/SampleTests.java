@@ -173,22 +173,15 @@ public class SampleTests extends RSHBTests {
     @Test(description = "Загрузки rule_table")
     public void importRuleTable() {
         IC ic = new IC(props);
-
-        ic.locateImportRuleTable()
-                .chooseTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
+        ic.locateImportRuleTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                 .chooseFile("VIP клиенты БИКСЧЕТ.csv")
-                .load()
-                .rollback();
+                .load();
     }
 
     @Test(description = "Пример отката загрузки")
     public void rollbackRuleTable() {
         IC ic = new IC(props);
-
-        ic.locateImportRuleTable()
-                .chooseTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
-                .chooseFile("VIP клиенты БИКСЧЕТ.csv")
-                .load()
+        ic.locateImportRuleTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                 .rollback();
     }
 

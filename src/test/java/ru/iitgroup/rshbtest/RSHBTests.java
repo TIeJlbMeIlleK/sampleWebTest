@@ -1,5 +1,7 @@
 package ru.iitgroup.rshbtest;
 
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -27,10 +29,25 @@ public abstract class RSHBTests {
         }
     }
 
-    private void getTestName(Annotation a) {
+
+    /**
+     * Метод корректного закрытия общих ресурсов, на случай, если тест упадёт
+     * @param result
+     */
+    @AfterMethod
+    public void tearDown(ITestResult result) {
+        if (result.getStatus() == ITestResult.FAILURE) {
+            //TODO: Получать имя теста и делать соответствующие скриншоты из IC, потом закрывать, для чего сделать IC общим ресурсом
+        }
+    }
+
+
+    private String getTestName(Annotation a) {
         if (a instanceof Test) {
             //TODO: В этом месте каждый тест должен отмечаться в некотором логе
-            System.out.println(((Test) a).testName());
+            return ((Test) a).testName();
+        }else {
+            throw new IllegalStateException("Метод, помеченный аннотацией @Test не является тестом");
         }
     }
 }

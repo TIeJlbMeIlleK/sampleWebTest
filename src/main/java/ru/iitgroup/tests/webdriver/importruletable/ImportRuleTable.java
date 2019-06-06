@@ -13,19 +13,16 @@ import java.util.stream.Collectors;
  */
 public class ImportRuleTable extends AbstractView<ImportRuleTable> {
 
+
     private String fileName;
 
-    public ImportRuleTable(RemoteWebDriver driver) {
+    public ImportRuleTable(String tableHeading, RemoteWebDriver driver) {
         super(driver);
+        chooseTable(tableHeading);
     }
 
     public ImportRuleTable chooseTable(String tableHeading) {
-        String idOfRadioButton = driver.findElementByXPath(
-                String.format("//allTables//label[text()='%s']", tableHeading)
-        ).getAttribute("for");
-
-        driver.findElementByXPath(
-                String.format("//allTables//input[@id='%s']", idOfRadioButton)
+        driver.findElementByXPath(String.format("//label[text()='%s']/preceding::input[1]", tableHeading)
         ).click();
 
         return this;
@@ -53,7 +50,7 @@ public class ImportRuleTable extends AbstractView<ImportRuleTable> {
 
             throw new Error(
                     String.format(
-                            "Произошла ошибка, во время импорта правил. Имя файла: %s Ошибки: %s",
+                            "Произошла ошибка во время импорта правил из файла [%s]. Описание ошибки: [%s]",
                             this.fileName,
                             errorsDescription
                     )
