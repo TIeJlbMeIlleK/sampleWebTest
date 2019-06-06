@@ -1,4 +1,4 @@
-package ru.iitgroup.rshbtest;
+package ru.iitgroup.rshbtest.experimantal;
 
 public class TestInh {
 

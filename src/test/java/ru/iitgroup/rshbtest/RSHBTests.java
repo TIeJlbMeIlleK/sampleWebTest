@@ -57,7 +57,7 @@ public abstract class RSHBTests {
     private String getTestName(Annotation a) {
         if (a instanceof Test) {
             //TODO: В этом месте каждый тест должен отмечаться в некотором логе
-            return ((Test) a).testName();
+            return ((Test) a).description();
         } else {
             throw new IllegalStateException("Метод, помеченный аннотацией @Test не является тестом");
         }

@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.testng.Assert.fail;
+
 /**
  * Контекст для работы с экранной формой импорта правил.
  */
@@ -48,9 +50,9 @@ public class ImportRuleTable extends AbstractView<ImportRuleTable> {
                     .map(WebElement::getText)
                     .collect(Collectors.joining(", "));
 
-            throw new Error(
+            fail(
                     String.format(
-                            "Произошла ошибка во время импорта правил из файла [%s]. Описание ошибки: [%s]",
+                            "Произошла ошибка во время импорта правил из файла %s. Описание ошибки: %s",
                             this.fileName,
                             errorsDescription
                     )
@@ -77,13 +79,13 @@ public class ImportRuleTable extends AbstractView<ImportRuleTable> {
                         .map(WebElement::getText)
                         .collect(Collectors.joining(", "));
 
-                throw new Error(String.format(
-                        "Произошла ошибка, во время возврата импортированных правил. Ошибки: %s",
+                fail(String.format(
+                        "Во время отката rule_tables возникли ошибки: %s",
                         errorsDescription
                 ));
             }
         } catch (Error ex) {
-            throw new Error(
+            fail(
                     "Произошла ошибка, во время отката импорта rule_tables связанная с взаимодействием с экранной формой",
                     ex
             );

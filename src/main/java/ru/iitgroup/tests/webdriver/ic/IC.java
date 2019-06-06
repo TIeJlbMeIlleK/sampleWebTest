@@ -63,19 +63,20 @@ public class IC implements AutoCloseable {
 
         String pictureName;
         if (name != null) {
-            pictureName = name.replaceAll("\\W","_");
+            pictureName = name.replaceAll("\\P{L}","_");
         } else {
             pictureName = "IC";
         }
 
-        //TODO: перенести путь в файл настроек - оно системно-специфическое
         try {
             Path folder = Paths.get(props.getPicturesFolder());
             final Path imgPath = folder.resolve(String.format("%s at %s.png", pictureName, date));
             Files.move(scrFile.toPath(), imgPath);
+            System.out.println(String.format("Изображение сохранено в файл %s", imgPath.toString()));
 
             final Path pageSourcePath = folder.resolve(String.format("%s at %s.htm", pictureName, date));
             Files.write(pageSourcePath, pageSource.getBytes(StandardCharsets.UTF_8));
+            System.out.println(String.format("Код страницы сохранён в файл %s", pageSourcePath.toString()));
             return imgPath;
         } catch (IOException e) {
             e.printStackTrace();
