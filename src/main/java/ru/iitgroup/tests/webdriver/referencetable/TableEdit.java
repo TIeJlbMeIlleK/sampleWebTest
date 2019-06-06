@@ -18,10 +18,6 @@ public class TableEdit extends AbstractEdit<TableEdit> {
         return this;
     }
 
-    public static void deleteRecord() {
-        throw new IllegalStateException("Not implemented yet");
-    }
-
     public TableEdit fillMasked(String fieldName, String fieldText) {
         icxpath()
                 .element(fieldName)

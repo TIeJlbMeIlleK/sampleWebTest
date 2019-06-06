@@ -271,11 +271,22 @@ public class Table extends AbstractView<Table> {
         return this;
     }
 
+    /**
+     * Утилитарный метод для ручного заполнения заголовков таблицы.
+     * Только для тестов
+     * @param data квадратный массив данных (столбцы * строчки)
+     */
+
     @Deprecated
     public void setData(String[][] data) {
         this.data = data;
     }
 
+    /**
+     * Утилитарный метод для ручного заполнения заголовков таблицы.
+     * Только для тестов
+     * @param heads список заголовков
+     */
     @Deprecated
     public void setHeads(String[] heads) {
         this.heads = heads;

@@ -76,7 +76,7 @@ public class IC implements AutoCloseable {
 
             final Path pageSourcePath = folder.resolve(String.format("%s at %s.htm", pictureName, date));
             Files.write(pageSourcePath, pageSource.getBytes(StandardCharsets.UTF_8));
-            System.out.println(String.format("Код страницы сохранён в файл %s", pageSourcePath.toString()));
+            System.out.println(String.format("Код страницы сохранён в файд %s", pageSourcePath.toString()));
             return imgPath;
         } catch (IOException e) {
             e.printStackTrace();
