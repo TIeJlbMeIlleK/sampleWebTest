@@ -61,7 +61,12 @@ public class IC implements AutoCloseable {
                 .replace("T", " ")
                 .replace(":", ".");
 
-        String pictureName = name == null ? "IC" : name;
+        String pictureName;
+        if (name != null) {
+            pictureName = name.replaceAll("\\W","_");
+        } else {
+            pictureName = "IC";
+        }
 
         //TODO: перенести путь в файл настроек - оно системно-специфическое
         try {
@@ -118,6 +123,16 @@ public class IC implements AutoCloseable {
 
     }
 
+    /**
+     * Возврат на основной экран
+     *
+     * @return
+     */
+    public IC home() {
+        driver.findElementByXPath("//*[@id=\"navigateHomeLinkLogo\"]/img").click();
+        return this;
+    }
+
     class View extends AbstractView<View> {
         public View(RemoteWebDriver driver) {
             super(driver);
@@ -127,16 +142,6 @@ public class IC implements AutoCloseable {
         protected View getSelf() {
             return this;
         }
-    }
-
-
-    /**
-     * Возврат на основной экран
-     * @return
-     */
-    public IC home(){
-      driver.findElementByXPath("//*[@id=\"navigateHomeLinkLogo\"]/img").click();
-      return this;
     }
 
     public RemoteWebDriver getDriver() {

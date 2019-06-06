@@ -20,7 +20,7 @@ public class SampleTests extends RSHBTests {
 
     @Test
     public void enableRule() {
-        IC ic = new IC(props);
+        
         try {
             ic.locateRules()
                     .selectVisible()
@@ -86,7 +86,7 @@ public class SampleTests extends RSHBTests {
 
     @Test
     public void addRecord() throws Exception {
-        IC ic = new IC(props);
+        
         try {
             ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                     .addRecord()
@@ -101,7 +101,7 @@ public class SampleTests extends RSHBTests {
 
     @Test
     public void editRecord() throws Exception {
-        IC ic = new IC(props);
+        
         try {
             ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                     //.selectRecord("123456789", "123456789123")
@@ -125,7 +125,7 @@ public class SampleTests extends RSHBTests {
 
     @Test
     public void testDeleteRecord() throws Exception {
-        IC ic = new IC(props);
+        
         try {
             ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                     .findRowsBy()
@@ -172,7 +172,7 @@ public class SampleTests extends RSHBTests {
 
     @Test(description = "Загрузки rule_table")
     public void importRuleTable() {
-        IC ic = new IC(props);
+        
         ic.locateImportRuleTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                 .chooseFile("VIP клиенты БИКСЧЕТ.csv")
                 .load();
@@ -180,14 +180,14 @@ public class SampleTests extends RSHBTests {
 
     @Test(description = "Пример отката загрузки")
     public void rollbackRuleTable() {
-        IC ic = new IC(props);
+        
         ic.locateImportRuleTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                 .rollback();
     }
 
     @Test(description = "Пример создания правила")
     public void createRule() {
-        IC ic = new IC(props);
+        
         ic.locateRules()
                 .createRule("BR_01_PayeeInBlackList")
                 .fillInputText("Name:", "__test_rule__")
@@ -197,7 +197,7 @@ public class SampleTests extends RSHBTests {
 
     @Test(description = "Пример редактирования правила")
     public void editRule() {
-        IC ic = new IC(props);
+        
         ic.locateRules()
                 .editRule("__test_rule__")
                 //FIXME: не успевает отрисовываться редактор правила
@@ -208,7 +208,7 @@ public class SampleTests extends RSHBTests {
 
     @Test(description = "Пример удаления правила")
     public void deleteRule() {
-        IC ic = new IC(props);
+        
         ic.locateRules()
                 .deleteRule("__test_rule__");
     }

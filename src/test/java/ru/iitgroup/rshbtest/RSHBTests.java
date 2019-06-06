@@ -6,15 +6,19 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import ru.iitgroup.tests.properties.TestProperties;
+import ru.iitgroup.tests.webdriver.ic.IC;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 public abstract class RSHBTests {
 
     protected TestProperties props;
+    protected IC ic;
+    private String testName;
 
     @BeforeClass
     public void setUpProperties() throws IOException {
@@ -23,21 +27,29 @@ public abstract class RSHBTests {
     }
 
     @BeforeMethod
-    public void checkAnnotations(Method method) {
-        for (Annotation a : method.getAnnotations()) {
-            getTestName(a);
-        }
+    public void setupMethod(Method method) {
+        ic = new IC(props);
+
+        testName = Arrays.stream(method.getAnnotations())
+                .map(this::getTestName)
+                .findFirst()
+                .orElse("");
     }
 
 
     /**
      * Метод корректного закрытия общих ресурсов, на случай, если тест упадёт
+     *
      * @param result
      */
     @AfterMethod
-    public void tearDown(ITestResult result) {
-        if (result.getStatus() == ITestResult.FAILURE) {
-            //TODO: Получать имя теста и делать соответствующие скриншоты из IC, потом закрывать, для чего сделать IC общим ресурсом
+    public void tearDownMethod(ITestResult result) {
+        try {
+            if (result.getStatus() == ITestResult.FAILURE) {
+                ic.takeScreenshot(testName);
+            }
+        } finally {
+            ic.close();
         }
     }
 
@@ -46,7 +58,7 @@ public abstract class RSHBTests {
         if (a instanceof Test) {
             //TODO: В этом месте каждый тест должен отмечаться в некотором логе
             return ((Test) a).testName();
-        }else {
+        } else {
             throw new IllegalStateException("Метод, помеченный аннотацией @Test не является тестом");
         }
     }

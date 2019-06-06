@@ -27,11 +27,6 @@ public class Table extends AbstractView<Table> {
         super(driver);
     }
 
-    @Override
-    protected Table getSelf() {
-        return this;
-    }
-
     public Table readData() {
         /*
             для элементов заголовка - перебирать tr[1] через th[*]
@@ -150,10 +145,6 @@ public class Table extends AbstractView<Table> {
             return this;
         }
 
-        public MatchedRows getMatchedRows() {
-            return matchedRows == null ? new MatchedRows(matches) : matchedRows;
-        }
-
         public Record click() {
             return Table.this.click(getMatchedRows().get(1));
         }
@@ -171,6 +162,10 @@ public class Table extends AbstractView<Table> {
 
         public Table delete() {
             return select().delete();
+        }
+
+        public MatchedRows getMatchedRows() {
+            return matchedRows == null ? new MatchedRows(matches) : matchedRows;
         }
 
     }
@@ -209,7 +204,7 @@ public class Table extends AbstractView<Table> {
         }
 
         public Integer get(int index) {
-            return matchedRows.get(index);
+            return matchedRows.get(index - 1);
         }
 
         public List<Integer> get() {
@@ -225,6 +220,11 @@ public class Table extends AbstractView<Table> {
             this.colHeading = colHeading;
             this.rowText = rowText;
         }
+    }
+
+    @Override
+    protected Table getSelf() {
+        return this;
     }
 
     @Deprecated
