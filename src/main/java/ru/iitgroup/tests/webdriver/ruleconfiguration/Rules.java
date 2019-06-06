@@ -1,6 +1,5 @@
 package ru.iitgroup.tests.webdriver.ruleconfiguration;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitgroup.tests.webdriver.ic.AbstractView;
 
@@ -38,23 +37,32 @@ public class Rules extends AbstractView<Rules> {
         //language=XPath
         final String xpath = ".//*[normalize-space(text())='" + heading + "'][1]/preceding::input[2][@type='checkbox']";
 
-
         final String ruleName = String.format(".//*[text()='%s'][1]/preceding::input[2][@type='checkbox']", heading);
         driver.findElementByXPath(ruleName).click();
         return new Rules(driver);
     }
 
     public Rules activate() {
-        driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/img[1]")).click();
-        driver.findElement(By.xpath("//div[contains(@class,\"qtip\") and contains(@aria-hidden, \"false\")]//div[@class='qtip-content']/a[text()='Activate']")).click();
+        executeAction(Action.Activate);
         waitSuccess();
         return this;
     }
 
     public Rules deactivate() {
-        driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Actions'])[1]/img[1]")).click();
-        driver.findElement(By.xpath("//div[contains(@class,\"qtip\") and contains(@aria-hidden, \"false\")]//div[@class='qtip-content']/a[text()='Deactivate']")).click();
+        executeAction(Action.Deactivate);
         waitSuccess();
+        return this;
+    }
+
+    public Rules deleteRule(String heading) {
+        selectRule(heading);
+        executeAction(Action.Delete);
+        sleep(0.5);
+        /*
+        ищем диалог подтверждения по паре кнопок
+         */
+        driver.findElementByXPath("//button/span[text()='No']/preceding::button/span[text()='Yes']").click();
+        waitUntil("//*[contains(text(),'Operation succeeded') and @class='globalMessagesInfo']");
         return this;
     }
 
@@ -67,14 +75,6 @@ public class Rules extends AbstractView<Rules> {
         driver.findElementByXPath("(.//*[text()='Actions'])[1]/img[1]").click();
         final String xPath = String.format("//div[contains(@class,\"qtip\") and contains(@aria-hidden, \"false\")]//div[@class='qtip-content']/a[text()='%s']", action.name);
         driver.findElementByXPath(xPath).click();
-        waitSuccess();
-    }
-
-    public Rules deleteRule(String heading) {
-        selectRule(heading);
-        executeAction(Action.Delete);
-        //TODO: разобраться с диалогом подтверждения
-        return this;
     }
 
 

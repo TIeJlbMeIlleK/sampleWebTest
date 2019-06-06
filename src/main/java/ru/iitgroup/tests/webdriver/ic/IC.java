@@ -129,6 +129,16 @@ public class IC implements AutoCloseable {
         }
     }
 
+
+    /**
+     * Возврат на основной экран
+     * @return
+     */
+    public IC home(){
+      driver.findElementByXPath("//*[@id=\"navigateHomeLinkLogo\"]/img").click();
+      return this;
+    }
+
     public RemoteWebDriver getDriver() {
         return driver;
     }

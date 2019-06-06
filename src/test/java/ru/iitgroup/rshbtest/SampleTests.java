@@ -200,6 +200,8 @@ public class SampleTests extends RSHBTests {
         IC ic = new IC(props);
         ic.locateRules()
                 .editRule("__test_rule__")
+                //FIXME: не успевает отрисовываться редактор правила
+                .sleep(0.5)
                 .fillTextArea("Description:", "Пример описания правила")
                 .save();
     }

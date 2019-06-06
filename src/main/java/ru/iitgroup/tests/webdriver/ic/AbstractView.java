@@ -20,7 +20,7 @@ public abstract class AbstractView<S> {
 
     public AbstractView(RemoteWebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, 1);
+        this.wait = new WebDriverWait(driver, 5);
     }
 
     public S selectVisible() {
@@ -42,6 +42,11 @@ public abstract class AbstractView<S> {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        return getSelf();
+    }
+
+    public S sleep(String xpath) {
+        waitUntil(xpath);
         return getSelf();
     }
 
