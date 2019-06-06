@@ -58,8 +58,8 @@ public class TableTest {
         final List<Integer> rowNums = t.findRowsBy()
                 .match(heads[2], data[7][2])
                 .match(heads[3], data[7][3])
-                .getMatchedRows()
-                .get();
+                .calcMatchedRows()
+                .getTableRowNums();
 
         assertEquals(rowNums.size(), 2);
         assertEquals(rowNums.get(0).intValue(), 7 + FIRST_ROW);

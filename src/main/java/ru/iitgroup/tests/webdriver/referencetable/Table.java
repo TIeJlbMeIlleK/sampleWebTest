@@ -7,6 +7,9 @@ import ru.iitgroup.tests.webdriver.ic.ICXPath;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.testng.Assert.fail;
 
 public class Table extends AbstractView<Table> {
 
@@ -77,7 +80,7 @@ public class Table extends AbstractView<Table> {
     }
 
     /**
-     * Щёлкнуть на стрке в таблице
+     * Щёлкнуть на строке в таблице
      *
      * @param technicalRow точный (в терминах XPath) номер строки, на который кликать.
      *                     В IC - начиная со второй
@@ -126,6 +129,7 @@ public class Table extends AbstractView<Table> {
         return delete();
     }
 
+    //FIXME: тут вообще какой-то мусор
     public Table delete() {
         driver.findElementByXPath("//span[text()='Actions']").click();
         driver.findElementByXPath("//div[contains(@class,'qtip') and contains(@aria-hidden, 'false')]//div[@class='qtip-content']/a[text()='Delete']").click();
@@ -136,21 +140,48 @@ public class Table extends AbstractView<Table> {
         return this;
     }
 
+    /**
+     * Класс для формулы - набора выражений, т.е. фильтра, накладывемого на таблицу для отбора строк
+     * (желательно - только одной, потому что клик будет сделан на первой подходящей
+     */
     public class Formula {
-        private final List<Expression> matches = new ArrayList<>();
-        private MatchedRows matchedRows;
+        private final List<Expression> expressions = new ArrayList<>();
+        public MatchedRows matchedRows;
 
         public Formula match(String colHeading, String rowText) {
-            matches.add(new Expression(colHeading, rowText));
+            expressions.add(new Expression(colHeading, rowText));
             return this;
         }
 
+        /**
+         * Выполняет щелчок на первой из строк, удовлетворяющих условию
+         * @return
+         */
         public Record click() {
-            return Table.this.click(getMatchedRows().get(1));
+            calcMatchedRows();
+            failIfNoRows();
+            return Table.this.click(matchedRows.get(1));
+        }
+
+        /**
+         * Вызывает Assert#fail (чтобы тест упал) для случая, если у таблицы удовлетворяющих формуле строк
+         */
+        private void failIfNoRows() {
+            if ( matchedRows.rows.size() == 0) {
+                final String formula = expressions.stream()
+                        .map(exp -> String.format("%s = %s", exp.colHeading, exp.rowText))
+                        .collect(Collectors.joining(", "));
+
+                fail(String.format("По формуле %s не удалось выбрать ни одной строки из таблицы",
+                        formula
+                ));
+            }
         }
 
         public Table select() {
-            for (Integer rowNum : getMatchedRows().get()) {
+            calcMatchedRows();
+            failIfNoRows();
+            for (Integer rowNum : matchedRows.get()) {
                 Table.this.select(rowNum);
             }
             return Table.this;
@@ -164,17 +195,26 @@ public class Table extends AbstractView<Table> {
             return select().delete();
         }
 
-        public MatchedRows getMatchedRows() {
-            return matchedRows == null ? new MatchedRows(matches) : matchedRows;
+        /**
+         * Обновить внутренний объект, который содержит все совпадающие строки
+         */
+        public Formula calcMatchedRows() {
+            if (matchedRows == null) {
+                matchedRows = new MatchedRows(expressions);
+            }
+            return this;
         }
 
+        public List<Integer> getTableRowNums() {
+            return matchedRows.rows;
+        }
     }
 
     public class MatchedRows {
-        final List<Integer> matchedRows;
+        final List<Integer> rows;
 
         public MatchedRows(List<Expression> expressions) {
-            matchedRows = new ArrayList<>();
+            rows = new ArrayList<>();
             if (data == null) readData();
             for (int row = 0; row < data.length; row++) {
                 boolean found = true;
@@ -198,20 +238,24 @@ public class Table extends AbstractView<Table> {
                     }
                 }
                 if (found) {
-                    matchedRows.add(row + FIRST_ROW); //в виде, пригодном для XPath
+                    rows.add(row + FIRST_ROW); //в виде, пригодном для XPath
                 }
             }
         }
 
         public Integer get(int index) {
-            return matchedRows.get(index - 1);
+            return rows.get(index - 1);
         }
 
         public List<Integer> get() {
-            return matchedRows;
+            return rows;
         }
     }
 
+    /**
+     * Класс для выражения - одной строки фильтра для выбора строчек
+     * <p/>Выражение ::= < Заголовок столбца >, < Текст в столбце >
+     */
     public class Expression {
         private final String colHeading;
         private final String rowText;

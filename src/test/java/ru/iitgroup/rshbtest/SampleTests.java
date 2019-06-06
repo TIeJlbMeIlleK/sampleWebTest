@@ -3,7 +3,6 @@ package ru.iitgroup.rshbtest;
 
 import org.testng.annotations.Test;
 import ru.iitgroup.tests.apidriver.DBOAntiFraudWS;
-import ru.iitgroup.tests.apidriver.ICMalfunctionError;
 import ru.iitgroup.tests.apidriver.Transaction;
 import ru.iitgroup.tests.dbdriver.Database;
 import ru.iitgroup.tests.webdriver.ic.IC;
@@ -20,7 +19,7 @@ public class SampleTests extends RSHBTests {
 
     @Test
     public void enableRule() {
-        
+
         try {
             ic.locateRules()
                     .selectVisible()
@@ -86,93 +85,76 @@ public class SampleTests extends RSHBTests {
 
     @Test
     public void addRecord() throws Exception {
-        
-        try {
-            ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
-                    .addRecord()
-                    .fillMasked("Бик банка VIP:", "123456789")
-                    .fillMasked("Счет получатель VIP:", "12345678912345678912")
-                    .fillMasked("Причина занесения:", "Автоматическая обработка")
-                    .save();
-        } finally {
-            ic.close();
-        }
+
+        ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
+                .addRecord()
+                .fillMasked("Бик банка VIP:", "123456789")
+                .fillMasked("Счет получатель VIP:", "12345678912345678912")
+                .fillMasked("Причина занесения:", "Автоматическая обработка")
+                .save();
     }
 
     @Test
     public void editRecord() throws Exception {
-        
-        try {
-            ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
-                    //.selectRecord("123456789", "123456789123")
-                    .findRowsBy()
-                    .match("Бик банка VIP", "987654321")
-                    .match("Счет получатель VIP", "98765432198765432198")
-                    .edit()
-                    .fillMasked("Бик банка VIP:", "987654322")
-                    .fillMasked("Счет получатель VIP:", "98765432198765432198")
-                    .fillMasked("Причина занесения:", "Автоматическая обработка")
-                    //.sleep(2)
-                    .save();
-        } catch (Exception e) {
 
-            throw new ICMalfunctionError(e, ic.takeScreenshot());
-        } finally {
-            ic.close();
-        }
+        ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
+                //.selectRecord("123456789", "123456789123")
+                .findRowsBy()
+                .match("Бик банка VIP", "987654321")
+                .match("Счет получатель VIP", "98765432198765432198")
+                .edit()
+                .fillMasked("Бик банка VIP:", "987654322")
+                .fillMasked("Счет получатель VIP:", "98765432198765432198")
+                .fillMasked("Причина занесения:", "Автоматическая обработка")
+                //.sleep(2)
+                .save();
     }
 
 
     @Test
     public void testDeleteRecord() throws Exception {
-        
-        try {
-            ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
-                    .findRowsBy()
-                    .match("ID", "00044")
-                    .delete();
-        } catch (Exception e) {
-            throw new ICMalfunctionError(e, ic.takeScreenshot());
-        } finally {
 
-            ic.close();
-        }
+        ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
+                .findRowsBy()
+                .match("ID", "00044")
+                .delete();
     }
 
     @Test
     public void testSelectRowByJava() throws Exception {
-        try (IC ic = new IC(props)) {
-            final Table table =
-                    ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ");
 
-            table.readData();
+        final Table table =
+                ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ");
+
+        table.readData();
 //            System.out.println(String.join("\t",table.heads));
 //            for (String[] row : table.data) {
 //                System.out.println(String.join("\t", row));
 //            }
 
-            Table.Formula rm =
-                    table.findRowsBy()
-                            .match("Бик банка VIP", "987654321")
-                            .match("Счет получатель VIP", "98765432198765432198");
+        Table.Formula formula =
+                table.findRowsBy()
+                        .match("Бик банка VIP", "987654321")
+                        .match("Счет получатель VIP", "98765432198765432198")
 //                    .match("Comment","123");
+                        .calcMatchedRows();
 
-            rm.select()
-                    .sleep(2);
-            //TODO: дописать тестовый код, позволяющий убедиться в том, что строки действительно выбрались, а пока - смотреть глазами
+        formula
+                .select()
+                .sleep(2);
+        //TODO: дописать тестовый код, позволяющий убедиться в том, что строки действительно выбрались, а пока - смотреть глазами
 
-            final List<Integer> foundRows = rm.getMatchedRows().get();
-            assertEquals(foundRows.size(), 2);
+        final List<Integer> foundRows = formula.getTableRowNums();
+        assertEquals(foundRows.size(), 1);
 
-            table.click(foundRows.get(0));
+        table.click(foundRows.get(0));
 
-            table.sleep(2);
-        }
+        table.sleep(2);
     }
 
     @Test(description = "Загрузки rule_table")
     public void importRuleTable() {
-        
+
         ic.locateImportRuleTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                 .chooseFile("VIP клиенты БИКСЧЕТ.csv")
                 .load();
@@ -180,14 +162,14 @@ public class SampleTests extends RSHBTests {
 
     @Test(description = "Пример отката загрузки")
     public void rollbackRuleTable() {
-        
+
         ic.locateImportRuleTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                 .rollback();
     }
 
     @Test(description = "Пример создания правила")
     public void createRule() {
-        
+
         ic.locateRules()
                 .createRule("BR_01_PayeeInBlackList")
                 .fillInputText("Name:", "__test_rule__")
@@ -197,7 +179,7 @@ public class SampleTests extends RSHBTests {
 
     @Test(description = "Пример редактирования правила")
     public void editRule() {
-        
+
         ic.locateRules()
                 .editRule("__test_rule__")
                 //FIXME: не успевает отрисовываться редактор правила
@@ -208,7 +190,7 @@ public class SampleTests extends RSHBTests {
 
     @Test(description = "Пример удаления правила")
     public void deleteRule() {
-        
+
         ic.locateRules()
                 .deleteRule("__test_rule__");
     }
