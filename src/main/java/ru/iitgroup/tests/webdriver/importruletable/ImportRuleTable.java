@@ -2,7 +2,6 @@ package ru.iitgroup.tests.webdriver.importruletable;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import ru.iitgroup.tests.webdriver.AllTables;
 import ru.iitgroup.tests.webdriver.ic.AbstractView;
 
 import java.nio.file.Paths;
@@ -20,9 +19,9 @@ public class ImportRuleTable extends AbstractView<ImportRuleTable> {
         super(driver);
     }
 
-    public ImportRuleTable chooseTable(AllTables allTables) {
+    public ImportRuleTable chooseTable(String tableHeading) {
         String idOfRadioButton = driver.findElementByXPath(
-                String.format("//allTables//label[text()='%s']", allTables.getTableName())
+                String.format("//allTables//label[text()='%s']", tableHeading)
         ).getAttribute("for");
 
         driver.findElementByXPath(

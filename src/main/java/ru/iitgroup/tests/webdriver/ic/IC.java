@@ -7,7 +7,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitgroup.classnames.BaseNameTable;
 import ru.iitgroup.tests.properties.TestProperties;
-import ru.iitgroup.tests.webdriver.AllTables;
 import ru.iitgroup.tests.webdriver.importruletable.ImportRuleTable;
 import ru.iitgroup.tests.webdriver.referencetable.Table;
 import ru.iitgroup.tests.webdriver.ruleconfiguration.Rules;
@@ -94,9 +93,9 @@ public class IC implements AutoCloseable {
         return new ImportRuleTable(driver);
     }
 
-    public Table locateTable(AllTables allTables) {
+    public Table locateTable(String tableHeading) {
         locateView(TopMenuItem.REFERENCE_DATA);
-        driver.findElement(By.linkText(allTables.getTableName())).click();
+        driver.findElement(By.linkText(tableHeading)).click();
         return new Table(driver);
     }
 

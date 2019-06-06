@@ -1,23 +1,20 @@
 package ru.iitgroup.rshbtest;
 
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
-
 import org.testng.annotations.Test;
 import ru.iitgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitgroup.tests.apidriver.ICMalfunctionError;
 import ru.iitgroup.tests.apidriver.Transaction;
 import ru.iitgroup.tests.dbdriver.Database;
-import ru.iitgroup.tests.webdriver.AllTables;
-import ru.iitgroup.tests.webdriver.AllRules;
 import ru.iitgroup.tests.webdriver.ic.IC;
-import ru.iitgroup.tests.webdriver.referencetable.AllFields;
 import ru.iitgroup.tests.webdriver.referencetable.Table;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 public class SampleTests extends RSHBTests {
 
@@ -91,11 +88,11 @@ public class SampleTests extends RSHBTests {
     public void addRecord() throws Exception {
         IC ic = new IC(props);
         try {
-            ic.locateTable(AllTables.VIP_CLIENTS_BIC_ACCOUNT)
+            ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                     .addRecord()
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$БИК, "123456789")
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$СЧЁТ, "12345678912345678912")
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$ПРИЧИНА_ЗАНЕСЕНИЯ, "Автоматическая обработка")
+                    .fillMasked("Бик банка VIP:", "123456789")
+                    .fillMasked("Счет получатель VIP:", "12345678912345678912")
+                    .fillMasked("Причина занесения:", "Автоматическая обработка")
                     .save();
         } finally {
             ic.close();
@@ -106,15 +103,15 @@ public class SampleTests extends RSHBTests {
     public void editRecord() throws Exception {
         IC ic = new IC(props);
         try {
-            ic.locateTable(AllTables.VIP_CLIENTS_BIC_ACCOUNT)
+            ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                     //.selectRecord("123456789", "123456789123")
                     .findRowsBy()
                     .match("Бик банка VIP", "987654321")
                     .match("Счет получатель VIP", "98765432198765432198")
                     .edit()
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$БИК, "987654322")
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$СЧЁТ, "98765432198765432198")
-                    .fillMasked(AllFields.VIP_БИК_СЧЁТ$ПРИЧИНА_ЗАНЕСЕНИЯ, "Автоматическая обработка")
+                    .fillMasked("Бик банка VIP:", "987654322")
+                    .fillMasked("Счет получатель VIP:", "98765432198765432198")
+                    .fillMasked("Причина занесения:", "Автоматическая обработка")
                     //.sleep(2)
                     .save();
         } catch (Exception e) {
@@ -130,7 +127,7 @@ public class SampleTests extends RSHBTests {
     public void testDeleteRecord() throws Exception {
         IC ic = new IC(props);
         try {
-            ic.locateTable(AllTables.VIP_CLIENTS_BIC_ACCOUNT)
+            ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                     .findRowsBy()
                     .match("ID", "00044")
                     .delete();
@@ -146,7 +143,7 @@ public class SampleTests extends RSHBTests {
     public void testSelectRowByJava() throws Exception {
         try (IC ic = new IC(props)) {
             final Table table =
-                    ic.locateTable(AllTables.VIP_CLIENTS_BIC_ACCOUNT);
+                    ic.locateTable("(Rule_tables) VIP клиенты БИКСЧЕТ");
 
             table.readData();
 //            System.out.println(String.join("\t",table.heads));
@@ -174,11 +171,11 @@ public class SampleTests extends RSHBTests {
     }
 
     @Test(description = "Загрузки rule_table")
-    public void importRukleTable() {
+    public void importRuleTable() {
         IC ic = new IC(props);
 
         ic.locateImportRuleTable()
-                .chooseTable(AllTables.VIP_CLIENTS_BIC_ACCOUNT)
+                .chooseTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                 .chooseFile("VIP клиенты БИКСЧЕТ.csv")
                 .load()
                 .rollback();
@@ -189,7 +186,7 @@ public class SampleTests extends RSHBTests {
         IC ic = new IC(props);
 
         ic.locateImportRuleTable()
-                .chooseTable(AllTables.VIP_CLIENTS_BIC_ACCOUNT)
+                .chooseTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                 .chooseFile("VIP клиенты БИКСЧЕТ.csv")
                 .load()
                 .rollback();
@@ -199,7 +196,7 @@ public class SampleTests extends RSHBTests {
     public void createRule() {
         IC ic = new IC(props);
         ic.locateRules()
-                .createRule(AllRules.BR_01_PayeeInBlackList)
+                .createRule("BR_01_PayeeInBlackList")
                 .fillInputText("Name:", "__test_rule__")
                 .fillCheckBox("Active:", true)
                 .save();
@@ -210,7 +207,7 @@ public class SampleTests extends RSHBTests {
         IC ic = new IC(props);
         ic.locateRules()
                 .editRule("__test_rule__")
-                .fillTextArea("Description:","Пример описания правила")
+                .fillTextArea("Description:", "Пример описания правила")
                 .save();
     }
 

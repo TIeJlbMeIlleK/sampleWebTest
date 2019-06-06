@@ -2,7 +2,6 @@ package ru.iitgroup.tests.webdriver.ruleconfiguration;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import ru.iitgroup.tests.webdriver.AllRules;
 import ru.iitgroup.tests.webdriver.ic.AbstractView;
 
 /**
@@ -14,12 +13,12 @@ public class Rules extends AbstractView<Rules> {
         super(driver);
     }
 
-    public RuleEdit createRule(AllRules template) {
+    public RuleEdit createRule(String templateName) {
         driver.findElementByXPath("//div[@id='toolbarActions']//td[@class='toolbarCell']//*[contains(@class,'newRule')]").click();
         waitUntil("//input[@id='ruleTemplateSearchText']");
         driver.findElementByXPath("//input[@id='ruleTemplateSearchText']").click();
 
-        driver.findElementByXPath(String.format("//a[contains(text(),'%s')]", template.name())).click();
+        driver.findElementByXPath(String.format("//a[contains(text(),'%s')]", templateName)).click();
         waitUntil("//button[text()='OK']").click();
         return new RuleEdit(driver);
     }

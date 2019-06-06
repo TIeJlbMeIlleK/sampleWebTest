@@ -22,11 +22,6 @@ public class TableEdit extends AbstractEdit<TableEdit> {
         throw new IllegalStateException("Not implemented yet");
     }
 
-    //TODO: вынести в ICEdit extends ICView
-    public TableEdit fillMasked(AllFields field, String fieldText) {
-        return fillMasked(field.heading, fieldText);
-    }
-
     public TableEdit fillMasked(String fieldName, String fieldText) {
         icxpath()
                 .element(fieldName)

@@ -1,21 +1,19 @@
-package ru.iitgroup.tests.webdriver;
+package ru.iitgroup.tests.webdriver.referencetable;
+
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import ru.iitgroup.tests.properties.TestProperties;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static ru.iitgroup.tests.webdriver.referencetable.Table.FIRST_ROW;
 
-import org.bouncycastle.util.Properties;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.testng.annotations.*;
-import ru.iitgroup.tests.properties.TestProperties;
-import ru.iitgroup.tests.webdriver.referencetable.Table;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.List;
-
-public class AllTablesTest {
-
+public class TableTest {
     private ChromeDriver driver;
 
 
@@ -28,9 +26,9 @@ public class AllTablesTest {
     }
 
     @AfterClass
-    public void tearDown(){
-      driver.close();
-      driver=null;
+    public void tearDown() {
+        driver.close();
+        driver = null;
     }
 
     @Test
@@ -63,8 +61,8 @@ public class AllTablesTest {
                 .getMatchedRows()
                 .get();
 
-        assertEquals(rowNums.size(),2);
-        assertEquals(rowNums.get(0).intValue(),7+FIRST_ROW);
-        assertEquals(rowNums.get(1).intValue(),8+FIRST_ROW);
+        assertEquals(rowNums.size(), 2);
+        assertEquals(rowNums.get(0).intValue(), 7 + FIRST_ROW);
+        assertEquals(rowNums.get(1).intValue(), 8 + FIRST_ROW);
     }
 }
