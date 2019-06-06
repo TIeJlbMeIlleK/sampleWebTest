@@ -7,7 +7,6 @@ import ru.iitgroup.tests.webdriver.referencetable.Table;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
 
 public class TableTests extends RSHBTests {
 

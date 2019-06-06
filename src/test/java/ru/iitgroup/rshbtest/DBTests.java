@@ -2,17 +2,9 @@ package ru.iitgroup.rshbtest;
 
 
 import org.testng.annotations.Test;
-import ru.iitgroup.tests.apidriver.DBOAntiFraudWS;
-import ru.iitgroup.tests.apidriver.Transaction;
 import ru.iitgroup.tests.dbdriver.Database;
-import ru.iitgroup.tests.webdriver.referencetable.Table;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Random;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
 
 public class DBTests extends RSHBTests {
 

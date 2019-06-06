@@ -94,6 +94,7 @@ public class SQLUtil {
     }
 
 
+    @SuppressWarnings("Duplicates")
     public static long copyLarge(InputStream input, OutputStream output) throws IOException {
         /*
         from Apache IOUtils
@@ -110,6 +111,7 @@ public class SQLUtil {
         return count;
     }
 
+    @SuppressWarnings("Duplicates")
     public static long copyLarge(Reader input, Writer output) throws IOException {
         /*
         from Apache IOUtils

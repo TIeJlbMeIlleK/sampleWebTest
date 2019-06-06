@@ -37,6 +37,7 @@ public class TableTest {
         Table t = new Table(driver);
 
         final String[] heads = {"ID", "Comment", "Бик банка VIP", "Причина занесения", "Счет получатель VIP", "Дата занесения записи"};
+        //noinspection deprecation
         t.setHeads(heads);
 
         final String[][] data = {
@@ -53,6 +54,7 @@ public class TableTest {
                 {"00041", "", "123456789", "12345678912345678912", "30.04.2019", "18:34:20"}
         };
 
+        //noinspection deprecation
         t.setData(data);
 
         final List<Integer> rowNums = t.findRowsBy()
