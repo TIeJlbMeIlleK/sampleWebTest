@@ -1,51 +1,24 @@
 package ru.iitdgroup.rshbtest;
 
 import org.testng.annotations.Test;
+import ru.iitdgroup.tests.webdriver.jobconfiguration.JobRunEdit;
 
 import static org.testng.Assert.fail;
 
 public class JobTests extends RSHBTests {
 
-    private static final String DESCRIPTION = "description 1";
-    private static final String[] PARAMS = new String[]{"param 1", "param 2"};
-
-    @Test(description = "Пример запуска job")
+    @Test(description = "Пример запуска job." +
+            " Кинет InvalidElementStateException, если статус Job после указанного ожидания будет отличаться от Success")
     public void runJob() {
         try {
             ic.locateJobs()
                     .selectJob("geoipupdater")
-                    .fillTextArea("Parameters",  String.join("\n", PARAMS))
+                    .addParameter("key1", "value1")
+                    .addParameter("key2", "value2")
+                    .description("description 1")
+                    .waitSeconds(10)
+                    .waitStatus(JobRunEdit.JobStatus.STOPPED)
                     .run();
-        } catch (Exception ex) {
-            final String message = String.format("IC error: %s", ex.getMessage());
-            ic.takeScreenshot();
-            fail(message);
-        } finally {
-            ic.getDriver().close();
-        }
-    }
-
-    @Test(description = "Пример запуска job с описанием и параметрами")
-    public void runJobWithDescriptionAndParameters() {
-        try {
-            ic.locateJobs()
-                    .selectJob("geoipupdater")
-                    .runWithDescriptionAndParameters(DESCRIPTION, PARAMS);
-        } catch (Exception ex) {
-            final String message = String.format("IC error: %s", ex.getMessage());
-            ic.takeScreenshot();
-            fail(message);
-        } finally {
-            ic.getDriver().close();
-        }
-    }
-
-    @Test(description = "Пример запуска job с параметрами")
-    public void runJobWithParameters() {
-        try {
-            ic.locateJobs()
-                    .selectJob("geoipupdater")
-                    .runWithParameters(PARAMS);
         } catch (Exception ex) {
             final String message = String.format("IC error: %s", ex.getMessage());
             ic.takeScreenshot();
