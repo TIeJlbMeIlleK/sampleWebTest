@@ -7,6 +7,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitgroup.tests.properties.TestProperties;
 import ru.iitgroup.tests.webdriver.importruletable.ImportRuleTable;
+import ru.iitgroup.tests.webdriver.jobconfiguration.Jobs;
 import ru.iitgroup.tests.webdriver.referencetable.Table;
 import ru.iitgroup.tests.webdriver.ruleconfiguration.Rules;
 
@@ -16,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
@@ -76,7 +78,7 @@ public class IC implements AutoCloseable {
 
             final Path pageSourcePath = folder.resolve(String.format("%s at %s.htm", pictureName, date));
             Files.write(pageSourcePath, pageSource.getBytes(StandardCharsets.UTF_8));
-            System.out.println(String.format("Код страницы сохранён в файд %s", pageSourcePath.toString()));
+            System.out.println(String.format("Код страницы сохранён в файл %s", pageSourcePath.toString()));
             return imgPath;
         } catch (IOException e) {
             e.printStackTrace();
@@ -111,6 +113,13 @@ public class IC implements AutoCloseable {
         driver.findElementByXPath("//span[text()='All Rules']/..").click();
         view.sleep(1);
         return new Rules(driver);
+    }
+
+    public Jobs locateJobs() {
+        driver.findElementByXPath("//div[@id='app-navigation'][1]//following::span[@class='icon-gear']").click();
+        driver.findElementByXPath("//a[@data-url='/InvestigationCenter/ui/jobconsole']").click();
+        view.sleep(1);
+        return new Jobs(driver);
     }
 
     private void locateView(TopMenuItem item) {
