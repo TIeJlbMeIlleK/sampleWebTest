@@ -104,7 +104,7 @@ public class JobRunEdit extends AbstractEdit<JobRunEdit> {
 
     public enum JobStatus {
 
-        PENDIND("Pending"),
+        PENDING("Pending"),
         RUNNING("Running"),
         STOPPING("Stopping"),
         STOPPED("Stopped"),
