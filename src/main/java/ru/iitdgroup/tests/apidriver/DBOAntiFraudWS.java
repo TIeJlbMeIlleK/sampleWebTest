@@ -11,24 +11,22 @@ import java.util.regex.Pattern;
 
 public class DBOAntiFraudWS {
 
-    private static String urlIC;
+    private String urlIC;
     private Integer lastResponseCode;
-    private HttpURLConnection conn;
     private String lastResponse;
 
 
     public DBOAntiFraudWS(String urlIC) {
-        DBOAntiFraudWS.urlIC = urlIC;
+        this.urlIC = urlIC;
     }
 
-
-    public DBOAntiFraudWS send(Transaction t) throws IOException {
+    public DBOAntiFraudWS send(Template t) throws IOException {
 
         lastResponseCode = null;
         lastResponse = null;
 
         URL url = new URL(urlIC);
-        conn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setRequestMethod("POST");
         conn.setRequestProperty("User-Agent", "IITD Tester");
@@ -56,8 +54,7 @@ public class DBOAntiFraudWS {
         wr.close();
 
         lastResponseCode = conn.getResponseCode();
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         String inputLine;
         StringBuilder response = new StringBuilder();
 
@@ -70,8 +67,9 @@ public class DBOAntiFraudWS {
     }
 
     public void verifyHTTPanswer() {
-        if (lastResponseCode != 200 || lastResponse == null) throw
-                new ICMalfunctionError(String.format("No data, IC Respone code %s", lastResponse));
+        if (lastResponseCode != 200 || lastResponse == null) {
+            throw new ICMalfunctionError(String.format("No data, IC Respone code %s", lastResponse));
+        }
     }
 
 

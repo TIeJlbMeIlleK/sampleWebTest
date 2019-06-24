@@ -1,68 +1,34 @@
 package ru.iitdgroup.tests.apidriver;
 
+import ru.iitdgroup.intellinx.dbo.transaction.ObjectFactory;
+import ru.iitdgroup.intellinx.dbo.transaction.SendTransactionDataRequestType;
+
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class Transaction {
-    final static Path templates = Paths.get("resources/transactions");
-    final static String tagRegexp = "(.+>)(.+)(<.+)"; // <ns4:TransactionId>99696936</ns4:TransactionId>
-    private static List<String> lines;
-    private String body;
+public class Transaction extends Template<SendTransactionDataRequestType> {
 
-
-    public static Transaction fromFile(String fileName) throws IOException {
-        Transaction t = new Transaction();
-        lines = Files.readAllLines(templates.resolve(Paths.get(fileName)));
-        if (lines.isEmpty()) throw new IllegalStateException("Пустой шаблон транзакции");
-        return t;
+    public Transaction(String fileName) throws JAXBException, IOException {
+        super(fileName);
     }
 
-//    byte[] toBytes(){
-//        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-//        PrintStream ps = new PrintStream(bout);
-//        for (String line : lines) {
-//            ps.println(line);
-//        }
-//        ps.flush();
-//        return bout.toByteArray();
-//    }
+    public Transaction withDBOId(String newDboId) {
+        getData().getTransactionData().getClientIds().setDboId(newDboId);
+        return this;
+    }
 
+    public Transaction withTransactionId(String newTransactionId) {
+        getData().getTransactionData().setTransactionId(newTransactionId);
+        return this;
+    }
+
+    public Transaction withCIFId(String newCIFId) {
+        getData().getTransactionData().getClientIds().setCifId(newCIFId);
+        return this;
+    }
 
     @Override
-    public String toString() {
-        return String.join(System.lineSeparator(), lines);
-    }
-
-    public Transaction withDBOId(long newDboId) {
-        replaceTag("DboId", newDboId);
-        return this;
-    }
-
-    public Transaction withTransactionId(long newTransactionId) {
-        replaceTag("TransactionId", newTransactionId);
-        return this;
-    }
-
-    public Transaction replaceTag(String tagName, Object replaceBy) {
-        final String regex = "(.+>)(.+)(<.+)";
-        final Pattern pattern = Pattern.compile(regex);
-
-        for (int i = 0; i < lines.size(); i++) {
-            final Matcher matcher = pattern.matcher(lines.get(i));
-            if (matcher.matches() && matcher.group(0).toUpperCase().contains(tagName.toUpperCase())) {
-                lines.set(i, matcher.group(1) + replaceBy.toString() + matcher.group(3));
-            }
-        }
-        return this;
-    }
-
-    public Transaction withCIFId(long newCIFId) {
-        replaceTag("CifId", newCIFId);
-        return this;
+    protected Class getObjectFactoryClazz() {
+        return ObjectFactory.class;
     }
 }

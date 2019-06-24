@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:safa="http://www.iitdgroup.ru/Intellinx/DBO/Auth"
+            xmlns:safc="http://www.iitdgroup.ru/Intellinx/DBO/Client"
+            xmlns:saf="http://www.iitdgroup.ru/Intellinx/DBO/Common"
+            xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth"
+            targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/Auth"
+            elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+
+    <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Client" schemaLocation="ClientData.xsd"/>
+
+    <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Common" schemaLocation="Common.xsd"/>
+
+    <xsd:element name="ClientAuthenticationRequest" type="safa:ClientAuthenticationRequestType"/>
+    
+    <xsd:complexType name="ClientAuthenticationRequestType">
+        <xsd:sequence>
+            <xsd:element name="ServerInfo" type="saf:ServerInfoType"/>
+            <xsd:element name="ClientAuthentication" type="safa:ClientAuthenticationType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="ClientAuthenticationType">
+        <xsd:sequence>
+            <xsd:element name="Login" type="xsd:string"/>
+            <xsd:element name="AuthSuccessful" type="xsd:boolean"/>
+            <xsd:element name="ClientIds" type="saf:ClientIdsType" minOccurs="0"/>
+            <xsd:element name="AuthTimestamp" type="xsd:dateTime"/>
+            <xsd:element name="ClientDevice" type="safc:DeviceType" minOccurs="0"/>
+            <xsd:element name="SessionId" type="xsd:string"/>
+            <xsd:element name="Cfids" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>

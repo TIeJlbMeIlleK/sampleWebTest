@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:safc="http://www.iitdgroup.ru/Intellinx/DBO/Client"
+                  xmlns:saf="http://www.iitdgroup.ru/Intellinx/DBO/Common"
+                  xmlns:safa="http://www.iitdgroup.ru/Intellinx/DBO/Auth"
+                  xmlns:saft="http://www.iitdgroup.ru/Intellinx/DBO/Transaction"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                  xmlns="http://www.iitdgroup.ru/Intellinx/DBO/"
+                  targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/">
+    <wsdl:types>
+        <xsd:schema>
+            <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Client" schemaLocation="ClientData.xsd"/>
+        </xsd:schema>
+        <xsd:schema>
+            <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Common" schemaLocation="Common.xsd"/>
+        </xsd:schema>
+        <xsd:schema>
+            <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Auth" schemaLocation="Authentication.xsd"/>
+        </xsd:schema>
+        <xsd:schema>
+            <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Transaction" schemaLocation="Transaction.xsd"/>
+        </xsd:schema>
+    </wsdl:types>
+
+    <wsdl:message name="SendClientDataRequest">
+        <wsdl:part name="part" element="safc:SendClientDataRequest"/>
+    </wsdl:message>
+    <wsdl:message name="SendClientDataResponse">
+        <wsdl:part name="part" element="saf:Result"/>
+    </wsdl:message>
+    <wsdl:message name="ClientAuthRequest">
+        <wsdl:part name="part" element="safa:ClientAuthenticationRequest"/>
+    </wsdl:message>
+    <wsdl:message name="ClientAuthResponse">
+        <wsdl:part name="part" element="saf:Result"/>
+    </wsdl:message>
+    <wsdl:message name="SendTransactionDataRequest">
+        <wsdl:part name="part" element="saft:SendTransactionDataRequest"/>
+    </wsdl:message>
+    <wsdl:message name="SendTransactionDataResponse">
+        <wsdl:part name="part" element="saf:Result"/>
+    </wsdl:message>
+
+    <wsdl:portType name="DBOAntiFraud">
+        <wsdl:operation name="sendClientData">
+            <wsdl:input message="SendClientDataRequest"/>
+            <wsdl:output message="SendClientDataResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="clientAuthAttempt">
+            <wsdl:input message="ClientAuthRequest"/>
+            <wsdl:output message="ClientAuthResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="sendTransactionData">
+            <wsdl:input message="SendTransactionDataRequest"/>
+            <wsdl:output message="SendTransactionDataResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="DBOAntiFraudHttpBinding" type="DBOAntiFraud">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="sendClientData">
+            <soap:operation style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="clientAuthAttempt">
+            <soap:operation style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="sendTransactionData">
+            <soap:operation style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="DBOAntiFraudService">
+        <wsdl:port name="DBOAntiFraudServiceSoap" binding="DBOAntiFraudHttpBinding">
+            <soap:address location="http://localhost/services/saf"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

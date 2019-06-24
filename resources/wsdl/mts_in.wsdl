@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://server-url" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="http://server-url">
+	<types>
+		<s:schema elementFormDefault="qualified" targetNamespace="http://server-url">
+			<s:element name="ChangeId">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="1" maxOccurs="1" name="MSISDN"
+							type="s:string" />
+						<s:element minOccurs="1" maxOccurs="1" name="IdType"
+							type="s:string" />
+						<s:element minOccurs="1" maxOccurs="1" name="dateTime"
+							type="s:dateTime" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="ChangeIdResponse">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="1" maxOccurs="1" name="return"
+							type="s:string" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+		</s:schema>
+	</types>
+	<message name="ChangeIdSoapIn">
+		<part name="parameters" element="tns:ChangeId" />
+	</message>
+	<message name="ChangeIdSoapOut">
+		<part name="parameters" element="tns:ChangeIdResponse" />
+	</message>
+	<portType name="ExternalServerSoap">
+		<operation name="ChangeId">
+			<input message="tns:ChangeIdSoapIn" />
+			<output message="tns:ChangeIdSoapOut" />
+		</operation>
+	</portType>
+	<binding name="ExternalServerSoap" type="tns:ExternalServerSoap">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"
+			style="document" />
+		<operation name="ChangeId">
+			<soap:operation soapAction="http://server-url/ChangeId"
+				style="document" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+		</operation>
+	</binding>
+	<service name="ExternalServer">
+		<port name="ExternalServerSoap" binding="tns:ExternalServerSoap">
+			<soap:address location="REPLACE_WITH_ACTUAL_URL" />
+		</port>
+	</service>
+</definitions>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="OnlineNotificationPartners"
+             targetNamespace="urn:on:partners-interface"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:types="urn:on:partners-interface:schema"
+             xmlns:tns="urn:on:partners-interface" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        >
+    <types>
+        <xsd:schema targetNamespace="urn:on:partners-interface" xmlns:types="urn:on:partners-interface:schema">
+            <xsd:import schemaLocation="OnlineNotificationPartners.xsd" namespace="urn:on:partners-interface:schema"/>
+        </xsd:schema>
+    </types>
+    <message name="AddSubscriptionRequest">
+        <part name="request" element="types:addSubscriptionRequest"/>
+    </message>
+    <message name="AddSubscriptionResponse">
+        <part name="response" element="types:addSubscriptionResponse"/>
+    </message>
+    <message name="RemoveSubscriptionRequest">
+        <part name="request" element="types:removeSubscriptionRequest"/>
+    </message>
+    <message name="RemoveSubscriptionResponse">
+        <part name="response" element="types:removeSubscriptionResponse"/>
+    </message>
+    <message name="SubscriptionManagementFault">
+        <part name="request" element="types:subscriptionManagementFault"/>
+    </message>
+    <message name="GetSubscriberEventRequest">
+        <part name="request" element="types:getSubscriberEventRequest"/>
+    </message>
+    <portType name="OnlineNotificationPartnersInterface">
+        <operation name="AddSubscription">
+            <input name="AddSubscriptionInput" message="tns:AddSubscriptionRequest"/>
+            <output name="AddSubscriptionOutput" message="tns:AddSubscriptionResponse"/>
+            <fault name="SubscriptionManagementFault" message="tns:SubscriptionManagementFault"/>
+        </operation>
+        <operation name="RemoveSubscription">
+            <input name="RemoveSubscriptionInput" message="tns:RemoveSubscriptionRequest"/>
+            <output name="RemoveSubscriptionOutput" message="tns:RemoveSubscriptionResponse"/>
+            <fault name="SubscriptionManagementFault" message="tns:SubscriptionManagementFault"/>
+        </operation>
+    </portType>
+    <portType name="OnlineNotificationPartnersClient">
+        <operation name="getSubscriberEvent">
+            <input name="GetSubscriberEventInput" message="tns:GetSubscriberEventRequest"/>
+        </operation>
+    </portType>
+    <binding name="OnlineNotificationPartnersBinding" type="tns:OnlineNotificationPartnersInterface">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="AddSubscription">
+            <soap:operation/>
+            <input name="AddSubscriptionInput">
+                <soap:body use="literal" namespace="urn:on:partners-interface" parts="request"/>
+            </input>
+            <output name="AddSubscriptionOutput">
+                <soap:body use="literal" namespace="urn:on:partners-interface" parts="response"/>
+            </output>
+            <fault name="SubscriptionManagementFault">
+                <soap:fault name="SubscriptionManagementFault" use="literal"/>
+            </fault>
+        </operation>
+        <operation name="RemoveSubscription">
+            <soap:operation/>
+            <input name="RemoveSubscriptionInput">
+                <soap:body use="literal" namespace="urn:on:partners-interface" parts="request"/>
+            </input>
+            <output name="RemoveSubscriptionOutput">
+                <soap:body use="literal" namespace="urn:on:partners-interface" parts="response"/>
+            </output>
+            <fault name="SubscriptionManagementFault">
+                <soap:fault name="SubscriptionManagementFault" use="literal"/>
+            </fault>
+        </operation>
+    </binding>
+    <binding name="OnlineNotificationPartnersClientBinding" type="tns:OnlineNotificationPartnersClient">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="getSubscriberEvent">
+            <soap:operation/>
+            <input name="GetSubscriberEventInput">
+                <soap:body use="literal" namespace="urn:on:partners-interface" parts="request"/>
+            </input>
+        </operation>
+    </binding>
+    <service name="OnlineNotificationPartnersService">
+        <port name="OnlineNotificationPartnersPort" binding="tns:OnlineNotificationPartnersBinding">
+            <soap:address location="http://localhost:${HttpDefaultPort}/OnlineNotificationPartners"/>
+        </port>
+    </service>
+    <service name="OnlineNotificationPartnersClientService">
+        <port name="OnlineNotificationPartnersClientPort" binding="tns:OnlineNotificationPartnersClientBinding">
+            <soap:address location="http://localhost:${HttpDefaultPort}/OnlineNotificationPartnersClient"/>
+        </port>
+    </service>
+</definitions>

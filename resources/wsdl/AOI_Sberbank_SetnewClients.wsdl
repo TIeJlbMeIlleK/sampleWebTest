@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<definitions name="Sberbank_SetNewClients"
+targetNamespace="http://webserv.my/"
+xmlns="http://schemas.xmlsoap.org/wsdl/"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:tns="http://webserv.my/"
+xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype"
+xmlns:ns="http://webserv.my/">
+<!--
+XML схема при необходимости, разрабатываются Оператором самостоятельно, в соответствии с требованиями, изложенными в разделах «Общие положения по технологии интеграции» и И-1 документа
+-->
+
+  <types>
+    <xsd:schema>
+      <xsd:import namespace="http://webserv.my/" schemaLocation="SberbankSetNewClients_schema1.xsd"/>
+    </xsd:schema>
+  </types>
+  <message name="XMLmessage">
+    <part name="parameters" element="tns:XMLmessage"/>
+  </message>
+  <message name="XMLmessageResponse">
+    <part name="parameters" element="tns:XMLmessageResponse"/>
+  </message>
+  <portType name="Sberbank_SetNewClients">
+    <operation name="XMLmessage">
+      <input message="tns:XMLmessage"/>
+      <output message="tns:XMLmessageResponse"/>
+    </operation>
+  </portType>
+  <binding name="Sberbank_SetNewClientsPortBinding" type="tns:Sberbank_SetNewClients">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <operation name="XMLmessage">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+  </binding>
+  <service name="Sberbank_SetNewClients">
+    <port name="Sberbank_SetNewClientsPort" binding="tns:Sberbank_SetNewClientsPortBinding">
+      <soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+    </port>
+  </service>
+    <plnk:partnerLinkType name="Sberbank_SetNewClientsLinkType">
+        <plnk:role name="Sberbank_SetNewClientsRole" portType="ns:Sberbank_SetNewClients"/>
+    </plnk:partnerLinkType>
+</definitions>

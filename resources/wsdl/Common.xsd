@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:saf="http://www.iitdgroup.ru/Intellinx/DBO/Common"
+            targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/Common"
+            elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+    <xsd:element name="Result" type="saf:ResultType"/>
+
+    <xsd:element name="ServerInfo" type="saf:ServerInfoType"/>
+
+    <xsd:complexType name="ResultType">
+        <xsd:sequence>
+            <xsd:element name="Success" type="xsd:boolean"/>
+            <xsd:element name="ErrorMessage" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="ErrorCode" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ServerInfoType">
+        <xsd:sequence>
+            <xsd:element name="Ip" type="xsd:string"/>
+            <xsd:element name="Port" type="xsd:unsignedShort"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="ClientIdsType">
+        <xsd:sequence>
+            <xsd:element name="DboId" type="xsd:string"/>
+            <xsd:element name="CifId" type="xsd:string"/>
+            <xsd:element name="EksId" type="xsd:string"/>
+            <xsd:element name="PcId" type="xsd:string"/>
+            <xsd:element name="ExpertSystemId" type="xsd:string"/>
+            <xsd:element name="LoginHash" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>

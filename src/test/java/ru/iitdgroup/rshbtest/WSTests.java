@@ -1,10 +1,13 @@
 package ru.iitdgroup.rshbtest;
 
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitdgroup.tests.apidriver.Transaction;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.Random;
 
@@ -12,18 +15,23 @@ import static org.testng.Assert.assertEquals;
 
 public class WSTests extends RSHBTests {
 
+    private DBOAntiFraudWS ws;
+
+    @BeforeMethod
+    public void before() {
+        ws = new DBOAntiFraudWS(props.getWSUrl());
+    }
+
     @Test(description = "Пример заполнения атрибутов транзакции и отправки её на антифрод-сервис")
-    public void callAntifraudWS() throws IOException {
+    public void callAntifraudWS() throws IOException, JAXBException {
         //TODO: Добавлять и удалять теги
 
         Random r = new Random();
 
-        DBOAntiFraudWS ws = new DBOAntiFraudWS(props.getWSUrl());
-
-        Transaction t = Transaction.fromFile("tran1.xml");
-        t.withDBOId(2);
-        t.withCIFId(1);
-        t.withTransactionId(5_000_000 + r.nextInt(100000));
+        Transaction t = new Transaction("transactions/tran1.xml");
+        t.withDBOId("2");
+        t.withCIFId("1");
+        t.withTransactionId("5000000" + r.nextInt(100000));
 
         ws.send(t);
 
@@ -34,5 +42,13 @@ public class WSTests extends RSHBTests {
                 ws.getSuccessCode(),
                 ws.getErrorCode(),
                 ws.getErrorMessage()));
+    }
+
+    @Test
+    public void callAntifraudWSClient() throws JAXBException, IOException {
+        Client client = new Client("clients/client1.xml");
+        ws.send(client);
+
+        String response = ws.getResponse();
     }
 }

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.bercut.com/spec/schema/EventType"
+    xmlns:tns="http://www.bercut.com/spec/schema/EventType"
+    elementFormDefault="qualified">
+    <xsd:simpleType name="EventTypeId">
+        <xsd:annotation>
+            <xsd:documentation>идентификатор типа события для нотификации</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:decimal">
+           <xsd:enumeration value="-194">
+                <xsd:annotation>
+                    <xsd:documentation>смена IMSI</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-195">
+                <xsd:annotation>
+                    <xsd:documentation>Расторжение Абонентского Договора по MSISDN</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-196">
+                <xsd:annotation>
+                    <xsd:documentation>Расторжение B2C Абонентского Договора по инициативе оператора</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-197">
+                <xsd:annotation>
+                    <xsd:documentation>Расторжение B2B Абонентского Договора по инициативе абонента</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-198">
+                <xsd:annotation>
+                    <xsd:documentation>Расторжение B2B Абонентского Договора по инициативе оператора</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-199">
+                <xsd:annotation>
+                    <xsd:documentation>смена MSISDN</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-200">
+                <xsd:annotation>
+                    <xsd:documentation>Блокировка по утере/краже, фроду, мошенничеству</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-201">
+                <xsd:annotation>
+                    <xsd:documentation>Разблокировки по утере/краже, фроду, мошенничеству</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-202">
+                <xsd:annotation>
+                    <xsd:documentation>Абонент ушел по MNP</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-204">
+                <xsd:annotation>
+                    <xsd:documentation>Абонент вернулся к Оператору по MNP.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-205">
+                <xsd:annotation>
+                    <xsd:documentation>Смена владельца номера MSISDN\переоформление номера MSISDN физ. лицо- физ. лицо (инициатива Абонента)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-206">
+                <xsd:annotation>
+                    <xsd:documentation>Смена владельца\переоформление физ. лицо – юр. лицо (инициатива Абонента) либо юр. лицо - физ. лицо (инициатива Абонента)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-207">
+                <xsd:annotation>
+                    <xsd:documentation>Изменение платформы устройства Абонента на Android</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-208">
+                <xsd:annotation>
+                    <xsd:documentation>Изменение платформы устройства Абонента c Android на другую платформу</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-209">
+                <xsd:annotation>
+                    <xsd:documentation>Смена IMEI</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-221">
+                <xsd:annotation>
+                    <xsd:documentation>Включение переадресации(безусловная)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-222">
+                <xsd:annotation>
+                    <xsd:documentation>Выключение переадресации(безусловная)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-223">
+                <xsd:annotation>
+                    <xsd:documentation>Изменение номера переадресации(безусловная)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-224">
+                <xsd:annotation>
+                    <xsd:documentation>Включение переадресации(по занято)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-225">
+                <xsd:annotation>
+                    <xsd:documentation>Выключение переадресации(по занято)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-226">
+                <xsd:annotation>
+                    <xsd:documentation>Изменение номера переадресации(по занято)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="-227">
+                <xsd:annotation>
+                    <xsd:documentation>Включение переадресации(по неответу)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+             <xsd:enumeration value="-228">
+                <xsd:annotation>
+                    <xsd:documentation>Выключение переадресации(по неответу)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+             <xsd:enumeration value="-229">
+                <xsd:annotation>
+                    <xsd:documentation>Изменение номера переадресации(по неответу)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+             <xsd:enumeration value="-230">
+                <xsd:annotation>
+                    <xsd:documentation>Включение переадресации(по недоступности)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+             <xsd:enumeration value="-231">
+                <xsd:annotation>
+                    <xsd:documentation>Выключение переадресации(по недоступности)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+             <xsd:enumeration value="-232">
+                <xsd:annotation>
+                    <xsd:documentation>Изменение номера переадресации(по недоступности)</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>
