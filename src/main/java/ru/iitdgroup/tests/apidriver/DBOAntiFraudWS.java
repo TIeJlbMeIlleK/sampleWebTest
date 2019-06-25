@@ -1,9 +1,11 @@
 package ru.iitdgroup.tests.apidriver;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.regex.Matcher;
@@ -49,9 +51,18 @@ public class DBOAntiFraudWS {
 
 
         DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-        wr.writeBytes(t.toString());
-        wr.flush();
-        wr.close();
+        SOAPMessage message = null;
+        try {
+            message = MessageFactory.newInstance().createMessage();
+            message.getSOAPBody().addDocument(t.marshalToDocument());
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            message.writeTo(outputStream);
+            wr.writeBytes(outputStream.toString());
+            wr.flush();
+            wr.close();
+        } catch (SOAPException | JAXBException | ParserConfigurationException e) {
+            throw new IllegalStateException(e);
+        }
 
         lastResponseCode = conn.getResponseCode();
         BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));

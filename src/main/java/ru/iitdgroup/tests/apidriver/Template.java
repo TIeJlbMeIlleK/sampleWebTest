@@ -1,6 +1,10 @@
 package ru.iitdgroup.tests.apidriver;
 
+import org.w3c.dom.Document;
+
 import javax.xml.bind.*;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -39,6 +43,13 @@ public abstract class Template<D> {
     @SuppressWarnings("unchecked")
     public D getData() {
         return (D) ((JAXBElement) data).getValue();
+    }
+
+    public Document marshalToDocument() throws JAXBException, ParserConfigurationException {
+        Marshaller marshaller = jc.createMarshaller();
+        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        marshaller.marshal(data, document);
+        return document;
     }
 
     /**

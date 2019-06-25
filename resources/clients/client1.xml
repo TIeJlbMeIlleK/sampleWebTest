@@ -12,123 +12,33 @@
                 <com:CifId>12312414141</com:CifId>
                 <com:EksId>453634523414</com:EksId>
                 <com:PcId>3424234</com:PcId>
-                <com:ExpertSystemId>325252</com:ExpertSystemId>
-                <com:LoginHash>45345345</com:LoginHash>
+                <com:ExpertSystemId>77831d4e66f454c1f6cfe45df096cfdc7bac368b</com:ExpertSystemId>
+                <com:LoginHash>356a192b7913b04c54574d18c28d46e6395428ab</com:LoginHash>
             </cli:ClientIds>
             <cli:FirstName>Mikhail</cli:FirstName>
             <cli:LastName>Makarov</cli:LastName>
-            <!--Optional:-->
             <cli:MiddleName>Sergeevich</cli:MiddleName>
             <cli:Sex>M</cli:Sex>
-            <!--Optional:-->
             <cli:BirthDate>1994-09-09</cli:BirthDate>
-            <!--Optional:-->
             <cli:Birthplace>Polevskoy</cli:Birthplace>
-            <!--Zero or more repetitions:-->
-            <cli:Citizenship>?</cli:Citizenship>
-            <!--Optional:-->
             <cli:INN>123123123131</cli:INN>
             <cli:Resident>true</cli:Resident>
-            <!--Optional:-->
-            <cli:CodePhrase>?</cli:CodePhrase>
-            <cli:Login>?</cli:Login>
-            <cli:PasswordHash>?</cli:PasswordHash>
-            <cli:Role>?</cli:Role>
-            <cli:useOTPForLoginAction>?</cli:useOTPForLoginAction>
-            <cli:useOTPForOtherAction>?</cli:useOTPForOtherAction>
-            <!--Optional:-->
-            <cli:ETokenSerialNumber>?</cli:ETokenSerialNumber>
-            <!--Optional:-->
-            <cli:Category>?</cli:Category>
-            <cli:LastUpdateDate>?</cli:LastUpdateDate>
+            <cli:CodePhrase>codePhrase1</cli:CodePhrase>
+            <cli:Login>login1</cli:Login>
+            <cli:PasswordHash>fsdfsfserwg</cli:PasswordHash>
+            <cli:Role>FULL</cli:Role>
+            <cli:useOTPForLoginAction>false</cli:useOTPForLoginAction>
+            <cli:useOTPForOtherAction>false</cli:useOTPForOtherAction>
+            <cli:ETokenSerialNumber>fwerr</cli:ETokenSerialNumber>
+            <cli:LastUpdateDate>2017-01-01T00:00:00</cli:LastUpdateDate>
         </cli:Client>
         <cli:ContactInfo>
-            <!--Zero or more repetitions:-->
-            <cli:Contact>
-                <cli:ContactChannel>?</cli:ContactChannel>
-                <cli:ContactKind>?</cli:ContactKind>
-                <cli:Value>?</cli:Value>
-            </cli:Contact>
             <cli:LivingAddress>
-                <!--Optional:-->
-                <cli:CountryISOCode>?</cli:CountryISOCode>
-                <!--Optional:-->
-                <cli:ZipCode>?</cli:ZipCode>
-                <!--Optional:-->
-                <cli:Region>?</cli:Region>
-                <!--Optional:-->
-                <cli:Area>?</cli:Area>
-                <!--Optional:-->
-                <cli:City>?</cli:City>
-                <!--Optional:-->
-                <cli:Street>?</cli:Street>
-                <!--Optional:-->
-                <cli:House>?</cli:House>
-                <!--Optional:-->
-                <cli:Building>?</cli:Building>
-                <!--Optional:-->
-                <cli:Flat>?</cli:Flat>
+                 <cli:City>Moscow</cli:City>
             </cli:LivingAddress>
             <cli:RegisteredAddress>
-                <!--Optional:-->
-                <cli:CountryISOCode>?</cli:CountryISOCode>
-                <!--Optional:-->
-                <cli:ZipCode>?</cli:ZipCode>
-                <!--Optional:-->
-                <cli:Region>?</cli:Region>
-                <!--Optional:-->
-                <cli:Area>?</cli:Area>
-                <!--Optional:-->
-                <cli:City>?</cli:City>
-                <!--Optional:-->
-                <cli:Street>?</cli:Street>
-                <!--Optional:-->
-                <cli:House>?</cli:House>
-                <!--Optional:-->
-                <cli:Building>?</cli:Building>
-                <!--Optional:-->
-                <cli:Flat>?</cli:Flat>
+                <cli:City>Moscow</cli:City>
             </cli:RegisteredAddress>
         </cli:ContactInfo>
-        <!--Zero or more repetitions:-->
-        <cli:ClientDocument>
-            <cli:DocType>?</cli:DocType>
-            <!--Optional:-->
-            <cli:Series>?</cli:Series>
-            <cli:Number>?</cli:Number>
-            <cli:IssueDate>?</cli:IssueDate>
-            <!--Optional:-->
-            <cli:ExpiryDate>?</cli:ExpiryDate>
-            <cli:Organization>?</cli:Organization>
-            <!--Optional:-->
-            <cli:OrgCode>?</cli:OrgCode>
-        </cli:ClientDocument>
-        <!--Optional:-->
-        <cli:ClientDevice>
-            <cli:Platform>?</cli:Platform>
-            <!--You have a CHOICE of the next 3 items at this level-->
-            <cli:PC>
-                <cli:IpAddress>?</cli:IpAddress>
-                <cli:UserAgent>?</cli:UserAgent>
-                <cli:BrowserData>?</cli:BrowserData>
-            </cli:PC>
-            <cli:Android>
-                <cli:IpAddress>?</cli:IpAddress>
-                <cli:IMSI>?</cli:IMSI>
-                <cli:IMEI>?</cli:IMEI>
-                <cli:IMEISV>?</cli:IMEISV>
-                <cli:MSISDN>?</cli:MSISDN>
-                <cli:SPN>?</cli:SPN>
-                <cli:OSVersion>?</cli:OSVersion>
-                <cli:AuthByFingerprint>?</cli:AuthByFingerprint>
-            </cli:Android>
-            <cli:IOS>
-                <cli:IpAddress>?</cli:IpAddress>
-                <cli:IdentifierForVendor>?</cli:IdentifierForVendor>
-                <cli:OSVersion>?</cli:OSVersion>
-                <cli:Model>?</cli:Model>
-                <cli:AuthByFingerprint>?</cli:AuthByFingerprint>
-            </cli:IOS>
-        </cli:ClientDevice>
     </cli:ClientData>
 </cli:SendClientDataRequest>
