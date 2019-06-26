@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:safc="http://www.iitdgroup.ru/Intellinx/DBO/Client"
+            xmlns:saf="http://www.iitdgroup.ru/Intellinx/DBO/Common"
+            xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Client"
+            targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/Client"
+            elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+
+    <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Common" schemaLocation="Common.xsd"/>
+
+    <xsd:element name="SendClientDataRequest" type="safc:SendClientDataRequestType"/>
+
+    <xsd:complexType name="SendClientDataRequestType">
+        <xsd:sequence>
+            <xsd:element name="ServerInfo" type="saf:ServerInfoType"/>
+            <xsd:element name="ClientData" type="safc:ClientDataType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ClientDataType">
+        <xsd:sequence>
+            <xsd:element name="Client" type="safc:ClientType"/>
+            <xsd:element name="ContactInfo" type="safc:ContactInfoType"/>
+            <xsd:element name="ClientDocument" type="safc:ClientDocumentType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ClientDevice" type="safc:DeviceType" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ClientType">
+        <xsd:sequence>
+            <xsd:element name="State" type="ClientState"/>
+            <xsd:element name="ClientIds" type="saf:ClientIdsType"/>
+            <xsd:element name="FirstName" type="xsd:string"/>
+            <xsd:element name="LastName" type="xsd:string"/>
+            <xsd:element name="MiddleName" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Sex" type="safc:SexType"/>
+            <xsd:element name="BirthDate" type="xsd:date" minOccurs="0"/>
+            <xsd:element name="Birthplace" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Citizenship" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="INN" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Resident" type="xsd:boolean"/>
+            <xsd:element name="CodePhrase" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Login" type="xsd:string"/>
+            <xsd:element name="PasswordHash" type="xsd:string"/>
+            <xsd:element name="Role" type="safc:ClientRole"/>
+            <xsd:element name="useOTPForLoginAction" type="xsd:boolean"/>
+            <xsd:element name="useOTPForOtherAction" type="xsd:boolean"/>
+            <xsd:element name="ETokenSerialNumber" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Category" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="LastUpdateDate" type="xsd:dateTime"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ContactInfoType">
+        <xsd:sequence>
+            <xsd:element name="Contact" type="safc:ContactType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="LivingAddress" type="safc:AddressType"/>
+            <xsd:element name="RegisteredAddress" type="safc:AddressType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ContactType">
+        <xsd:sequence>
+            <xsd:element name="ContactChannel" type="safc:ContactChannelType"/>
+            <xsd:element name="ContactKind" type="safc:ContactKind"/>
+            <xsd:element name="Value" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="AddressType">
+        <xsd:sequence>
+            <xsd:element name="CountryISOCode" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="ZipCode" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Region" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Area" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="City" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Street" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="House" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Building" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Flat" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ClientDocumentType">
+        <xsd:sequence>
+            <xsd:element name="DocType" type="xsd:string"/>
+            <xsd:element name="Series" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Number" type="xsd:string"/>
+            <xsd:element name="IssueDate" type="xsd:date"/>
+            <xsd:element name="ExpiryDate" type="xsd:date" minOccurs="0"/>
+            <xsd:element name="Organization" type="xsd:string"/>
+            <xsd:element name="OrgCode" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="DeviceType">
+        <xsd:sequence>
+            <xsd:element name="Platform" type="safc:PlatformKind"/>
+            <xsd:choice>
+                <xsd:element name="PC" type="safc:PCDevice"/>
+                <xsd:element name="Android" type="safc:AndroidDevice"/>
+                <xsd:element name="IOS" type="safc:IOSDevice"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="PCDevice">
+        <xsd:sequence>
+            <xsd:element name="IpAddress" type="xsd:string"/>
+            <xsd:element name="UserAgent" type="xsd:string"/>
+            <xsd:element name="BrowserData" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="AndroidDevice">
+        <xsd:sequence>
+            <xsd:element name="IpAddress" type="xsd:string"/>
+            <xsd:element name="IMSI" type="xsd:string"/>
+            <xsd:element name="IMEI" type="xsd:string"/>
+            <xsd:element name="IMEISV" type="xsd:string"/>
+            <xsd:element name="MSISDN" type="xsd:string"/>
+            <xsd:element name="SPN" type="xsd:string"/>
+            <xsd:element name="OSVersion" type="xsd:string"/>
+            <xsd:element name="AuthByFingerprint" type="xsd:boolean"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="IOSDevice">
+        <xsd:sequence>
+            <xsd:element name="IpAddress" type="xsd:string"/>
+            <xsd:element name="IdentifierForVendor" type="xsd:string"/>
+            <xsd:element name="OSVersion" type="xsd:string"/>
+            <xsd:element name="Model" type="xsd:string"/>
+            <xsd:element name="AuthByFingerprint" type="xsd:boolean"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:simpleType name="ClientState">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="CONNECTING"/>
+            <xsd:enumeration value="ACTIVE"/>
+            <xsd:enumeration value="BLOCKED"/>
+            <xsd:enumeration value="DISCONNECTING"/>
+            <xsd:enumeration value="CLOSED"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="SexType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="M"/>
+            <xsd:enumeration value="F"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="ClientRole">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="INFO"/>
+            <xsd:enumeration value="FULL"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="ContactChannelType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="PHONE"/>
+            <xsd:enumeration value="EMAIL"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="ContactKind">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="HOME"/>
+            <xsd:enumeration value="WORK"/>
+            <xsd:enumeration value="MOBILE"/>
+            <xsd:enumeration value="AUTH"/>
+            <xsd:enumeration value="NOTIFICATION"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="PlatformKind">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="PC"/>
+            <xsd:enumeration value="Android"/>
+            <xsd:enumeration value="IOS"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>

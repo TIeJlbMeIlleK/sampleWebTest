@@ -1,26 +1,25 @@
 package ru.iitdgroup.tests.apidriver;
 
-import org.testng.annotations.Test;
+import org.junit.Test;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.stream.Collectors;
 
-import static org.testng.Assert.*;
+import static org.junit.Assert.assertTrue;
 
-public class TransactionTest {
+public class TransactionTest extends ApiDriverTest {
 
     @Test
-    public void testToString1() throws IOException {
-        final String filled = Transaction.fromFile("tran1.xml")
-                .withDBOId(11111111)
-                .withTransactionId(222222222)
+    public void testToString1() throws IOException, JAXBException {
+        final String filled = new Transaction("transactions/tran1.xml")
+                .withDBOId("dbId11111111")
+                .withTransactionId("TransactionId1231312312313")
+                .withCIFId("CIFId5645566357637")
                 .toString();
 
-        final String expected = Files.lines( Transaction.templates.resolve("tran1.test").toAbsolutePath())
-                .collect(Collectors.joining("\r\n"));
-
-        assertEquals(filled,expected);
-
+        assertTrue(filled.contains("dbId11111111"));
+        assertTrue(filled.contains("TransactionId1231312312313"));
+        assertTrue(filled.contains("CIFId5645566357637"));
     }
+
 }

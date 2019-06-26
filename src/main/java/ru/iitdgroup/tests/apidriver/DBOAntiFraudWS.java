@@ -1,9 +1,11 @@
 package ru.iitdgroup.tests.apidriver;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.regex.Matcher;
@@ -11,24 +13,22 @@ import java.util.regex.Pattern;
 
 public class DBOAntiFraudWS {
 
-    private static String urlIC;
+    private String urlIC;
     private Integer lastResponseCode;
-    private HttpURLConnection conn;
     private String lastResponse;
 
 
     public DBOAntiFraudWS(String urlIC) {
-        DBOAntiFraudWS.urlIC = urlIC;
+        this.urlIC = urlIC;
     }
 
-
-    public DBOAntiFraudWS send(Transaction t) throws IOException {
+    public DBOAntiFraudWS send(Template t) throws IOException {
 
         lastResponseCode = null;
         lastResponse = null;
 
         URL url = new URL(urlIC);
-        conn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setRequestMethod("POST");
         conn.setRequestProperty("User-Agent", "IITD Tester");
@@ -51,13 +51,21 @@ public class DBOAntiFraudWS {
 
 
         DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-        wr.writeBytes(t.toString());
-        wr.flush();
-        wr.close();
+        SOAPMessage message = null;
+        try {
+            message = MessageFactory.newInstance().createMessage();
+            message.getSOAPBody().addDocument(t.marshalToDocument());
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            message.writeTo(outputStream);
+            wr.writeBytes(outputStream.toString());
+            wr.flush();
+            wr.close();
+        } catch (SOAPException | JAXBException | ParserConfigurationException e) {
+            throw new IllegalStateException(e);
+        }
 
         lastResponseCode = conn.getResponseCode();
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         String inputLine;
         StringBuilder response = new StringBuilder();
 
@@ -70,8 +78,9 @@ public class DBOAntiFraudWS {
     }
 
     public void verifyHTTPanswer() {
-        if (lastResponseCode != 200 || lastResponse == null) throw
-                new ICMalfunctionError(String.format("No data, IC Respone code %s", lastResponse));
+        if (lastResponseCode != 200 || lastResponse == null) {
+            throw new ICMalfunctionError(String.format("No data, IC Respone code %s", lastResponse));
+        }
     }
 
 
