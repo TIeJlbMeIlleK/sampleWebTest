@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertTrue;
 
-public class TransactionTest extends ApiDriverTest {
+public class TransactionTest {
 
     @Test
     public void testToString1() throws IOException, JAXBException {

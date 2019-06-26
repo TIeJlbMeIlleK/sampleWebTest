@@ -1,29 +1,60 @@
 package ru.iitdgroup.tests.apidriver;
 
+import ru.iitdgroup.intellinx.dbo.common.ObjectFactory;
+import ru.iitdgroup.intellinx.dbo.common.ResultType;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.MessageFactory;
+import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Base64;
 
 public class DBOAntiFraudWS {
 
-    private String urlIC;
+    private final String urlIC;
+    private final String basicAuth;
+    private final Unmarshaller responseUnmarshaller;
+
     private Integer lastResponseCode;
-    private String lastResponse;
+    private ResultType lastResponse;
 
-
-    public DBOAntiFraudWS(String urlIC) {
+    public DBOAntiFraudWS(String urlIC, String username, String password) {
         this.urlIC = urlIC;
+
+        // собираем byte[] логина:пароля
+        byte[] rawBasicAuth = new byte[username.getBytes().length + 1 + password.getBytes().length];
+        int i = 0;
+        for (byte usernameByte : username.getBytes()) {
+            rawBasicAuth[i] = usernameByte;
+            i++;
+        }
+        rawBasicAuth[i] = ":".getBytes()[0];
+        i++;
+        for (byte passwordByte : password.getBytes()) {
+            rawBasicAuth[i] = passwordByte;
+            i++;
+        }
+        this.basicAuth = Base64.getEncoder().encodeToString(rawBasicAuth);
+
+        try {
+            JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class);
+            this.responseUnmarshaller = jc.createUnmarshaller();
+        } catch (JAXBException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
-    public DBOAntiFraudWS send(Template t) throws IOException {
-
+    public DBOAntiFraudWS send(Template template) throws IOException {
         lastResponseCode = null;
         lastResponse = null;
 
@@ -33,12 +64,10 @@ public class DBOAntiFraudWS {
         conn.setRequestMethod("POST");
         conn.setRequestProperty("User-Agent", "IITD Tester");
         conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-
-
         conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
         conn.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
         conn.setRequestProperty("SOAPAction", "");
-        conn.setRequestProperty("Authorization", "Basic d3NVc2VyOndzVXNlcg==");
+        conn.setRequestProperty("Authorization", "Basic " + basicAuth);
         conn.setRequestProperty("Host", "localhost:8080");
         conn.setRequestProperty("Connection", "Keep-Alive");
         conn.setRequestProperty("User-Agent", "IITD-Tester");
@@ -49,89 +78,36 @@ public class DBOAntiFraudWS {
 
         conn.setDoOutput(true);
 
-
-        DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-        SOAPMessage message = null;
-        try {
-            message = MessageFactory.newInstance().createMessage();
-            message.getSOAPBody().addDocument(t.marshalToDocument());
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            message.writeTo(outputStream);
-            wr.writeBytes(outputStream.toString());
-            wr.flush();
-            wr.close();
+        try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+            SOAPMessage requestMessage = MessageFactory.newInstance().createMessage();
+            requestMessage.getSOAPBody().addDocument(template.marshalToDocument());
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                requestMessage.writeTo(outputStream);
+                wr.writeBytes(outputStream.toString());
+            }
+            lastResponseCode = conn.getResponseCode();
+            SOAPMessage responseMessage = MessageFactory
+                    .newInstance()
+                    .createMessage(new MimeHeaders(), conn.getInputStream());
+            lastResponse = (ResultType) ((JAXBElement) this.responseUnmarshaller
+                    .unmarshal(responseMessage.getSOAPBody().getFirstChild())).getValue();
         } catch (SOAPException | JAXBException | ParserConfigurationException e) {
             throw new IllegalStateException(e);
         }
 
-        lastResponseCode = conn.getResponseCode();
-        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-        lastResponse = response.toString();
         return this;
-    }
-
-    public void verifyHTTPanswer() {
-        if (lastResponseCode != 200 || lastResponse == null) {
-            throw new ICMalfunctionError(String.format("No data, IC Respone code %s", lastResponse));
-        }
-    }
-
-
-    public String getOptional(String tagName) {
-        return getValue(tagName, true);
-    }
-
-    public String getMandatory(String tagName) {
-        return getValue(tagName, false);
-    }
-
-
-    public String getValue(String tagName, boolean optional) {
-        final String regex = String.format(".+<%s>(.+)<.%s>.+", tagName, tagName);
-
-        final Pattern pattern = Pattern.compile(regex);
-
-        final Matcher matcher = pattern.matcher(lastResponse);
-
-        if (matcher.matches()) {
-            return matcher.group(1);
-        } else {
-            if (optional) {
-                return null;
-            } else {
-                throw new Error(String.format("No tag [%s] in response: %s", tagName, lastResponse));
-            }
-        }
     }
 
     public Integer getResponseCode() {
         return lastResponseCode;
     }
 
-    public String getResponse() {
+    public ResultType getResponse() {
         return lastResponse;
     }
 
-    public String getSuccessCode() {
-        verifyHTTPanswer();
-        return getMandatory("com:Success");
-    }
-
-    public String getErrorCode() {
-        verifyHTTPanswer();
-        return getOptional("com:ErrorCode");
-    }
-
-    public String getErrorMessage() {
-        verifyHTTPanswer();
-        return getOptional("com:ErrorMessage");
+    public boolean isSuccessResponse() {
+        return getResponse().isSuccess();
     }
 
 }

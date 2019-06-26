@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.Random;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class WSTests extends RSHBTests {
 
@@ -20,7 +21,7 @@ public class WSTests extends RSHBTests {
 
     @BeforeMethod
     public void before() {
-        ws = new DBOAntiFraudWS(props.getWSUrl());
+        ws = new DBOAntiFraudWS(props.getWSUrl(), props.getWSUser(), props.getWSPassword());
     }
 
     @Test(
@@ -29,9 +30,11 @@ public class WSTests extends RSHBTests {
     )
     public void callAuth() throws JAXBException, IOException {
         Authentication authentication = new Authentication("auth/auth1.xml");
+
         ws.send(authentication);
 
         assertEquals(200, ws.getResponseCode().intValue());
+        assertTrue(ws.isSuccessResponse());
     }
 
     @Test(
@@ -40,9 +43,11 @@ public class WSTests extends RSHBTests {
     )
     public void callClient() throws JAXBException, IOException {
         Client client = new Client("clients/client1.xml");
+
         ws.send(client);
 
         assertEquals(200, ws.getResponseCode().intValue());
+        assertTrue(ws.isSuccessResponse());
     }
 
     @Test(
@@ -56,5 +61,6 @@ public class WSTests extends RSHBTests {
         ws.send(t);
 
         assertEquals(200, ws.getResponseCode().intValue());
+        assertTrue(ws.isSuccessResponse());
     }
 }
