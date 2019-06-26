@@ -1,0 +1,32 @@
+<auth:ClientAuthenticationRequest xmlns:com="http://www.iitdgroup.ru/Intellinx/DBO/Common"
+                                  xmlns:auth="http://www.iitdgroup.ru/Intellinx/DBO/Auth"
+                                  xmlns:cli="http://www.iitdgroup.ru/Intellinx/DBO/Client">
+    <auth:ServerInfo>
+        <com:Ip>192.168.1.1</com:Ip>
+        <com:Port>8080</com:Port>
+    </auth:ServerInfo>
+    <auth:ClientAuthentication>
+        <auth:Login>Login123123</auth:Login>
+        <auth:AuthSuccessful>true</auth:AuthSuccessful>
+        <auth:ClientIds>
+            <com:DboId>1433555556</com:DboId>
+            <com:CifId>12312414141</com:CifId>
+            <com:EksId>453634523414</com:EksId>
+            <com:PcId>3424234</com:PcId>
+            <com:ExpertSystemId>77831d4e66f454c1f6cfe45df096cfdc7bac368b</com:ExpertSystemId>
+            <com:LoginHash>356a192b7913b04c54574d18c28d46e6395428ab</com:LoginHash>
+        </auth:ClientIds>
+        <auth:AuthTimestamp>2017-01-01T00:00:00</auth:AuthTimestamp>
+        <auth:ClientDevice>
+            <cli:Platform>IOS</cli:Platform>
+            <cli:IOS>
+                <cli:IpAddress>192.168.1.77</cli:IpAddress>
+                <cli:IdentifierForVendor>IFV124567</cli:IdentifierForVendor>
+                <cli:OSVersion>12</cli:OSVersion>
+                <cli:Model>iPhone 8</cli:Model>
+                <cli:AuthByFingerprint>false</cli:AuthByFingerprint>
+            </cli:IOS>
+        </auth:ClientDevice>
+        <auth:SessionId>SessionId123123</auth:SessionId>
+    </auth:ClientAuthentication>
+</auth:ClientAuthenticationRequest>
