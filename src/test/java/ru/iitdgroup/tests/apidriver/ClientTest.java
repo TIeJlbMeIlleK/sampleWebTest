@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.*;
 
-public class ClientTest extends ApiDriverTest {
+public class ClientTest {
 
     private Client client;
 
