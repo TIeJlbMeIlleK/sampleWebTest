@@ -19,7 +19,7 @@ public class DBTests extends RSHBTests {
                     .from("DBOCHANNEL")
                     .with("id", "=", "1")
                     .with("id", "=", "2")
-                    .setFormula("1 OR 2")
+                    .setFormula("OR")
                     .get();
             assertEquals("1", rows[0][0]);
             assertEquals("2", rows[1][0]);

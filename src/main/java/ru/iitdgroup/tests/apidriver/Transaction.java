@@ -5,26 +5,14 @@ import ru.iitdgroup.intellinx.dbo.transaction.SendTransactionDataRequestType;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Transaction extends Template<SendTransactionDataRequestType> {
 
     public Transaction(String fileName) throws JAXBException, IOException {
         super(fileName);
-    }
-
-    public Transaction withDBOId(String newDboId) {
-        getData().getTransactionData().getClientIds().setDboId(newDboId);
-        return this;
-    }
-
-    public Transaction withTransactionId(String newTransactionId) {
-        getData().getTransactionData().setTransactionId(newTransactionId);
-        return this;
-    }
-
-    public Transaction withCIFId(String newCIFId) {
-        getData().getTransactionData().getClientIds().setCifId(newCIFId);
-        return this;
+        getData().getTransactionData()
+                .withTransactionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
     }
 
     @Override

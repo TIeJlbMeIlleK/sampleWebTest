@@ -6,15 +6,17 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Database implements AutoCloseable {
 
-    final TestProperties props;
+    private final TestProperties props;
     Connection conn;
     List<String> selectFields = new ArrayList<>();
     String from;
     List<String> whereConditions = new ArrayList<>();
     String formula;
+    List<String> joins = new ArrayList<>();
 
     public Database(TestProperties props) {
         this.props = props;
@@ -54,18 +56,17 @@ public class Database implements AutoCloseable {
 
     public String[][] getData() throws SQLException {
 
-        String fatFormula = formula;
-        for (int i = 0; i < whereConditions.size(); i++) {
-            String whereCondition = whereConditions.get(i);
-            fatFormula = fatFormula.replaceAll(String.valueOf(i + 1), " (" + whereCondition + ") ");
-        }
-
+        String fatFormula = whereConditions
+                .stream()
+                .map(c -> "(" + c + ")")
+                .collect(Collectors.joining(" " + formula + " "));
 
         StringBuilder sb = new StringBuilder();
         sb
                 .append("SELECT").append(" ")
                 .append(String.join(", ", selectFields)).append(" ")
-                .append(" FROM ").append(from)
+                .append(" FROM ").append(from).append(" ")
+                .append(String.join("\n", joins))
                 .append(" WHERE ").append(fatFormula);
 
         return SQLUtil.getSQLData(conn, sb.toString());
@@ -74,6 +75,14 @@ public class Database implements AutoCloseable {
     public void setFormula(String formula) {
         checkFormula(formula);
         this.formula = formula;
+    }
+
+    public List<String> getJoins() {
+        return joins;
+    }
+
+    public void setJoins(List<String> joins) {
+        this.joins = joins;
     }
 
     public String[][] getSQLData(String sql){

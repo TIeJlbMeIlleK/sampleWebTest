@@ -15,4 +15,10 @@ public class Fields extends Context {
         database.from = tableName;
         return new With( database);
     }
+
+    public Joins innerJoin(String tableName, String leftCondition, String rightCondition) {
+        Joins joins = new Joins(database);
+        joins.innerJoin(tableName, leftCondition, rightCondition);
+        return joins;
+    }
 }

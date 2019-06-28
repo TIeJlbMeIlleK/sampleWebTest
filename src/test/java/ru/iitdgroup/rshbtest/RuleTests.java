@@ -14,7 +14,7 @@ public class RuleTests extends RSHBTests {
             ic.locateRules()
                     .selectVisible()
                     .deactivate()
-                    .selectRule("R01_ExR_04_InfectedDevice")
+                    .selectRule("R01_GR_04_OnePayerToManyPhones")
                     .activate()
                     .sleep(3)
             ;
