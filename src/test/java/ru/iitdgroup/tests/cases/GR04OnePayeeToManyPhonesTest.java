@@ -60,6 +60,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
     public void step0() {
         try {
             for (int i = 0; i < 4; i++) {
+                //FIXME Добавить проверку на существование клиента в базе
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
                 Client client = new Client("testCases/GR04OnePayeeToManyPhones/client.xml");
                 client
@@ -68,7 +69,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                         .getClient()
                         .getClientIds()
                         .withDboId(dboId);
-                sendSuccess(client);
+                sendAndAssert(client);
                 clientIds.add(dboId);
             }
         } catch (JAXBException | IOException e) {
@@ -94,7 +95,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .withAdditionalField(getPhoneField(PHONE1))
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1001));
 
-        sendSuccess(transaction);
+        sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, REGULAR_TRANSACTION);
     }
 
@@ -116,7 +117,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .withAdditionalField(getPhoneField(PHONE1))
                 .withAmountInSourceCurrency(BigDecimal.valueOf(999));
 
-        sendSuccess(transaction);
+        sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_EMPTY);
     }
 
@@ -136,7 +137,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .withAdditionalField(getPhoneField(PHONE1))
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1));
 
-        sendSuccess(transaction);
+        sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_APPLY_BY_SUM);
     }
 
@@ -158,7 +159,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .withAdditionalField(getPhoneField(PHONE1))
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1));
 
-        sendSuccess(transaction);
+        sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF);
     }
 
@@ -175,7 +176,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .withProviderName(PHONE2)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
 
-        sendSuccess(transaction);
+        sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
     }
 
@@ -196,7 +197,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                     .withAdditionalField(getPhoneField(PHONE3))
                     .withAmountInSourceCurrency(BigDecimal.valueOf(10));
 
-            sendSuccess(transaction);
+            sendAndAssert(transaction);
             switch (i) {
                 case 6:
                     assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_EMPTY);
@@ -227,7 +228,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                     .withProviderName(PHONE4)
                     .withAmountInSourceCurrency(BigDecimal.valueOf(10));
 
-            sendSuccess(transaction);
+            sendAndAssert(transaction);
             assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
         }
     }
@@ -247,7 +248,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(3));
 
-        sendSuccess(transaction);
+        sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
     }
 

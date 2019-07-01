@@ -17,7 +17,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 public abstract class RSHBCaseTest {
 
@@ -68,11 +69,11 @@ public abstract class RSHBCaseTest {
         }
     }
 
-    protected DBOAntiFraudWS sendSuccess(Template template) {
+    protected DBOAntiFraudWS sendAndAssert(Template template) {
         DBOAntiFraudWS result = send(template);
-        if (!result.isSuccessResponse()) {
-            throw new IllegalStateException("response is not success");
-        }
+        assertTrue(
+                String.format("Ошибка на стороне AntiFraudWS: %s", result.getResponse().getErrorMessage()),
+                result.isSuccessResponse());
         return result;
     }
 
@@ -125,6 +126,7 @@ public abstract class RSHBCaseTest {
 
     protected Transaction getTransaction(String filePath) {
         try {
+            //FIXME Добавить проверку на существование клиента в базе
             Transaction transaction = new Transaction(filePath);
             transaction.getData()
                     .getTransactionData()
