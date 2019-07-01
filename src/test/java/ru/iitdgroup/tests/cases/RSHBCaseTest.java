@@ -5,14 +5,17 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import ru.iitdgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitdgroup.tests.apidriver.Template;
+import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.dbdriver.Database;
 import ru.iitdgroup.tests.properties.TestProperties;
 import ru.iitdgroup.tests.webdriver.ic.IC;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.soap.SOAPException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
 
@@ -118,6 +121,20 @@ public abstract class RSHBCaseTest {
         String[][] dbResult = getResults(getRuleName());
         assertEquals(triggered ? TRIGGERED : NOT_TRIGGERED, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
+    }
+
+    protected Transaction getTransaction(String filePath) {
+        try {
+            Transaction transaction = new Transaction(filePath);
+            transaction.getData()
+                    .getTransactionData()
+                    .withTransactionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
+                    .withSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
+                    .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
+            return transaction;
+        } catch (JAXBException | IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     protected abstract String getRuleName();

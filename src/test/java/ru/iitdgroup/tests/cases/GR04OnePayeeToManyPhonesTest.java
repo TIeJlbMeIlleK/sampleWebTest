@@ -202,6 +202,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                     assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY_EMPTY);
                     break;
                 case 7:
+                    // Нужно запомнить время 8й транзакции, чтобы отправить 11ую транзакцию с правильным временем
                     transaction8GC = (GregorianCalendar) time.clone();
                     assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY_BY_CONF);
                     break;
@@ -263,18 +264,10 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
     }
 
     private Transaction getTransaction() {
-        try {
-            Transaction transaction = new Transaction("testCases/GR04OnePayeeToManyPhones/tran.xml");
-            transaction.getData()
-                    .getTransactionData()
-                    .withTransactionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
-                    .withSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
-                    .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
-                    .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                    .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-            return transaction;
-        } catch (JAXBException | IOException e) {
-            throw new IllegalStateException(e);
-        }
+        Transaction transaction = getTransaction("testCases/GR04OnePayeeToManyPhones/tran.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
     }
 }
