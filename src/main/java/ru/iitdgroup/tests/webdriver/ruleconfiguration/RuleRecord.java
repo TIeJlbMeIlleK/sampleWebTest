@@ -18,6 +18,7 @@ public class RuleRecord extends AbstractEdit<RuleRecord> {
 
     public RuleEdit edit(){
         driver.findElementByXPath("//a[@id='btnEdit']").click();
+        waitUntil("//a[@id='btnSave']");
         return new RuleEdit( driver);
     }
 }

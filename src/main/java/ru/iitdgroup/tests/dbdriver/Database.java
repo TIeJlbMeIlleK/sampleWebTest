@@ -1,5 +1,7 @@
 package ru.iitdgroup.tests.dbdriver;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import ru.iitdgroup.tests.properties.TestProperties;
 
 import java.sql.Connection;
@@ -17,6 +19,9 @@ public class Database implements AutoCloseable {
     List<String> whereConditions = new ArrayList<>();
     String formula;
     List<String> joins = new ArrayList<>();
+    List<Pair<String, Boolean>> sortFields = new ArrayList<>();
+    int offset = 0;
+    Integer limit;
 
     public Database(TestProperties props) {
         this.props = props;
@@ -31,6 +36,7 @@ public class Database implements AutoCloseable {
         selectFields.clear();
         from = null;
         whereConditions.clear();
+        sortFields.clear();
         return new Fields(this);
     }
 
@@ -66,8 +72,21 @@ public class Database implements AutoCloseable {
                 .append("SELECT").append(" ")
                 .append(String.join(", ", selectFields)).append(" ")
                 .append(" FROM ").append(from).append(" ")
-                .append(String.join("\n", joins))
-                .append(" WHERE ").append(fatFormula);
+                .append(String.join("\n", joins));
+        if (!StringUtils.isEmpty(fatFormula)) {
+            sb.append(" WHERE ").append(fatFormula).append(" ");
+        }
+        if (!sortFields.isEmpty()) {
+            sb.append(" ORDER BY ")
+                    .append(getSortFields()
+                            .stream()
+                            .map(i -> i.getLeft() + " " + (i.getRight() ? "ASC" : "DESC"))
+                            .collect(Collectors.joining(", ")));
+        }
+        sb.append(" OFFSET ").append(offset).append(" ROWS ");
+        if (limit != null) {
+            sb.append(" FETCH FIRST ").append(limit).append(" ROWS ONLY ");
+        }
 
         return SQLUtil.getSQLData(conn, sb.toString());
     }
@@ -81,8 +100,28 @@ public class Database implements AutoCloseable {
         return joins;
     }
 
+    public List<Pair<String, Boolean>> getSortFields() {
+        return sortFields;
+    }
+
     public void setJoins(List<String> joins) {
         this.joins = joins;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
     }
 
     public String[][] getSQLData(String sql){

@@ -4,7 +4,7 @@
         <Port>8089</Port>
     </ns4:ServerInfo>
     <ns4:TransactionData>
-        <ns4:TransactionId>99696936</ns4:TransactionId>
+        <ns4:TransactionId>1</ns4:TransactionId>
         <ns4:ClientIds>
             <DboId>1</DboId>
             <CifId>1</CifId>
@@ -14,8 +14,8 @@
             <LoginHash>1</LoginHash>
         </ns4:ClientIds>
         <ns4:DocumentSaveTimestamp>2016-10-25T12:28:56+03:00</ns4:DocumentSaveTimestamp>
-        <ns4:DocumentNumber>58</ns4:DocumentNumber>
-        <ns4:Type>CARD_TRANSFER</ns4:Type>
+        <ns4:DocumentNumber>1</ns4:DocumentNumber>
+        <ns4:Type>SERVICE_PAYMENT</ns4:Type>
         <ns4:Regular>false</ns4:Regular>
         <ns4:Limit>1</ns4:Limit>
         <ns4:ServicePayment>

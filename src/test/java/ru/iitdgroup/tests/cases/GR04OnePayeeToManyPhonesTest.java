@@ -2,66 +2,69 @@ package ru.iitdgroup.tests.cases;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
-import ru.iitdgroup.intellinx.dbo.common.ClientIdsType;
 import ru.iitdgroup.intellinx.dbo.transaction.AdditionalFieldType;
-import ru.iitdgroup.intellinx.dbo.transaction.ObjectFactory;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
-import ru.iitdgroup.intellinx.dbo.transaction.TransactionType;
 import ru.iitdgroup.tests.apidriver.Client;
-import ru.iitdgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitdgroup.tests.apidriver.Transaction;
-import ru.iitdgroup.tests.dbdriver.Database;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
 
-    private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
-    private static final String PHONE1 = "+791222222221";
-    private static final String PHONE2 = "+791222222222";
-    private static final String PHONE3 = "+791222222223";
-    private static final String PHONE4 = "+791222222224";
+    private static final String PHONE1 = "9122222221";
+    private static final String PHONE2 = "9122222222";
+    private static final String PHONE3 = "9122222223";
+    private static final String PHONE4 = "9122222224";
+    private static final String PHONE_SERVICE_NAME = "PHONE";
+    private static final String QIWI_SERVICE_NAME = "QIWI";
+    private static final String TV_SERVICE_NAME = "TV";
+    private static final String RULE_NAME = "R01_GR_04_OnePayerToManyPhones";
 
-    private static final AdditionalFieldType PHONE_FIELD = OBJECT_FACTORY
-            .createAdditionalFieldType()
-            .withId("account")
-            .withName("account")
-            .withValue(PHONE1);
-
-    private final GregorianCalendar saveGC = new GregorianCalendar(2019, Calendar.JUNE, 1, 1, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 1, 1, 0, 0);
     private GregorianCalendar transaction8GC;
 
-    private final List<Long> transactionIds = new ArrayList<>();
+    private final List<String> clientIds = new ArrayList<>();
 
     private Transaction getTransaction() {
         try {
             Transaction transaction = new Transaction("testCases/GR04OnePayeeToManyPhones/tran.xml");
             transaction.getData()
                     .getTransactionData()
+                    .withTransactionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
                     .withSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
-                    .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
+                    .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
+                    .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                    .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
             return transaction;
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
+
+
     @Test(
-            description = "Включаем правило"
+            description = "Настройка и включение правила"
     )
     public void enableRules() {
         getIC().locateRules()
+                .editRule(RULE_NAME)
+                .fillInputText("Длина серии:", "3")
+                .fillInputText("Период серии в минутах:", "10")
+                .fillInputText("Сумма серии:", "1000")
+                .fillCheckBox("Проверка регулярных:", false);
+
+        getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .selectRule("R01_GR_04_OnePayerToManyPhones")
+                .selectRule(RULE_NAME)
                 .activate()
                 .sleep(3);
 
@@ -69,14 +72,23 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Создаем клиентов 1, 2, 3, 4",
+            description = "Создаем клиента",
             dependsOnMethods = "enableRules"
     )
     public void step0() {
         try {
-            Client client = new Client("testCases/GR04OnePayeeToManyPhones/client.xml");
-            DBOAntiFraudWS send = send(client);
-            assertTrue(send.isSuccessResponse());
+            for (int i = 0; i < 4; i++) {
+                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                Client client = new Client("testCases/GR04OnePayeeToManyPhones/client.xml");
+                client
+                        .getData()
+                        .getClientData()
+                        .getClient()
+                        .getClientIds()
+                        .withDboId(dboId);
+                sendSuccess(client);
+                clientIds.add(dboId);
+            }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
@@ -88,24 +100,20 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
     )
     public void step1() {
         Transaction transaction = getTransaction();
-
-        transaction.getData().getTransactionData()
-                .withRegular(true)
-                .withType(TransactionType.SERVICE_PAYMENT)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(saveGC))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(saveGC))
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(true);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
                 .getServicePayment()
                 .withProviderName(PHONE1)
-                .withServiceName("PHONE")
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1001))
-                .withAdditionalField(PHONE_FIELD);
+                .withServiceName(PHONE_SERVICE_NAME)
+                .withAdditionalField(getPhoneField(PHONE1))
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1001));
 
-        DBOAntiFraudWS response = send(transaction);
-        assertTrue(response.isSuccessResponse());
-
-        transactionIds.add(Long.valueOf(transaction.getData().getTransactionData().getTransactionId()));
-
-        saveGC.add(Calendar.MINUTE, 10);
+        sendSuccess(transaction);
+        assertLastTransactionRuleApply(false, REGULAR_TRANSACTION);
     }
 
     @Test(
@@ -113,25 +121,21 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
             dependsOnMethods = "step1"
     )
     public void step2() {
+        time.add(Calendar.MINUTE, 5);
         Transaction transaction = getTransaction();
-
-        transaction.getData().getTransactionData()
-                .withRegular(false)
-                .withType(TransactionType.SERVICE_PAYMENT)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(saveGC))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(saveGC))
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
                 .getServicePayment()
-                .withProviderName(PHONE2)
-                .withServiceName("PHONE")
-                .withAdditionalField(PHONE_FIELD)
+                .withProviderName(PHONE1)
+                .withServiceName(PHONE_SERVICE_NAME)
+                .withAdditionalField(getPhoneField(PHONE1))
                 .withAmountInSourceCurrency(BigDecimal.valueOf(999));
 
-        DBOAntiFraudWS response = send(transaction);
-        assertTrue(response.isSuccessResponse());
-
-        transactionIds.add(Long.valueOf(transaction.getData().getTransactionData().getTransactionId()));
-
-        saveGC.add(Calendar.MINUTE, 10);
+        sendSuccess(transaction);
+        assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY_EMPTY);
     }
 
     @Test(
@@ -139,24 +143,19 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
             dependsOnMethods = "step2"
     )
     public void step3() {
+        time.add(Calendar.MINUTE, 5);
         Transaction transaction = getTransaction();
-
-        transaction.getData().getTransactionData()
-                .withRegular(false)
-                .withType(TransactionType.SERVICE_PAYMENT)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(saveGC))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(saveGC))
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData.getClientIds().withDboId(clientIds.get(0));
+        transactionData
                 .getServicePayment()
-                .withProviderName(PHONE1)
-                .withServiceName("QIWI")
+                .withProviderName(QIWI_SERVICE_NAME)
+                .withServiceName(QIWI_SERVICE_NAME)
+                .withAdditionalField(getPhoneField(PHONE1))
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1));
 
-        DBOAntiFraudWS response = send(transaction);
-        assertTrue(response.isSuccessResponse());
-
-        transactionIds.add(Long.valueOf(transaction.getData().getTransactionData().getTransactionId()));
-
-        saveGC.add(Calendar.MINUTE, 10);
+        sendSuccess(transaction);
+        assertLastTransactionRuleApply(true, RESULT_RULE_APPLY_BY_SUM);
     }
 
     @Test(
@@ -164,24 +163,21 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
             dependsOnMethods = "step3"
     )
     public void step4() {
+        time.add(Calendar.MINUTE, 5);
         Transaction transaction = getTransaction();
-
-        transaction.getData().getTransactionData()
-                .withRegular(false)
-                .withType(TransactionType.SERVICE_PAYMENT)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(saveGC))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(saveGC))
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
                 .getServicePayment()
-                .withProviderName(PHONE1)
-                .withServiceName("TV")
+                .withProviderName(TV_SERVICE_NAME)
+                .withServiceName(TV_SERVICE_NAME)
+                .withAdditionalField(getPhoneField(PHONE1))
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1));
 
-        DBOAntiFraudWS response = send(transaction);
-        assertTrue(response.isSuccessResponse());
-
-        transactionIds.add(Long.valueOf(transaction.getData().getTransactionData().getTransactionId()));
-
-        saveGC.add(Calendar.MINUTE, 10);
+        sendSuccess(transaction);
+        assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY_BY_CONF);
     }
 
     @Test(
@@ -189,24 +185,16 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
             dependsOnMethods = "step4"
     )
     public void step5() {
+        time.add(Calendar.MINUTE, 5);
         Transaction transaction = getTransaction();
-
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false)
-                .withType(TransactionType.SERVICE_PAYMENT)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(saveGC))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(saveGC));
-
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData.getClientIds().withDboId(clientIds.get(1));
         transactionData.getServicePayment()
                 .withProviderName(PHONE2)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
 
-        DBOAntiFraudWS response = send(transaction);
-        assertTrue(response.isSuccessResponse());
-
-        transactionIds.add(Long.valueOf(transaction.getData().getTransactionData().getTransactionId()));
-
-        saveGC.add(Calendar.MINUTE, 10);
+        sendSuccess(transaction);
+        assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY);
     }
 
     @Test(
@@ -215,28 +203,29 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
     )
     public void step6() {
         for (int i = 6; i <= 8; i++) {
-
+            time.add(Calendar.MINUTE, 1);
             Transaction transaction = getTransaction();
-
-            TransactionDataType transactionData = transaction.getData().getTransactionData()
-                    .withRegular(false)
-                    .withType(TransactionType.SERVICE_PAYMENT)
-                    .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(saveGC))
-                    .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(saveGC));
-
-            transactionData.getServicePayment()
+            TransactionDataType transactionData = transaction.getData().getTransactionData();
+            transactionData.getClientIds().withDboId(clientIds.get(2));
+            transactionData
+                    .getServicePayment()
+                    .withServiceName(PHONE3)
                     .withProviderName(PHONE3)
+                    .withAdditionalField(getPhoneField(PHONE3))
                     .withAmountInSourceCurrency(BigDecimal.valueOf(10));
 
-            DBOAntiFraudWS response = send(transaction);
-            assertTrue(response.isSuccessResponse());
-
-            transactionIds.add(Long.valueOf(transaction.getData().getTransactionData().getTransactionId()));
-
-            saveGC.add(Calendar.MINUTE, 10);
-
-            if (i == 8) {
-                transaction8GC = (GregorianCalendar) saveGC.clone();
+            sendSuccess(transaction);
+            switch (i) {
+                case 6:
+                    assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY_EMPTY);
+                    break;
+                case 7:
+                    transaction8GC = (GregorianCalendar) time.clone();
+                    assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY_BY_CONF);
+                    break;
+                case 8:
+                    assertLastTransactionRuleApply(true, RESULT_RULE_APPLY_BY_LENGTH);
+                    break;
             }
         }
     }
@@ -247,24 +236,16 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
     )
     public void step7() {
         for (int i = 9; i <= 10; i++) {
+            time.add(Calendar.MINUTE, 5);
             Transaction transaction = getTransaction();
-
-            TransactionDataType transactionData = transaction.getData().getTransactionData()
-                    .withRegular(false)
-                    .withType(TransactionType.SERVICE_PAYMENT)
-                    .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(saveGC))
-                    .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(saveGC));
-
+            TransactionDataType transactionData = transaction.getData().getTransactionData();
+            transactionData.getClientIds().withDboId(clientIds.get(3));
             transactionData.getServicePayment()
                     .withProviderName(PHONE4)
                     .withAmountInSourceCurrency(BigDecimal.valueOf(10));
 
-            DBOAntiFraudWS response = send(transaction);
-            assertTrue(response.isSuccessResponse());
-
-            transactionIds.add(Long.valueOf(transaction.getData().getTransactionData().getTransactionId()));
-
-            saveGC.add(Calendar.MINUTE, 10);
+            sendSuccess(transaction);
+            assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY);
         }
     }
 
@@ -273,89 +254,29 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
             dependsOnMethods = "step7"
     )
     public void step8() {
+        transaction8GC.add(Calendar.MINUTE, 11);
         Transaction transaction = getTransaction();
-
-        transaction8GC.add(Calendar.MINUTE, 10);
-
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false)
-                .withType(TransactionType.SERVICE_PAYMENT)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(transaction8GC))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(transaction8GC));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData.getServicePayment()
-                .withAdditionalField(PHONE_FIELD.withValue(PHONE4))
+                .withProviderName(PHONE4)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(10));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(3));
 
-        DBOAntiFraudWS response = send(transaction);
-        assertTrue(response.isSuccessResponse());
-
-        transactionIds.add(Long.valueOf(transaction.getData().getTransactionData().getTransactionId()));
-
-        for (int i = 0; i < transactionIds.size(); i++) {
-            System.out.println(String.format("%d %d", i + 1, transactionIds.get(i)));
-        }
+        sendSuccess(transaction);
+        assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY);
     }
 
-    @Test(
-            description = "Проверить \"Отчет срабатывания правила\"",
-            dependsOnMethods = "step8"
-    )
-    public void step9() throws SQLException {
-        Database database = new Database(getProps());
-        final String tableName = "PAYMENT_TRANSACTION pt";
-        String[][] result = database
-                .select()
-                .field("iw.EXECUTION_TYPE")
-                .field("iw.DESCRIPTION")
-                .innerJoin("TRANSACTION_RULE_AUDIT tra", "pt.id", "tra.PAYMENT_FK")
-                .innerJoin("INCIDENT_WRAP iw", "tra.id", "iw.TRANSACTION_RULE_AUDIT_FK")
-                .from(tableName)
-                .with("pt.TRANSACTION_ID", "IN", transactionIds.toString().replaceAll("\\[", "(").replaceAll("\\]", ")"))
-                .with("iw.RULE_TITLE", "=", "'R01_GR_04_OnePayerToManyPhones'")
-                .setFormula("AND")
-                .get();
-
-        assertEquals(result.length, 11);
-        final String NOT_TRIGGERED = "NOT_TRIGGERED";
-        final String TRIGGERED = "TRIGGERED";
-        final Set<Integer> ruleNotApplySet = new HashSet<>();
-        ruleNotApplySet.add(2);
-        ruleNotApplySet.add(4);
-        ruleNotApplySet.add(5);
-        ruleNotApplySet.add(6);
-        ruleNotApplySet.add(7);
-        ruleNotApplySet.add(9);
-        ruleNotApplySet.add(10);
-        ruleNotApplySet.add(11);
-        for (int i = 0; i < result.length; i++) {
-            final int currentTransactionNumber = i + 1;
-            System.out.println(transactionIds.get(i));
-            if (currentTransactionNumber == 1) {
-                assertEquals(NOT_TRIGGERED, result[i][0]);
-                assertEquals("Правило не применяется для регулярных транзакций", result[i][1]);
-            }
-            if (ruleNotApplySet.contains(currentTransactionNumber)) {
-                assertEquals(NOT_TRIGGERED, result[i][0]);
-                assertEquals("Правило не применилось", result[i][1]);
-            }
-            if (currentTransactionNumber == 3) {
-                assertEquals(TRIGGERED, result[i][0]);
-                assertEquals("Общая сумма транзакции больше допустимой величины", result[i][1]);
-            }
-            if (currentTransactionNumber == 8) {
-                assertEquals(TRIGGERED, result[i][0]);
-                assertEquals("Количество транзакций больше допустимой длины серии", result[i][1]);
-            }
-        }
+    @Override
+    protected String getRuleName() {
+        return RULE_NAME;
     }
 
-    private void setClientId(ClientIdsType clientId, String id) {
-        clientId.withCifId(id)
-                .withDboId(id)
-                .withEksId(id)
-                .withExpertSystemId(id)
-                .withLoginHash(id)
-                .withPcId(id);
+    private AdditionalFieldType getPhoneField(String phone) {
+        return new AdditionalFieldType()
+                .withId("account")
+                .withName("account")
+                .withValue(phone);
     }
-
 }
