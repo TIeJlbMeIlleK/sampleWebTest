@@ -28,27 +28,9 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_GR_04_OnePayerToManyPhones";
 
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 1, 1, 0, 0);
-    private GregorianCalendar transaction8GC;
-
     private final List<String> clientIds = new ArrayList<>();
 
-    private Transaction getTransaction() {
-        try {
-            Transaction transaction = new Transaction("testCases/GR04OnePayeeToManyPhones/tran.xml");
-            transaction.getData()
-                    .getTransactionData()
-                    .withTransactionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
-                    .withSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
-                    .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
-                    .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                    .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-            return transaction;
-        } catch (JAXBException | IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-
+    private GregorianCalendar transaction8GC;
 
     @Test(
             description = "Настройка и включение правила"
@@ -278,5 +260,21 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .withId("account")
                 .withName("account")
                 .withValue(phone);
+    }
+
+    private Transaction getTransaction() {
+        try {
+            Transaction transaction = new Transaction("testCases/GR04OnePayeeToManyPhones/tran.xml");
+            transaction.getData()
+                    .getTransactionData()
+                    .withTransactionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
+                    .withSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
+                    .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
+                    .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                    .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+            return transaction;
+        } catch (JAXBException | IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
