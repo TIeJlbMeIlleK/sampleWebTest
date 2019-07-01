@@ -111,7 +111,7 @@ public abstract class RSHBCaseTest {
         }
     }
 
-    protected void assertLastTransactionRuleApply(boolean triggered, String description) {
+    protected void assertLastTransactionRuleApply(String ruleResult, String description) {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -119,7 +119,7 @@ public abstract class RSHBCaseTest {
             throw new IllegalStateException(e);
         }
         String[][] dbResult = getResults(getRuleName());
-        assertEquals(triggered ? TRIGGERED : NOT_TRIGGERED, dbResult[0][0]);
+        assertEquals(ruleResult, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
     }
 

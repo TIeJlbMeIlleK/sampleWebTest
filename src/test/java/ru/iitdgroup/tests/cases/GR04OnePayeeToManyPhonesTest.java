@@ -95,7 +95,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1001));
 
         sendSuccess(transaction);
-        assertLastTransactionRuleApply(false, REGULAR_TRANSACTION);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, REGULAR_TRANSACTION);
     }
 
     @Test(
@@ -117,7 +117,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .withAmountInSourceCurrency(BigDecimal.valueOf(999));
 
         sendSuccess(transaction);
-        assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY_EMPTY);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_EMPTY);
     }
 
     @Test(
@@ -137,7 +137,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1));
 
         sendSuccess(transaction);
-        assertLastTransactionRuleApply(true, RESULT_RULE_APPLY_BY_SUM);
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_APPLY_BY_SUM);
     }
 
     @Test(
@@ -159,7 +159,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1));
 
         sendSuccess(transaction);
-        assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY_BY_CONF);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF);
     }
 
     @Test(
@@ -176,7 +176,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
 
         sendSuccess(transaction);
-        assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
     }
 
     @Test(
@@ -199,15 +199,15 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
             sendSuccess(transaction);
             switch (i) {
                 case 6:
-                    assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY_EMPTY);
+                    assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_EMPTY);
                     break;
                 case 7:
                     // Нужно запомнить время 8й транзакции, чтобы отправить 11ую транзакцию с правильным временем
                     transaction8GC = (GregorianCalendar) time.clone();
-                    assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY_BY_CONF);
+                    assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF);
                     break;
                 case 8:
-                    assertLastTransactionRuleApply(true, RESULT_RULE_APPLY_BY_LENGTH);
+                    assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_APPLY_BY_LENGTH);
                     break;
             }
         }
@@ -228,7 +228,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                     .withAmountInSourceCurrency(BigDecimal.valueOf(10));
 
             sendSuccess(transaction);
-            assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY);
+            assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
         }
     }
 
@@ -248,7 +248,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .withDboId(clientIds.get(3));
 
         sendSuccess(transaction);
-        assertLastTransactionRuleApply(false, RESULT_RULE_NOT_APPLY);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
     }
 
     @Override
