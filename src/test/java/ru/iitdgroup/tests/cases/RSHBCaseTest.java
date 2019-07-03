@@ -32,6 +32,10 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_RULE_APPLY_BY_SUM = "Общая сумма транзакций больше допустимой величины";
     protected static final String RESULT_RULE_CARD_IN_BLACK_LIST = "Карта получателя в чёрном списке";
     protected static final String RESULT_RULE_CARD_NOT_IN_BLACK_LIST = "Нет совпадений по параметрам со списками запрещенных";
+    protected static final String RESULT_RULE_PAYEE_ACCOUNT_IS_ON_THE_BLACK_LIST = "Сводный счет и Счет/карта получателя в черном списке";
+    protected static final String RESULT_RULE_PAYEE_ACCOUNT_NOT_ON_THE_BLACK_LIST = "Нет совпадений по параметрам со списками запрещенных";
+
+
 
     private DBOAntiFraudWS ws;
     private TestProperties props;

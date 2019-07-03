@@ -28,22 +28,20 @@ public class BR_01_PayeeInBlackList_2 extends RSHBCaseTest {
     @Test(
             description = "Настройка и включение правила"
     )
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .selectRule(RULE_NAME)
+                .activate()
+                .sleep(3);
+    }
 
-            public void enableRules() {
-            getIC().locateRules()
-                    .selectVisible()
-                    .deactivate()
-                    .selectRule(RULE_NAME)
-                    .activate()
-                    .sleep(3);
-            }
-
-            @Test(
+    @Test(
             description = "В справочнике Сводные счета заводим маску сводного счета",
             dependsOnMethods = "enableRules"
     )
-
-    public void editReferenceData(){
+    public void editReferenceData() {
         Table.Formula rows = getIC().locateTable(REFERENCE_ITEM_SVOD_ACCOUNT).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
             rows.delete();
@@ -54,12 +52,12 @@ public class BR_01_PayeeInBlackList_2 extends RSHBCaseTest {
                 .save();
 
     }
+
     @Test(
             description = "Добавляем типы организаций",
             dependsOnMethods = "editReferenceData"
     )
-
-    public void editReferenceDataOrganizationType(){
+    public void editReferenceDataOrganizationType() {
         Table.Formula rows = getIC().locateTable(REFERENCE_ITEM_ORGANIZATION_TYPE).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
             rows.delete();
@@ -78,11 +76,12 @@ public class BR_01_PayeeInBlackList_2 extends RSHBCaseTest {
                 .save();
 
     }
+
     @Test(
             description = "В справочник Запрещенные получатели сводный счет/карта занесем значения БИК, СЧЕТ, Сводный карта/Счет",
             dependsOnMethods = "editReferenceDataOrganizationType"
     )
-    public void editReferenceDataPayeeInBlackList(){
+    public void editReferenceDataPayeeInBlackList() {
         Table.Formula rows = getIC().locateTable(REFERENCE_ITEM_BLACK_PAYEE_CARD_ACCOUNT).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
             rows.delete();
@@ -90,14 +89,8 @@ public class BR_01_PayeeInBlackList_2 extends RSHBCaseTest {
         getIC().locateTable(REFERENCE_ITEM_BLACK_PAYEE_CARD_ACCOUNT)
                 .addRecord()
                 .fillMasked("БИК:", "042301968")
-                .save();
-        getIC().locateTable(REFERENCE_ITEM_ORGANIZATION_TYPE)
-                .addRecord()
-                .fillMasked("Сводный счет:", "12345810100000000004")
-                .save();
-        getIC().locateTable(REFERENCE_ITEM_ORGANIZATION_TYPE)
-                .addRecord()
-                .fillMasked("Счет/карта получателя:", "12345810835620000480")
+                .fillMasked("Сводный счет:", "23451810100000000004")
+                .fillMasked("Счет/карта получателя:", "23451810835620000480")
                 .save();
         getIC().close();
     }
@@ -128,7 +121,7 @@ public class BR_01_PayeeInBlackList_2 extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию № 1 \"Перевод на счет\" на реквизиты получателя из справочника запрещенных",
+            description = "Провести транзакцию № 1 Перевод на счет на реквизиты получателя из справочника запрещенных",
             dependsOnMethods = "step0"
     )
 
@@ -140,15 +133,22 @@ public class BR_01_PayeeInBlackList_2 extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .getCardTransfer()
-                .setDestinationCardNumber("4378723741117915");
-
+                .getOuterTransfer()
+                .getPayeeProps()
+                .setPayeeAccount("23451810835620000480");
+        transactionData
+                .getOuterTransfer()
+                .getPayeeBankProps()
+                .setBIK("042301968");
+        transactionData
+                .getOuterTransfer()
+                .setOperationDescription("Оплата кредита по кд 0020726477 Чижикова А.С. сч.23451810100000000004 ТКС Банк(ОАО)");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_CARD_IN_BLACK_LIST);
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_PAYEE_ACCOUNT_IS_ON_THE_BLACK_LIST);
     }
 
     @Test(
-            description = "Провести транзакцию № 1 Перевод на карту на карту из справочника запрещенных",
+            description = "Провести транзакцию № 2 на реквизиты получателя, где БИК и СЧЕТ в запрещенных, а Сводный карта/счет - нет",
             dependsOnMethods = "step1"
     )
     public void step2() {
@@ -159,12 +159,99 @@ public class BR_01_PayeeInBlackList_2 extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .getCardTransfer()
-                .setDestinationCardNumber("1234523741117915");
-
+                .getOuterTransfer()
+                .getPayeeProps()
+                .setPayeeAccount("23451810835620000480");
+        transactionData
+                .getOuterTransfer()
+                .getPayeeBankProps()
+                .setBIK("042301968");
+        transactionData
+                .getOuterTransfer()
+                .setOperationDescription("Оплата кредита по кд 0020726477 Чижикова А.С. сч.23451810100000000505 ТКС Банк(ОАО)");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED,RESULT_RULE_CARD_NOT_IN_BLACK_LIST);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_PAYEE_ACCOUNT_NOT_ON_THE_BLACK_LIST);
     }
+
+    @Test(
+            description = "Провести транзакцию № 3 на реквизиты получателя, где БИК и Сводный карта/счет в запрещенных, а СЧЕТ - нет",
+            dependsOnMethods = "step2"
+    )
+    public void step3() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getOuterTransfer()
+                .getPayeeProps()
+                .setPayeeAccount("23451810835620000500");
+        transactionData
+                .getOuterTransfer()
+                .getPayeeBankProps()
+                .setBIK("042301968");
+        transactionData
+                .getOuterTransfer()
+                .setOperationDescription("Оплата кредита по кд 0020726477 Чижикова А.С. сч.23451810100000000004 ТКС Банк(ОАО)");
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_PAYEE_ACCOUNT_NOT_ON_THE_BLACK_LIST);
+    }
+    @Test(
+            description = "Провести транзакцию № 4 на реквизиты получателя, где Сводный карта/счет и СЧЕТ в запрещенных, а БИК - нет",
+            dependsOnMethods = "step3"
+    )
+
+    public void step4() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getOuterTransfer()
+                .getPayeeProps()
+                .setPayeeAccount("23451810835620000480");
+        transactionData
+                .getOuterTransfer()
+                .getPayeeBankProps()
+                .setBIK("042301551");
+        transactionData
+                .getOuterTransfer()
+                .setOperationDescription("Оплата кредита по кд 0020726477 Чижикова А.С. сч.23451810100000000004 ТКС Банк(ОАО)");
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_PAYEE_ACCOUNT_IS_ON_THE_BLACK_LIST);
+    }
+
+    @Test(
+            description = "Провести транзакцию № 5 на реквизиты получателя, где БИК, СЧЕТ и Сводный карта/счет не в справочнике запрещенных",
+            dependsOnMethods = "step4"
+    )
+
+    public void step5() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getOuterTransfer()
+                .getPayeeProps()
+                .setPayeeAccount("23451810835620000551");
+        transactionData
+                .getOuterTransfer()
+                .getPayeeBankProps()
+                .setBIK("042301654");
+        transactionData
+                .getOuterTransfer()
+                .setOperationDescription("Оплата кредита по кд 0020726477 Чижикова А.С. сч.23451810100000000987 ТКС Банк(ОАО)");
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_PAYEE_ACCOUNT_IS_ON_THE_BLACK_LIST);
+    }
+
 
     @Override
     protected String getRuleName() {

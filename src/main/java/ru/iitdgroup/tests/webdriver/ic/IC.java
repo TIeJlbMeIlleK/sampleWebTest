@@ -142,6 +142,7 @@ public class IC implements AutoCloseable {
         return this;
     }
 
+
     class View extends AbstractView<View> {
         public View(RemoteWebDriver driver) {
             super(driver);

@@ -79,6 +79,7 @@ public class Table extends AbstractView<Table> {
                 .element("Actions")
                 .preceding(ICXPath.WebElements.IMG)
                 .click();
+        waitUntil("//a[@id='btnSave']");
         return new TableEdit(driver);
     }
 
