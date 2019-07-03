@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.cases;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.AdditionalFieldType;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
@@ -62,7 +63,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
             for (int i = 0; i < 4; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-                Client client = new Client("testCases/GR04OnePayeeToManyPhones/client.xml");
+                Client client = new Client("testCases/Template/client.xml");
                 client
                         .getData()
                         .getClientData()
@@ -265,7 +266,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
     }
 
     private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/GR04OnePayeeToManyPhones/tran.xml");
+        Transaction transaction = getTransaction("testCases/Template/SERVICE_PAYMENT.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

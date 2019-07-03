@@ -46,8 +46,12 @@ public class Table extends AbstractView<Table> {
                 .map(WebElement::getText)
                 .toArray(String[]::new);
 
-        final int rowCount = driver.findElementsByXPath(allRowsXPath)
-                .size() - 1; //первая строка - заголовок
+        final int rowCount = driver.findElementsByXPath(allRowsXPath).size() - 1; //первая строка - заголовок
+
+        if (rowCount == -1) {
+            data = new String[0][heads.length];
+            return this;
+        }
 
         data = new String[rowCount][heads.length];
         for (int i = 0; i < rowCount; i++) {
@@ -59,8 +63,7 @@ public class Table extends AbstractView<Table> {
                 final String xpath = tdXPath
                         .replaceAll(ROW, String.valueOf(i + FIRST_ROW))  //начина со второй  строки
                         .replaceAll(COL, String.valueOf(j + FIRST_COL)); //данные начинаются с четвёртого столбца
-                data[i][j] = driver.findElementByXPath(xpath
-                ).getText().trim();
+                data[i][j] = driver.findElementByXPath(xpath).getText().trim();
             }
         }
         return this;
@@ -133,9 +136,8 @@ public class Table extends AbstractView<Table> {
     public Table delete() {
         driver.findElementByXPath("//span[text()='Actions']").click();
         driver.findElementByXPath("//div[contains(@class,'qtip') and contains(@aria-hidden, 'false')]//div[@class='qtip-content']/a[text()='Delete']").click();
-        driver.findElementsByXPath("//button[2]/span[text()='Yes']")
-                .forEach(e -> System.out.println(String.format("Displayed: %b, Enabled: %b, Text: %s", e.isDisplayed(), e.isEnabled(), e.getText())));
-        sleep(5);
+        driver.findElementByXPath("//button[2]/span[text()='Yes']").click();
+        waitUntil("//*[contains(text(),'Operation succeeded') and @class='globalMessagesInfo']");
 
         return this;
     }

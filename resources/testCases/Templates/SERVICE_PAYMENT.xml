@@ -1,0 +1,45 @@
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+    <ns4:ServerInfo>
+        <Ip>localhost</Ip>
+        <Port>8089</Port>
+    </ns4:ServerInfo>
+    <ns4:TransactionData>
+        <ns4:TransactionId>1</ns4:TransactionId>
+        <ns4:ClientIds>
+            <DboId>1</DboId>
+            <CifId>1</CifId>
+            <EksId>1</EksId>
+            <PcId>1</PcId>
+            <ExpertSystemId>1</ExpertSystemId>
+            <LoginHash>1</LoginHash>
+        </ns4:ClientIds>
+        <ns4:DocumentSaveTimestamp>2016-10-25T12:28:56+03:00</ns4:DocumentSaveTimestamp>
+        <ns4:DocumentNumber>1</ns4:DocumentNumber>
+        <ns4:Type>SERVICE_PAYMENT</ns4:Type>
+        <ns4:Regular>false</ns4:Regular>
+        <ns4:Limit>1</ns4:Limit>
+        <ns4:ServicePayment>
+            <ns4:ServiceKind>srvkind1</ns4:ServiceKind>
+            <ns4:ProviderName>prv1</ns4:ProviderName>
+            <ns4:ServiceName>srv1</ns4:ServiceName>
+            <ns4:SourceCardNumber>510131******4033</ns4:SourceCardNumber>
+            <ns4:AmountInSourceCurrency>1</ns4:AmountInSourceCurrency>
+            <ns4:CommissionAmount>0</ns4:CommissionAmount>
+        </ns4:ServicePayment>
+        <ns4:InitialSourceAmount>9590</ns4:InitialSourceAmount>
+        <ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+        <ns4:DocumentConfirmationTimestamp>2017-01-01T00:00:00</ns4:DocumentConfirmationTimestamp>
+        <ns4:Cfids>12312414141</ns4:Cfids>
+        <ns4:Channel>INTERNET_CLIENT</ns4:Channel>
+        <ns4:ClientDevice>
+            <ns3:Platform>IOS</ns3:Platform>
+            <ns3:IOS>
+                <ns3:IpAddress>8.8.8.8</ns3:IpAddress>
+                <ns3:IdentifierForVendor>ifv45678</ns3:IdentifierForVendor>
+                <ns3:OSVersion>13.0</ns3:OSVersion>
+                <ns3:Model>iPhone 8</ns3:Model>
+                <ns3:AuthByFingerprint>true</ns3:AuthByFingerprint>
+            </ns3:IOS>
+        </ns4:ClientDevice>
+    </ns4:TransactionData>
+</ns4:SendTransactionDataRequest>

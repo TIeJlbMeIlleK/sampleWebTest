@@ -1,0 +1,42 @@
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+	<ns4:ServerInfo>
+		<ns2:Ip>localhost</ns2:Ip>
+		<ns2:Port>8089</ns2:Port>
+	</ns4:ServerInfo>
+	<ns4:TransactionData>
+		<ns4:TransactionId>4568878932116</ns4:TransactionId>
+		<ns4:ClientIds>
+			<ns2:DboId>505</ns2:DboId>
+			<ns2:CifId>83207D40-64C9-4a4f-BF46-0B69B17E27A5</ns2:CifId>
+			<ns2:EksId>1141</ns2:EksId>
+			<ns2:PcId>2433</ns2:PcId>
+			<ns2:ExpertSystemId>5cf0eb5f24f8c6a6500c052e697f5e4e2fa2d233</ns2:ExpertSystemId>
+			<ns2:LoginHash>d23f5cd1adcca9ff113819a22102bac579008741</ns2:LoginHash>
+		</ns4:ClientIds>
+		<ns4:DocumentSaveTimestamp>2019-05-31T13:07:20.840+03:00</ns4:DocumentSaveTimestamp>
+		<ns4:DocumentNumber>97</ns4:DocumentNumber>
+		<ns4:Type>CARD_TRANSFER</ns4:Type>
+		<ns4:Regular>false</ns4:Regular>
+		<ns4:SessionTimeout>900000</ns4:SessionTimeout>
+		<ns4:Limit>150000</ns4:Limit>
+		<ns4:CardTransfer>
+			<ns4:SourceCardNumber>524448******8162</ns4:SourceCardNumber>
+			<ns4:DestinationCardNumber>4378723741117915</ns4:DestinationCardNumber>
+			<ns4:AmountInSourceCurrency>500.00</ns4:AmountInSourceCurrency>
+			<ns4:CommissionAmount>94.00</ns4:CommissionAmount>
+		</ns4:CardTransfer>
+		<ns4:InitialSourceAmount>100.00</ns4:InitialSourceAmount>
+		<ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+		<ns4:DocumentConfirmationTimestamp>2018-11-13T13:08:00+03:00</ns4:DocumentConfirmationTimestamp>
+		<ns4:SessionId>-rYhPcDmSopuAeJw2ECdVz2Db9kAUk_nYdJONMfjGJRAsv_tKOXv!-770855897!1555335856358</ns4:SessionId>
+		<ns4:Channel>INTERNET_CLIENT</ns4:Channel>
+		<ns4:ClientDevice>
+			<ns3:Platform>PC</ns3:Platform>
+			<ns3:PC>
+				<ns3:IpAddress>193.106.170.62</ns3:IpAddress>
+				<ns3:UserAgent>Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36</ns3:UserAgent>
+				<ns3:BrowserData>123</ns3:BrowserData>
+			</ns3:PC>
+		</ns4:ClientDevice>
+	</ns4:TransactionData>
+</ns4:SendTransactionDataRequest>
