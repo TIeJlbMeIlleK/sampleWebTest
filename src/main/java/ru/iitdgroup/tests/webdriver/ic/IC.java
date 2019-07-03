@@ -111,6 +111,8 @@ public class IC implements AutoCloseable {
         locateView(TopMenuItem.RULES);
         driver.findElementByXPath("//span[text()='All Rules']/..").click();
         view.sleep(1);
+        driver.executeScript("window.scrollBy(0,5000)");
+        view.sleep(1);
         return new Rules(driver);
     }
 
