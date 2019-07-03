@@ -30,6 +30,7 @@ public class TableEdit extends AbstractEdit<TableEdit> {
         final WebElement element = driver.findElementByXPath("//a[@id='btnSave']");
        // System.out.println("============ enabled ========= "+element.isEnabled());
         element.click();
+        waitUntil("//a[@id='btnEdit']");
         return new Record(driver);
     }
 }
