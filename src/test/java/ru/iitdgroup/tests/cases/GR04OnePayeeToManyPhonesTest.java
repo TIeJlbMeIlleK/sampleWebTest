@@ -41,14 +41,14 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
                 .fillInputText("Длина серии:", "3")
                 .fillInputText("Период серии в минутах:", "10")
                 .fillInputText("Сумма серии:", "1000")
-                .fillCheckBox("Проверка регулярных:", false);
+                .fillCheckBox("Проверка регулярных:", false)
+                .save();
 
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
                 .selectRule(RULE_NAME)
-                .activate()
-                .sleep(3);
+                .activate();
 
         getIC().close();
     }
