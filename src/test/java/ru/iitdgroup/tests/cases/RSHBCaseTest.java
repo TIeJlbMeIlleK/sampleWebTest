@@ -1,5 +1,6 @@
 package ru.iitdgroup.tests.cases;
 
+import org.openqa.selenium.Dimension;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -106,6 +107,7 @@ public abstract class RSHBCaseTest {
     protected IC getIC() {
         if (ic == null) {
             ic = new IC(getProps());
+            ic.getDriver().manage().window().setSize(new Dimension(1000, 1000));
         }
         return ic;
     }
