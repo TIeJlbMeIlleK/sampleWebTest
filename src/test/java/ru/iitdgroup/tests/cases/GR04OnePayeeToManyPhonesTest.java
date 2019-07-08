@@ -63,7 +63,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
             for (int i = 0; i < 4; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-                Client client = new Client("testCases/Template/client.xml");
+                Client client = new Client("testCases/Templates/client.xml");
                 client
                         .getData()
                         .getClientData()
@@ -266,7 +266,7 @@ public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
     }
 
     private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Template/SERVICE_PAYMENT.xml");
+        Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

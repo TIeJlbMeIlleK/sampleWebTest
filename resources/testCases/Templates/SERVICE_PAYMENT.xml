@@ -32,14 +32,12 @@
         <ns4:Cfids>12312414141</ns4:Cfids>
         <ns4:Channel>INTERNET_CLIENT</ns4:Channel>
         <ns4:ClientDevice>
-            <ns3:Platform>IOS</ns3:Platform>
-            <ns3:IOS>
+            <ns3:Platform>PC</ns3:Platform>
+            <ns3:PC>
                 <ns3:IpAddress>8.8.8.8</ns3:IpAddress>
-                <ns3:IdentifierForVendor>ifv45678</ns3:IdentifierForVendor>
-                <ns3:OSVersion>13.0</ns3:OSVersion>
-                <ns3:Model>iPhone 8</ns3:Model>
-                <ns3:AuthByFingerprint>true</ns3:AuthByFingerprint>
-            </ns3:IOS>
+                <ns3:UserAgent>123456</ns3:UserAgent>
+                <ns3:BrowserData>124566</ns3:BrowserData>
+            </ns3:PC>
         </ns4:ClientDevice>
     </ns4:TransactionData>
 </ns4:SendTransactionDataRequest>

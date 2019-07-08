@@ -31,9 +31,25 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_RULE_APPLY_BY_LENGTH = "Количество транзакций больше параметра Длина серии";
     protected static final String RESULT_RULE_APPLY_BY_SUM = "Общая сумма транзакций больше допустимой величины";
     protected static final String RESULT_RULE_CARD_IN_BLACK_LIST = "Карта получателя в чёрном списке";
-    protected static final String RESULT_RULE_CARD_NOT_IN_BLACK_LIST = "Нет совпадений по параметрам со списками запрещенных";
-    protected static final String RESULT_RULE_PAYEE_ACCOUNT_IS_ON_THE_BLACK_LIST = "Сводный счет и Счет/карта получателя в черном списке";
-    protected static final String RESULT_RULE_PAYEE_ACCOUNT_NOT_ON_THE_BLACK_LIST = "Нет совпадений по параметрам со списками запрещенных";
+    protected static final String NOT_EXIST_IN_BLACK_LIST = "Нет совпадений по параметрам со списками запрещенных";
+    protected static final String RESULT_RULE_PAYEE_ACCOUNT_IS_ON_THE_BLACK_LIST = "Сводный Счет и Счет/карта получателя в чёрном списке";
+    protected static final String RESULT_RULE_BIK_IN_BLACK_LIST = "BIK/ACC получателя в чёрном списке";
+    protected static final String RESULT_RULE_INN_IN_BLACK_LIST = "INN получателя в чёрном списке";
+    protected static final String RESULT_BLOCK_CONSOLIDATED_INN = "Сводный Счет и INN получателя в чёрном списке";
+    protected static final String RESULT_BLOCK_CONSOLIDATED_NAME = "Сводный ФИО получателя в чёрном списке";
+    protected static final String RESULT_BLOCK_MT_SYSTEM = "Получатель платежа в черном списке";
+    protected static final String RESULT_SPEED_NORMAL = "Промежуток времени между транзакциями больше интервала";
+    protected static final String RESULT_SPEED = "Промежуток времени между транзакциями меньше интервала";
+    protected static final String RESULT_GREY_IP = "IP адрес найден в Сером списке 192.168.1.2";
+    protected static final String RESULT_NO_GREY_IP = "IP адрес не найден в Сером списке";
+    protected static final String RESULT_GREY_IMSI = "IMSI найден в сером списке";
+    protected static final String RESULT_GREY_IMEI = "IMEI найден в сером списке";
+    protected static final String RESULT_GREY_IFV = "IFV найден в сером списке";
+    protected static final String RESULT_GREY_DFP = "DFP найден в сером списке";
+    protected static final String RESULT_GREY_IMSI_AMD_IMEI = "IMSI найден в сером списке";
+
+
+
 
 
 

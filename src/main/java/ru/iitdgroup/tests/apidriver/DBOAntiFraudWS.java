@@ -15,6 +15,7 @@ import javax.xml.soap.SOAPMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
@@ -83,12 +84,12 @@ public class DBOAntiFraudWS {
             throw new IllegalStateException(e);
         }
 
-        try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+        try (OutputStream wr = conn.getOutputStream()) {
             SOAPMessage requestMessage = MessageFactory.newInstance().createMessage();
             requestMessage.getSOAPBody().addDocument(template.marshalToDocument());
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                 requestMessage.writeTo(outputStream);
-                wr.writeBytes(outputStream.toString());
+                wr.write(outputStream.toString().getBytes());
             }
             lastResponseCode = conn.getResponseCode();
             SOAPMessage responseMessage = MessageFactory

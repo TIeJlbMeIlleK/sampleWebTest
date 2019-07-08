@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 
-public class BR_01_PayeeInBlackList extends RSHBCaseTest {
+public class BR_01_PayeeInBlackList_CARD extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_BR_01_PayeeInBlackList";
     private static final String REFERENCE_ITEM = "(Rule_tables) Запрещенные получатели НомерКарты";
@@ -94,7 +94,6 @@ public class BR_01_PayeeInBlackList extends RSHBCaseTest {
         transactionData
                 .getCardTransfer()
                 .setDestinationCardNumber("4378723741117915");
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_CARD_IN_BLACK_LIST);
     }
@@ -115,7 +114,7 @@ public class BR_01_PayeeInBlackList extends RSHBCaseTest {
                 .setDestinationCardNumber("1234523741117915");
 
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED,RESULT_RULE_CARD_NOT_IN_BLACK_LIST);
+        assertLastTransactionRuleApply(NOT_TRIGGERED,NOT_EXIST_IN_BLACK_LIST);
     }
 
     @Override

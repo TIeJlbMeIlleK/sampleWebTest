@@ -1,0 +1,47 @@
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+	<ns4:ServerInfo>
+		<ns2:Ip>localhost</ns2:Ip>
+		<ns2:Port>8089</ns2:Port>
+	</ns4:ServerInfo>
+	<ns4:TransactionData>
+		<ns4:TransactionId>6548791300002</ns4:TransactionId>
+		<ns4:ClientIds>
+			<ns2:DboId>511</ns2:DboId>
+			<ns2:CifId>83207D40-64C9-4a4f-BF46-0B69B17E27A5</ns2:CifId>
+			<ns2:EksId>123</ns2:EksId>
+			<ns2:PcId>12345</ns2:PcId>
+			<ns2:ExpertSystemId>5cf0eb5f24f8c6a6500c052e697f5e4e2fa2d233</ns2:ExpertSystemId>
+			<ns2:LoginHash>d23f5cd1adcca9ff113819a22102bac579008741</ns2:LoginHash>
+		</ns4:ClientIds>
+		<ns4:DocumentSaveTimestamp>2019-06-07T10:40:00.840+03:00</ns4:DocumentSaveTimestamp>
+		<ns4:DocumentNumber>97</ns4:DocumentNumber>
+		<ns4:Type>CARD_TRANSFER</ns4:Type>
+		<ns4:Regular>false</ns4:Regular>
+		<ns4:SessionTimeout>900000</ns4:SessionTimeout>
+		<ns4:Limit>150000</ns4:Limit>
+		<ns4:CardTransfer>
+			<ns4:SourceCardNumber>524448******8162</ns4:SourceCardNumber>
+			<ns4:DestinationCardNumber>4377723741117777</ns4:DestinationCardNumber>
+			<ns4:AmountInSourceCurrency>500.00</ns4:AmountInSourceCurrency>
+			<ns4:CommissionAmount>94.00</ns4:CommissionAmount>
+		</ns4:CardTransfer>
+		<ns4:InitialSourceAmount>100.00</ns4:InitialSourceAmount>
+		<ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+		<ns4:DocumentConfirmationTimestamp>2018-11-13T13:08:00+03:00</ns4:DocumentConfirmationTimestamp>
+		<ns4:SessionId>-rYhPcDmSopuAeJw2ECdVz2Db9kAUk_nYdJONMfjGJRAsv_tKOXv!-770855897!1555335856358</ns4:SessionId>
+		<ns4:Channel>MOBILE_BANK</ns4:Channel>
+		<ns4:ClientDevice>
+			<ns3:Platform>Android</ns3:Platform>
+			<ns3:Android>
+				<ns3:IpAddress>213.87.156.92</ns3:IpAddress>
+				<ns3:IMSI>250015038779547</ns3:IMSI>
+				<ns3:IMEI>863313032529333</ns3:IMEI>
+				<ns3:IMEISV>93</ns3:IMEISV>
+				<ns3:MSISDN/>
+				<ns3:SPN>MTS RUS</ns3:SPN>
+				<ns3:OSVersion>8.0.0</ns3:OSVersion>
+				<ns3:AuthByFingerprint>false</ns3:AuthByFingerprint>
+			</ns3:Android>
+		</ns4:ClientDevice>
+	</ns4:TransactionData>
+</ns4:SendTransactionDataRequest>
