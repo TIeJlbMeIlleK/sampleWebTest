@@ -224,11 +224,11 @@ public class R01_EXR_05_GrayIP extends RSHBCaseTest {
         return transaction;
     }
 
-//    private Transaction getTransactionIOC() {
-//        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_ANDROID.xml");
-//        transaction.getData().getTransactionData()
-//                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-//                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-//        return transaction;
-//    }
+    private Transaction getTransactionIOC() {
+        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_ANDROID.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
+    }
 }

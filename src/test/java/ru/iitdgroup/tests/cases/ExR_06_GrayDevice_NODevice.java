@@ -3,26 +3,20 @@ package ru.iitdgroup.tests.cases;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.client.IOSDevice;
+import ru.iitdgroup.intellinx.dbo.client.PCDevice;
 import ru.iitdgroup.intellinx.dbo.client.PlatformKind;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ExR_06_GrayDevice extends RSHBCaseTest {
+public class ExR_06_GrayDevice_NODevice extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_ExR_06_GrayDevice";
-    private static final String TABLE_IMSI = "(Rule_tables) Подозрительные устройства IMSI";
-    private static final String TABLE_IMEI = "(Rule_tables) Подозрительные устройства IMEI";
-    private static final String TABLE_IFV = "(Rule_tables) Подозрительные устройства IdentifierForVendor";
 
 
 
@@ -40,59 +34,32 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
 
         getIC().locateRules()
                 .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true).save().sleep(5);
-
+                .fillCheckBox("Active:", true)
+                .save()
+                .sleep(5);
 
     }
     @Test(
-            description = "Добавить в справочник подозрительных IMSI",
+            description = "Установить значение ожидания ответа от ВЭС меньше значения времени отправки данного ответа",
             dependsOnMethods = "enableRules"
     )
-    public void editTableIMSI() {
-        Table.Formula rows = getIC().locateTable(TABLE_IMSI).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
-        getIC().locateTable(TABLE_IMSI)
-                .addRecord()
-                .fillMasked("IMSI:", "250015038779300")
-                .save();
-    }
-    @Test(
-            description = "Добавить в справочник подозрительных IMEI",
-            dependsOnMethods = "editTableIMSI"
-    )
-    public void editTableIMEI() {
-        Table.Formula rows = getIC().locateTable(TABLE_IMEI).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
-        getIC().locateTable(TABLE_IMEI)
-                .addRecord()
-                .fillMasked("IMEI:", "863313032529520")
-                .save();
-    }
-    @Test(
-            description = "Добавить в справочник подозрительных IFV",
-            dependsOnMethods = "editTableIMEI"
-    )
-    public void editTableIFV() {
-        Table.Formula rows = getIC().locateTable(TABLE_IFV).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
-        getIC().locateTable(TABLE_IFV)
-                .addRecord()
-                .fillMasked("Identifier for vendor:", "3213-5F97-4B54-9A98-748B1CF8AB8C")
-                .save();
+    public void enableVesTimeout() {
+
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Время ожидания актуальных данных от ВЭС")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1");
+
         getIC().close();
     }
-
     @Test(
-            description = "Создаем клиента",
-            dependsOnMethods = "editTableIFV"
+            description = "Сгенерировать клиентов",
+            dependsOnMethods = "enableVesTimeout"
     )
-    public void step0() {
+
+    public void client() {
         try {
             for (int i = 0; i < 5; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
@@ -112,26 +79,67 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         }
     }
     @Test(
-            description = "Выполнить регулярную транзакцию № 1 с подозрительного устройства (IMEI/IMSI/IFV)",
+            description = "Выполнить  транзакцию № 1, IFV отсутствует",
+            dependsOnMethods = "client"
+    )
+
+    public void step0() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getClientDevice()
+                .setAndroid(null);
+        transactionData.getClientDevice().setIOS(new IOSDevice());
+        transactionData.getClientDevice()
+                .setPlatform(PlatformKind.IOS);
+        transactionData.getClientDevice()
+                .getIOS()
+                .setIpAddress("192.178.45.1");
+        transactionData.getClientDevice()
+                .getIOS()
+                .setIdentifierForVendor(null);
+        transactionData.getClientDevice()
+                .getIOS()
+                .setOSVersion("9.1");
+        transactionData.getClientDevice()
+                .getIOS()
+                .setModel("10");
+        transactionData.getClientDevice()
+                .getIOS()
+                .setAuthByFingerprint(false);
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(FEW_DATA, RESULT_FEW_DATA);
+    }
+    @Test(
+            description = "Выполнить  транзакцию № 2, IMEI И IMSI отсутствует",
             dependsOnMethods = "step0"
     )
     public void step1() {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(true);
+                .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMEI("863313032529520");
+                .setIMEI(null);
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .setIMSI(null);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, REGULAR_TRANSACTION);
+        assertLastTransactionRuleApply(FEW_DATA, RESULT_FEW_DATA);
     }
 
     @Test(
-            description = "Выполнить транзакцию № 2 с подозрительного IMEI",
+            description = "Выполнить  транзакцию № 2, IMEI отсутствует",
             dependsOnMethods = "step1"
     )
     public void step2() {
@@ -144,13 +152,17 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMEI("863313032529520");
+                .setIMEI(null);
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .setIMSI("156748541521fd1g165721dfg7");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IMEI);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
     }
 
     @Test(
-            description = "Выполнить транзакцию № 3 с подозрительного IMSI",
+            description = "Выполнить  транзакцию № 3, IMSI отсутствует",
             dependsOnMethods = "step2"
     )
     public void step3() {
@@ -163,13 +175,17 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMSI("250015038779300");
+                .setIMSI(null);
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .setIMEI("56156df7g56156df7fgf165gdf23777723sdf");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IMSI);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
     }
 
     @Test(
-            description = "Выполнить транзакцию № 4 с подозрительного IMEI+IMSI",
+            description = "Выполнить транзакцию № 4 с несуществующего в ВЭС sessionid (DFP не должно поступить в САФ от ВЭС)",
             dependsOnMethods = "step3"
     )
     public void step4() {
@@ -179,20 +195,26 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(3));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMEI("863313032529520");
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMSI("250015038779300");
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IMSI_AMD_IMEI);
+        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setPC(new PCDevice());
+        transactionData.getClientDevice()
+                .setPlatform(PlatformKind.PC);
+        transactionData.getClientDevice()
+                .getPC()
+                .setIpAddress("192.115.86.15");
+        transactionData.getClientDevice()
+                .getPC()
+                .setUserAgent("123657");
+        transactionData.getClientDevice()
+                .getPC()
+                .setBrowserData("123456");
+        transactionData.setSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
+    sendAndAssert(transaction);
+        assertLastTransactionRuleApply(FEW_DATA, RESULT_FEW_DATA);
     }
 
     @Test(
-            description = "Выполнить транзакцию № 5 с подозрительного IFV",
+            description = "Провести транзакцию № 5, в транзакции отсутствует контейнер Device",
             dependsOnMethods = "step4"
     )
     public void step5() {
@@ -202,18 +224,10 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(4));
-        transactionData.getClientDevice().setAndroid(null);
-        transactionData.getClientDevice().setIOS(new IOSDevice());
-        transactionData.getClientDevice()
-                .setPlatform(PlatformKind.IOS);
-        transactionData.getClientDevice().getIOS().setIpAddress("192.158.11.48");
-        transactionData.getClientDevice().getIOS().setIdentifierForVendor("3213-5F97-4B54-9A98-748B1CF8AB8C");
-        transactionData.getClientDevice().getIOS().setOSVersion("9.1");
-        transactionData.getClientDevice().getIOS().setModel("10");
-        transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
+        transactionData.setClientDevice(null);
 
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IFV);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_DEVICE_NULL);
     }
 
     @Override

@@ -24,6 +24,7 @@ public abstract class RSHBCaseTest {
 
     protected static final String NOT_TRIGGERED = "NOT_TRIGGERED";
     protected static final String TRIGGERED = "TRIGGERED";
+    protected static final String FEW_DATA = "FEW_DATA";
     protected static final String REGULAR_TRANSACTION = "Правило не применяется для регулярных транзакций";
     protected static final String RESULT_RULE_NOT_APPLY = "Правило не применилось";
     protected static final String RESULT_RULE_NOT_APPLY_BY_CONF = "Правило не применилось (проверка по настрокам правила)";
@@ -47,6 +48,14 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_GREY_IFV = "IFV найден в сером списке";
     protected static final String RESULT_GREY_DFP = "DFP найден в сером списке";
     protected static final String RESULT_GREY_IMSI_AMD_IMEI = "IMSI найден в сером списке";
+    protected static final String RESULT_FEW_DATA = "Недостаточно данных";
+    protected static final String RESULT_DEVICE_NULL = "Нет устройств";
+    protected static final String NO_TRASACTION_WITH_SAME_IMEI = "Нет транзакций с таким же IMEI, выполненных другим клиентом.";
+    protected static final String NO_TRASACTION_WITH_SAME_IMSI = "Нет транзакций с таким же IMSI, выполненных другим клиентом.";
+    protected static final String RESULT_HAS_TRANSACTIONS = "Найдена транзакция с этого устройства, сделанная другим клиентом, который не находится в списке доверенных.";
+    protected static final String EXIST_TRUSTED_IMEI = "Существует доверенное устройство с таким IMEI.";
+    protected static final String EXIST_TRUSTED_IMSI = "Существует доверенное устройство с таким IMSI.";
+
 
 
 
