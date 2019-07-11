@@ -88,7 +88,7 @@ public class ExR_07_Devices extends RSHBCaseTest {
         getIC().locateTable(TABLE)
                 .addRecord()
                 .fillInputText("IMSI:",IMSI_3)
-                ..........................................fillInputText("Клиент:",clientIds.get(0))
+                .fillInputText("Клиент:",clientIds.get(0))
                 .fillCheckBox("Доверенный:",true)
                 .fillInputText("IMEI:",IMEI_3)
                 .save();

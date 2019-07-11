@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.client.IOSDevice;
 import ru.iitdgroup.intellinx.dbo.client.PCDevice;
 import ru.iitdgroup.intellinx.dbo.client.PlatformKind;
+import ru.iitdgroup.intellinx.dbo.transaction.ChannelType;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
@@ -50,7 +51,7 @@ public class ExR_06_GrayDevice_NODevice extends RSHBCaseTest {
                 .match("Description", "Время ожидания актуальных данных от ВЭС")
                 .click()
                 .edit()
-                .fillInputText("Значение:", "1");
+                .fillInputText("Значение:", "1").save();
 
         getIC().close();
     }
@@ -158,7 +159,7 @@ public class ExR_06_GrayDevice_NODevice extends RSHBCaseTest {
                 .getAndroid()
                 .setIMSI("156748541521fd1g165721dfg7");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
+        assertLastTransactionRuleApply(FEW_DATA, RESULT_FEW_DATA);
     }
 
     @Test(
@@ -181,7 +182,7 @@ public class ExR_06_GrayDevice_NODevice extends RSHBCaseTest {
                 .getAndroid()
                 .setIMEI("56156df7g56156df7fgf165gdf23777723sdf");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
+        assertLastTransactionRuleApply(FEW_DATA, RESULT_FEW_DATA);
     }
 
     @Test(
@@ -208,6 +209,8 @@ public class ExR_06_GrayDevice_NODevice extends RSHBCaseTest {
         transactionData.getClientDevice()
                 .getPC()
                 .setBrowserData("123456");
+        transactionData.setChannel(ChannelType.INTERNET_CLIENT);
+
         transactionData.setSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
     sendAndAssert(transaction);
         assertLastTransactionRuleApply(FEW_DATA, RESULT_FEW_DATA);
