@@ -2,6 +2,8 @@ package ru.iitdgroup.tests.cases;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
+import ru.iitdgroup.intellinx.dbo.client.IOSDevice;
+import ru.iitdgroup.intellinx.dbo.client.PlatformKind;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
@@ -92,7 +94,7 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
     )
     public void step0() {
         try {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 5; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
                 Client client = new Client("testCases/Templates/client.xml");
@@ -194,16 +196,22 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
             dependsOnMethods = "step4"
     )
     public void step5() {
-        Transaction transaction = getTransactionIOC();
+        Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(4));
-        transactionData
-                .getClientDevice()
-                .getIOS()
-                .setIdentifierForVendor("3213-5F97-4B54-9A98-748B1CF8AB8C");
+        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setIOS(new IOSDevice());
+        transactionData.getClientDevice()
+                .setPlatform(PlatformKind.IOS);
+        transactionData.getClientDevice().getIOS().setIpAddress("192.158.11.48");
+        transactionData.getClientDevice().getIOS().setIdentifierForVendor("3213-5F97-4B54-9A98-748B1CF8AB8C");
+        transactionData.getClientDevice().getIOS().setOSVersion("9.1");
+        transactionData.getClientDevice().getIOS().setModel("10");
+        transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
+
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IFV);
     }
@@ -214,18 +222,11 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
     }
 
     private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_ANDROID.xml");
+        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_MOBILE.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
     }
 
-    private Transaction getTransactionIOC() {
-        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_IOC.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
-    }
 }

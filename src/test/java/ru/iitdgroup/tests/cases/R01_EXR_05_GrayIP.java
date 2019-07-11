@@ -17,14 +17,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class R01_EXR_05_GrayIP extends RSHBCaseTest {
 
-    private static final String RULE_NAME = "R01_ExR_06_GrayDevice";
-    private static final String TABLE_IMSI = "(Rule_tables) Подозрительные устройства IMSI";
-    private static final String TABLE_IMEI = "(Rule_tables) Подозрительные устройства IMEI";
-    private static final String TABLE_IFV = "(Rule_tables) Подозрительные устройства IdentifierForVendor";
+    private static final String RULE_NAME = "R01_ExR_05_GrayIP";
+    private static final String TABLE_IP = "(Rule_tables) Подозрительные IP адреса";
 
 
 
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 4, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
 
     @Test(
@@ -45,55 +43,28 @@ public class R01_EXR_05_GrayIP extends RSHBCaseTest {
             description = "Добавить в справочник подозрительных IMSI",
             dependsOnMethods = "enableRules"
     )
-    public void editTableIMSI() {
-        Table.Formula rows = getIC().locateTable(TABLE_IMSI).findRowsBy();
+    public void editIP() {
+        Table.Formula rows = getIC().locateTable(TABLE_IP).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
             rows.delete();
         }
-        getIC().locateTable(TABLE_IMSI)
+        getIC().locateTable(TABLE_IP)
                 .addRecord()
-                .fillMasked("IMSI:", "250015038779300")
+                .fillMasked("IP устройства:", "192.168.11.79")
+                .save();
+        getIC().locateTable(TABLE_IP)
+                .addRecord()
+                .fillMasked("Маска подсети устройства:","192.168.0.1/18")
                 .save();
         getIC().close();
     }
-    @Test(
-            description = "Добавить в справочник подозрительных IMEI",
-            dependsOnMethods = "editTableIMSI"
-    )
-    public void editTableIMEI() {
-        Table.Formula rows = getIC().locateTable(TABLE_IMEI).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
-        getIC().locateTable(TABLE_IMEI)
-                .addRecord()
-                .fillMasked("IMEI:", "863313032529520")
-                .save();
-        getIC().close();
-    }
-    @Test(
-            description = "Добавить в справочник подозрительных IFV",
-            dependsOnMethods = "editTableIMEI"
-    )
-    public void editTableIFV() {
-        Table.Formula rows = getIC().locateTable(TABLE_IFV).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
-        getIC().locateTable(TABLE_IFV)
-                .addRecord()
-                .fillMasked("Identifier for vendor:", "3213-5F97-4B54-9A98-748B1CF8AB8C")
-                .save();
-        getIC().close();
-    }
-
     @Test(
             description = "Создаем клиента",
-            dependsOnMethods = "editTableIFV"
+            dependsOnMethods = "editIP"
     )
     public void step0() {
         try {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 1; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
                 Client client = new Client("testCases/Templates/client.xml");
@@ -111,7 +82,7 @@ public class R01_EXR_05_GrayIP extends RSHBCaseTest {
         }
     }
     @Test(
-            description = "Выполнить регулярную транзакцию № 1 с подозрительного устройства (IMEI/IMSI/IFV)",
+            description = "Выполнить регулярную транзакцию № 1с подозрительного IP-адреса",
             dependsOnMethods = "step0"
     )
     public void step1() {
@@ -124,13 +95,13 @@ public class R01_EXR_05_GrayIP extends RSHBCaseTest {
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMEI("863313032529520");
+                .setIpAddress("192.168.11.79");
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, REGULAR_TRANSACTION);
     }
 
     @Test(
-            description = "Выполнить транзакцию № 2 с подозрительного IMEI",
+            description = "Выполнить транзакцию № 2 с подозрительного IP-адреса",
             dependsOnMethods = "step1"
     )
     public void step2() {
@@ -139,17 +110,17 @@ public class R01_EXR_05_GrayIP extends RSHBCaseTest {
                 .withRegular(false);
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(1));
+                .withDboId(clientIds.get(0));
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMEI("863313032529520");
+                .setIpAddress("192.168.11.79");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IMEI);
+        assertLastTransactionRuleApply(TRIGGERED, String.format(RESULT_GREY_IP, "192.168.11.79"));
     }
 
     @Test(
-            description = "Выполнить транзакцию № 3 с подозрительного IMSI",
+            description = "Выполнить транзакцию № 3 не с подозрительного IP-адреса",
             dependsOnMethods = "step2"
     )
     public void step3() {
@@ -158,17 +129,17 @@ public class R01_EXR_05_GrayIP extends RSHBCaseTest {
                 .withRegular(false);
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(2));
+                .withDboId(clientIds.get(0));
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMSI("250015038779300");
+                .setIpAddress("125.15.173.1");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IMSI);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, String.format(RESULT_NO_GREY_IP, "125.15.173.1"));
     }
 
     @Test(
-            description = "Выполнить транзакцию № 4 с подозрительного IMEI+IMSI",
+            description = "Выполнить транзакцию № 4 с IP-адреса подозрительной маски",
             dependsOnMethods = "step3"
     )
     public void step4() {
@@ -177,38 +148,13 @@ public class R01_EXR_05_GrayIP extends RSHBCaseTest {
                 .withRegular(false);
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(3));
+                .withDboId(clientIds.get(0));
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMEI("863313032529520");
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMSI("250015038779300");
+                .setIpAddress("192.168.63.250");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IMSI_AMD_IMEI);
-    }
-
-    @Test(
-            description = "Выполнить транзакцию № 5 с подозрительного IFV",
-            dependsOnMethods = "step4"
-    )
-    public void step5() {
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(4));
-//        transactionData.getClientDevice()
-//                .setPlatform("IOS");
-        transactionData
-                .getClientDevice()
-                .getIOS()
-                .setIdentifierForVendor("3213-5F97-4B54-9A98-748B1CF8AB8C");
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IFV);
+        assertLastTransactionRuleApply(TRIGGERED, String.format(RESULT_GREY_IP, "192.168.63.250"));
     }
 
     @Override
@@ -217,18 +163,10 @@ public class R01_EXR_05_GrayIP extends RSHBCaseTest {
     }
 
     private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_ANDROID.xml");
+        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_MOBILE.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
     }
-
-//    private Transaction getTransactionIOC() {
-//        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_ANDROID.xml");
-//        transaction.getData().getTransactionData()
-//                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-//                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-//        return transaction;
-//    }
 }

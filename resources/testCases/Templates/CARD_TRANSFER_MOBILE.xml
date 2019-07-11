@@ -37,7 +37,7 @@
 				<ns3:IMSI>250015038779547</ns3:IMSI>
 				<ns3:IMEI>863313032529333</ns3:IMEI>
 				<ns3:IMEISV>93</ns3:IMEISV>
-				<ns3:MSISDN/>
+				<ns3:MSISDN>145</ns3:MSISDN>
 				<ns3:SPN>MTS RUS</ns3:SPN>
 				<ns3:OSVersion>8.0.0</ns3:OSVersion>
 				<ns3:AuthByFingerprint>false</ns3:AuthByFingerprint>

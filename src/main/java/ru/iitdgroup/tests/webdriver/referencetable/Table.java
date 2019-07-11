@@ -18,7 +18,7 @@ public class Table extends AbstractView<Table> {
     private final String ROW = "%row%";
     private final String COL = "%col%";
     private final String thXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[1]/th[*]//span";
-    private final String tdXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[%col%]//span";
+    private final String tdXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[%col%]";
     private final String allRowsXPath = "//div[@class='panelTable af_table']//table[2]/tbody/tr[*]";
     private final String firstColXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[4]//span";
     private final String checkBoxXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[1]/input";
@@ -93,6 +93,12 @@ public class Table extends AbstractView<Table> {
     public Record click(int technicalRow) {
         final String xpath = firstColXPath.replaceAll(ROW, String.valueOf(technicalRow));
         driver.findElementByXPath(xpath).click();
+        return new Record(driver);
+    }
+
+    public Record click(String itemName) {
+        driver.findElementByXPath(String.format("//div[@title='%s'", itemName)).click();
+        waitUntil("//img[@class='ToolbarButton editRuleMain']");
         return new Record(driver);
     }
 

@@ -14,12 +14,14 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
+public class ExR_02_AnomalGeoPosChange_59 extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_ExR_02_AnomalGeoPosChange";
     private static final String TABLE = "(System_parameters) Интеграционные параметры";
 
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 4, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
+
+    //TODO Тест кейс подразумевает уже наполненные справочники ГИС
 
     @Test(
             description = "Настройка и включение правила"
@@ -47,13 +49,15 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
                 .match("Description", "Система, геоданные из которой будут использоваться. Если стоит Нет, то используются геоданные ВЭС.")
                 .click()
                 .edit()
-                .fillInputText("Значение:", "0").save();
+                .fillInputText("Значение:", "1").save();
+
+        getIC().close();
 
     }
 
     @Test(
             description = "Создаем клиента",
-            dependsOnMethods = "editReferenceData"
+            dependsOnMethods = "enableRules"
     )
     public void step0() {
         try {
@@ -76,7 +80,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию № 1 с указанием ip-адреса",
+            description = "Провести транзакцию № 1 с ip-адреса Москвы",
             dependsOnMethods = "step0"
     )
     public void step1() {
@@ -88,9 +92,9 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
         transactionData.getClientDevice()
                 .getPC()
-                .setIpAddress("192.168.0.1");
+                .setIpAddress("178.219.186.12");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, DISABLED_GIS_SETTING);
+        assertLastTransactionRuleApply(FEW_DATA, REQUIRE_PREVIOUS_TRANSACTION);
     }
 
     @Test(
@@ -98,39 +102,45 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
             dependsOnMethods = "step1"
     )
     public void step2() {
-        getIC().locateTable("(System_parameters) Интеграционные параметры")
-                .findRowsBy()
-                .match("Description", "Система, геоданные из которой будут использоваться. Если стоит Нет, то используются геоданные ВЭС.")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "1").save();
-
-        getIC().close();
+        time.add(Calendar.SECOND, 1);
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData.getClientDevice()
+                .getPC()
+                .setIpAddress("140.227.60.114");
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_HISPEED_800);
     }
 
     @Test(
-            description = "Провести транзакцию № 2 с указанием ip-адреса, регулярная",
+            description = "Провести транзакцию № 3 с ip-адреса Москвы через 24 часа",
             dependsOnMethods = "step2"
     )
     public void step3() {
+        time.add(Calendar.HOUR, 24);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(true);
+                .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getClientDevice()
                 .getPC()
-                .setIpAddress("192.168.0.1");
+                .setIpAddress("178.219.186.12");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, REGULAR_TRANSACTION);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
     }
 
     @Test(
-            description = "Провести транзакцию № 3 без указания ip-адреса",
+            description = "Провести транзакцию № 4 с ip-адреса Нижнего Новгорода через 1 секунду",
             dependsOnMethods = "step3"
     )
     public void step4() {
+        time.add(Calendar.SECOND, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -139,31 +149,17 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
         transactionData.getClientDevice()
                 .getPC()
-                .setIpAddress(null);
+                .setIpAddress("109.184.14.163");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(FEW_DATA, REQUIRE_IP);
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_HISPEED_400);
     }
 
     @Test(
-            description = "Провести транзакцию № 4 без контейнера устройства",
+            description = "Провести транзакцию № 5 с ip-адреса Дзержинска через 1 секунду",
             dependsOnMethods = "step4"
     )
     public void step5() {
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.setClientDevice(null);
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_DEVICE);
-    }
-    @Test(
-            description = "Провести транзакцию № 5 с несуществующего ip-адреса",
-            dependsOnMethods = "step5"
-    )
-    public void step6() {
+        time.add(Calendar.SECOND, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -172,10 +168,11 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
         transactionData.getClientDevice()
                 .getPC()
-                .setIpAddress("151.555.555.1");
+                .setIpAddress("176.107.245.26");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(FEW_DATA, REQUIRE_GEOLOCATION);
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_HISPEED_150);
     }
+
 
     @Override
     protected String getRuleName() {

@@ -8,6 +8,8 @@
 		<ns4:ClientIds>
 			<DboId>779</DboId>
 			<CifId>6BB494A3-95DC-4bc6-90AC-0DEF46CD3669</CifId>
+			<EksId>1234</EksId>
+			<PcId>123</PcId>
 			<ExpertSystemId>dba802f06396ebb51c3fb9fea0ce8f52f23e46fa</ExpertSystemId>
 			<LoginHash>3186dfa0cf270cff4a5cc7d3ebcf276484258c5f</LoginHash>
 		</ns4:ClientIds>
@@ -42,6 +44,7 @@
 			<ns3:PC>
 				<ns3:IpAddress>213.87.149.82</ns3:IpAddress>
 				<ns3:UserAgent>Mozilla/5.0 (Windows NT 6.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.112 Safari/537.36</ns3:UserAgent>
+				<ns3:BrowserData>12456</ns3:BrowserData>
 			</ns3:PC>
 		</ns4:ClientDevice>
 	</ns4:TransactionData>
