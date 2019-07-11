@@ -9,6 +9,7 @@ import ru.iitdgroup.intellinx.dbo.transaction.ChannelType;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
+import ru.iitdgroup.tests.ves.mock.VesMock;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -22,15 +23,17 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_ExR_07_Devices";
 
-
-
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 4, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
+
+    private final VesMock vesMock = new VesMock().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
 
     @Test(
             description = "Настройка и включение правила"
     )
     public void enableRules() {
+        vesMock.run();
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
@@ -42,6 +45,30 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
                 .save()
                 .sleep(5);
 
+
+
+    }
+
+    @Test(
+            description = "Включить интеграцию с VES",
+            dependsOnMethods = "enableRules"
+    )
+
+    public void editVES(){
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1").save();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1").save();
+
+        getIC().close();
     }
 //    @Test(
 //            description = "Установить значение ожидания ответа от ВЭС меньше значения времени отправки данного ответа",
@@ -60,7 +87,7 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
 //    }
     @Test(
             description = "Сгенерировать клиентов",
-            dependsOnMethods = "enableRules"
+            dependsOnMethods = "editVES"
     )
 
     public void client() {
@@ -201,19 +228,7 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
             dependsOnMethods = "step5"
     )
     public void step6() {
-        getIC().locateTable("(System_parameters) Интеграционные параметры")
-                .findRowsBy()
-                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "1").save();
-        getIC().locateTable("(System_parameters) Интеграционные параметры")
-                .findRowsBy()
-                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "1").save();
-        getIC().close();
+        vesMock.stop();
 
 
         Transaction transaction = getTransaction();

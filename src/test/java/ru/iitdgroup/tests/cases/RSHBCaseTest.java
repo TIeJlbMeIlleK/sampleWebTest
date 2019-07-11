@@ -70,6 +70,9 @@ public abstract class RSHBCaseTest {
     protected static final String NO_IMEI = "Нет идентификатора оборудования (IMEI).";
     protected static final String NO_IFV = "Нет индентификатора производителя (IFV).";
     protected static final String DISABLED_INTEGR_VES = "Правило не применяется. В системе выключена проверка INTEGR_VES.";
+    protected static final String DISABLED_INTEGR_VES_1 = "Правило не применяется, в системе выключена проверка INTEGR_VES";
+    protected static final String MISSING_DEVICE_1 = "В системе нет данных об устройстве клиента";
+    protected static final String INTERNET_BANK_TRANSACTION = "Правило не применяется для платежей интернет банка";
 
 
 

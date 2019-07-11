@@ -16,8 +16,8 @@ import static org.mockserver.model.HttpRequest.request;
 public class VesMock {
 
     private final static Path RESOURCES = Paths.get("resources");
-    private static final String DEFAULT_VES_PATH = RESOURCES.toAbsolutePath() + "/ves/ves-data.json";
-    private static final String DEFAULT_VES_EXTEND_PATH = RESOURCES.toAbsolutePath() + "/ves/ves-extended.json";
+    private static final String DEFAULT_VES_PATH = "/ves/ves-data.json";
+    private static final String DEFAULT_VES_EXTEND_PATH = "/ves/ves-extended.json";
     public static final int DEFAULT_VES_PORT = 8010;
 
     private ClientAndServer clientAndServer;
@@ -50,8 +50,18 @@ public class VesMock {
     }
 
     public void run() {
+        if (vesResponse == null) {
+            withVesResponse(DEFAULT_VES_PATH);
+        }
+        if (vesExtendResponse == null) {
+            withVesExtendResponse(DEFAULT_VES_EXTEND_PATH);
+        }
         clientAndServer = new ClientAndServer(this.port);
         initMocks();
+    }
+
+    public void stop() {
+        clientAndServer.stop();
     }
 
     private void checkRequirements() {
