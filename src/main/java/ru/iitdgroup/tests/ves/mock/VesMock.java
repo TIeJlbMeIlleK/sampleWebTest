@@ -6,6 +6,7 @@ import org.mockserver.model.HttpResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -14,8 +15,9 @@ import static org.mockserver.model.HttpRequest.request;
 
 public class VesMock {
 
-    private static final String DEFAULT_VES_PATH = "/ves";
-    private static final String DEFAULT_VES_EXTEND_PATH = "/ves-extend";
+    private final static Path RESOURCES = Paths.get("resources");
+    private static final String DEFAULT_VES_PATH = RESOURCES.toAbsolutePath() + "/ves/ves-data.json";
+    private static final String DEFAULT_VES_EXTEND_PATH = RESOURCES.toAbsolutePath() + "/ves/ves-extended.json";
     public static final int DEFAULT_VES_PORT = 8010;
 
     private ClientAndServer clientAndServer;
@@ -81,10 +83,9 @@ public class VesMock {
     public VesMock withVesResponse(String vesResponseFile) {
         try {
             this.vesResponse = Files.lines(
-                    Paths.get(vesResponseFile),
+                    Paths.get(RESOURCES.toAbsolutePath() + "/" + vesResponseFile),
                     StandardCharsets.UTF_8)
                     .collect(Collectors.joining(System.lineSeparator()));
-            this.vesResponse = vesResponse;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -93,8 +94,8 @@ public class VesMock {
 
     public VesMock withVesExtendResponse(String vesExtendResponseFile) {
         try {
-            this.vesResponse = Files.lines(
-                    Paths.get(vesExtendResponseFile),
+            this.vesExtendResponse = Files.lines(
+                    Paths.get(RESOURCES.toAbsolutePath() + "/" + vesExtendResponseFile),
                     StandardCharsets.UTF_8)
                     .collect(Collectors.joining(System.lineSeparator()));
         } catch (IOException e) {
