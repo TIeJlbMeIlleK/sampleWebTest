@@ -3,7 +3,9 @@ package ru.iitdgroup.tests.cases;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.client.IOSDevice;
+import ru.iitdgroup.intellinx.dbo.client.PCDevice;
 import ru.iitdgroup.intellinx.dbo.client.PlatformKind;
+import ru.iitdgroup.intellinx.dbo.transaction.ChannelType;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
@@ -39,7 +41,6 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
                 .fillCheckBox("Active:", true)
                 .save()
                 .sleep(5);
-        getIC().close();
 
     }
 //    @Test(
@@ -205,15 +206,15 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
                 .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
                 .click()
                 .edit()
-                .fillInputText("Значение:", "0").save();
+                .fillInputText("Значение:", "1").save();
         getIC().locateTable("(System_parameters) Интеграционные параметры")
                 .findRowsBy()
                 .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
                 .click()
                 .edit()
-                .fillInputText("Значение:", "0").save();
-
+                .fillInputText("Значение:", "1").save();
         getIC().close();
+
 
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
@@ -221,23 +222,24 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
+        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setPC(new PCDevice());
+        transactionData.getClientDevice()
+                .getPC()
+                .setIpAddress("123.22.57.8");
+        transactionData.getClientDevice()
+                .getPC()
+                .setBrowserData("45");
+        transactionData.getClientDevice()
+                .getPC()
+                .setUserAgent("415");
+        transactionData.setChannel(ChannelType.INTERNET_CLIENT);
+        transactionData.getClientDevice().setPlatform(PlatformKind.PC);
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, DISABLED_INTEGR_VES);
 
-        getIC().locateTable("(System_parameters) Интеграционные параметры")
-                .findRowsBy()
-                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "1").save();
-        getIC().locateTable("(System_parameters) Интеграционные параметры")
-                .findRowsBy()
-                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "1").save();
 
-        getIC().close();
+
     }
 
 //    @Test(
