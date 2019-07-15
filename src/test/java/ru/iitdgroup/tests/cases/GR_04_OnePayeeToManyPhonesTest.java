@@ -1,7 +1,6 @@
 package ru.iitdgroup.tests.cases;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.AdditionalFieldType;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
@@ -17,7 +16,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class GR04OnePayeeToManyPhonesTest extends RSHBCaseTest {
+public class GR_04_OnePayeeToManyPhonesTest extends RSHBCaseTest {
 
     private static final String PHONE1 = "9122222221";
     private static final String PHONE2 = "9122222222";
