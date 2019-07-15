@@ -47,7 +47,7 @@ public class TableEdit extends AbstractEdit<TableEdit> {
 
 
         Select columnField = new Select(driver.findElementsByClassName("af_selectOneChoice_content").get(0));
-        columnField.selectByVisibleText("ID");
+        columnField.selectByVisibleText("Идентификатор клиента");
         sleep(2);
         Select operatorField = new Select(driver.findElementsByClassName("af_selectOneChoice_content").get(1));
         operatorField.selectByVisibleText("Equals");

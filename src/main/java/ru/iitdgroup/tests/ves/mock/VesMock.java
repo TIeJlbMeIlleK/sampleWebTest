@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.ves.mock;
 
 import org.mockserver.integration.ClientAndServer;
+import org.mockserver.model.Header;
 import org.mockserver.model.HttpResponse;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 
 import static org.mockserver.model.HttpRequest.request;
 
-public class VesMock {
+public class VesMock implements Runnable {
 
     private final static Path RESOURCES = Paths.get("resources");
     private static final String DEFAULT_VES_PATH = "/ves/ves-data.json";
@@ -37,18 +38,20 @@ public class VesMock {
 
     private void initMocks() {
         checkRequirements();
+        Header header = Header.header("Content-Type", "application/json");
         this.clientAndServer.when(
                 request()
                         .withMethod("GET")
                         .withPath(vesPath)
-        ).respond(HttpResponse.response(vesResponse));
+        ).respond(HttpResponse.response(vesResponse).withHeader(header));
         this.clientAndServer.when(
                 request()
                         .withMethod("GET")
                         .withPath(vesExtendPath)
-        ).respond(HttpResponse.response(vesExtendResponse));
+        ).respond(HttpResponse.response(vesExtendResponse).withHeader(header));
     }
 
+    @Override
     public void run() {
         if (vesResponse == null) {
             withVesResponse(DEFAULT_VES_PATH);
@@ -114,4 +117,11 @@ public class VesMock {
         return this;
     }
 
+    public String getVesExtendResponse() {
+        return vesExtendResponse;
+    }
+
+    public void setVesExtendResponse(String vesExtendResponse) {
+        this.vesExtendResponse = vesExtendResponse;
+    }
 }

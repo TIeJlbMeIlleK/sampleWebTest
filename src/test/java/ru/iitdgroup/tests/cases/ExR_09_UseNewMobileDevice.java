@@ -22,7 +22,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_ExR_09_UseNewMobileDevice";
-    private static final String TABLE_IP = "(Rule_tables) Подозрительные IP адреса";
+    private static final String TABLE= "(System_parameters) Интеграционные параметры";
 
 
 
@@ -55,12 +55,12 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
     )
     public void disableVES() {
 
-        getIC().locateTable("(System_parameters) Интеграционные параметры")
+        getIC().locateTable(TABLE)
                 .findRowsBy()
                 .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
                 .click()
                 .edit()
-                .fillInputText("Значение:", "1").save();
+                .fillInputText("Значение:", "0").save();
     }
     @Test(
             description = "Создаем клиента",
@@ -105,7 +105,7 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
             dependsOnMethods = "transaction1"
     )
     public void enableVES() {
-        getIC().locateTable("(System_parameters) Интеграционные параметры")
+        getIC().locateTable(TABLE)
                 .findRowsBy()
                 .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
                 .click()
@@ -124,7 +124,7 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .fillCheckBox("Использовать информацию из ВЭС:",false)
                 .fillCheckBox("Использовать информацию из САФ:", false)
                 .save()
-                .sleep(5);
+                .sleep(35);
     }
 
     @Test(
@@ -143,14 +143,14 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
     }
     @Test(
             description = "В настройке правила ВКЛючить флаг Использовать информацию из САФ",
-            dependsOnMethods = "disableCheckboxesInRule"
+            dependsOnMethods = "transaction2"
     )
     public void enableCheckbox1() {
         getIC().locateRules()
                 .editRule(RULE_NAME)
                 .fillCheckBox("Использовать информацию из САФ:", true)
                 .save()
-                .sleep(5);
+                .sleep(35);
     }
     @Test(
             description = "Провести транзакцию № 3 из Мобильного банка iOS, в контейнере устройства не присылать IFV",
@@ -165,13 +165,14 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
         transactionData.getClientDevice().setPlatform(PlatformKind.IOS);
         transactionData.getClientDevice().setAndroid(null);
-        transactionData.getClientDevice().getIOS().setOSVersion("");
-        transactionData.getClientDevice().getIOS().setModel("");
+        transactionData.getClientDevice().setIOS(new IOSDevice());
+        transactionData.getClientDevice().getIOS().setOSVersion("8");
+        transactionData.getClientDevice().getIOS().setModel("10");
         transactionData.getClientDevice().getIOS().setIdentifierForVendor(null);
         transactionData.getClientDevice().getIOS().setIpAddress("192.168.1.1");
         transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_IFV);
+        assertLastTransactionRuleApply(FEW_DATA, NO_IFV_EXR9);
     }
 
     @Test(
@@ -194,7 +195,7 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .getAndroid()
                 .setIMSI("1567156156741");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_IMEI);
+        assertLastTransactionRuleApply(FEW_DATA, NO_IMEI_EXR9);
     }
 
     @Test(
@@ -217,24 +218,27 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .getAndroid()
                 .setIMSI(null);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_IMSI);
+        assertLastTransactionRuleApply(FEW_DATA, NO_IMSI_EXR9);
     }
 
     @Test(
             description = "В настрооке правила ВЫКЛючить флаг Использовать информацию из САФ, ВКЛючить флаг Использовать информацию из ВЭС",
             dependsOnMethods = "transaction5"
     )
-    public void enableCheckboxesInRule() {
+
+    public void enableAllCheckboxesInRule() {
         getIC().locateRules()
                 .editRule(RULE_NAME)
                 .fillCheckBox("Использовать информацию из ВЭС:",true)
                 .fillCheckBox("Использовать информацию из САФ:", false)
                 .save()
-                .sleep(5);
+                .sleep(35);
+        getIC().close();
     }
+
     @Test(
-            description = "Провести транзакцию № 6 из Мобильного банка с несуществующим sessionid",
-            dependsOnMethods = "enableCheckboxesInRule"
+            description = "Провести транзакцию № 6 из Мобильного банка iOS с несуществующим session_id и отсутствующим IFV",
+            dependsOnMethods = "enableAllCheckboxesInRule"
     )
     public void transaction6() {
         Transaction transaction = getTransaction();
@@ -243,71 +247,16 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMEI(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMSI(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
-        transactionData.setSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
+        transactionData.setClientDevice(null);
+
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, MISSING_DEVICE_1);
     }
     @Test(
-            description = " В настрооке правила ВКЛючить флаги Использовать информацию из САФ, Использовать информацию из ВЭС",
+            description = "Провести транзакцию № 7 из Интернет банка",
             dependsOnMethods = "transaction6"
     )
-    public void enableAllCheckboxesInRule() {
-        getIC().locateRules()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Использовать информацию из ВЭС:",true)
-                .fillCheckBox("Использовать информацию из САФ:", true)
-                .save()
-                .sleep(5);
-        getIC().close();
-    }
-
-    @Test(
-            description = "Провести транзакцию № 6 из Мобильного банка iOS с несуществующим session_id и отсутствующим IFV",
-            dependsOnMethods = "enableAllCheckboxesInRule"
-    )
     public void transaction7() {
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getClientDevice().setAndroid(null);
-        transactionData.getClientDevice().setIOS(new IOSDevice());
-        transactionData.getClientDevice()
-                .getIOS()
-                .setAuthByFingerprint(false);
-        transactionData.getClientDevice()
-                .getIOS()
-                .setIpAddress("152.11.54.1");
-        transactionData.getClientDevice()
-                .getIOS()
-                .setIdentifierForVendor(null);
-        transactionData.getClientDevice()
-                .getIOS()
-                .setModel("10");
-        transactionData.getClientDevice()
-                .getIOS()
-                .setOSVersion("8");
-        transactionData.getClientDevice().setPlatform(PlatformKind.IOS);
-        transactionData.setSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
-
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, MISSING_DEVICE_1);
-    }
-    @Test(
-            description = "Провести транзакцию № 8 из Интернет банка",
-            dependsOnMethods = "transaction7"
-    )
-    public void transaction8() {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -330,14 +279,14 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
         transactionData.setSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
 
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, MISSING_DEVICE_1);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, INTERNET_BANK_TRANSACTION);
     }
 
     @Test(
-            description = "Провести транзакцию № 9 из Мобильного банка, регулярную",
-            dependsOnMethods = "transaction8"
+            description = "Провести транзакцию № 8 из Мобильного банка, регулярную",
+            dependsOnMethods = "transaction7"
     )
-    public void transaction9() {
+    public void transaction8() {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(true);
@@ -346,7 +295,7 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
 
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, REGULAR_TRANSACTION);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, REGULAR_TRANSACTION_EXR9);
     }
 
     @Override

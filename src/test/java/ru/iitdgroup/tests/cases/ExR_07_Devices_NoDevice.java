@@ -251,57 +251,11 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
         transactionData.setChannel(ChannelType.INTERNET_CLIENT);
         transactionData.getClientDevice().setPlatform(PlatformKind.PC);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, DISABLED_INTEGR_VES);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
 
 
 
     }
-
-//    @Test(
-//            description = "Включить интеграцию с ВЭС, Выполнить транзакцию № 7 с несуществующего в ВЭС sessionid (DFP не должно поступить в САФ от ВЭС)",
-//            dependsOnMethods = "step6"
-//    )
-//    public void step7() {
-//        getIC().locateTable("(System_parameters) Интеграционные параметры")
-//                .findRowsBy()
-//                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "1").save();
-//        getIC().locateTable("(System_parameters) Интеграционные параметры")
-//                .findRowsBy()
-//                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "1").save();
-//
-//        getIC().close();
-//
-//        Transaction transaction = getTransaction();
-//        TransactionDataType transactionData = transaction.getData().getTransactionData()
-//                .withRegular(false);
-//        transactionData
-//                .getClientIds()
-//                .withDboId(clientIds.get(3));
-//        transactionData.getClientDevice().setAndroid(null);
-//        transactionData.getClientDevice().setPC(new PCDevice());
-//        transactionData.getClientDevice()
-//                .setPlatform(PlatformKind.PC);
-//        transactionData.getClientDevice()
-//                .getPC()
-//                .setIpAddress("192.115.86.15");
-//        transactionData.getClientDevice()
-//                .getPC()
-//                .setUserAgent("123657");
-//        transactionData.getClientDevice()
-//                .getPC()
-//                .setBrowserData("123456");
-//        transactionData.setChannel(ChannelType.INTERNET_CLIENT);
-//        transactionData.setSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
-//
-//        sendAndAssert(transaction);
-//        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_FEW_DATA);
-//    }
 
     @Override
     protected String getRuleName() {
