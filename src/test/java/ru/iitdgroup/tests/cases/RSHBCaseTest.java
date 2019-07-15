@@ -78,6 +78,11 @@ public abstract class RSHBCaseTest {
     protected static final String NO_IFV_EXR9 = "Нет индентификатора производителя (IFV)";
     protected static final String REGULAR_TRANSACTION_EXR9 = "Правило не применяется для регулярных платежей";
     protected static final String DEVICE_NOT_EXIST = "Отсутствуют доверенные устройства";
+    protected static final String EXIST_TRUSTED_ANDROID_DEVICE = "Существует доверенное устройство с такими IMEI и IMSI";
+    protected static final String EXIST_TRUSTED_IFV = "Существует доверенное устройство с таким IFV";
+    protected static final String EXIST_TRUSTED_IMEI_2 = "Найдено доверенное устройство для клиента: совпадение по IMEI";
+    protected static final String EXIST_TRUSTED_IMSI_2 = "Найдено доверенное устройство для клиента: совпадение по IMSI";
+    protected static final String NEW_DEVICE = "У клиента новое устройство";
 
 
 

@@ -26,7 +26,7 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 4, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
 
-    private final VesMock vesMock = new VesMock().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
+    private final VesMock vesMock = VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
 
     @Test(
             description = "Настройка и включение правила"

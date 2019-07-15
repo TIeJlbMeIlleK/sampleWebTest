@@ -27,17 +27,21 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private final VesMock vesMock = new VesMock().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
+    private final VesMock vesMock = VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
 
     private String stepNSessionIdForIOC;
     private String stepNSessionIdForAndroid;
     private String iOcDevice;
 
     private String IMEI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private String new_IMEI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
     private String IMSI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-    private String DFP_FOR_IOC = "b4ab28f4-448f-4684-90f6-7953bd604c50";
-    private String DFP_FOR_ANDROID = "b4ab28f4-448f-4684-90f6-7953bd605a80";
+    private String new_IMSI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private String DFP_FOR_IOC = "b4ab28f4-448f-4684-90f6-7953bd605a80";
+    private String DFP_FOR_ANDROID = "b4ab28f4-448f-4684-90f6-7953bd604c50";
     private String IFV = "b4ab28f4-448f-4684";
+    private String new_IFV = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private String new_IFV_2 = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
 
     @Test(
             description = "Создаем клиента"
@@ -112,6 +116,7 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
                 .fillMasked("DeviceFingerPrint:",DFP_FOR_ANDROID)
                 .fillMasked("IMEI:",IMEI)
                 .fillMasked("IMSI:",IMSI)
+                .fillCheckBox("Доверенный:", true)
                 .fillUser("Клиент:",clientIds.get(0))
                 .save();
     }
@@ -121,14 +126,11 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
             dependsOnMethods = "enableIMEI_IMSI"
     )
     public void enableIFV() {
-        Table.Formula rows = getIC().locateTable(tableIMEI_IMSI).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
         getIC().locateTable(tableIMEI_IMSI)
                 .addRecord()
                 .fillMasked("DeviceFingerPrint:",DFP_FOR_IOC)
                 .fillMasked("IdentifierForVendor:",IFV)
+                .fillCheckBox("Доверенный:", true)
                 .fillUser("Клиент:",clientIds.get(0))
                 .save();
         getIC().close();
@@ -136,7 +138,7 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию № 1 от клиента № 1 с iOS с указанием IFV и указанием несуществующего sessionid",
+            description = "Провести транзакцию № 1 с устройства № 1 от клиента № 1",
             dependsOnMethods = "enableIFV"
     )
     public void transaction1() {
@@ -146,29 +148,28 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getClientDevice().setAndroid(null);
-        transactionData.getClientDevice().setPlatform(PlatformKind.IOS);
-        transactionData.getClientDevice().setIOS(new IOSDevice());
-        transactionData.getClientDevice().getIOS().setOSVersion("8");
-        transactionData.getClientDevice().getIOS().setModel("10");
-        transactionData.getClientDevice().getIOS().setIdentifierForVendor(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
-        iOcDevice = transactionData.getClientDevice().getIOS().getIdentifierForVendor();
-        transactionData.getClientDevice().getIOS().setIpAddress("192.168.1.1");
-        transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
-        stepNSessionIdForIOC = transaction.getData().getTransactionData().getSessionId();
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .setIMEI(IMEI);
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .setIMSI(IMSI);
+//        stepNSessionIdForAndroid = transaction.getData().getTransactionData().getSessionId();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(FEW_DATA, DEVICE_NOT_EXIST);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_ANDROID_DEVICE);
 
-        vesMock.stop();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"", "\"fingerprint\": \"123\""));
-        vesMock.run();
+//        vesMock.stop();
+//        vesMock.setVesExtendResponse(vesMock
+//                .getVesExtendResponse()
+//                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"", "\"fingerprint\": \"123\""));
+//        vesMock.run();
 
     }
 
     @Test(
-            description = "Провести транзакцию № 2 от клиента № 1 с iOS без указания IFV и указанием боевого sessionID",
+            description = "Провести транзакцию № 2 с устройства № 1 от клиента № 2",
             dependsOnMethods = "transaction1"
     )
     public void transaction2() {
@@ -177,23 +178,29 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
                 .withRegular(false);
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getClientDevice().setAndroid(null);
-        transactionData.getClientDevice().setPlatform(PlatformKind.IOS);
-        transactionData.getClientDevice().setIOS(new IOSDevice());
-        transactionData.getClientDevice().getIOS().setOSVersion("8");
-        transactionData.getClientDevice().getIOS().setModel("10");
-        transactionData.getClientDevice().getIOS().setIdentifierForVendor(null);
-        transactionData.getClientDevice().getIOS().setIpAddress("192.168.1.1");
-        transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
-        transactionData.setSessionId(stepNSessionIdForIOC);
+                .withDboId(clientIds.get(1));
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .setIMEI(IMEI);
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .setIMSI(IMSI);
+//        stepNSessionIdForAndroid = transaction.getData().getTransactionData().getSessionId();
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(FEW_DATA, DEVICE_NOT_EXIST);
+
+                vesMock.stop();
+        vesMock.setVesExtendResponse(vesMock
+                .getVesExtendResponse()
+                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"", "\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd605a80\""));
+        vesMock.run();
 
 
     }
     @Test(
-            description = "Провести транзакцию № 3 от клиента № 1 с Android с указанием IMEI+IMSI и указанием несуществующего sessionid",
+            description = "Провести транзакцию № 3 с устройства № 2 от клиента № 1",
             dependsOnMethods = "transaction2"
     )
     public void transaction3() {
@@ -203,48 +210,24 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMEI(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMSI(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
-        stepNSessionIdForAndroid = transaction.getData().getTransactionData().getSessionId();
+        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setPlatform(PlatformKind.IOS);
+        transactionData.getClientDevice().setIOS(new IOSDevice());
+        transactionData.getClientDevice().getIOS().setOSVersion("8");
+        transactionData.getClientDevice().getIOS().setModel("10");
+        transactionData.getClientDevice().getIOS().setIdentifierForVendor(IFV);
+        transactionData.getClientDevice().getIOS().setIpAddress("192.168.1.1");
+        transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
+//        transaction.getData().getTransactionData().setSessionId(stepNSessionIdForAndroid);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(FEW_DATA, DEVICE_NOT_EXIST);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_IFV);
     }
 
     @Test(
-            description = "Провести транзакцию № 4 от клиента № 1 с Android без указания IMEI либо IMSI и указанием боевовго sessionid",
+            description = "Провести транзакцию № 4 с устройства № 2 от клиента № 2",
             dependsOnMethods = "transaction3"
     )
     public void transaction4() {
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMEI(null);
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMSI(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
-        transactionData.setSessionId(stepNSessionIdForAndroid);
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(FEW_DATA, DEVICE_NOT_EXIST);
-    }
-
-    @Test(
-            description = "Провести транзакцию № 5 от клиента № 2 с устройства iOS с указанием IFV устройства № 1 и sessionid устройства № 2",
-            dependsOnMethods = "transaction4"
-    )
-    public void transaction5() {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -256,13 +239,165 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
         transactionData.getClientDevice().setIOS(new IOSDevice());
         transactionData.getClientDevice().getIOS().setOSVersion("8");
         transactionData.getClientDevice().getIOS().setModel("10");
-        transactionData.getClientDevice().getIOS().setIdentifierForVendor(iOcDevice);
+        transactionData.getClientDevice().getIOS().setIdentifierForVendor(IFV);
         transactionData.getClientDevice().getIOS().setIpAddress("192.168.1.1");
         transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
-        transaction.getData().getTransactionData().setSessionId(stepNSessionIdForAndroid);
+//        transaction.getData().getTransactionData().setSessionId(stepNSessionIdForAndroid);
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(FEW_DATA, DEVICE_NOT_EXIST);
+
+        vesMock.stop();
+        vesMock.setVesExtendResponse(vesMock
+                .getVesExtendResponse()
+                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd605a80\"", "\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\""));
+        vesMock.run();
     }
+
+
+    @Test(
+            description = "Изменить в устройстве № 1 IMEI (устройство № 3). Провести транзакцию № 5 с устройства № 3 для клиента № 1",
+            dependsOnMethods = "transaction4"
+    )
+    public void transaction5() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .setIMEI(new_IMEI);
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .setIMSI(IMSI);
+//        stepNSessionIdForAndroid = transaction.getData().getTransactionData().getSessionId();
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_IMSI_2);
+
+//        vesMock.stop();
+//        vesMock.setVesExtendResponse(vesMock
+//                .getVesExtendResponse()
+//                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"", "\"fingerprint\": \"123\""));
+//        vesMock.run();
+
+    }
+    @Test(
+            description = "Изменить в устройстве № 1 IMSI (устройство № 4). Провести транзакцию № 6 с устройства № 4 для клиента № 1",
+            dependsOnMethods = "transaction5"
+    )
+    public void transaction6() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .setIMEI(IMEI);
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .setIMSI(new_IMSI);
+//        stepNSessionIdForAndroid = transaction.getData().getTransactionData().getSessionId();
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_IMEI_2);
+
+        vesMock.stop();
+        vesMock.setVesExtendResponse(vesMock
+                .getVesExtendResponse()
+                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"", "\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd605a80\""));
+        vesMock.run();
+
+    }
+
+    @Test(
+            description = "Изменить в устройстве № 2 IFV (устройство № 5) Провести транзакцию № 7 с устройства № 5 для клиента № 1",
+            dependsOnMethods = "transaction6"
+    )
+    public void transaction7() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setPlatform(PlatformKind.IOS);
+        transactionData.getClientDevice().setIOS(new IOSDevice());
+        transactionData.getClientDevice().getIOS().setOSVersion("8");
+        transactionData.getClientDevice().getIOS().setModel("10");
+        transactionData.getClientDevice().getIOS().setIdentifierForVendor(new_IFV);
+        transactionData.getClientDevice().getIOS().setIpAddress("192.168.1.1");
+        transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
+//        transaction.getData().getTransactionData().setSessionId(stepNSessionIdForAndroid);
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, NEW_DEVICE);
+
+        vesMock.stop();
+        vesMock.setVesExtendResponse(vesMock
+                .getVesExtendResponse()
+                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd605a80\"", "\"fingerprint\": \"b4ab28f4-448f-1sd5-90f6-7s47bd604aaa\""));
+        vesMock.run();
+    }
+
+    @Test(
+            description = " Изменить в устройстве № 2 DFP (устройство № 6) Провести транзакцию № 8 с устройства № 6 для клиента № 1",
+            dependsOnMethods = "transaction7"
+    )
+    public void transaction8() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setPlatform(PlatformKind.IOS);
+        transactionData.getClientDevice().setIOS(new IOSDevice());
+        transactionData.getClientDevice().getIOS().setOSVersion("9");
+        transactionData.getClientDevice().getIOS().setModel("12");
+        transactionData.getClientDevice().getIOS().setIdentifierForVendor(IFV);
+        transactionData.getClientDevice().getIOS().setIpAddress("192.168.1.1");
+        transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
+//        transaction.getData().getTransactionData().setSessionId(stepNSessionIdForAndroid);
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, NEW_DEVICE);
+        vesMock.stop();
+        vesMock.setVesExtendResponse(vesMock
+                .getVesExtendResponse()
+                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-1sd5-90f6-7s47bd604aaa\"","\"fingerprint\": \"b4ab28f4-448f-4684-57re51-7953bd615fggh7fg\""));
+        vesMock.run();
+    }
+
+    @Test(
+            description = " Изменить в устройстве № 2 IFV и DFP (устройство № 7) Провести транзакцию № 9 с устройства № 7 для клиента № 1",
+            dependsOnMethods = "transaction8"
+    )
+    public void transaction9() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setPlatform(PlatformKind.IOS);
+        transactionData.getClientDevice().setIOS(new IOSDevice());
+        transactionData.getClientDevice().getIOS().setOSVersion("9");
+        transactionData.getClientDevice().getIOS().setModel("12");
+        transactionData.getClientDevice().getIOS().setIdentifierForVendor(new_IFV_2);
+        transactionData.getClientDevice().getIOS().setIpAddress("192.168.1.1");
+        transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
+//        transaction.getData().getTransactionData().setSessionId(stepNSessionIdForAndroid);
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, NEW_DEVICE);
+    }
+
 
     @Override
     protected String getRuleName() {

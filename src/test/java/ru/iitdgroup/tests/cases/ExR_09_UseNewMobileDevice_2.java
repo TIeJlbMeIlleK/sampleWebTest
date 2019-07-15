@@ -23,7 +23,7 @@ public class ExR_09_UseNewMobileDevice_2 extends RSHBCaseTest {
     private static final String TABLE= "(System_parameters) Интеграционные параметры";
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private final VesMock vesMock = new VesMock().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
+    private final VesMock vesMock = VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
 
     private String stepNSessionIdForIOC;
     private String stepNSessionIdForAndroid;
