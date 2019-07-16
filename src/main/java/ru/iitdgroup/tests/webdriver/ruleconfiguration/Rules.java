@@ -27,7 +27,7 @@ public class Rules extends AbstractView<Rules> implements TabledView {
         return openRecord(ruleName).edit();
     }
 
-    private RuleRecord openRecord(String ruleName) {
+    public RuleRecord openRecord(String ruleName) {
         //FIXME: не работает с правилами в конце списка - в IC некликабельно то, что не помещается полностью на экран
         final String xpath = String.format("//span[@style=' ' and text()='%s']/../..", ruleName);
         driver.findElementByXPath(xpath).click();
