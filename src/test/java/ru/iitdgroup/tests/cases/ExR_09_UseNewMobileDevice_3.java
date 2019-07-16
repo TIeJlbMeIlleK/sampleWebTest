@@ -29,10 +29,6 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
     private final List<String> clientIds = new ArrayList<>();
     private final VesMock vesMock = VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
 
-    private String stepNSessionIdForIOC;
-    private String stepNSessionIdForAndroid;
-    private String iOcDevice;
-
     private String IMEI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
     private String new_IMEI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
     private String IMSI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
@@ -71,8 +67,6 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
             dependsOnMethods = "client"
     )
     public void enableRules() {
-        vesMock.run();
-
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
@@ -142,6 +136,7 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
             dependsOnMethods = "enableIFV"
     )
     public void transaction1() {
+        vesMock.run();
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -158,6 +153,11 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
                 .setIMSI(IMSI);
 //        stepNSessionIdForAndroid = transaction.getData().getTransactionData().getSessionId();
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_ANDROID_DEVICE);
 
 //        vesMock.stop();
@@ -189,13 +189,18 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
                 .setIMSI(IMSI);
 //        stepNSessionIdForAndroid = transaction.getData().getTransactionData().getSessionId();
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(FEW_DATA, DEVICE_NOT_EXIST);
 
-                vesMock.stop();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"", "\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd605a80\""));
-        vesMock.run();
+//        vesMock.stop();
+//        vesMock.setVesExtendResponse(vesMock
+//                .getVesExtendResponse()
+//                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"", "\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd605a80\""));
+//        vesMock.run();
 
 
     }
@@ -220,6 +225,11 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
         transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
 //        transaction.getData().getTransactionData().setSessionId(stepNSessionIdForAndroid);
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_IFV);
     }
 
@@ -244,13 +254,12 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
         transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
 //        transaction.getData().getTransactionData().setSessionId(stepNSessionIdForAndroid);
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(FEW_DATA, DEVICE_NOT_EXIST);
-
-        vesMock.stop();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd605a80\"", "\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\""));
-        vesMock.run();
     }
 
 
@@ -275,6 +284,11 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
                 .setIMSI(IMSI);
 //        stepNSessionIdForAndroid = transaction.getData().getTransactionData().getSessionId();
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_IMSI_2);
 
 //        vesMock.stop();
@@ -305,6 +319,11 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
                 .setIMSI(new_IMSI);
 //        stepNSessionIdForAndroid = transaction.getData().getTransactionData().getSessionId();
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_IMEI_2);
 
         vesMock.stop();
@@ -336,6 +355,11 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
         transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
 //        transaction.getData().getTransactionData().setSessionId(stepNSessionIdForAndroid);
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, NEW_DEVICE);
 
         vesMock.stop();
@@ -366,6 +390,11 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
         transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
 //        transaction.getData().getTransactionData().setSessionId(stepNSessionIdForAndroid);
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, NEW_DEVICE);
         vesMock.stop();
         vesMock.setVesExtendResponse(vesMock
@@ -395,6 +424,11 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
         transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
 //        transaction.getData().getTransactionData().setSessionId(stepNSessionIdForAndroid);
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, NEW_DEVICE);
     }
 

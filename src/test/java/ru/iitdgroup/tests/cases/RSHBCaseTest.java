@@ -4,6 +4,7 @@ import org.openqa.selenium.Dimension;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import ru.iitdgroup.tests.apidriver.Authentication;
 import ru.iitdgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitdgroup.tests.apidriver.Template;
 import ru.iitdgroup.tests.apidriver.Transaction;
@@ -83,6 +84,9 @@ public abstract class RSHBCaseTest {
     protected static final String EXIST_TRUSTED_IMEI_2 = "Найдено доверенное устройство для клиента: совпадение по IMEI";
     protected static final String EXIST_TRUSTED_IMSI_2 = "Найдено доверенное устройство для клиента: совпадение по IMSI";
     protected static final String NEW_DEVICE = "У клиента новое устройство";
+    protected static final String SUSPICIOUS_DEVICE = "Подозрительное устройство";
+    protected static final String ANOTHER_TRANSACTION_TYPE = "Правило не применяется для транзакций такого типа";
+    protected static final String RESULT_ALERT_FROM_VES = "В ответе от ВЭС присутствуют признаки заражения или удаленного управления устройтвом клиента";
 
 
 
@@ -194,6 +198,18 @@ public abstract class RSHBCaseTest {
                     .withSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
                     .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
             return transaction;
+        } catch (JAXBException | IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected Authentication getAuthentication(String filePath) {
+        try {
+            Authentication authentication = new Authentication(filePath);
+            authentication.getData()
+                    .getClientAuthentication()
+                    .withSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
+            return authentication;
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }

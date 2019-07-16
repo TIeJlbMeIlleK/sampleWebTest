@@ -2,6 +2,7 @@ package ru.iitdgroup.tests.webdriver.ic;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.Select;
 
 /**
  * Абстрактный контекст для редактирующих операций.
@@ -13,6 +14,7 @@ public abstract class AbstractEdit<S> extends AbstractView<S> {
     private static final String DEFAULT_X_PATH_TEMPLATE = "//*[text()='%s']//following::%s";
     private static final String INPUT_TAG = "input";
     private static final String TEXTAREA_TAG = "textarea";
+    private static final String SELECT_TAG = "select";
 
     public AbstractEdit(RemoteWebDriver driver) {
         super(driver);
@@ -37,6 +39,14 @@ public abstract class AbstractEdit<S> extends AbstractView<S> {
 
         inputTextField.clear();
         inputTextField.sendKeys(input);
+
+        return getSelf();
+    }
+
+    public S select(String fieldName, String value) {
+        Select select = new Select(driver
+                .findElementByXPath(String.format(DEFAULT_X_PATH_TEMPLATE, fieldName, SELECT_TAG)));
+        select.selectByVisibleText(value);
 
         return getSelf();
     }

@@ -62,7 +62,6 @@ public class BR_01_PayeeInBlackList_Black_Bik extends RSHBCaseTest {
     public void step0() {
         try {
             for (int i = 0; i < 1; i++) {
-                //FIXME Добавить проверку на существование клиента в базе
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
                 Client client = new Client("testCases/Templates/client.xml");
                 client
