@@ -27,6 +27,10 @@ public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView {
         clearTableFilters();
         setTableFilter(field, operator, value);
         refreshTable();
+        sleep(2);
+        driver.findElementByXPath("//a[text()='Show All']").click();
+        sleep(2);
+        driver.executeScript("window.scrollTo(0, 10000)");
         for (WebElement select : driver.findElementsByXPath("//input[@title='Select']")) {
             select.click();
         }
