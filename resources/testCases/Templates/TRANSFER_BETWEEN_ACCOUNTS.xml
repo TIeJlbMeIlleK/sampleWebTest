@@ -1,0 +1,40 @@
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+	<ns4:ServerInfo>
+		<ns2:Ip>localhost</ns2:Ip>
+		<ns2:Port>8089</ns2:Port>
+	</ns4:ServerInfo>
+	<ns4:TransactionData>
+		<ns4:TransactionId>1114578794601</ns4:TransactionId>
+		<ns4:ClientIds>
+			<ns2:DboId>501</ns2:DboId>
+			<ns2:CifId>DA97B20B-1CF0-4f34-BBC6-FC3C24548821</ns2:CifId>
+			<ns2:ExpertSystemId>119705151038f583a70c50d60467b8d944657abe</ns2:ExpertSystemId>
+			<ns2:LoginHash>ba455e110cedd2f317a69d72b0c3b26117073089</ns2:LoginHash>
+		</ns4:ClientIds>
+		<ns4:DocumentSaveTimestamp>2019-05-08T13:10:38.254+03:00</ns4:DocumentSaveTimestamp>
+		<ns4:DocumentNumber>61</ns4:DocumentNumber>
+		<ns4:Type>TRANSFER_BETWEEN_ACCOUNTS</ns4:Type>
+		<ns4:Regular>false</ns4:Regular>
+		<ns4:SessionTimeout>1800000</ns4:SessionTimeout>
+		<ns4:TransferBetweenAccounts>
+			<ns4:SourceProduct>40817810041000016562</ns4:SourceProduct>
+			<ns4:DestinationProduct>40817810241000013200</ns4:DestinationProduct>
+			<ns4:AmountInSourceCurrency>1</ns4:AmountInSourceCurrency>
+			<ns4:CommissionAmount>350</ns4:CommissionAmount>
+			<ns4:SourceCurrencyIsoCode>810</ns4:SourceCurrencyIsoCode>
+			<ns4:DestinationCurrencyIsoCode>810</ns4:DestinationCurrencyIsoCode>
+		</ns4:TransferBetweenAccounts>
+		<ns4:InitialSourceAmount>99995955.23</ns4:InitialSourceAmount>
+		<ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+		<ns4:DocumentConfirmationTimestamp>2019-04-15T13:10:00+03:00</ns4:DocumentConfirmationTimestamp>
+		<ns4:SessionId>_uIgeY1OG8DKH9GVH0-cqACOREq6DOlOAD9J9w5fH9v_WkZR93dY!-770855897!1555322998094</ns4:SessionId>
+		<ns4:Channel>INTERNET_CLIENT</ns4:Channel>
+		<ns4:ClientDevice>
+			<ns3:Platform>PC</ns3:Platform>
+			<ns3:PC>
+				<ns3:IpAddress>10.28.45.183</ns3:IpAddress>
+				<ns3:UserAgent>Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36</ns3:UserAgent>
+			</ns3:PC>
+		</ns4:ClientDevice>
+	</ns4:TransactionData>
+</ns4:SendTransactionDataRequest>

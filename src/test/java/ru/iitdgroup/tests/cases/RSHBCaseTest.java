@@ -87,6 +87,10 @@ public abstract class RSHBCaseTest {
     protected static final String SUSPICIOUS_DEVICE = "Подозрительное устройство";
     protected static final String ANOTHER_TRANSACTION_TYPE = "Правило не применяется для транзакций такого типа";
     protected static final String RESULT_ALERT_FROM_VES = "В ответе от ВЭС присутствуют признаки заражения или удаленного управления устройтвом клиента";
+    protected static final String YOUNG_QUARANTINE_LOCATION = "Местоположение недавно находится в карантине";
+    protected static final String RESULT_ADD_QUARATINE_LOCATION = "Добавлено новое значение в справочник 'Карантин месторасположения'";
+    protected static final String RESULT_RULE_APPLY_BY_SUM_GR_25 = "Значения пороговых величин превышены";
+    protected static final String RESULT_RULE_NOT_APPLY_BY_CONF_GR_25 = "Правило не применилось (проверка по настройкам правила)";
 
 
 

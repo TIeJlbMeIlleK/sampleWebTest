@@ -9,6 +9,8 @@
         <ns4:ClientIds>
           <ns2:DboId>10</ns2:DboId>
           <ns2:CifId>FF78546D-37E6-47e9-A13C-7E4228E361A7</ns2:CifId>
+            <ns2:EksId>123</ns2:EksId>
+            <ns2:PcId>123</ns2:PcId>
           <ns2:ExpertSystemId>785119c47dea45622bacba20411368b105196903</ns2:ExpertSystemId>
           <ns2:LoginHash>29d7d53affae3f486c087a7ac459861dabb3002e</ns2:LoginHash>
         </ns4:ClientIds>
@@ -42,34 +44,22 @@
            <ns4:SourceCurrencyIsoCode>810</ns4:SourceCurrencyIsoCode>
         </ns4:ByuingInsurance>
         <ns4:InitialSourceAmount>95817.36</ns4:InitialSourceAmount>
-        <ns4:SessionId>F_lysKrnehz8i3bxOKz26ADG9pUaEZBJyxZIZuZFcbrpikdY5hC4!-1924546201!1479392930535</ns4:SessionId>
-        <ns4:Channel>INTERNET_CLIENT</ns4:Channel>
-        <ns4:ClientDevice>
-          <ns3:Platform>PC</ns3:Platform>
-          <ns3:PC>
-            <ns3:IpAddress>213.87.149.82</ns3:IpAddress>
-            <ns3:UserAgent>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36</ns3:UserAgent>
-            <ns3:BrowserData>{
-  "ua" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36",
-  "browser" : {
-    "name" : "Chrome",
-    "version" : "54.0.2840.99",
-    "major" : "54"
-  },
-  "engine" : {
-    "version" : "537.36",
-    "name" : "WebKit"
-  },
-  "os" : {
-    "name" : "Windows",
-    "version" : "10"
-  },
-  "device" : { },
-  "cpu" : {
-    "architecture" : "amd64"
-  }
-}</ns3:BrowserData>
-          </ns3:PC>
-        </ns4:ClientDevice>
+          <ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+          <ns4:DocumentConfirmationTimestamp>2018-11-13T13:08:00+03:00</ns4:DocumentConfirmationTimestamp>
+          <ns4:SessionId>-rYhPcDmSopuAeJw2ECdVz2Db9kAUk_nYdJONMfjGJRAsv_tKOXv!-770855897!1555335856358</ns4:SessionId>
+          <ns4:Channel>MOBILE_BANK</ns4:Channel>
+          <ns4:ClientDevice>
+              <ns3:Platform>Android</ns3:Platform>
+              <ns3:Android>
+                  <ns3:IpAddress>213.87.156.92</ns3:IpAddress>
+                  <ns3:IMSI>250015038779547</ns3:IMSI>
+                  <ns3:IMEI>863313032529333</ns3:IMEI>
+                  <ns3:IMEISV>93</ns3:IMEISV>
+                  <ns3:MSISDN>145</ns3:MSISDN>
+                  <ns3:SPN>MTS RUS</ns3:SPN>
+                  <ns3:OSVersion>8.0.0</ns3:OSVersion>
+                  <ns3:AuthByFingerprint>false</ns3:AuthByFingerprint>
+              </ns3:Android>
+          </ns4:ClientDevice>
       </ns4:TransactionData>
     </ns4:SendTransactionDataRequest>

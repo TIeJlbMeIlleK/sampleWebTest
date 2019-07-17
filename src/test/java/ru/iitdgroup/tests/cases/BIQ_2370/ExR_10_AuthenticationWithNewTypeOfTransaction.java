@@ -1,4 +1,4 @@
-package ru.iitdgroup.tests.cases;
+package ru.iitdgroup.tests.cases.BIQ_2370;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
@@ -8,6 +8,7 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Authentication;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
+import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.ves.mock.VesMock;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
@@ -19,7 +20,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
+public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_ExR_10_AuthenticationFromSuspiciousDevice";
     private static final String TABLE= "(System_parameters) Интеграционные параметры";
@@ -36,18 +37,12 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
     private VesMock vesMock = getVesMock();
+    private static final String TABLE_2 = "(Policy_parameters) Параметры обработки событий";
 
     @Test(
             description = "Настройка и включение правила"
     )
     public void enableRules() {
-
-        vesMock = getVesMock();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"","\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd6sd5fg7155555\""));
-        vesMock.run();
-
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
@@ -111,12 +106,28 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .click()
                 .edit()
                 .fillInputText("Значение:", "1").save();
+    }
+
+    @Test(
+            description = " В Параметрах обработки событий добавлена новая запись Покупка страховки держателей карт",
+            dependsOnMethods = "enableVES"
+    )
+    public void addNewTransactionType() {
+        Table.Formula rows = getIC().locateTable(TABLE_2).findRowsBy();
+        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
+            rows.delete();
+        }
+        getIC().locateTable(TABLE_2)
+                .addRecord()
+                .select("Тип транзакции:","Покупка страховки держателей карт")
+                .select("Наименование канала ДБО:","Интернет клиент")
+                .save();
         getIC().close();
     }
 
     @Test(
             description = "Создаем клиента",
-            dependsOnMethods = "enableVES"
+            dependsOnMethods = "addNewTransactionType"
     )
     public void client() {
         try {
@@ -143,6 +154,12 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
             dependsOnMethods = "client"
     )
     public void transaction1() {
+        vesMock = getVesMock();
+        vesMock.setVesExtendResponse(vesMock
+                .getVesExtendResponse()
+                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"","\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd6sd5fg7155555\""));
+        vesMock.run();
+
         Authentication authentication = getAuthentication();
         authentication
                 .getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(0));
@@ -244,7 +261,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(3));
         sendAndAssert(authentication);
         try {
-            Thread.sleep(5_000);
+            Thread.sleep(3_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -263,59 +280,12 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .setIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
         sendAndAssert(transaction);
         try {
-            Thread.sleep(5_000);
+            Thread.sleep(3_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         assertLastTransactionRuleApply(TRIGGERED, SUSPICIOUS_DEVICE);
-    }
-
-    @Test(
-            description = "Отправить аутентификацию с сессией № 4 для клиента № 4 с подозрительного DFP",
-            dependsOnMethods = "transaction4"
-    )
-    public void transaction5() {
-        vesMock.stop();
-        vesMock = getVesMock();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"","\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd6sd5fg156dfg741adfg\""));
-        vesMock.run();
-
-        Authentication authentication = getAuthentication();
-        authentication
-                .getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(4));
-        authentication.getData().getClientAuthentication().getClientDevice().getAndroid().setIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
-        authentication.getData().getClientAuthentication().getClientDevice().getAndroid().setIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
-        String IMEI_rep = authentication.getData().getClientAuthentication().getClientDevice().getAndroid().getIMEI();
-        String IMSI_rep = authentication.getData().getClientAuthentication().getClientDevice().getAndroid().getIMSI();
-        sendAndAssert(authentication);
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(4));
-        transactionData.getClientDevice()
-                .getAndroid()
-                .setIMSI(IMSI_rep);
-        transactionData.getClientDevice()
-                .getAndroid()
-                .setIMEI(IMEI_rep);
-        sendAndAssert(transaction);
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
     }
 
     @Override
@@ -329,7 +299,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     }
 
     private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_MOBILE.xml");
+        Transaction transaction = getTransaction("testCases/Templates/BUYING_INSURANCE.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

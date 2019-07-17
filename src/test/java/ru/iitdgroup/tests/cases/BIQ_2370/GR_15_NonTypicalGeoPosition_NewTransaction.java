@@ -2,11 +2,13 @@ package ru.iitdgroup.tests.cases.BIQ_2370;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
+import ru.iitdgroup.intellinx.dbo.client.PCDevice;
+import ru.iitdgroup.intellinx.dbo.client.PlatformKind;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.ves.mock.VesMock;
+import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -16,18 +18,15 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ExR_04_InfectedDevice extends RSHBCaseTest {
+public class GR_15_NonTypicalGeoPosition_NewTransaction extends RSHBCaseTest {
 
-    private static final String RULE_NAME = "R01_ExR_04_InfectedDevice";
-    private static final String TABLE = "(System_parameters) Интеграционные параметры";
-    private static final String TABLE_2 = "(Policy_parameters) Параметры обработки событий";
-
+    private static final String RULE_NAME = "R01_GR_15_NonTypicalGeoPosition";
+    private static final String Table_Flags = "(Policy_parameters) Параметры обработки справочников и флагов";
 
 
-
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 8, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private VesMock vesMock = getVesMock();
+    private static final String TABLE_2 = "(Policy_parameters) Параметры обработки событий";
 
     @Test(
             description = "Настройка и включение правила"
@@ -43,44 +42,19 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
                 .fillCheckBox("Active:", true)
                 .save()
                 .sleep(5);
-
-        //TODO Нужно дописать  Добавление в правило Код ответа ВЭС
     }
 
     @Test(
-            description = "Включить IntegrVES2",
+            description = "Настроить Время после добавления в карантин",
             dependsOnMethods = "enableRules"
     )
     public void editReferenceTable() {
-        getIC().locateTable(TABLE)
+        getIC().locateTable(Table_Flags)
                 .findRowsBy()
-                .match("Description", "Время ожидания между получением Аутентификации клиента и вызовом ВЭС, секунд")
+                .match("Описание", "Время после добавления в карантин")
                 .click()
                 .edit()
-                .fillInputText("Значение:", "5")
-                .save();
-
-        getIC().locateTable(TABLE)
-                .findRowsBy()
-                .match("Description", "Период за который наполняется кэш для данных от ВЭС")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "1440")
-                .save();
-
-        getIC().locateTable(TABLE)
-                .findRowsBy()
-                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "1")
-                .save();
-        getIC().locateTable(TABLE)
-                .findRowsBy()
-                .match("Description", "Время ожидания актуальных данных от ВЭС")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "300")
+                .fillInputText("Значение:", "2")
                 .save();
     }
 
@@ -89,12 +63,15 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
             dependsOnMethods = "editReferenceTable"
     )
     public void addNewTransactionType() {
-
+        Table.Formula rows = getIC().locateTable(TABLE_2).findRowsBy();
+        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
+            rows.delete();
+        }
         getIC().locateTable(TABLE_2)
                 .addRecord()
                 .select("Тип транзакции:","Покупка страховки держателей карт")
                 .select("Наименование канала ДБО:","Мобильный банк")
-        .save();
+                .save();
         getIC().close();
     }
 
@@ -123,29 +100,48 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию Покупка страховки держателей карт № 1 в интернет-банке",
+            description = "Провести транзакцию Покупка страховки держателей карт № 1 с IP-адреса № 1 для Клиента № 1",
             dependsOnMethods = "client"
     )
     public void transaction1() {
-        vesMock = getVesMock();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"type_id\": \"7\"","\"type_id\": \"46\""));
-        vesMock.run();
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
+        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setPlatform(PlatformKind.PC);
+        transactionData.getClientDevice().setPC(new PCDevice());
+        transactionData.getClientDevice().getPC().setUserAgent("555");
+        transactionData.getClientDevice().getPC().setIpAddress("178.219.186.12");
+        transactionData.getClientDevice().getPC().setBrowserData("Browser");
 
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_ALERT_FROM_VES);
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_ADD_QUARATINE_LOCATION);
+    }
+
+
+    @Test(
+            description = "Провести транзакцию Покупка страховки держателей карт № 2 с IP-адреса № 1 для Клиента № 1",
+            dependsOnMethods = "transaction1"
+    )
+    public void transaction2() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setPlatform(PlatformKind.PC);
+        transactionData.getClientDevice().setPC(new PCDevice());
+        transactionData.getClientDevice().getPC().setUserAgent("555");
+        transactionData.getClientDevice().getPC().setIpAddress("178.219.186.12");
+        transactionData.getClientDevice().getPC().setBrowserData("Browser");
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, YOUNG_QUARANTINE_LOCATION);
     }
 
     @Override
@@ -159,9 +155,5 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
-    }
-
-    private static VesMock getVesMock() {
-        return VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
     }
 }

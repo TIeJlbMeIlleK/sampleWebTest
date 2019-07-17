@@ -4,9 +4,9 @@
 		<ns2:Port>8089</ns2:Port>
 	</ns4:ServerInfo>
 	<ns4:TransactionData>
-		<ns4:TransactionId>4568878932116</ns4:TransactionId>
+		<ns4:TransactionId>43781459710001</ns4:TransactionId>
 		<ns4:ClientIds>
-			<ns2:DboId>505</ns2:DboId>
+			<ns2:DboId>4378145970848295981</ns2:DboId>
 			<ns2:CifId>83207D40-64C9-4a4f-BF46-0B69B17E27A5</ns2:CifId>
 			<ns2:EksId>1141</ns2:EksId>
 			<ns2:PcId>2433</ns2:PcId>
@@ -22,8 +22,8 @@
 		<ns4:CardTransfer>
 			<ns4:SourceCardNumber>524448******8162</ns4:SourceCardNumber>
 			<ns4:DestinationCardNumber>4378723741117915</ns4:DestinationCardNumber>
-			<ns4:AmountInSourceCurrency>500.00</ns4:AmountInSourceCurrency>
-			<ns4:CommissionAmount>94.00</ns4:CommissionAmount>
+			<ns4:AmountInSourceCurrency>1999.00</ns4:AmountInSourceCurrency>
+			<ns4:CommissionAmount>00.00</ns4:CommissionAmount>
 		</ns4:CardTransfer>
 		<ns4:InitialSourceAmount>100.00</ns4:InitialSourceAmount>
 		<ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
