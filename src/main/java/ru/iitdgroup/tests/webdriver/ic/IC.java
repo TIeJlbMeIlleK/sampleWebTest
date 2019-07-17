@@ -6,6 +6,7 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.properties.TestProperties;
+import ru.iitdgroup.tests.webdriver.alerts.Alerts;
 import ru.iitdgroup.tests.webdriver.importruletable.ImportRuleTable;
 import ru.iitdgroup.tests.webdriver.jobconfiguration.Jobs;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
@@ -121,6 +122,11 @@ public class IC implements AutoCloseable {
         driver.findElementByXPath("//a[@data-url='/InvestigationCenter/ui/jobconsole']").click();
         view.sleep(1);
         return new Jobs(driver);
+    }
+
+    public Alerts locateAlerts() {
+        locateView(TopMenuItem.ALERTS);
+        return new Alerts(driver);
     }
 
     private void locateView(TopMenuItem item) {

@@ -1,12 +1,13 @@
 package ru.iitdgroup.tests.webdriver.ruleconfiguration;
 
 import org.openqa.selenium.remote.RemoteWebDriver;
+import ru.iitdgroup.tests.webdriver.TabledView;
 import ru.iitdgroup.tests.webdriver.ic.AbstractView;
 
 /**
  * Контекст для работы с экранной формой правил.
  */
-public class Rules extends AbstractView<Rules> {
+public class Rules extends AbstractView<Rules> implements TabledView {
 
     public Rules(RemoteWebDriver driver) {
         super(driver);
@@ -26,7 +27,7 @@ public class Rules extends AbstractView<Rules> {
         return openRecord(ruleName).edit();
     }
 
-    private RuleRecord openRecord(String ruleName) {
+    public RuleRecord openRecord(String ruleName) {
         //FIXME: не работает с правилами в конце списка - в IC некликабельно то, что не помещается полностью на экран
         final String xpath = String.format("//span[@style=' ' and text()='%s']/../..", ruleName);
         driver.findElementByXPath(xpath).click();
@@ -75,6 +76,12 @@ public class Rules extends AbstractView<Rules> {
         driver.findElementByXPath("(.//*[text()='Actions'])[1]/img[1]").click();
         final String xPath = String.format("//div[contains(@class,\"qtip\") and contains(@aria-hidden, \"false\")]//div[@class='qtip-content']/a[text()='%s']", action.name);
         driver.findElementByXPath(xPath).click();
+    }
+
+    public Rules setFilter(String field, String operator, String value) {
+        setTableFilter(field, operator, value);
+        refreshTable();
+        return this;
     }
 
 
