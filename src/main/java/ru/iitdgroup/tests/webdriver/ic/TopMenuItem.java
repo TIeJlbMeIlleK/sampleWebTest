@@ -5,6 +5,7 @@ package ru.iitdgroup.tests.webdriver.ic;
  */
 public enum TopMenuItem {
 
+    ALERTS("Alerts"),
     REFERENCE_DATA("Reference Data"),
     ANALYTICS("Analytics"),
     RULES("Rules"),

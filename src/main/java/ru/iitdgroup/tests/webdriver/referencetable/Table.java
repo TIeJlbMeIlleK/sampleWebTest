@@ -176,14 +176,12 @@ public class Table extends AbstractView<Table> {
          * Вызывает Assert#fail (чтобы тест упал) для случая, если у таблицы удовлетворяющих формуле строк
          */
         private void failIfNoRows() {
-            if ( matchedRows.rows.size() == 0) {
+            if (matchedRows.rows.size() == 0) {
                 final String formula = expressions.stream()
                         .map(exp -> String.format("%s = %s", exp.colHeading, exp.rowText))
                         .collect(Collectors.joining(", "));
 
-                fail(String.format("По формуле %s не удалось выбрать ни одной строки из таблицы",
-                        formula
-                ));
+                fail(String.format("По формуле %s не удалось выбрать ни одной строки из таблицы", formula));
             }
         }
 
