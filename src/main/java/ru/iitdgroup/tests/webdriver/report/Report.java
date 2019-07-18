@@ -2,7 +2,6 @@ package ru.iitdgroup.tests.webdriver.report;
 
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.webdriver.ic.AbstractView;
-import ru.iitdgroup.tests.webdriver.importruletable.ImportRuleTable;
 
 public class Report extends AbstractView<Report> {
 
@@ -11,7 +10,7 @@ public class Report extends AbstractView<Report> {
     }
 
     @Override
-    protected Report getSelf() {
+    public Report getSelf() {
         return this;
     }
 }

@@ -5,7 +5,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.webdriver.TabledView;
 import ru.iitdgroup.tests.webdriver.ic.AbstractEdit;
 
-public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView {
+public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView<RuleRecord> {
 
     private final RemoteWebDriver driver;
 
@@ -28,12 +28,12 @@ public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView {
         setTableFilter(field, operator, value);
         refreshTable();
         sleep(2);
-        driver.findElementByXPath("//a[text()='Show All']").click();
+        for (WebElement webElement : driver.findElementsByXPath("//a[text()='Show All']")) {
+            webElement.click();
+        }
         sleep(2);
         driver.executeScript("window.scrollTo(0, 10000)");
-        for (WebElement select : driver.findElementsByXPath("//input[@title='Select']")) {
-            select.click();
-        }
+        driver.findElementByXPath("//*[@class='af_column_header-icon-format']//input[1]").click();
         driver.findElementByXPath("//a[@title='OK']").click();
         waitUntil("//a[@id='btnEdit']");
 
@@ -41,7 +41,7 @@ public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView {
     }
 
     @Override
-    protected RuleRecord getSelf() {
+    public RuleRecord getSelf() {
         return this;
     }
 }

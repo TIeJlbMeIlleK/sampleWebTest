@@ -274,7 +274,7 @@ public class Table extends AbstractView<Table> {
     }
 
     @Override
-    protected Table getSelf() {
+    public Table getSelf() {
         return this;
     }
 

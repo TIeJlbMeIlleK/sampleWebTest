@@ -11,7 +11,7 @@ import static java.lang.Thread.sleep;
  * Вьюшка, которая содержит таблицу
  * Позволяет работать с фильтрами
  */
-public interface TabledView {
+public interface TabledView<S> {
 
     RemoteWebDriver getDriver();
 
@@ -56,13 +56,17 @@ public interface TabledView {
         }
     }
 
-    default void refreshTable() {
+    default S refreshTable() {
         getDriver().findElementByXPath("//img[@title='Refresh']").click();
         try {
             sleep(2000);
         } catch (InterruptedException e) {
             throw new IllegalStateException(e);
         }
+
+        return getSelf();
     }
+
+    S getSelf();
 
 }

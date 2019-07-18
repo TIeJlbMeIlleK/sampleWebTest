@@ -17,7 +17,7 @@ public class Alerts extends AbstractView<Alerts> implements TabledView {
     }
 
     @Override
-    protected Alerts getSelf() {
+    public Alerts getSelf() {
         return this;
     }
 }

@@ -20,7 +20,7 @@ public class RuleEdit extends AbstractEdit<RuleEdit> {
     }
 
     @Override
-    protected RuleEdit getSelf() {
+    public RuleEdit getSelf() {
         return this;
     }
 }

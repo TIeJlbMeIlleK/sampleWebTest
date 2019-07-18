@@ -7,7 +7,7 @@ import ru.iitdgroup.tests.webdriver.ic.AbstractView;
 /**
  * Контекст для работы с экранной формой правил.
  */
-public class Rules extends AbstractView<Rules> implements TabledView {
+public class Rules extends AbstractView<Rules> implements TabledView<Rules> {
 
     public Rules(RemoteWebDriver driver) {
         super(driver);
@@ -104,7 +104,7 @@ public class Rules extends AbstractView<Rules> implements TabledView {
     }
 
     @Override
-    protected Rules getSelf() {
+    public Rules getSelf() {
         return this;
     }
 }

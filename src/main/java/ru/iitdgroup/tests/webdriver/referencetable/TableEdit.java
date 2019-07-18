@@ -15,7 +15,7 @@ public class TableEdit extends AbstractEdit<TableEdit> implements TabledView {
     }
 
     @Override
-    protected TableEdit getSelf() {
+    public TableEdit getSelf() {
         return this;
     }
 

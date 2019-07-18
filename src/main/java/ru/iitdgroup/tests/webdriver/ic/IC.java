@@ -157,7 +157,7 @@ public class IC implements AutoCloseable {
         }
 
         @Override
-        protected View getSelf() {
+        public View getSelf() {
             return this;
         }
     }

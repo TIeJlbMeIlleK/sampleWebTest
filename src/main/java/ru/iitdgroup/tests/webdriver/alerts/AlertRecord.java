@@ -19,7 +19,7 @@ public class AlertRecord extends AbstractEdit<AlertRecord> {
     }
 
     @Override
-    protected AlertRecord getSelf() {
+    public AlertRecord getSelf() {
         return this;
     }
 }

@@ -11,7 +11,7 @@ public class Record extends AbstractEdit<Record> {
     }
 
     @Override
-    protected Record getSelf() {
+    public Record getSelf() {
         return this;
     }
 
