@@ -49,7 +49,7 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
         getIC().locateRules()
                 .openRecord(RULE_NAME)
                 .detach("Коды ответов ВЭС")
-                .attach("Коды ответов ВЭС","Идентификатор кода","Equals","47");
+                .attach("Коды ответов ВЭС","Идентификатор кода","Equals","46");
 
         //TODO Нужно дописать  Добавление в правило Код ответа ВЭС
     }

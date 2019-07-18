@@ -20,7 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RDAKParametrisation extends RSHBCaseTest {
 
     private static final String TABLE = "(Policy_parameters) Параметры обработки справочников и флагов";
-    public static final String TABLE_2 = "(System_parameters) Параметры TimeOut";
+    private static final String TABLE_2 = "(System_parameters) Параметры TimeOut";
     private static final String RULE_NAME = "R01_GR_15_NonTypicalGeoPosition";
     private static final String WEEKENDDAYS = "(Rule_tables) Производственный календарь";
     private static final String RDAK = "(Policy_parameters) Перечень статусов для которых применять РДАК";
@@ -112,7 +112,7 @@ public class RDAKParametrisation extends RSHBCaseTest {
         //TODO добавить настройку WF
 
 
-
+//        TODO возможно данная таблица будет заполнена ранее.
         Table.Formula rows = getIC().locateTable(RDAK).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
             rows.delete();
