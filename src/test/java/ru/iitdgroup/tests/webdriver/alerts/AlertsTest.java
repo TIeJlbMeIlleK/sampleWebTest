@@ -1,15 +1,19 @@
 package ru.iitdgroup.tests.webdriver.alerts;
 
-import org.testng.annotations.Test;
-import ru.iitdgroup.rshbtest.RSHBTests;
+import ru.iitdgroup.tests.cases.RSHBCaseTest;
 
-public class AlertsTest extends RSHBTests {
+public class AlertsTest extends RSHBCaseTest {
 
-    @Test
-    public void testOpenLastRecord() {
-//        ic.locateAlerts()
-//                .openLastRecord()
-//                .action("Взять в работу");
+    @Override
+    protected String getRuleName() {
+        return "";
     }
+
+//    @Test
+//    public void testOpenLastRecord() {
+//        getIC().locateAlerts()
+//                .openLastRecord();
+//        assertTableField("Место рождения:", "Polevskoy");
+//    }
 
 }

@@ -192,6 +192,14 @@ public abstract class RSHBCaseTest {
         assertEquals(description, dbResult[0][1]);
     }
 
+    protected void assertTableField(String fieldName, String expectedValue) {
+        assertEquals(
+                expectedValue,
+                getIC().getDriver()
+                        .findElementByXPath(String.format("//*[text()='%s']/../following-sibling::td", fieldName))
+                        .getText());
+    }
+
     protected Transaction getTransaction(String filePath) {
         try {
             //FIXME Добавить проверку на существование клиента в базе
