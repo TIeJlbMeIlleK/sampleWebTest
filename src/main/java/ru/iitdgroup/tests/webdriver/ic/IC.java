@@ -11,6 +11,7 @@ import ru.iitdgroup.tests.webdriver.importruletable.ImportRuleTable;
 import ru.iitdgroup.tests.webdriver.jobconfiguration.Jobs;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
 import ru.iitdgroup.tests.webdriver.ruleconfiguration.Rules;
+import ru.iitdgroup.tests.webdriver.scoringmodels.ScoringModels;
 
 import java.io.File;
 import java.io.IOException;
@@ -127,6 +128,12 @@ public class IC implements AutoCloseable {
     public Alerts locateAlerts() {
         locateView(TopMenuItem.ALERTS);
         return new Alerts(driver);
+    }
+
+    public ScoringModels locateScoringModels() {
+        locateView(TopMenuItem.ANALYTICS);
+        locateView(TopMenuItem.SCORING_MODELS);
+        return new ScoringModels(driver);
     }
 
     private void locateView(TopMenuItem item) {

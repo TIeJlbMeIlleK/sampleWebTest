@@ -60,4 +60,9 @@ public abstract class AbstractEdit<S> extends AbstractView<S> {
 
         return getSelf();
     }
+
+    public S expressionBuild(String fieldName, String value) {
+        // TODO expression builder
+        return getSelf();
+    }
 }
