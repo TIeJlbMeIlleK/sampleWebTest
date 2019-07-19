@@ -7,8 +7,6 @@ import org.openqa.selenium.support.ui.Select;
 import ru.iitdgroup.tests.webdriver.ic.AbstractView;
 import ru.iitdgroup.tests.webdriver.ic.ICXPath;
 
-import static java.lang.Thread.sleep;
-
 /**
  * Вьюшка, которая содержит таблицу
  * Позволяет работать с фильтрами
@@ -27,31 +25,32 @@ public interface TabledView<S extends AbstractView> {
                 });
     }
 
-    default void setTableFilter(String field, String operator, String value) {
-        try {
-            clearTableFilters();
-            getDriver().findElementById("base_btnReportAddFilter").click();
-            sleep(2000);
+    default S setTableFilter(String field, String operator, String value) {
+        clearTableFilters();
+        getDriver().findElementByXPath("//*[text()='Add Filter']").click();
+        getSelf().sleep(2);
 
-            Select columnField = new Select(getDriver()
-                    .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
-                    .findElements(By.className("af_selectOneChoice_content"))
-                    .get(0));
-            columnField.selectByVisibleText(field);
-            sleep(2000);
-            Select operatorField = new Select(getDriver()
-                    .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
-                    .findElements(By.className("af_selectOneChoice_content"))
-                    .get(1));
-            operatorField.selectByVisibleText(operator);
+        Select columnField = new Select(getDriver()
+                .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
+                .findElements(By.className("af_selectOneChoice_content"))
+                .get(0));
+        columnField.selectByVisibleText(field);
+        getSelf().sleep(2);
 
-            icxpath()
-                    .element("Value")
-                    .following(ICXPath.WebElements.INPUT)
-                    .type(value);
-        } catch (InterruptedException e) {
-            throw new IllegalStateException(e);
-        }
+        Select operatorField = new Select(getDriver()
+                .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
+                .findElements(By.className("af_selectOneChoice_content"))
+                .get(1));
+        operatorField.selectByVisibleText(operator);
+        getSelf().sleep(2);
+
+        WebElement valueInput = getDriver().findElementByXPath("//*[@id='custom_tableReportFilters']//following::input[2]");
+        valueInput.click();
+        valueInput.clear();
+        valueInput.click();
+        valueInput.sendKeys(value);
+
+        return getSelf();
     }
 
     default S refreshTable() {

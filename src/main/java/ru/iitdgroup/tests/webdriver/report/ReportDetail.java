@@ -3,14 +3,14 @@ package ru.iitdgroup.tests.webdriver.report;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.webdriver.ic.AbstractView;
 
-public class Report extends AbstractView<Report> {
+public class ReportDetail extends AbstractView<ReportDetail> {
 
-    public Report(RemoteWebDriver driver) {
+    public ReportDetail(RemoteWebDriver driver) {
         super(driver);
     }
 
     @Override
-    public Report getSelf() {
+    public ReportDetail getSelf() {
         return this;
     }
 }
