@@ -16,11 +16,11 @@ import javax.xml.bind.JAXBException;
 import javax.xml.soap.SOAPException;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.*;
 
 public abstract class RSHBCaseTest {
 
@@ -91,6 +91,8 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_ADD_QUARATINE_LOCATION = "Добавлено новое значение в справочник 'Карантин месторасположения'";
     protected static final String RESULT_RULE_APPLY_BY_SUM_GR_25 = "Значения пороговых величин превышены";
     protected static final String RESULT_RULE_NOT_APPLY_BY_CONF_GR_25 = "Правило не применилось (проверка по настройкам правила)";
+    protected static final String RESULT_EMPTY_MAXAMOUNTLIST = "Пустой список PaymentMaxAmount для Клиента";
+    protected static final String RESULT_STRING_WITH_PARAMETER = "Cумма транзакции=%s  максимальная транзакция=%s  конфигурация правила=%s";
 
 
 
@@ -157,10 +159,7 @@ public abstract class RSHBCaseTest {
     }
 
     protected Database getDatabase() {
-        if (database == null) {
-            database = new Database(getProps());
-        }
-        return database;
+        return new Database(getProps());
     }
 
     protected String[][] getResults(String ruleName) {
@@ -190,6 +189,25 @@ public abstract class RSHBCaseTest {
         String[][] dbResult = getResults(getRuleName());
         assertEquals(ruleResult, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
+    }
+
+    protected void assertPaymentMaxAmount(Long clientId, String txType, BigDecimal amount) {
+        try {
+            String[][] result = getDatabase()
+                    .select()
+                    .field("CLIENT_DBO_ID")
+                    .field("MAX_AMOUNT")
+                    .from("PAYMENT_MAX_AMOUNT")
+                    .with("object_type", "=", "'" + txType + "'")
+                    .with("CLIENT_DBO_ID", "=", clientId.toString())
+                    .with("MAX_AMOUNT", "=", amount.toString())
+                    .sort("CLIENT_DBO_ID", true)
+                    .setFormula("AND")
+                    .get();
+            assertEquals(1, result.length);
+        } catch (SQLException e) {
+            fail(e.getMessage());
+        }
     }
 
     protected void assertTableField(String fieldName, String expectedValue) {

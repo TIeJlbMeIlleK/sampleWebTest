@@ -21,7 +21,7 @@ public class Database implements AutoCloseable {
     List<String> joins = new ArrayList<>();
     List<Pair<String, Boolean>> sortFields = new ArrayList<>();
     int offset = 0;
-    Integer limit;
+    Integer limit = null;
 
     public Database(TestProperties props) {
         this.props = props;
