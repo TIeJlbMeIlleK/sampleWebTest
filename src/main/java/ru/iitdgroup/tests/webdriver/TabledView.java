@@ -20,9 +20,9 @@ public interface TabledView<S extends AbstractView> {
                 });
     }
 
-    default void setTableFilter(String field, String operator, String value) {
+    default S setTableFilter(String field, String operator, String value) {
         clearTableFilters();
-        getSelf().getDriver().findElementById("base_btnReportAddFilter").click();
+        getSelf().getDriver().findElementByXPath("//*[text()='Add Filter']").click();
         getSelf().sleep(2);
 
         Select columnField = new Select(getSelf().getDriver()
@@ -35,12 +35,15 @@ public interface TabledView<S extends AbstractView> {
                 .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
                 .findElements(By.className("af_selectOneChoice_content"))
                 .get(1));
-        operatorField.selectByVisibleText(operator);
+        operatorField.selectByVisibleText(operator);getSelf().sleep(2);
 
-        getSelf().icxpath()
-                .element("Value")
-                .following(ICXPath.WebElements.INPUT)
-                .type(value);
+        WebElement valueInput = getDriver().findElementByXPath("//*[@id='custom_tableReportFilters']//following::input[2]");
+        valueInput.click();
+        valueInput.clear();
+        valueInput.click();
+        valueInput.sendKeys(value);
+
+        return getSelf();
     }
 
     default S refreshTable() {

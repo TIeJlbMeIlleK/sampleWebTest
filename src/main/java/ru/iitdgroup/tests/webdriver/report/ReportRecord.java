@@ -1,24 +1,24 @@
-package ru.iitdgroup.tests.webdriver.alerts;
+package ru.iitdgroup.tests.webdriver.report;
 
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.webdriver.TabledView;
 import ru.iitdgroup.tests.webdriver.ic.AbstractView;
 
-public class Alerts extends AbstractView<Alerts> implements TabledView {
+public class ReportRecord extends AbstractView<ReportRecord> implements TabledView<ReportRecord> {
 
-    public Alerts(RemoteWebDriver driver) {
+    public ReportRecord(RemoteWebDriver driver) {
         super(driver);
     }
 
-    public AlertRecord openFirst() {
+    public ReportDetail openFirst() {
         driver.findElementByXPath("//div[@class='panelTable af_table']/table[@class='af_table_content']/tbody/tr[2]")
                 .click();
-        waitUntil("//img[@title='New Case']");
-        return new AlertRecord(driver);
+        waitUntil("//a[@id='btnEdit']");
+        return new ReportDetail(driver);
     }
 
     @Override
-    public Alerts getSelf() {
+    public ReportRecord getSelf() {
         return this;
     }
 }

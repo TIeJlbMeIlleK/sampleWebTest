@@ -11,6 +11,7 @@ import ru.iitdgroup.tests.webdriver.alerts.Alerts;
 import ru.iitdgroup.tests.webdriver.importruletable.ImportRuleTable;
 import ru.iitdgroup.tests.webdriver.jobconfiguration.Jobs;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
+import ru.iitdgroup.tests.webdriver.report.Reports;
 import ru.iitdgroup.tests.webdriver.ruleconfiguration.Rules;
 
 import java.io.File;
@@ -141,6 +142,12 @@ public class IC implements AutoCloseable {
         return new Alerts(driver);
     }
 
+    public Reports locateReports() {
+        locateView(TopMenuItem.REPORTS);
+        locateView(TopMenuItem.REPORT_MANAGEMENT);
+        return new Reports(driver);
+    }
+
     private void locateView(TopMenuItem item) {
         driver.findElement(By.linkText(item.getHeading())).click();
     }
@@ -158,7 +165,7 @@ public class IC implements AutoCloseable {
      * @return
      */
     public IC home() {
-        driver.findElementByXPath("//*[@id=\"navigateHomeLinkLogo\"]/img").click();
+        driver.findElementByXPath("//*[@id='navigateHomeLinkLogo']/img").click();
         return this;
     }
 
