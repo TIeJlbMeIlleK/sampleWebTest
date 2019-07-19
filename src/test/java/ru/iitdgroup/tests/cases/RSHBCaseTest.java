@@ -93,6 +93,7 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_RULE_NOT_APPLY_BY_CONF_GR_25 = "Правило не применилось (проверка по настройкам правила)";
     protected static final String RESULT_EMPTY_MAXAMOUNTLIST = "Пустой список PaymentMaxAmount для Клиента";
     protected static final String RESULT_STRING_WITH_PARAMETER = "Cумма транзакции=%s  максимальная транзакция=%s  конфигурация правила=%s";
+    protected static final String RESULT_ANOMAL_TRANSFER = "Превышение порога отклонения от максимальной суммы транзакции Клиента";
 
 
 
@@ -191,7 +192,7 @@ public abstract class RSHBCaseTest {
         assertEquals(description, dbResult[0][1]);
     }
 
-    protected void assertPaymentMaxAmount(Long clientId, String txType, BigDecimal amount) {
+    protected void assertPaymentMaxAmount(String clientId, String txType, BigDecimal amount) {
         try {
             String[][] result = getDatabase()
                     .select()
@@ -199,7 +200,7 @@ public abstract class RSHBCaseTest {
                     .field("MAX_AMOUNT")
                     .from("PAYMENT_MAX_AMOUNT")
                     .with("object_type", "=", "'" + txType + "'")
-                    .with("CLIENT_DBO_ID", "=", clientId.toString())
+                    .with("CLIENT_DBO_ID", "=", clientId)
                     .with("MAX_AMOUNT", "=", amount.toString())
                     .sort("CLIENT_DBO_ID", true)
                     .setFormula("AND")

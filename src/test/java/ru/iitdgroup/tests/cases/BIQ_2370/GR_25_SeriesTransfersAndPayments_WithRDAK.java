@@ -118,7 +118,7 @@ public class GR_25_SeriesTransfersAndPayments_WithRDAK extends RSHBCaseTest {
         transactionData.getOuterTransfer().setAmountInSourceCurrency(new BigDecimal("2000.00"));
         transactionData.getClientDevice().getPC().setIpAddress("121.152.13."+rand.nextInt(100));
         sendAndAssert(transaction);
-        getIC().locateAlerts().openLastRecord().action("Подтвердить").sleep(3);
+        getIC().locateAlerts().openFirst().action("Подтвердить").sleep(3);
         assertTableField("Resolution:","Правомочно");
         assertTableField("Идентификатор клиента:",clientIds.get(0));
         getIC().locateRules()

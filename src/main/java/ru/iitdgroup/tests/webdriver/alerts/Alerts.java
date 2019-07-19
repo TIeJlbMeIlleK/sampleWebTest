@@ -10,7 +10,7 @@ public class Alerts extends AbstractView<Alerts> implements TabledView {
         super(driver);
     }
 
-    public AlertRecord openLastRecord() {
+    public AlertRecord openFirst() {
         driver.findElementByXPath("//div[@class='panelTable af_table']/table[@class='af_table_content']/tbody/tr[2]").click();
         waitUntil("//img[@title='New Case']");
         return new AlertRecord(driver);

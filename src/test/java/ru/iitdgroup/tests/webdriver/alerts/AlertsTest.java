@@ -12,7 +12,7 @@ public class AlertsTest extends RSHBCaseTest {
 //    @Test
 //    public void testOpenLastRecord() {
 //        getIC().locateAlerts()
-//                .openLastRecord();
+//                .openFirst();
 //        assertTableField("Место рождения:", "Polevskoy");
 //    }
 
