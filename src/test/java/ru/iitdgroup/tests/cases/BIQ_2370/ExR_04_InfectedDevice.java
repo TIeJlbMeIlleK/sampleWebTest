@@ -43,15 +43,10 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
                 .fillCheckBox("Active:", true)
                 .save()
                 .sleep(5);
-
-
-
         getIC().locateRules()
                 .openRecord(RULE_NAME)
                 .detach("Коды ответов ВЭС")
                 .attach("Коды ответов ВЭС","Идентификатор кода","Equals","46");
-
-        //TODO Нужно дописать  Добавление в правило Код ответа ВЭС
     }
 
     @Test(

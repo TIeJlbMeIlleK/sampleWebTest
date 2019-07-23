@@ -43,7 +43,9 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .selectVisible()
                 .deactivate()
                 .selectRule(RULE_NAME)
-                .activate();
+                .activate()
+                .sleep(5);
+
 
         getIC().close();
     }

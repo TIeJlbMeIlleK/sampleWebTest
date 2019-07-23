@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.cases.BIQ_2370;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -11,6 +12,9 @@ import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -32,12 +36,24 @@ public class RDAKParametrisation extends RSHBCaseTest {
     private final GregorianCalendar time5 = new GregorianCalendar(2019, Calendar.JULY, 8, 10, 0, 0);
     private final GregorianCalendar time6 = new GregorianCalendar(2019, Calendar.JULY, 15, 22, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
+    private String IP = "%s.%s.%s.%s";
+
+    @BeforeClass
+    public void beforeClass() {
+        IP = String.format(IP,
+                ThreadLocalRandom.current().nextInt(0, 255) + "",
+                ThreadLocalRandom.current().nextInt(0, 255) + "",
+                ThreadLocalRandom.current().nextInt(0, 255) + "",
+                ThreadLocalRandom.current().nextInt(0, 255) + "");
+    }
 
 
     @Test(
             description = "Настройка справочника Параметры обработки справочников и флагов"
     )
     public void editTables() {
+//        FIXME требуется доработать после исправления тикета BIQ2370-90
+
         getIC().locateTable(TABLE)
                 .findRowsBy()
                 .match("Описание", "Час начала рабочего дня")
@@ -76,15 +92,21 @@ public class RDAKParametrisation extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Настройка справочника Параметры обработки справочников и флагов",
+            description = "В справочник Параметры TimeOut добавить запись по каналу",
             dependsOnMethods = "editTables"
     )
     public void editTimeOut() {
-        getIC().locateTable(TABLE_2).addRecord()
-                .fillCheckBox("Календарь:", true)
-                .fillInputText("Наименование канала ДБО:","Интернет клиент")
-                .fillInputText("Тип транзакции:","Оплата услуг")
-                .fillInputText("Время (мс):","3600000");
+
+//        FIXME возможно будет предусмотрено в базовой развернутой среде
+        getIC().locateTable(TABLE_2)
+                .setTableFilter("Тип транзакции","Equals","Оплата услуг")
+                .refreshTable()
+                .findRowsBy()
+                .match("Наименование канала ДБО","Интернет клиент")
+                .click()
+                .edit()
+                .fillCheckBox("Календарь:",true)
+                .save();
     }
 
     @Test(
@@ -105,11 +127,17 @@ public class RDAKParametrisation extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Включкние стороннего правила для создания Алерта по транзакции",
+            description = "Настроить WF так, чтобы по всем транзакциям был создан Алерт и была возможность взять в работу по РДАК",
             dependsOnMethods = "enableRuleForAlert"
     )
     public void refactorWorkFlow() {
-        //TODO добавить настройку WF
+        getIC().locateWorkflows()
+                .openRecord("Alert Workflow").openAction("Взять в работу для выполнения РДАК")
+                .clearAllStates()
+                .addFromState("На разбор")
+                .addFromState("Ожидаю выполнения РДАК")
+                .addToState("На выполнении РДАК")
+                .save();
 
 
 //        TODO возможно данная таблица будет заполнена ранее.
@@ -117,19 +145,26 @@ public class RDAKParametrisation extends RSHBCaseTest {
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
             rows.delete();
         }
-        getIC().locateTable(RDAK).addRecord().fillInputText("Текущий статус:","rdak_underfire")
-                .fillInputText("Новый статус:","RDAK_Done").save();
-        getIC().locateTable(RDAK).addRecord().fillInputText("Текущий статус:","Wait_RDAK")
-                .fillInputText("Новый статус:","RDAK_Done").save();
+        getIC().locateTable(RDAK).addRecord()
+                .fillInputText("Текущий статус:","rdak_underfire")
+                .fillInputText("Новый статус:","RDAK_Done")
+                .save();
+        getIC().locateTable(RDAK).addRecord()
+                .fillInputText("Текущий статус:","Wait_RDAK")
+                .fillInputText("Новый статус:","RDAK_Done")
+                .save();
     }
 
     @Test(
-            description = "Включкние стороннего правила для создания Алерта по транзакции",
+            description = "В справочник Производственный календарь добавить даты выходных",
             dependsOnMethods = "refactorWorkFlow"
     )
     public void editWeekendDays() {
 
-
+        Table.Formula rows = getIC().locateTable(WEEKENDDAYS).findRowsBy();
+        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
+            rows.delete();
+        }
 
         getIC().locateTable(WEEKENDDAYS)
                 .addRecord()
@@ -140,8 +175,6 @@ public class RDAKParametrisation extends RSHBCaseTest {
         getIC().locateTable(WEEKENDDAYS)
                 .addRecord()
                 .fillInputText("Выходной день:","08.07.2019").save();
-        getIC().close();
-
     }
 
     @Test(
@@ -181,7 +214,24 @@ public class RDAKParametrisation extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
 
         sendAndAssert(transaction);
-        //TODO нужно реализовать проверку срока РДАК для данной транзакции и параметра SUSPEND
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        getIC().locateAlerts()
+                .openFirst()
+                .action("Взять в работу для выполнения РДАК")
+                .rdak()
+                .sleep(3);
+
+        LocalDateTime from = LocalDateTime
+                .from(transactionData.getDocumentSaveTimestamp().toGregorianCalendar().toZonedDateTime())
+                .plus(1, ChronoUnit.HOURS);
+        assertTableField("Крайний срок проведения РДАК", from.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+
+        //TODO нужно реализовать проверку параметра SUSPEND
     }
 
     @Test(
@@ -197,6 +247,23 @@ public class RDAKParametrisation extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
 
         sendAndAssert(transaction);
+
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        getIC().locateAlerts()
+                .openFirst()
+                .action("Взять в работу для выполнения РДАК")
+                .rdak()
+                .sleep(3);
+
+        LocalDateTime from = LocalDateTime
+                .from(transactionData.getDocumentSaveTimestamp().toGregorianCalendar().toZonedDateTime())
+                .plus(1, ChronoUnit.HOURS);
+        assertTableField("Крайний срок проведения РДАК", from.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
 
     }
 
@@ -214,6 +281,23 @@ public class RDAKParametrisation extends RSHBCaseTest {
 
         sendAndAssert(transaction);
 
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        getIC().locateAlerts()
+                .openFirst()
+                .action("Взять в работу для выполнения РДАК")
+                .rdak()
+                .sleep(3);
+
+        LocalDateTime from = LocalDateTime
+                .from(transactionData.getDocumentSaveTimestamp().toGregorianCalendar().toZonedDateTime())
+                .plus(1, ChronoUnit.HOURS);
+        assertTableField("Крайний срок проведения РДАК", from.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+
     }
 
     @Test(
@@ -229,6 +313,24 @@ public class RDAKParametrisation extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
 
         sendAndAssert(transaction);
+
+
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        getIC().locateAlerts()
+                .openFirst()
+                .action("Взять в работу для выполнения РДАК")
+                .rdak()
+                .sleep(3);
+
+        LocalDateTime from = LocalDateTime
+                .from(transactionData.getDocumentSaveTimestamp().toGregorianCalendar().toZonedDateTime())
+                .plus(1, ChronoUnit.HOURS);
+        assertTableField("Крайний срок проведения РДАК", from.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
 
     }
 
@@ -246,6 +348,23 @@ public class RDAKParametrisation extends RSHBCaseTest {
 
         sendAndAssert(transaction);
 
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        getIC().locateAlerts()
+                .openFirst()
+                .action("Взять в работу для выполнения РДАК")
+                .rdak()
+                .sleep(3);
+
+        LocalDateTime from = LocalDateTime
+                .from(transactionData.getDocumentSaveTimestamp().toGregorianCalendar().toZonedDateTime())
+                .plus(1, ChronoUnit.HOURS);
+        assertTableField("Крайний срок проведения РДАК", from.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+
     }
     @Test(
             description = "Произвести транзакцию 6 Перевод на счет от Клиента 2, сумма 1000",
@@ -260,6 +379,23 @@ public class RDAKParametrisation extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
 
         sendAndAssert(transaction);
+
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        getIC().locateAlerts()
+                .openFirst()
+                .action("Взять в работу для выполнения РДАК")
+                .rdak()
+                .sleep(3);
+
+        LocalDateTime from = LocalDateTime
+                .from(transactionData.getDocumentSaveTimestamp().toGregorianCalendar().toZonedDateTime())
+                .plus(1, ChronoUnit.HOURS);
+        assertTableField("Крайний срок проведения РДАК", from.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
 
     }
 

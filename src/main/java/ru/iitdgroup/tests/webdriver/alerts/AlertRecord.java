@@ -18,6 +18,12 @@ public class AlertRecord extends AbstractEdit<AlertRecord> {
         return getSelf();
     }
 
+    public AlertRecord rdak() {
+        driver.findElementByLinkText("РДАК").click();
+        sleep(3);
+        return getSelf();
+    }
+
     @Override
     public AlertRecord getSelf() {
         return this;

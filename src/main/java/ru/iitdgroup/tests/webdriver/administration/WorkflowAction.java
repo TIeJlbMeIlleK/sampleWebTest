@@ -67,6 +67,11 @@ public class WorkflowAction extends AbstractEdit<WorkflowAction> {
                 });
     }
 
+    public WorkflowAction addFromState(String state) {
+        selectTransition(WorkflowTransition.FROM, state);
+        return getSelf();
+    }
+
     public WorkflowAction addFromState(WorkflowActionState state) {
         selectTransition(WorkflowTransition.FROM, state.getVisibleName());
         return getSelf();
@@ -82,6 +87,11 @@ public class WorkflowAction extends AbstractEdit<WorkflowAction> {
 
     public WorkflowAction addToState(WorkflowActionState state) {
         selectTransition(WorkflowTransition.TO, state.getVisibleName());
+        return getSelf();
+    }
+
+    public WorkflowAction addToState(String state) {
+        selectTransition(WorkflowTransition.TO, state);
         return getSelf();
     }
 

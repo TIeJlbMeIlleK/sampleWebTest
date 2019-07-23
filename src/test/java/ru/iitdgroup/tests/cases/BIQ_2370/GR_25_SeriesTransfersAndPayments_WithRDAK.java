@@ -64,7 +64,13 @@ public class GR_25_SeriesTransfersAndPayments_WithRDAK extends RSHBCaseTest {
     )
     public void refactorWF(){
 
-//TODO нужно дописать настройку WF
+        getIC().locateWorkflows()
+                .openRecord("Alert Workflow").openAction("Взять в работу для выполнения РДАК")
+                .clearAllStates()
+                .addFromState("На разбор")
+                .addFromState("Ожидаю выполнения РДАК")
+                .addToState("На выполнении РДАК")
+                .save();
 
 
 
@@ -118,6 +124,8 @@ public class GR_25_SeriesTransfersAndPayments_WithRDAK extends RSHBCaseTest {
         transactionData.getOuterTransfer().setAmountInSourceCurrency(new BigDecimal("2000.00"));
         transactionData.getClientDevice().getPC().setIpAddress("121.152.13."+rand.nextInt(100));
         sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
+
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(3);
         assertTableField("Resolution:","Правомочно");
         assertTableField("Идентификатор клиента:",clientIds.get(0));
@@ -134,7 +142,6 @@ public class GR_25_SeriesTransfersAndPayments_WithRDAK extends RSHBCaseTest {
             e.printStackTrace();
         }
 
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
     }
 
     @Test(

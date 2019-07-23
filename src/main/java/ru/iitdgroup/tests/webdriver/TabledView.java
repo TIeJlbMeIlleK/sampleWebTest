@@ -37,11 +37,9 @@ public interface TabledView<S extends AbstractView> {
                 .get(1));
         operatorField.selectByVisibleText(operator);getSelf().sleep(2);
 
-        WebElement valueInput = getDriver().findElementByXPath("//*[@id='custom_tableReportFilters']//following::input[2]");
-        valueInput.click();
-        valueInput.clear();
-        valueInput.click();
-        valueInput.sendKeys(value);
+        getSelf().sleep(3);
+
+        getSelf().icxpath().element("Value").following(ICXPath.WebElements.INPUT).type(value);
 
         return getSelf();
     }

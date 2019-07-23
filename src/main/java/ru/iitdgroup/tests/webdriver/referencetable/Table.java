@@ -2,6 +2,7 @@ package ru.iitdgroup.tests.webdriver.referencetable;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import ru.iitdgroup.tests.webdriver.TabledView;
 import ru.iitdgroup.tests.webdriver.ic.AbstractView;
 import ru.iitdgroup.tests.webdriver.ic.ICXPath;
 
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.testng.Assert.fail;
 
-public class Table extends AbstractView<Table> {
+public class Table extends AbstractView<Table> implements TabledView<Table> {
 
     public static final int FIRST_ROW = 2; //данные в IC начинаются со 2-ой строчки
     public static final int FIRST_COL = 4; //данные в IC начинаются с 4-ой колонки

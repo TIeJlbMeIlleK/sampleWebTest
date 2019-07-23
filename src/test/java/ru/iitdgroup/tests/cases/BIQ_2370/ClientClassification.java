@@ -17,19 +17,17 @@ public class ClientClassification extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_25_SeriesTransfersAndPayments";
     private static final String CLIENT_GROUP = "(Policy_parameters) Наименования групп клиентов";
-    private static final String RDAK = "(Policy_parameters) Перечень статусов для которых применять РДАК";
-
     private final GregorianCalendar time = new GregorianCalendar(1999, Calendar.JULY, 10, 0, 0, 0);
-
     private final List<String> clientIds = new ArrayList<>();
     private final List<String> clientIdsWithoutBirthday = new ArrayList<>();
 
 
-
     @Test(
-            description = "Настройка и включение правил"
+            description = "Настройка и выключение правил"
     )
     public void enableRules() {
+
+//        FIXME требуется проверить после полной реализации доработки по группам клиетов
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
@@ -37,7 +35,7 @@ public class ClientClassification extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Настроить WF для попадания первой транзакции на РДАК",
+            description = "Создать 4 группы по клиентам",
             dependsOnMethods = "enableRules"
     )
         public void editClientGroup(){
@@ -57,10 +55,10 @@ public class ClientClassification extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Настроить справочник Признаки групп клиентов",
+            description = "Для Группы 3 указать Приоритет группы = 2 и Возраст = 20 Для Группы 4 указать Приоритет группы = 1 и Возраст = 20",
             dependsOnMethods = "editClientGroup"
     )
-    public void editCriOfGroup(){
+    public void editCriteriesOfGroup(){
 
         Table.Formula rows = getIC().locateTable("(Policy_parameters) Признаки групп клиентов").findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
@@ -79,11 +77,11 @@ public class ClientClassification extends RSHBCaseTest {
 
     @Test(
             description = "Создаем клиента",
-            dependsOnMethods = "editCriOfGroup"
+            dependsOnMethods = "editCriteriesOfGroup"
     )
     public void client() {
         try {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 2; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
 
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
@@ -129,17 +127,31 @@ public class ClientClassification extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Перейти в справочник Наименование групп клиентов Перейти в Группу №1, добавить Клиента №1 в Клиенты, добавленные вручную, с помощью кнопки Attach Перейти в Группу №2, добавить Клиента №1 в Клиенты, добавленные автоматически, с помощью кнопки Attach",
+            description = "Перейти в справочник Наименование групп клиентов Перейти в Группу №1, добавить Клиента №1 в " +
+                    "Клиенты, добавленные вручную, с помощью кнопки Attach Перейти в Группу №2, добавить Клиента №1 в Клиенты, " +
+                    "добавленные автоматически, с помощью кнопки Attach",
             dependsOnMethods = "editClientGroup"
     )
     public void workWithClient1And2(){
 
-        getIC().locateTable(CLIENT_GROUP).findRowsBy().match("Имя группы","Group_1");
+        getIC().locateTable(CLIENT_GROUP).findRowsBy()
+                .match("Имя группы","Group_1")
+                .select()
+                .attach("Клиенты, добавленные автоматически","Идентификатор клиента","Equals", clientIds.get(0));
 
 
-        getIC().locateTable(CLIENT_GROUP).findRowsBy().match("Имя группы","Group_1");
+        getIC().locateTable(CLIENT_GROUP).findRowsBy()
+                .match("Имя группы","Group_2")
+                .select()
+                .attach("Клиенты, добавленные вручную","Идентификатор клиента","Equals", clientIds.get(0));
 
-//        TODO требуется дописать
+        getIC().locateReports().openFolder("Бизнес-сущности")
+                .openRecord("Список клиентов")
+                .setTableFilter("Идентификатор клиента","Equals", clientIds.get(0))
+                .openFirst();
+        assertTableField("ClientGroupAutomatic:","Group_2");
+        assertTableField("Имя группы:","Group_1");
+
     }
 
     @Test(
@@ -160,8 +172,38 @@ public class ClientClassification extends RSHBCaseTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        getIC().locateReports().openFolder("Бизнес-сущности")
+                .openRecord("Список клиентов")
+                .setTableFilter("Идентификатор клиента","Equals", clientIds.get(1))
+                .openFirst();
+        assertTableField("ClientGroupAutomatic:","Group_3");
 
-        //        TODO требуется дописать проверку отнесения Клиента №2 в нужную нам группу
+    }
+
+    @Test(
+            description = "Отправить транзакцию от клиента без указанного дня рождения с идентичными критериями для попадания в Группу 3 и Группу 4",
+            dependsOnMethods = "workWithClient3And4"
+    )
+    public void transactionOfClientWithoutBirthday(){
+
+        Transaction transaction = getTransactionSERVICE_PAYMENT();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIdsWithoutBirthday.get(0));
+        sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        getIC().locateReports().openFolder("Бизнес-сущности")
+                .openRecord("Список клиентов")
+                .setTableFilter("Идентификатор клиента","Equals", clientIdsWithoutBirthday.get(0))
+                .openFirst();
+        assertTableField("ClientGroupAutomatic:",null);
+
     }
     @Override
     protected String getRuleName() {
