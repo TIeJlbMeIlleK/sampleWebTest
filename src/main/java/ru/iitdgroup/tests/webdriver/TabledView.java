@@ -35,11 +35,40 @@ public interface TabledView<S extends AbstractView> {
                 .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
                 .findElements(By.className("af_selectOneChoice_content"))
                 .get(1));
-        operatorField.selectByVisibleText(operator);getSelf().sleep(2);
+        operatorField.selectByVisibleText(operator);
 
         getSelf().sleep(3);
 
         getSelf().icxpath().element("Value").following(ICXPath.WebElements.INPUT).type(value);
+
+        return getSelf();
+    }
+
+    //FIXME поправить в случае поля Active (пример Список клиентов)
+    default S setTableFilterWithActive(String field, String operator, String value) {
+        clearTableFilters();
+        getSelf().getDriver().findElementByXPath("//*[text()='Add Filter']").click();
+        getSelf().sleep(2);
+
+        Select columnField = new Select(getSelf().getDriver()
+                .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
+                .findElements(By.className("af_selectOneChoice_content"))
+                .get(0));
+        columnField.selectByVisibleText(field);
+        getSelf().sleep(2);
+        Select operatorField = new Select(getSelf().getDriver()
+                .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
+                .findElements(By.className("af_selectOneChoice_content"))
+                .get(1));
+        operatorField.selectByVisibleText(operator);
+
+        getSelf().sleep(3);
+
+        WebElement valueInput = getSelf().getDriver().findElementByXPath("//*[@id='custom_tableReportFilters']//following::input[2]");
+        valueInput.click();
+        valueInput.clear();
+        valueInput.click();
+        valueInput.sendKeys(value);
 
         return getSelf();
     }
@@ -51,12 +80,26 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
+    default S runReport() {
+        getSelf().getDriver().findElementByXPath("//img[@title='Run Report']").click();
+        getSelf().sleep(2);
+
+        return getSelf();
+    }
+
     default S detach(String group) {
-        getGroupElement(group).findElement(By.xpath("//a[text()='Show All']")).click();
+        boolean exist = true;
+        for (WebElement webElement : getSelf().getDriver().findElementsByXPath(String.format("%s/../../../..//a[text()='Show All']", getGroupElement(group)))) {
+            webElement.click();
+            exist = false;
+        }
+        if (!exist) {
+            return getSelf();
+        }
         getSelf().sleep(3);
-        getGroupElement(group).findElement(By.xpath("//input[@type='checkbox']")).click();
+        getSelf().getDriver().findElementByXPath(String.format("%s/../../../..//following::input[@type='checkbox']", getGroupElement(group))).click();
         getSelf().sleep(1);
-        getGroupElement(group).findElement(By.xpath("//img[@title='Detach']")).click();
+        getSelf().getDriver().findElementByXPath(String.format("%s/../../../..//following::img[@title='Detach']", getGroupElement(group))).click();
         getSelf().sleep(1);
         getSelf().getDriver().findElementByXPath("//button[2]/span[text()='Yes']").click();
         getSelf().sleep(3);
@@ -64,7 +107,7 @@ public interface TabledView<S extends AbstractView> {
     }
 
     default S attach(String group, String field, String operator, String value) {
-        getGroupElement(group).findElement(By.xpath("//img[@title='Attach']")).click();
+        getSelf().getDriver().findElementByXPath(String.format("%s/../../../..//img[@title='Attach']", getGroupElement(group))).click();
         getSelf().waitUntil("//*[@title='Refresh']");
         clearTableFilters();
         setTableFilter(field, operator, value);
@@ -82,8 +125,8 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
-    default WebElement getGroupElement(String group) {
-        return getSelf().getDriver().findElementByXPath(String.format("//div[@class='%s' and text()='%s']", "customTitle ellipsisContent", group));
+    default String getGroupElement(String group) {
+        return String.format("//div[@class='%s' and text()='%s']", "customTitle ellipsisContent", group);
     }
 
     S getSelf();

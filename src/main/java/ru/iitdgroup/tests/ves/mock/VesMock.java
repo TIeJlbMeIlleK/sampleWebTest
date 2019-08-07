@@ -98,6 +98,14 @@ public class VesMock implements Closeable {
         return this;
     }
 
+    public String getVesResponse() {
+        return vesResponse;
+    }
+
+    public void setVesResponse(String vesResponse) {
+        this.vesResponse = vesResponse;
+    }
+
     public String getVesExtendResponse() {
         return vesExtendResponse;
     }

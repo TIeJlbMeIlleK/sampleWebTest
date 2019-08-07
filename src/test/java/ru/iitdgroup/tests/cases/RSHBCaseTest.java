@@ -30,6 +30,7 @@ public abstract class RSHBCaseTest {
     protected static final String REGULAR_TRANSACTION = "Правило не применяется для регулярных транзакций";
     protected static final String REGULAR_TRANSACTION_1 = "Правило не применяется для регулярных транзакций.";
     protected static final String RESULT_RULE_NOT_APPLY = "Правило не применилось";
+    protected static final String RESULT_RULE_NOT_APPLY_EXR_07 = "Правило не применилось.";
     protected static final String RESULT_RULE_NOT_APPLY_BY_CONF = "Правило не применилось (проверка по настрокам правила)";
     protected static final String RESULT_RULE_NOT_APPLY_EMPTY = "В выборке только анализируемая транзакция";
     protected static final String RESULT_RULE_APPLY_BY_LENGTH = "Количество транзакций больше параметра Длина серии";
@@ -72,6 +73,8 @@ public abstract class RSHBCaseTest {
     protected static final String NO_IFV = "Нет индентификатора производителя (IFV).";
     protected static final String DISABLED_INTEGR_VES = "Правило не применяется. В системе выключена проверка INTEGR_VES.";
     protected static final String DISABLED_INTEGR_VES_1 = "Правило не применяется, в системе выключена проверка INTEGR_VES";
+    protected static final String DISABLED_IntegrVES1 = "Правило не применяется, в системе выключена проверка IntegrVES1";
+    protected static final String BIG_TRANSFER = "Cумма транзакции больше значение параметра «Крупный перевод»";
     protected static final String MISSING_DEVICE_1 = "В системе нет данных об устройстве клиента";
     protected static final String INTERNET_BANK_TRANSACTION = "Правило не применяется для платежей интернет банка";
     protected static final String NO_IMEI_EXR9 = "Нет индентификатора производителя (IMEI)";
@@ -94,6 +97,15 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_EMPTY_MAXAMOUNTLIST = "Пустой список PaymentMaxAmount для Клиента";
     protected static final String RESULT_STRING_WITH_PARAMETER = "Cумма транзакции=%s  максимальная транзакция=%s  конфигурация правила=%s";
     protected static final String RESULT_ANOMAL_TRANSFER = "Превышение порога отклонения от максимальной суммы транзакции Клиента";
+    protected static final String GOOD_VES_CODE = "ВЭС не обнаружил опасных воздействий на устройство";
+    protected static final String REQUIRE_VES_DATA = "Полученные от ВЭС коды ответов не добавлены в настройку правила";
+    protected static final String NOT_CARD_OR_SERVICE = "Транзакция не на карту и не сервисный";
+    protected static final String EMPTY_ADDITIONAL_FIELDS = "Пустой список дополнительных свойств";
+    protected static final String IN_WHITE_LIST = "Получатель найден в списке разрешенных";
+    protected static final String ADD_TO_QUARANTINE_LIST = "Получатель добавлен в список карантина";
+    protected static final String PAYEE_NOT_IDENTIFIED = "Получатель не идентифицирован";
+    protected static final String RESULT_EXIST_QUARANTINE_LOCATION = "Получатель уже находится в карантине";
+    protected static final String YOUNG_QUARANTINE = "Получатель недавно находится в карантине";
 
 
 

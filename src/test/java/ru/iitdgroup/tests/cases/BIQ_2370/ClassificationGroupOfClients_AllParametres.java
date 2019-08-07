@@ -17,12 +17,16 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+//TODO требуется доделать после исправления тикета BIQ2370-95
+
 public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_25_SeriesTransfersAndPayments";
     private static final String CLIENT_GROUP = "(Policy_parameters) Наименования групп клиентов";
     private static final String RDAK = "(Policy_parameters) Перечень статусов для которых применять РДАК";
 
+
+    private final GregorianCalendar timeTransaction = new GregorianCalendar(2019, Calendar.JULY, 10, 0, 0, 0);
     private final GregorianCalendar time = new GregorianCalendar(1998, Calendar.JULY, 10, 0, 0, 0);
     private final GregorianCalendar time2 = new GregorianCalendar(2003, Calendar.DECEMBER, 12, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
@@ -75,16 +79,17 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
             dependsOnMethods = "client"
     )
     public void editClientGroup(){
-
-        Table.Formula rows = getIC().locateTable(CLIENT_GROUP).findRowsBy();
+        Table.Formula rows = getIC().locateTable("(Policy_parameters) Признаки групп клиентов").findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
             rows.delete();
         }
+
+        Table.Formula rows1 = getIC().locateTable(CLIENT_GROUP).findRowsBy();
+        if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {
+            rows1.delete();
+        }
         getIC().locateTable(CLIENT_GROUP).addRecord().fillInputText("Имя группы:","Group_1")
-                .save();
-        getIC().locateTable(CLIENT_GROUP).findRowsBy()
-                .match("Имя группы","Group_1")
-                .click()
+                .save()
                 .attach("Клиенты, добавленные вручную","Идентификатор клиента","Equals", clientIds.get(0));
 //        FIXME требуется доработать
 
@@ -116,11 +121,14 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
 
         getIC().locateTable("(Policy_parameters) Признаки групп клиентов").addRecord().fillInputText("Наименование группы:","Group_2")
                 .fillInputText("Приоритет группы:","2")
+                .fillInputText("Возраст клиента:","20")
                 .fillInputText("Сумма транзакций (совершал):","2000")
-                .fillCheckBox("Признак совершения транзакций Клиентом:",true)
+                .fillInputText("Период времени (совершал):","7")
+                .fillCheckBox("Признак  совершения транзакций Клиентом:",true)
                 .save();
 
         getIC().locateTable("(Policy_parameters) Признаки групп клиентов").addRecord().fillInputText("Наименование группы:","Group_3")
+                .fillInputText("Приоритет группы:","2")
                 .fillCheckBox("Группа по умолчанию:", true)
                 .save();
 
@@ -132,7 +140,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
                 .fillInputText("Период времени (не совершал):","7")
                 .fillInputText("Сумма транзакций (совершал):","10000")
                 .fillInputText("Период времени (совершал):","7")
-                .fillCheckBox("Признак совершения транзакций Клиентом:",true)
+                .fillCheckBox("Признак  совершения транзакций Клиентом:",true)
                 .fillCheckBox("Признак не совершения транзакций Клиентом:",true)
                 .fillCheckBox("Группа по умолчанию:",false)
                 .save();
@@ -145,6 +153,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
     public void transactionOfClient1(){
         Transaction transaction = getTransactionOUTER_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData.getOuterTransfer().withAmountInSourceCurrency(new BigDecimal(2000.00));
         transactionData.getClientIds().withDboId(clientIds.get(0));
         sendAndAssert(transaction);
 
@@ -156,12 +165,10 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
 
         getIC().locateReports().openFolder("Бизнес-сущности")
                 .openRecord("Список клиентов")
-                .setTableFilter("Идентификатор клиента","Equals", clientIds.get(0))
+                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds.get(0)).runReport()
                 .openFirst();
         assertTableField("Группа клиента (ручное назначение):","Group_1");
-        assertTableField("Предыдущая группа клиента:",null);
-
-
+        assertTableField("Предыдущая группа клиента:","");
     }
 
     @Test(
@@ -173,20 +180,22 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
         Transaction transaction = getTransactionOUTER_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData.getClientIds().withDboId(clientIds.get(1));
+        transactionData.getOuterTransfer()
+                .withAmountInSourceCurrency(new BigDecimal(1000.00));
         sendAndAssert(transaction);
 
         try {
-            Thread.sleep(10_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         getIC().locateReports().openFolder("Бизнес-сущности")
                 .openRecord("Список клиентов")
-                .setTableFilter("Идентификатор клиента","Equals", clientIds.get(1))
+                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds.get(1)).runReport()
                 .openFirst();
         assertTableField("Группа клиента (автоматическое назначение):","Group_1");
-        assertTableField("Предыдущая группа клиента:",null);
+        assertTableField("Предыдущая группа клиента:","");
 
     }
 
@@ -200,7 +209,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData.getClientIds().withDboId(clientIds.get(1));
         transactionData.getOuterTransfer()
-                .withAmountInSourceCurrency(new BigDecimal(1000.00));
+                .withAmountInSourceCurrency(new BigDecimal(1001.00));
         sendAndAssert(transaction);
 
         try {
@@ -211,7 +220,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
 
         getIC().locateReports().openFolder("Бизнес-сущности")
                 .openRecord("Список клиентов")
-                .setTableFilter("Идентификатор клиента","Equals", clientIds.get(1))
+                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds.get(1)).runReport()
                 .openFirst();
         assertTableField("Группа клиента (автоматическое назначение):","Group_2");
         assertTableField("Предыдущая группа клиента:","Group_1");
@@ -239,10 +248,10 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
 
         getIC().locateReports().openFolder("Бизнес-сущности")
                 .openRecord("Список клиентов")
-                .setTableFilter("Идентификатор клиента","Equals", clientIds.get(2))
+                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds.get(2)).runReport()
                 .openFirst();
         assertTableField("Группа клиента (автоматическое назначение):","Group_2");
-        assertTableField("Предыдущая группа клиента:",null);
+        assertTableField("Предыдущая группа клиента:","");
     }
 
     @Test(
@@ -285,10 +294,10 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
 
         getIC().locateReports().openFolder("Бизнес-сущности")
                 .openRecord("Список клиентов")
-                .setTableFilter("Идентификатор клиента","Equals", clientIds_2.get(0))
+                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds_2.get(0)).runReport()
                 .openFirst();
         assertTableField("Группа клиента (автоматическое назначение):","Group_3");
-        assertTableField("Предыдущая группа клиента:",null);
+        assertTableField("Предыдущая группа клиента:","");
 
     }
 
@@ -325,10 +334,10 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
 
         getIC().locateReports().openFolder("Бизнес-сущности")
                 .openRecord("Список клиентов")
-                .setTableFilter("Идентификатор клиента","Equals", clientIds.get(3))
+                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds.get(3)).runReport()
                 .openFirst();
         assertTableField("Группа клиента (автоматическое назначение):","FULL");
-        assertTableField("Предыдущая группа клиента:",null);
+        assertTableField("Предыдущая группа клиента:","");
 
         getIC().close();
         System.out.println("Тест кейс выполнен успешно!");
@@ -343,8 +352,8 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
     private Transaction getTransactionOUTER_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER.xml");
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(timeTransaction))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(timeTransaction));
         return transaction;
     }
 

@@ -2,6 +2,7 @@ package ru.iitdgroup.tests.cases;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
+import ru.iitdgroup.intellinx.dbo.client.AndroidDevice;
 import ru.iitdgroup.intellinx.dbo.client.IOSDevice;
 import ru.iitdgroup.intellinx.dbo.client.PCDevice;
 import ru.iitdgroup.intellinx.dbo.client.PlatformKind;
@@ -32,8 +33,6 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
             description = "Настройка и включение правила"
     )
     public void enableRules() {
-        vesMock.run();
-
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
@@ -44,8 +43,6 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
                 .fillCheckBox("Active:", true)
                 .save()
                 .sleep(5);
-
-
 
     }
 
@@ -68,7 +65,6 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
                 .edit()
                 .fillInputText("Значение:", "1").save();
 
-        getIC().close();
     }
 //    @Test(
 //            description = "Установить значение ожидания ответа от ВЭС меньше значения времени отправки данного ответа",
@@ -115,6 +111,13 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
     )
 
     public void step1() {
+        vesMock.run();
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(true);
@@ -123,6 +126,11 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, REGULAR_TRANSACTION_1);
     }
 
@@ -141,6 +149,11 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
         transactionData
                 .setClientDevice(null);
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, MISSING_DEVICE);
     }
     @Test(
@@ -163,6 +176,11 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
                 .getAndroid()
                 .setIMSI("1567156156741");
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, NO_IMEI);
     }
 
@@ -186,6 +204,11 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
                 .getAndroid()
                 .setIMSI(null);
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, NO_IMSI);
     }
 
@@ -220,6 +243,11 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
         transactionData.getClientDevice().setPlatform(PlatformKind.IOS);
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, NO_IFV);
     }
 
@@ -228,7 +256,18 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
             dependsOnMethods = "step5"
     )
     public void step6() {
-        vesMock.stop();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "0").save();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "0").save();
 
 
         Transaction transaction = getTransaction();
@@ -251,11 +290,148 @@ public class ExR_07_Devices_NoDevice extends RSHBCaseTest {
         transactionData.setChannel(ChannelType.INTERNET_CLIENT);
         transactionData.getClientDevice().setPlatform(PlatformKind.PC);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
-
-
-
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertLastTransactionRuleApply(NOT_TRIGGERED, DISABLED_INTEGR_VES);
     }
+
+    @Test(
+            description = "Включить интеграцию с ВЭС, провести транзакцию № 7",
+            dependsOnMethods = "step6"
+    )
+    public void step7() {
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1").save();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1").save();
+
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setAndroid(new AndroidDevice());
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setIpAddress("192.154.1.85");
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setAuthByFingerprint(false);
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setIMEISV("123");
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setMSISDN("123");
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setOSVersion("12");
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setSPN("MTS RUS");
+
+        sendAndAssert(transaction);
+
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_IMSI + "" + NO_IMEI);
+    }
+
+    @Test(
+            description = "провести транзакцию № 8",
+            dependsOnMethods = "step7"
+    )
+    public void step8() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setAndroid(new AndroidDevice());
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setIpAddress("192.154.1.85");
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setAuthByFingerprint(false);
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setIMEISV("123");
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setMSISDN("123");
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setOSVersion("12");
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setSPN("MTS RUS");
+        transactionData.getClientDevice()
+                .getAndroid()
+                .setSPN("MTS RUS");
+
+        sendAndAssert(transaction);
+        vesMock.stop();
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_IMSI + "" + NO_IMEI);
+    }
+
+    @Test(
+            description = "Выполнить транзакцию № 8 с несуществующего в ВЭС sessionid (DFP не должно поступить в САФ от ВЭС)",
+            dependsOnMethods = "step8"
+    )
+    public void step9() {
+        vesMock.stop();
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setPC(new PCDevice());
+        transactionData.getClientDevice()
+                .getPC()
+                .setIpAddress("123.22.57.8");
+        transactionData.getClientDevice()
+                .getPC()
+                .setBrowserData("45");
+        transactionData.getClientDevice()
+                .getPC()
+                .setUserAgent("415");
+        transactionData.setChannel(ChannelType.INTERNET_CLIENT);
+        transactionData.getClientDevice().setPlatform(PlatformKind.PC);
+        sendAndAssert(transaction);
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_EXR_07);
+    }
+
 
     @Override
     protected String getRuleName() {
