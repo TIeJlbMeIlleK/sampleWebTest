@@ -70,4 +70,32 @@ public class RuleTests extends RSHBTests {
         ic.locateImportRuleTable("(Rule_tables) VIP клиенты БИКСЧЕТ")
                 .rollback();
     }
+
+    @Test
+    public void testChangeTab() {
+        ic.locateRules()
+                .openRecord("R01_GR_01_AnomalTransfer")
+                .tab("Alert Scoring Models");
+    }
+
+    @Test
+    public void testTabSpoilerEdit() {
+        ic.locateRules()
+                .openRecord("R01_GR_01_AnomalTransfer")
+                .tab("Alert Scoring Models")
+                .openSpoiler("Подозрительная транзакция")
+                .edit()
+                .editBlock(0)
+                .select(1, 0, "No");
+    }
+
+    @Test
+    public void testTabSpolerSave() {
+        ic.locateRules()
+                .openRecord("R01_GR_01_AnomalTransfer")
+                .tab("Alert Scoring Models")
+                .openSpoiler("Подозрительная транзакция")
+                .edit()
+                .save();
+    }
 }

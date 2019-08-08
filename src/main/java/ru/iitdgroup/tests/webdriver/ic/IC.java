@@ -13,6 +13,7 @@ import ru.iitdgroup.tests.webdriver.jobconfiguration.Jobs;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
 import ru.iitdgroup.tests.webdriver.report.Reports;
 import ru.iitdgroup.tests.webdriver.ruleconfiguration.Rules;
+import ru.iitdgroup.tests.webdriver.scoringmodels.ScoringModels;
 
 import java.io.File;
 import java.io.IOException;
@@ -121,8 +122,7 @@ public class IC implements AutoCloseable {
 
     public Jobs locateJobs() {
         driver.findElementByXPath("//div[@id='app-navigation'][1]//following::span[@class='icon-gear']").click();
-        view.sleep(1);
-        driver.findElementByLinkText("Jobs & Services Manager").click();
+        driver.findElementByXPath("//a[@data-url='/InvestigationCenter/ui/jobconsole']").click();
         view.sleep(1);
         return new Jobs(driver);
     }
@@ -149,6 +149,12 @@ public class IC implements AutoCloseable {
         return new Reports(driver);
     }
 
+    public ScoringModels locateScoringModels() {
+        locateView(TopMenuItem.ANALYTICS);
+        locateView(TopMenuItem.SCORING_MODELS);
+        return new ScoringModels(driver);
+    }
+
     private void locateView(TopMenuItem item) {
         driver.findElement(By.linkText(item.getHeading())).click();
     }
@@ -166,7 +172,7 @@ public class IC implements AutoCloseable {
      * @return
      */
     public IC home() {
-        driver.findElementByXPath("//*[@id='navigateHomeLinkLogo']/img").click();
+        driver.findElementByXPath("//*[@id=\"navigateHomeLinkLogo\"]/img").click();
         return this;
     }
 

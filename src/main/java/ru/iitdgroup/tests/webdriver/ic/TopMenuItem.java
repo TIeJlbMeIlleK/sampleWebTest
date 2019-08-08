@@ -10,6 +10,7 @@ public enum TopMenuItem {
     REPORT_MANAGEMENT("Report Management"),
     REFERENCE_DATA("Reference Data"),
     ANALYTICS("Analytics"),
+    SCORING_MODELS("Scoring Models"),
     RULES("Rules"),
     IMPORT_RULE_TABLES("Import Rule Tables");
 
