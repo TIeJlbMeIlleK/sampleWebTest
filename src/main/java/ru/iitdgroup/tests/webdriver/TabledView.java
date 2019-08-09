@@ -132,4 +132,3 @@ public interface TabledView<S extends AbstractView> {
     S getSelf();
 
 }
-        getSelf().getDriver().findElementsByClassName("filterRemoveRow")

@@ -31,6 +31,8 @@ public class GR_25_SeriesTransfersAndPayments_WithRDAK extends RSHBCaseTest {
             description = "Настройка и включение правил"
     )
     public void enableRules() {
+        System.out.println("\"Проверка не включения в серию переводов  транзакций, классифицированных как «Правомочно» при РДАК\" -- BIQ2370" + " ТК№7");
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()

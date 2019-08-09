@@ -1,5 +1,7 @@
 package ru.iitdgroup.tests.webdriver.ruleconfiguration;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.webdriver.TabledView;
 import ru.iitdgroup.tests.webdriver.ic.AbstractEdit;
@@ -34,11 +36,11 @@ public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView<R
     }
 
     public RuleRecord detach(String group) {
-        getGroupElement(group).findElement(By.xpath("//a[text()='Show All']")).click();
+        driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//a[text()='Show All']")).click();
         sleep(3);
-        getGroupElement(group).findElement(By.xpath("//input[@type='checkbox']")).click();
+        driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//input[@type='checkbox']")).click();
         sleep(1);
-        getGroupElement(group).findElement(By.xpath("//img[@title='Detach']")).click();
+        driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Detach']")).click();
         sleep(1);
         driver.findElementByXPath("//button[2]/span[text()='Yes']").click();
         sleep(3);
@@ -46,7 +48,7 @@ public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView<R
     }
 
     public RuleRecord attach(String group, String field, String operator, String value) {
-        getGroupElement(group).findElement(By.xpath("//img[@title='Attach']")).click();
+        driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
         waitUntil("//*[@title='Refresh']");
         clearTableFilters();
         setTableFilter(field, operator, value);
@@ -64,8 +66,8 @@ public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView<R
         return getSelf();
     }
 
-    private WebElement getGroupElement(String group) {
-        return driver.findElementByXPath(String.format("//div[@class='%s' and text()='%s']", "customTitle ellipsisContent", group));
+    public String getGroupElement(String group) {
+        return String.format("//div[@class='%s' and text()='%s']", "customTitle ellipsisContent", group);
     }
 
     @Override

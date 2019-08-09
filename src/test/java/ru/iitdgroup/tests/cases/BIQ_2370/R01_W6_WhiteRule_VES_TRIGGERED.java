@@ -25,9 +25,6 @@ public class R01_W6_WhiteRule_VES_TRIGGERED extends RSHBCaseTest {
     private final List<String> clientIds = new ArrayList<>();
     private VesMock vesMock = VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
 
-//    TODO требуется подправить после исправления тикета BIQ2370-97. Требуется доделать отправку транзакций!
-
-
     @Test(
             description = "Настройка и включение правила"
     )
@@ -50,24 +47,24 @@ public class R01_W6_WhiteRule_VES_TRIGGERED extends RSHBCaseTest {
     )
 
     public void enableVES(){
-//        getIC().locateTable("(System_parameters) Интеграционные параметры")
-//                .findRowsBy()
-//                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "1").save();
-//        getIC().locateTable("(System_parameters) Интеграционные параметры")
-//                .findRowsBy()
-//                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "1").save();
-//        getIC().locateTable("(System_parameters) Интеграционные параметры")
-//                .findRowsBy()
-//                .match("Description", "Время ожидания актуальных данных от ВЭС")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "300").save();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1").save();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1").save();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Время ожидания актуальных данных от ВЭС")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "300").save();
     }
 
     @Test(
@@ -99,6 +96,8 @@ public class R01_W6_WhiteRule_VES_TRIGGERED extends RSHBCaseTest {
             dependsOnMethods = "client"
     )
     public void transaction1() {
+        System.out.println("\"R01_W6_Whiterule_VES.\n" +
+                        "Проверка на соответствие значениям ответа VES со справочником \"Коды ответов ВЭС\" -- BIQ2370 " + "ТК №21");
 
         vesMock.setVesResponse(vesMock
                 .getVesResponse()

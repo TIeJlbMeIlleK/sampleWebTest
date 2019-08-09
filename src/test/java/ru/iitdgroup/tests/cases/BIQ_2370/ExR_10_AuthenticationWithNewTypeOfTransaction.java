@@ -43,6 +43,8 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
             description = "Настройка и включение правила"
     )
     public void enableRules() {
+        System.out.println("\"Правило Ex_10_AuthenticationFromSuspiciousDevice работает с новым типом транзакций \"Покупка страховки держателей карт \"\" -- BIQ2370" + " ТК№3");
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()

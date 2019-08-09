@@ -27,6 +27,8 @@ public class GR_25_SeriesTransfersAndPayments_RegularOrIncorrectType extends RSH
             description = "Настройка и включение правила"
     )
     public void enableRules() {
+        System.out.println("\"Правило не срабатывает для любых регулярных транзакций и для определенных видов  транзакций \" -- BIQ2370" + " ТК№5");
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()

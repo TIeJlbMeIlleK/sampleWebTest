@@ -32,6 +32,8 @@ public class GR_15_NonTypicalGeoPosition_NewTransaction extends RSHBCaseTest {
             description = "Настройка и включение правила"
     )
     public void enableRules() {
+        System.out.println("\"Правило GR_15_NonTypicalGeoPosition работает с новым типом транзакций \"Покупка страховки держателей карт \"\" -- BIQ2370" + " ТК№4");
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()

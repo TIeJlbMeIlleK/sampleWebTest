@@ -27,13 +27,14 @@ public class R01_W6_WhiteRule_VES_TimeOutVES extends RSHBCaseTest {
     private VesMock vesMock = getVesMock();
     private static String DFP = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
 
-//    TODO требуется подправить после исправления тикета BIQ2370-97. Требуется доделать отправку транзакций!
-
 
     @Test(
             description = "Настройка и включение правила"
     )
     public void enableRules() {
+        System.out.println("R01_W6_Whiterule_VES.\n" +
+                "Проверка на корректную работу по TimeOUT -- BIQ2370 " + "ТК №19");
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()

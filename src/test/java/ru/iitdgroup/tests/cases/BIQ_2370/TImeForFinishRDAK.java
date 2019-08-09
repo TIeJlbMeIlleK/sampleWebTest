@@ -32,26 +32,29 @@ public class TImeForFinishRDAK extends RSHBCaseTest {
             description = "Настройка и включение правила"
     )
     public void enableRules() {
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .sleep(3);
-//
-//        getIC().locateRules()
-//                .editRule(RULE_NAME)
-//                .fillCheckBox("Active:", true)
-//                .fillInputText("Период серии в минутах:","60")
-//                .fillInputText("Сумма оплаты услуг:","2000")
-//                .fillInputText("Сумма серии:","2000")
-//                .fillCheckBox("Проверка регулярных:",false)
-//                .save()
-//                .sleep(5);
-//        getIC().close();
-//        try {
-//            Thread.sleep(5_000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+
+        System.out.println("ТК не актуален BIQ2370, требуется его соотнести ТК из BIQ-2370");
+//        FIXME автотест кейс нужно соотнести к ТК из BIQ-2370
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .sleep(3);
+
+        getIC().locateRules()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillInputText("Период серии в минутах:","60")
+                .fillInputText("Сумма оплаты услуг:","2000")
+                .fillInputText("Сумма серии:","2000")
+                .fillCheckBox("Проверка регулярных:",false)
+                .save()
+                .sleep(5);
+        getIC().close();
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test(

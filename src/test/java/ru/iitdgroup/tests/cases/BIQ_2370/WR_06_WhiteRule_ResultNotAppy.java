@@ -32,6 +32,10 @@ public class WR_06_WhiteRule_ResultNotAppy extends RSHBCaseTest {
             description = "Настройка и включение правила"
     )
     public void enableRules() {
+        System.out.println("\"R01_W6_Whiterule_VES.\n" +
+                "Проверка на не соответствие значениям ответа VES со справочником \"Коды ответов ВЭС\"\" -- BIQ2370 "+"ТК №20");
+
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
@@ -50,24 +54,24 @@ public class WR_06_WhiteRule_ResultNotAppy extends RSHBCaseTest {
     )
 
     public void enableVES(){
-//        getIC().locateTable("(System_parameters) Интеграционные параметры")
-//                .findRowsBy()
-//                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "1").save();
-//        getIC().locateTable("(System_parameters) Интеграционные параметры")
-//                .findRowsBy()
-//                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "1").save();
-//        getIC().locateTable("(System_parameters) Интеграционные параметры")
-//                .findRowsBy()
-//                .match("Description", "Время ожидания актуальных данных от ВЭС")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "300").save();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1").save();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1").save();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Время ожидания актуальных данных от ВЭС")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "300").save();
     }
 
     @Test(
@@ -95,7 +99,7 @@ public class WR_06_WhiteRule_ResultNotAppy extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить транзакцию №4, любую по Клиенту №4 КОд ответа от VES = значению из справочника и значению указанному в Правиле",
+            description = "Отправить транзакцию №4, любую по Клиенту №1 КОд ответа от VES = значению из справочника и значению указанному в Правиле",
             dependsOnMethods = "client"
     )
     public void transaction1() {

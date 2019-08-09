@@ -31,6 +31,8 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RS
             description = "Настройка и включение правила"
     )
     public void enableRules() {
+        System.out.println("\"Проверка соблюдения требования:  в серии есть не менее одной транзакции типа «Перевод на счёт другому лицу» или «Перевод на карту другому лицу» и не менее одной транзакции «Оплата услуг»\" -- BIQ2370" + " ТК№8");
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()

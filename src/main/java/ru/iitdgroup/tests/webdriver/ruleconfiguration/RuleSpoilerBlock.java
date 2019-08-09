@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.webdriver.ruleconfiguration;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.Select;
@@ -80,8 +81,8 @@ public class RuleSpoilerBlock<P extends RuleSpoiler> extends AbstractView<RuleSp
         sleep(1);
         WebElement input = td.findElement(By.tagName("input"));
         input.click();
-        input.clear();
-        input.sendKeys(value);
+        input.sendKeys(Keys.chord(Keys.CONTROL, "a"), value);
+        input.click();
         sleep(1);
         return getSelf();
     }
@@ -126,7 +127,7 @@ public class RuleSpoilerBlock<P extends RuleSpoiler> extends AbstractView<RuleSp
     }
 
     private WebElement getTd(int row, int col) {
-        return driver.findElementByXPath(getBlockPath() + "[1]//following::tr[1]//following::td[1]");
+        return driver.findElementByXPath(getBlockPath() + "[1]//following::tr[" + row + "]//following::td[" + col +"]");
     }
 
     public enum Action {

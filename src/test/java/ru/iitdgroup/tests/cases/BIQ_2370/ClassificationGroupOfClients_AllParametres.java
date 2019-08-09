@@ -17,7 +17,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-//TODO требуется доделать после исправления тикета BIQ2370-95
+//TODO требуется доделать после исправления тикета https://yt.iitdgroup.ru/issue/BIQ2370-110
 
 public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
 
@@ -31,7 +31,6 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
     private final GregorianCalendar time2 = new GregorianCalendar(2003, Calendar.DECEMBER, 12, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
     private final List<String> clientIds_2 = new ArrayList<>();
-    private final List<String> clientIdsWithoutBirthday = new ArrayList<>();
 
 
 
@@ -39,6 +38,9 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
             description = "Настройка и включение правил"
     )
     public void enableRules() {
+        System.out.println("\"У групп есть конкретные признаки (суммы, возраст и тп) - нужно проверить, что при определении группы все эти признаки работают (можно сделать одной транзакцией/набором критериев)\n" +
+                "Группа назначается только тогда, когда соблюдаются все критерии добавления в неё (условие И, а не ИЛИ).\" -- BIQ2370" + " ТК№12");
+
 
 //        FIXME требуется проверить после полной реализации доработки по группам клиетов
         getIC().locateRules()
@@ -110,10 +112,6 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
     )
     public void editCriOfGroup(){
 
-        Table.Formula rows = getIC().locateTable("(Policy_parameters) Признаки групп клиентов").findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
         getIC().locateTable("(Policy_parameters) Признаки групп клиентов").addRecord().fillInputText("Наименование группы:","Group_1")
                 .fillInputText("Приоритет группы:","1")
                 .fillInputText("Возраст клиента:","20")
@@ -209,7 +207,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData.getClientIds().withDboId(clientIds.get(1));
         transactionData.getOuterTransfer()
-                .withAmountInSourceCurrency(new BigDecimal(1001.00));
+                .withAmountInSourceCurrency(new BigDecimal(2000.00));
         sendAndAssert(transaction);
 
         try {
@@ -228,7 +226,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить транзакцию 3,  критерии по транзакции не соответствуют ни одной из групп, по Клиенту 3",
+            description = "Отправить транзакцию 3, по Клиенту 3, сумма 2001",
             dependsOnMethods = "transactionOfClient2_1"
     )
     public void transactionOfClient3(){
@@ -237,7 +235,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData.getClientIds().withDboId(clientIds.get(2));
         transactionData.getOuterTransfer()
-                .withAmountInSourceCurrency(new BigDecimal(2000.00));
+                .withAmountInSourceCurrency(new BigDecimal(2001.00));
         sendAndAssert(transaction);
 
         try {
@@ -259,6 +257,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
             dependsOnMethods = "transactionOfClient3"
     )
     public void transactionOfClient4(){
+//        TODO требуется подправить после работы с Группой клиентов по умолчанию
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
@@ -283,7 +282,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData.getClientIds().withDboId(clientIds_2.get(0));
         transactionData.getOuterTransfer()
-                .withAmountInSourceCurrency(new BigDecimal(500.00));
+                .withAmountInSourceCurrency(new BigDecimal(1500.00));
         sendAndAssert(transaction);
 
         try {
@@ -311,7 +310,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData.getClientIds().withDboId(clientIds.get(3));
         transactionData.getOuterTransfer()
-                .withAmountInSourceCurrency(new BigDecimal(10000.00));
+                .withAmountInSourceCurrency(new BigDecimal(15000.00));
         sendAndAssert(transaction);
         Transaction transaction_2 = getTransactionOUTER_TRANSFER();
         TransactionDataType transactionData_2 = transaction.getData().getTransactionData();

@@ -1,11 +1,13 @@
 package ru.iitdgroup.tests.cases.BIQ_2370;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
+import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -15,21 +17,30 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class R01_W6_WhiteRule_VES_IntegroVES extends RSHBCaseTest {
+public class NoSuchOfHanglingTransaction extends RSHBCaseTest {
 
-    private static final String RULE_NAME = "R01_WR_06_VES";
+    private static final String TABLE = "(Policy_parameters) Параметры обработки событий";
+    private static final String RULE_NAME = "R01_GR_15_NonTypicalGeoPosition";
+    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.AUGUST, 8, 0, 0, 0);
 
-
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 10, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
+    private String IP = "%s.%s.%s.%s";
 
+    @BeforeClass
+    public void beforeClass() {
+        IP = String.format(IP,
+                ThreadLocalRandom.current().nextInt(0, 255) + "",
+                ThreadLocalRandom.current().nextInt(0, 255) + "",
+                ThreadLocalRandom.current().nextInt(0, 255) + "",
+                ThreadLocalRandom.current().nextInt(0, 255) + "");
+    }
 
     @Test(
-            description = "Настройка и включение правила"
+            description = "Включение правила"
+
     )
-    public void enableRules() {
-        System.out.println("R01_W6_Whiterule_VES.\n" +
-                "Проверка на интеграцию с VES -- BIQ2370 " + "ТК №17");
+    public void enableRuleForAlert() {
+        System.out.println("\"Обработка транзакции без учета справочника\" -- BIQ2370" + " ТК№15");
 
         getIC().locateRules()
                 .selectVisible()
@@ -39,29 +50,24 @@ public class R01_W6_WhiteRule_VES_IntegroVES extends RSHBCaseTest {
         getIC().locateRules()
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
-                .fillInputText("Крупный перевод:","2000")
                 .save()
                 .sleep(5);
     }
 
     @Test(
-            description = "Выключить интеграцию с VES",
-            dependsOnMethods = "enableRules"
+            description = "Очистить справочник \"Параметры обработки событий\" от всех записей",
+            dependsOnMethods = "enableRuleForAlert"
     )
-
-    public void disableVES(){
-        getIC().locateTable("(System_parameters) Интеграционные параметры")
-                .findRowsBy()
-                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "0").save();
-        getIC().close();
+    public void refactorWorkFlow() {
+        Table.Formula rows = getIC().locateTable(TABLE).findRowsBy();
+        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
+            rows.delete();
+        }
     }
 
     @Test(
             description = "Создаем клиента",
-            dependsOnMethods = "disableVES"
+            dependsOnMethods = "refactorWorkFlow"
     )
     public void client() {
         try {
@@ -84,24 +90,30 @@ public class R01_W6_WhiteRule_VES_IntegroVES extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить транзакцию 1, любую по Клиенту 1",
+            description = "Отправить транзакцию, которая не попадет под обработку согласно справочнику из предусловия",
             dependsOnMethods = "client"
     )
     public void transaction1() {
-        Transaction transaction = getTransactionCARD_TRANSFER();
+        Transaction transaction = getTransactionSERVICE_PAYMENT_1();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
+        transactionData.getClientDevice().getPC().setIpAddress(IP);
         sendAndAssert(transaction);
+
         try {
-            Thread.sleep(3_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        assertLastTransactionRuleApply(NOT_TRIGGERED, DISABLED_IntegrVES1);
+
+        getIC().locateAlerts()
+                .openFirst();
+        assertTableField("Статус АДАК:","DISABLED");
+        getIC().close();
+        System.out.printf("Тест кейс выполнен успешно!");
     }
 
     @Override
@@ -109,8 +121,8 @@ public class R01_W6_WhiteRule_VES_IntegroVES extends RSHBCaseTest {
         return RULE_NAME;
     }
 
-    private Transaction getTransactionCARD_TRANSFER() {
-        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
+    private Transaction getTransactionSERVICE_PAYMENT_1() {
+        Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

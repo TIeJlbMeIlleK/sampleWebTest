@@ -14,6 +14,8 @@ public class TestReferenceCalendar extends RSHBCaseTest {
     )
     public void enableRules() {
 //        TODO требуется реализовать импорт файлов из файловой системы
+
+        System.out.println("\"Импорт данных из CSV-файла по шаблону: weekendDay и редактирование записей\" -- BIQ2370" + " ТК№9");
     }
 
 

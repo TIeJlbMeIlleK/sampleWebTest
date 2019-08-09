@@ -7,6 +7,7 @@ import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.ves.mock.VesMock;
+import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -33,6 +34,8 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
             description = "Настройка и включение правила"
     )
     public void enableRules() {
+        System.out.println("\"Правило ExR_04_infectedDevice работает с новым типом транзакций \"Покупка страховки держателей карт \"\" -- BIQ2370" + " ТК№2");
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
@@ -45,8 +48,8 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
                 .sleep(5);
         getIC().locateRules()
                 .openRecord(RULE_NAME)
-                .detach("Коды ответов ВЭС")
-                .attach("Коды ответов ВЭС","Идентификатор кода","Equals","46");
+//                .detach("Коды ответов ВЭС")
+                .attach("Коды ответов ВЭС","Идентификатор кода","Equals","27");
     }
 
     @Test(
@@ -92,12 +95,16 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
     )
     public void addNewTransactionType() {
 
+        Table.Formula rows = getIC().locateTable(TABLE_2).findRowsBy();
+        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
+            rows.delete();
+        }
+
         getIC().locateTable(TABLE_2)
                 .addRecord()
                 .select("Тип транзакции:","Покупка страховки держателей карт")
                 .select("Наименование канала ДБО:","Мобильный банк")
         .save();
-        getIC().close();
     }
 
     @Test(
@@ -130,24 +137,28 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
     )
     public void transaction1() {
         vesMock = getVesMock();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"type_id\": \"7\"","\"type_id\": \"46\""));
+        vesMock.setVesResponse(vesMock
+                .getVesResponse()
+                .replaceAll("7","27"));
         vesMock.run();
+        try {
+            Thread.sleep(15_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ALERT_FROM_VES);
+
+        System.out.println("Тест кейс выполнен успешно! При повторном прохождении ТК требуется произвести Detach Кодов ответов ВЭС в настройках правила");
+//        TODO требуется реализовать функционал Detach в настройках правила
+        getIC().close();
     }
 
     @Override

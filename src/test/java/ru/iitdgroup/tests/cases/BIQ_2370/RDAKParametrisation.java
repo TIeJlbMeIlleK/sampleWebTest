@@ -53,7 +53,7 @@ public class RDAKParametrisation extends RSHBCaseTest {
     )
     public void editTables() {
 //        FIXME требуется доработать после исправления тикета BIQ2370-90
-
+        System.out.println("\"Параметризация срока РДАК\" -- BIQ2370" + " ТК№10");
         getIC().locateTable(TABLE)
                 .findRowsBy()
                 .match("Описание", "Час начала рабочего дня")

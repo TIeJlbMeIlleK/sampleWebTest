@@ -28,6 +28,9 @@ public class R01_W6_WhiteRule_VES_regular extends RSHBCaseTest {
             description = "Настройка и включение правила"
     )
     public void enableRules() {
+        System.out.println("R01_W6_Whiterule_VES.\n" +
+                "Проверка на обработку регулярных транзакций -- BIQ2370 " + "ТК №16");
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()

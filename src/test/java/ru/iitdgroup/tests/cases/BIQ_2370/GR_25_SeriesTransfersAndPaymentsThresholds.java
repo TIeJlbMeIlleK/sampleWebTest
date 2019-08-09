@@ -30,6 +30,8 @@ public class GR_25_SeriesTransfersAndPaymentsThresholds extends RSHBCaseTest {
             description = "Настройка и включение правила"
     )
     public void enableRules() {
+        System.out.println("\"Правило GR_25 срабатывает при превышении пороговых величин\" -- BIQ2370" + " ТК№6");
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
