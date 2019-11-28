@@ -29,7 +29,7 @@ public class R01_W6_WhiteRule_VES_regular extends RSHBCaseTest {
     )
     public void enableRules() {
         System.out.println("R01_W6_Whiterule_VES.\n" +
-                "Проверка на обработку регулярных транзакций -- BIQ2370 " + "ТК №16");
+                "Проверка на обработку регулярных транзакций -- BIQ2370 " + "ТК №31");
 
         getIC().locateRules()
                 .selectVisible()
@@ -41,7 +41,7 @@ public class R01_W6_WhiteRule_VES_regular extends RSHBCaseTest {
                 .fillCheckBox("Active:", true)
                 .fillInputText("Крупный перевод:","5000")
                 .save()
-                .sleep(5);
+                .sleep(15);
         getIC().close();
     }
 

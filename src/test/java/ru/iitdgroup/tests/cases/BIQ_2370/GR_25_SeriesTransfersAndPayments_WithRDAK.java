@@ -44,7 +44,6 @@ public class GR_25_SeriesTransfersAndPayments_WithRDAK extends RSHBCaseTest {
                 .fillInputText("Период серии в минутах:","60")
                 .fillInputText("Сумма оплаты услуг:","2000")
                 .fillInputText("Сумма серии:","2000")
-                .fillCheckBox("Проверка регулярных:",false)
                 .save()
                 .sleep(5);
         getIC().locateRules()
@@ -152,13 +151,13 @@ public class GR_25_SeriesTransfersAndPayments_WithRDAK extends RSHBCaseTest {
     )
     public void transaction2() {
         time.add(Calendar.MINUTE, 1);
-        Transaction transaction = getTransactionOUTER_TRANSFER();
+        Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getOuterTransfer().setAmountInSourceCurrency(new BigDecimal("500.00"));
+        transactionData.getPhoneNumberTransfer().setAmountInSourceCurrency(new BigDecimal("500.00"));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
 
@@ -257,6 +256,13 @@ public class GR_25_SeriesTransfersAndPayments_WithRDAK extends RSHBCaseTest {
     }
     private Transaction getTransactionCARD_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
+    }
+    private Transaction getTransactionPHONE_NUMBER_TRANSFER() {
+        Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

@@ -10,10 +10,7 @@ import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ClientClassification extends RSHBCaseTest {
@@ -35,6 +32,12 @@ public class ClientClassification extends RSHBCaseTest {
                 "Клиент, добавленный в группу вручную, не может быть переназначен в другую группу,\n" +
                 "При наличии двух групп с одними условиями, но с разным приоритетом, выставляется клиенту та группа, которая имеет высший приоритет,\n" +
                 "если у клиента пустое поле, то признак не проверяется. Если группа \"По умолчанию\" не существует, и клиент не подпадает ни под одну группу, то у него поле группа будет пустое. -- BIQ2370" + " ТК№11");
+
+        Map<String, Object> values = new HashMap<>();
+        values.put("clientGroupAutomatic_id", null);
+        values.put("clientGroupManual_id", null);
+        values.put("PREV_CLIENT_GROUP_FK", null);
+        getDatabase().update("dbo.Client", values);
 
         getIC().locateRules()
                 .selectVisible()

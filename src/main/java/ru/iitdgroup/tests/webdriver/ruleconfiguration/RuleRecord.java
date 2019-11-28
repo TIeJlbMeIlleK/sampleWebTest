@@ -36,7 +36,8 @@ public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView<R
     }
 
     public RuleRecord detach(String group) {
-        driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//a[text()='Show All']")).click();
+        driver.findElementByXPath(getGroupElement(group)).findElements(By.xpath("//a[text()='Show All']"))
+                .forEach(WebElement::click);
         sleep(3);
         driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//input[@type='checkbox']")).click();
         sleep(1);

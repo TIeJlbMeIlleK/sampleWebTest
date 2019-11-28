@@ -27,9 +27,15 @@
             <xsd:element name="DboId" type="xsd:string"/>
             <xsd:element name="CifId" type="xsd:string"/>
             <xsd:element name="EksId" type="xsd:string"/>
-            <xsd:element name="PcId" type="xsd:string"/>
             <xsd:element name="ExpertSystemId" type="xsd:string"/>
             <xsd:element name="LoginHash" type="xsd:string"/>
+            <xsd:element name="AlfaIds">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="AlfaId" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
         </xsd:sequence>
     </xsd:complexType>
 </xsd:schema>

@@ -11,9 +11,11 @@
                 <com:DboId>1433555556</com:DboId>
                 <com:CifId>12312414141</com:CifId>
                 <com:EksId>453634523414</com:EksId>
-                <com:PcId>3424234</com:PcId>
                 <com:ExpertSystemId>77831d4e66f454c1f6cfe45df096cfdc7bac368b</com:ExpertSystemId>
                 <com:LoginHash>356a192b7913b04c54574d18c28d46e6395428ab</com:LoginHash>
+                <com:AlfaIds>
+                    <com:AlfaId>12355</com:AlfaId>
+                </com:AlfaIds>
             </cli:ClientIds>
             <cli:FirstName>Mikhail</cli:FirstName>
             <cli:LastName>Makarov</cli:LastName>

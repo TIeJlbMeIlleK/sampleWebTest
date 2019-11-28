@@ -29,6 +29,9 @@ public class R01_W6_WhiteRule_VES_TRIGGERED extends RSHBCaseTest {
             description = "Настройка и включение правила"
     )
     public void enableRules() {
+
+        System.out.println("R01_W6_Whiterule_VES. Проверка на не соответствие значениям ответа VES со справочником \"Коды ответов ВЭС\" -- BIQ2370 "+"ТК №36");
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
@@ -40,7 +43,7 @@ public class R01_W6_WhiteRule_VES_TRIGGERED extends RSHBCaseTest {
                 .fillInputText("Крупный перевод:","2000")
                 .save()
                 .attach("Коды ответов ВЭС","Идентификатор кода","Equals","15")
-                .sleep(5);
+                .sleep(10);
     }@Test(
             description = "Включить интеграцию с VES",
             dependsOnMethods = "enableRules"

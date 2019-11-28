@@ -33,7 +33,7 @@ public class R01_W6_WhiteRule_VES_TimeOutVES extends RSHBCaseTest {
     )
     public void enableRules() {
         System.out.println("R01_W6_Whiterule_VES.\n" +
-                "Проверка на корректную работу по TimeOUT -- BIQ2370 " + "ТК №19");
+                "Проверка на корректную работу по TimeOUT -- BIQ2370 " + "ТК №34");
 
         getIC().locateRules()
                 .selectVisible()

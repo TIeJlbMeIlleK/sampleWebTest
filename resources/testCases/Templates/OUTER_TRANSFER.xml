@@ -19,12 +19,12 @@
 		<ns4:Limit>300000</ns4:Limit>
 		<ns4:OuterTransfer>
 			<ns4:SourceProduct>40817810241000013200</ns4:SourceProduct>
-			<ns4:AmountInSourceCurrency>1000</ns4:AmountInSourceCurrency>
+			<ns4:AmountInSourceCurrency>100</ns4:AmountInSourceCurrency>
 			<ns4:PayerName>Акимова Ольга Михайловна</ns4:PayerName>
 			<ns4:PayerINN/>
 			<ns4:PayeeProps>
 				<ns4:PayeeName>Hdjr fjrjr</ns4:PayeeName>
-				<ns4:PayeeINN>1234567890</ns4:PayeeINN>
+				<ns4:PayeeINN></ns4:PayeeINN>
 				<ns4:PayeeKPP/>
 				<ns4:PayeeAccount>4081710835620000480</ns4:PayeeAccount>
 			</ns4:PayeeProps>
@@ -37,7 +37,7 @@
 			<ns4:CommissionAmount>390</ns4:CommissionAmount>
 			<ns4:IsCommunalPayment>false</ns4:IsCommunalPayment>
 		</ns4:OuterTransfer>
-		<ns4:InitialSourceAmount>5000</ns4:InitialSourceAmount>
+		<ns4:InitialSourceAmount>50000</ns4:InitialSourceAmount>
 		<ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
 		<ns4:DocumentConfirmationTimestamp>2019-04-15T15:16:00+03:00</ns4:DocumentConfirmationTimestamp>
 		<ns4:SessionId>BC8g5t8OJGy-t5vCkpmHNsufwtBi_GDwSYL-Fjdu261DBzhbLpbR!-770855897!1555330162446</ns4:SessionId>

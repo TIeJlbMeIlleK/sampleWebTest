@@ -27,6 +27,7 @@ public abstract class RSHBCaseTest {
     protected static final String NOT_TRIGGERED = "NOT_TRIGGERED";
     protected static final String TRIGGERED = "TRIGGERED";
     protected static final String FEW_DATA = "FEW_DATA";
+    protected static final String EXCEPTION = "EXCEPTION";
     protected static final String REGULAR_TRANSACTION = "Правило не применяется для регулярных транзакций";
     protected static final String REGULAR_TRANSACTION_1 = "Правило не применяется для регулярных транзакций.";
     protected static final String RESULT_RULE_NOT_APPLY = "Правило не применилось";
@@ -45,8 +46,8 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_BLOCK_MT_SYSTEM = "Получатель платежа в черном списке";
     protected static final String RESULT_SPEED_NORMAL = "Промежуток времени между транзакциями больше интервала";
     protected static final String RESULT_SPEED = "Промежуток времени между транзакциями меньше интервала";
-    protected static final String RESULT_GREY_IP = "IP адрес найден в Сером списке %s";
-    protected static final String RESULT_NO_GREY_IP = "IP адрес не найден в Сером списке %s";
+    protected static final String RESULT_GREY_IP = "IP адрес найден в Сером списке";
+    protected static final String RESULT_NO_GREY_IP = "IP адрес не найден в Сером списке";
     protected static final String RESULT_GREY_IMSI = "IMSI найден в сером списке";
     protected static final String RESULT_GREY_IMEI = "IMEI найден в сером списке";
     protected static final String RESULT_GREY_IFV = "IFV найден в сером списке";
@@ -79,7 +80,6 @@ public abstract class RSHBCaseTest {
     protected static final String INTERNET_BANK_TRANSACTION = "Правило не применяется для платежей интернет банка";
     protected static final String NO_IMEI_EXR9 = "Нет индентификатора производителя (IMEI)";
     protected static final String NO_IMSI_EXR9 = "Нет индентификатора производителя (IMSI)";
-    protected static final String NO_IFV_EXR9 = "Нет индентификатора производителя (IFV)";
     protected static final String REGULAR_TRANSACTION_EXR9 = "Правило не применяется для регулярных платежей";
     protected static final String DEVICE_NOT_EXIST = "Отсутствуют доверенные устройства";
     protected static final String EXIST_TRUSTED_ANDROID_DEVICE = "Существует доверенное устройство с такими IMEI и IMSI";
@@ -106,12 +106,20 @@ public abstract class RSHBCaseTest {
     protected static final String PAYEE_NOT_IDENTIFIED = "Получатель не идентифицирован";
     protected static final String RESULT_EXIST_QUARANTINE_LOCATION = "Получатель уже находится в карантине";
     protected static final String YOUNG_QUARANTINE = "Получатель недавно находится в карантине";
-
-
-
-
-
-
+    protected static final String EMPTY_WHITE_LIST = "Не найдено совпадений параметров со списком разрешенных";
+    protected static final String RESULT_RULE_NOT_APPLY_BIG_AMOUNT = "Правило не применилось, крупный перевод";
+    protected static final String EXIST_IN_WHITE_LIST = "В списке разрешенных найдены совпадающие параметры";
+    protected static final String RESULT_RULE_NOT_APPLY_BY_PERIOD = "Правило не применилось, т.к. найдены другие транзакции за период";
+    protected static final String EMPTY_VIP_LIST = "Не найдено совпадений параметров со списком VIP клиентов";
+    protected static final String EXIST_IN_VIP_LIST = "В списке VIP клиентов найденны совпадающие параметры";
+    protected static final  String RESULT_BLOCK_PHONE = "Телефон получателя в чёрном списке";
+    protected static final String REPLACE_SIM = "Произошла замена SIM";
+    protected static final String REPLACE_IMEI = "Произошла замена IMEI";
+    protected static final String RESULT_RULE_APPLY_BY_LENGHT = "Количество транзакций больше допустимой длины серии";
+    protected static final String RESULT_BIG_TRANSFER = "Осуществление крупного перевода средств";
+    protected static final String RESULT_GRAY_LIST = "Найдено совпадение с серым списком";
+    protected static final String NO_MATCHES_FOUND = "Совпадений не найдено";
+    protected static final String NO_DATA_TO_ANALYZE = "Отсутствуют данные для анализа";
 
     private DBOAntiFraudWS ws;
     private TestProperties props;
@@ -229,6 +237,11 @@ public abstract class RSHBCaseTest {
                 getIC().getDriver()
                         .findElementByXPath(String.format("//*[text()='%s']/../following-sibling::td", fieldName))
                         .getText());
+    }
+
+    protected String copyThisLine(String fieldName){
+        String result = String.format("//span[text()='%s']/../following::td", fieldName);
+        return getIC().getDriver().findElementByXPath(result).getText();
     }
 
     protected Transaction getTransaction(String filePath) {

@@ -11,26 +11,23 @@ import ru.iitdgroup.tests.webdriver.referencetable.Table;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-//TODO требуется доделать после исправления тикета https://yt.iitdgroup.ru/issue/BIQ2370-110
 
 public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_25_SeriesTransfersAndPayments";
     private static final String CLIENT_GROUP = "(Policy_parameters) Наименования групп клиентов";
-    private static final String RDAK = "(Policy_parameters) Перечень статусов для которых применять РДАК";
 
 
     private final GregorianCalendar timeTransaction = new GregorianCalendar(2019, Calendar.JULY, 10, 0, 0, 0);
     private final GregorianCalendar time = new GregorianCalendar(1998, Calendar.JULY, 10, 0, 0, 0);
     private final GregorianCalendar time2 = new GregorianCalendar(2003, Calendar.DECEMBER, 12, 0, 0, 0);
+    private final GregorianCalendar time3 = new GregorianCalendar(2001, Calendar.JANUARY, 25, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
     private final List<String> clientIds_2 = new ArrayList<>();
+    private final List<String> clientIds_3 = new ArrayList<>();
 
 
 
@@ -38,11 +35,16 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
             description = "Настройка и включение правил"
     )
     public void enableRules() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("clientGroupAutomatic_id", null);
+        values.put("clientGroupManual_id", null);
+        values.put("PREV_CLIENT_GROUP_FK", null);
+        getDatabase().update("dbo.Client", values);
+
         System.out.println("\"У групп есть конкретные признаки (суммы, возраст и тп) - нужно проверить, что при определении группы все эти признаки работают (можно сделать одной транзакцией/набором критериев)\n" +
                 "Группа назначается только тогда, когда соблюдаются все критерии добавления в неё (условие И, а не ИЛИ).\" -- BIQ2370" + " ТК№12");
 
 
-//        FIXME требуется проверить после полной реализации доработки по группам клиетов
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
@@ -55,7 +57,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
     )
     public void client() {
         try {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 3; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
 
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
@@ -131,7 +133,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
                 .save();
 
         getIC().locateTable("(Policy_parameters) Признаки групп клиентов").addRecord().fillInputText("Наименование группы:","FULL")
-                .fillInputText("Приоритет группы:","5")
+                .fillInputText("Приоритет группы:","0")
                 .fillInputText("Время с момента подключения к ДБО ФЛ:","100")
                 .fillInputText("Возраст клиента:","18")
                 .fillInputText("Сумма транзакций (не совершал):","50000")
@@ -306,24 +308,31 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
     )
     public void transactionOfClient5(){
 
+        try {
+            for (int i = 0; i < 1; i++) {
+                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                Client client = new Client("testCases/Templates/client.xml");
+                client
+                        .getData()
+                        .getClientData()
+                        .getClient()
+                        .withBirthDate(new XMLGregorianCalendarImpl(time3))
+                        .getClientIds()
+                        .withDboId(dboId);
+
+                sendAndAssert(client);
+                clientIds_3.add(dboId);
+            }
+        } catch (JAXBException | IOException e) {
+            throw new IllegalStateException(e);
+        }
+
         Transaction transaction = getTransactionOUTER_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData.getClientIds().withDboId(clientIds.get(3));
+        transactionData.getClientIds().withDboId(clientIds_3.get(0));
         transactionData.getOuterTransfer()
                 .withAmountInSourceCurrency(new BigDecimal(15000.00));
         sendAndAssert(transaction);
-        Transaction transaction_2 = getTransactionOUTER_TRANSFER();
-        TransactionDataType transactionData_2 = transaction.getData().getTransactionData();
-        transactionData_2.getClientIds().withDboId(clientIds.get(3));
-        transactionData_2.getOuterTransfer()
-                .withAmountInSourceCurrency(new BigDecimal(1000.00));
-        sendAndAssert(transaction_2);
-        Transaction transaction_3 = getTransactionOUTER_TRANSFER();
-        TransactionDataType transactionData_3 = transaction.getData().getTransactionData();
-        transactionData_3.getClientIds().withDboId(clientIds.get(3));
-        transactionData_3.getOuterTransfer()
-                .withAmountInSourceCurrency(new BigDecimal(1000.00));
-        sendAndAssert(transaction_3);
 
         try {
             Thread.sleep(10_000);
@@ -333,7 +342,7 @@ public class ClassificationGroupOfClients_AllParametres extends RSHBCaseTest {
 
         getIC().locateReports().openFolder("Бизнес-сущности")
                 .openRecord("Список клиентов")
-                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds.get(3)).runReport()
+                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds_3.get(0)).runReport()
                 .openFirst();
         assertTableField("Группа клиента (автоматическое назначение):","FULL");
         assertTableField("Предыдущая группа клиента:","");

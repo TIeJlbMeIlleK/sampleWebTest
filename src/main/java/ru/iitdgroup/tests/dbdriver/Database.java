@@ -6,8 +6,10 @@ import ru.iitdgroup.tests.properties.TestProperties;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Database implements AutoCloseable {
@@ -39,6 +41,54 @@ public class Database implements AutoCloseable {
         sortFields.clear();
         return new Fields(this);
     }
+
+    public void update(String table, Map<String, Object> values) {
+        if (values.isEmpty()) {
+            return;
+        }
+        StringBuilder sql = new StringBuilder();
+        appendUpdate(table, values, sql);
+        try {
+            getConn().createStatement().execute(sql.toString().replaceAll(",$", ""));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateWhere(String table, Map<String, Object> values, String whereString) {
+        if (values.isEmpty()) {
+            return;
+        }
+        StringBuilder sql = new StringBuilder();
+        appendUpdate(table, values, sql);
+        sql.append(" ").append(whereString).append("\n");
+        try {
+            Statement statement = getConn().createStatement();
+            System.out.println(statement.executeUpdate(sql.toString().replaceAll(",$", "")));
+            statement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void appendUpdate(String table, Map<String, Object> values, StringBuilder sql) {
+        sql.append(String.format("UPDATE %s SET ", table));
+        for (Map.Entry<String, Object> entry : values.entrySet()) {
+            String k = entry.getKey();
+            Object v = entry.getValue();
+            String parsedVal = null;
+            if (v instanceof String) {
+                parsedVal = String.format("'%s'", v);
+            } else if (v == null) {
+                parsedVal = "null";
+            } else {
+                parsedVal = v + "";
+            }
+            sql.append(String.format("%s = %s,\n", k, parsedVal));
+        }
+        sql.replace(sql.length() - 2, sql.length(), "");
+    }
+
 
     @Override
     public void close() throws Exception {

@@ -28,7 +28,6 @@ public class TestOfCriticalTransaction extends RSHBCaseTest {
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.AUGUST, 8, 0, 0, 0);
 
     private final List<String> clientIds = new ArrayList<>();
-//    FIXME Требуется доработать автотест после исправления тикета https://yt.iitdgroup.ru/issue/BIQ2370-109
 
     @Test(
             description = "Включение правила"
@@ -90,7 +89,7 @@ public class TestOfCriticalTransaction extends RSHBCaseTest {
                 .fillCheckBox("Повышенная нагрузка:", true)
                 .fillCheckBox("Требуется выполнение РДАК:", true)
                 .fillCheckBox("Требуется выполнение АДАК:",true)
-                .fillInputText("Приоритет:", "1")
+                .fillInputText("Приоритет:", "0")
                 .select("Тип транзакции:","Перевод на карту другому лицу")
                 .select("Наименование канала ДБО:","Интернет клиент")
                 .save();
@@ -101,7 +100,8 @@ public class TestOfCriticalTransaction extends RSHBCaseTest {
                 .fillInputText("Критичность транзакции:","Major")
                 .fillCheckBox("Повышенная нагрузка:", true)
                 .fillCheckBox("Требуется выполнение РДАК:", false)
-                .fillInputText("Приоритет:", "1")
+                .fillCheckBox("Требуется выполнение АДАК:",false)
+                .fillInputText("Приоритет:", "0")
                 .select("Тип транзакции:","Перевод на карту другому лицу")
                 .select("Наименование канала ДБО:","Интернет клиент")
                 .save();
@@ -142,6 +142,7 @@ public class TestOfCriticalTransaction extends RSHBCaseTest {
                 .clearAllStates()
                 .addFromState("На разбор")
                 .addFromState("Ожидаю выполнения РДАК")
+                .addFromState("Ожидаю выполнения АДАК")
                 .addFromState("Результат работы правил (Подозрительно)")
                 .addToState("На выполнении РДАК")
                 .save();
@@ -312,12 +313,6 @@ public class TestOfCriticalTransaction extends RSHBCaseTest {
         getIC().locateAlerts()
                 .openFirst();
         assertTableField("Severity:","Minor");
-
-        getIC().locateAlerts()
-                .openFirst()
-                .action("Взять в работу для выполнения РДАК")
-                .rdak()
-                .sleep(3);
 
         getIC()
                 .locateRules()

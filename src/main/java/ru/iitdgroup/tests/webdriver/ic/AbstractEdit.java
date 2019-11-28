@@ -34,11 +34,26 @@ public abstract class AbstractEdit<S> extends AbstractView<S> {
         return getSelf();
     }
 
+    public S fillMasked(String fieldName, String fieldText) {
+        icxpath()
+                .element(fieldName)
+                .following(ICXPath.WebElements.INPUT)
+                .type(fieldText);
+        return getSelf();
+    }
+
     public S fillInputText(String fieldName, String input) {
         WebElement inputTextField = driver.findElementByXPath(String.format(DEFAULT_X_PATH_TEMPLATE, fieldName, INPUT_TAG));
 
         inputTextField.clear();
         inputTextField.sendKeys(input);
+
+        return getSelf();
+    }
+
+    public S copyThisLine(String fieldName) {
+        String result = String.format("//span[text()='%s']/../following::td", fieldName);
+        driver.findElementByXPath(result).getText();
 
         return getSelf();
     }

@@ -32,7 +32,7 @@ public class R01_W6_WhiteRule_VES_BigSend extends RSHBCaseTest {
     )
     public void enableRules() {
         System.out.println("R01_W6_Whiterule_VES.\n" +
-                "Проверка на обработку по полю \"Крупный перевод\" -- BIQ2370 " + "ТК №18");
+                "Проверка на обработку по полю \"Крупный перевод\" -- BIQ2370 " + "ТК №33");
 
         getIC().locateRules()
                 .selectVisible()
@@ -52,25 +52,25 @@ public class R01_W6_WhiteRule_VES_BigSend extends RSHBCaseTest {
     )
 
     public void enableVES(){
-//        getIC().locateTable("(System_parameters) Интеграционные параметры")
-//                .findRowsBy()
-//                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "1").save();
-//        getIC().locateTable("(System_parameters) Интеграционные параметры")
-//                .findRowsBy()
-//                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "1").save();
-//        getIC().locateTable("(System_parameters) Интеграционные параметры")
-//                .findRowsBy()
-//                .match("Description", "Время ожидания актуальных данных от ВЭС")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "300").save();
-//        getIC().close();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Интеграция с ВЭС по суждения . Если параметр включен – интеграция производится.")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1").save();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1").save();
+        getIC().locateTable("(System_parameters) Интеграционные параметры")
+                .findRowsBy()
+                .match("Description", "Время ожидания актуальных данных от ВЭС")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "300").save();
+        getIC().close();
     }
 
     @Test(
@@ -102,15 +102,6 @@ public class R01_W6_WhiteRule_VES_BigSend extends RSHBCaseTest {
             dependsOnMethods = "client"
     )
     public void transaction1() {
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"","\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd60a7q4\""));
-        vesMock.run();
-        try {
-            Thread.sleep(10_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -134,13 +125,9 @@ public class R01_W6_WhiteRule_VES_BigSend extends RSHBCaseTest {
             dependsOnMethods = "transaction1"
     )
     public void transaction2() {
-        vesMock.stop();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"","\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd608qw5\""));
         vesMock.run();
         try {
-            Thread.sleep(10_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

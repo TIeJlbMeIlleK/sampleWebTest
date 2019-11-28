@@ -51,7 +51,7 @@ public class NoSuchOfHanglingTransaction extends RSHBCaseTest {
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
                 .save()
-                .sleep(5);
+                .sleep(15);
     }
 
     @Test(

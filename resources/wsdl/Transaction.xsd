@@ -1,836 +1,906 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:saft="http://www.iitdgroup.ru/Intellinx/DBO/Transaction"
-            xmlns:safc="http://www.iitdgroup.ru/Intellinx/DBO/Client"
-            xmlns:saf="http://www.iitdgroup.ru/Intellinx/DBO/Common"
-            xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Transaction"
-            targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/Transaction"
-            elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
-
-    <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Common" schemaLocation="Common.xsd"/>
-
-    <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Client" schemaLocation="ClientData.xsd"/>
-
-    <xsd:element name="SendTransactionDataRequest" type="saft:SendTransactionDataRequestType"/>
-
-    <xsd:complexType name="SendTransactionDataRequestType">
-        <xsd:sequence>
-            <xsd:element name="ServerInfo" type="saf:ServerInfoType"/>
-            <xsd:element name="TransactionData" type="saft:TransactionDataType"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="TransactionDataType">
-        <xsd:sequence>
-            <xsd:element name="TransactionId" type="xsd:string"/>
-            <xsd:element name="ClientIds" type="saf:ClientIdsType"/>
-            <xsd:element name="DocumentSaveTimestamp" type="xsd:dateTime"/>
-            <xsd:element name="DocumentNumber" type="xsd:string"/>
-            <xsd:element name="Type" type="saft:TransactionType"/>
-            <xsd:element name="Regular" type="xsd:boolean"/>
-            <xsd:element name="SessionTimeout" type="xsd:long" minOccurs="0"/>
-            <xsd:element name="Limit" type="xsd:decimal" minOccurs="0"/>
+<xsd:schema targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/Transaction" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:saft="http://www.iitdgroup.ru/Intellinx/DBO/Transaction" xmlns:safc="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:saf="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+   <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Common" schemaLocation="Common.xsd"/>
+   <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Client" schemaLocation="ClientData.xsd"/>
+   <xsd:element name="SendTransactionDataRequest" type="saft:SendTransactionDataRequestType"/>
+   <xsd:complexType name="SendTransactionDataRequestType">
+      <xsd:sequence>
+         <xsd:element name="ServerInfo" type="saf:ServerInfoType"/>
+         <xsd:element name="TransactionData" type="saft:TransactionDataType"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="TransactionDataType">
+      <xsd:sequence>
+         <xsd:element name="TransactionId" type="xsd:string"/>
+         <xsd:element name="ClientIds" type="saf:ClientIdsType"/>
+         <xsd:element name="DocumentSaveTimestamp" type="xsd:dateTime"/>
+         <xsd:element name="DocumentNumber" type="xsd:string"/>
+         <xsd:element name="Type" type="saft:TransactionType"/>
+         <xsd:element name="Regular" type="xsd:boolean"/>
+         <xsd:element name="SessionTimeout" type="xsd:long" minOccurs="0"/>
+         <xsd:element name="Limit" type="xsd:decimal" minOccurs="0"/>
+         <xsd:choice>
+            <xsd:element name="AdditionalAnswer" type="saft:AdditionalAnswerType"/>
             <xsd:choice>
-                <xsd:element name="AdditionalAnswer" type="saft:AdditionalAnswerType"/>
-                <xsd:choice>
-                	<xsd:element name="TransferBetweenAccounts"
-                		type="saft:TransferBetweenAccountsType" />
-                	<xsd:element name="OuterTransfer"
-                		type="saft:OuterTransferType" />
-                	<xsd:element name="CardTransfer"
-                		type="saft:CardTransferType" />
-                	<xsd:element name="BudgetTransfer"
-                		type="saft:BudgetTransferType" />
-                	<xsd:element name="ServicePayment"
-                		type="saft:ServicePaymentType" />
-                	<xsd:element name="ByuingInsurance"
-                		type="saft:ByuingInsuranceType">
-                	</xsd:element>
-                	<xsd:element name="OpenAccount"
-                		type="saft:OpenAccountType">
-                	</xsd:element>
-                	<xsd:element name="OpenDeposit"
-                		type="saft:OpenDepositType">
-                	</xsd:element>
-                	<xsd:element name="ClosureDeposit"
-                		type="saft:ClosureDepositType">
-                	</xsd:element>
-                	<xsd:element name="ClosureAccount"
-                		type="saft:ClosureAccountType">
-                	</xsd:element>
-                	<xsd:element name="MTSystemTransfer"
-                		type="saft:MTSystemTransferType">
-                	</xsd:element>
-                	<xsd:element name="MTTransferEdit"
-                		type="saft:MTTransferEditType">
-                	</xsd:element>
-                    <xsd:element name="OuterCardTransfer" type="saft:OuterCardTransferType"/>
-                    <xsd:element name="CreateSubscription" type="saft:AutoPaymentType"/>
+               <xsd:element name="TransferBetweenAccounts" type="saft:TransferBetweenAccountsType"/>
+               <xsd:element name="ByuingInsurance" type="saft:ByuingInsuranceType"/>
+               <xsd:element name="OpenAccount" type="saft:OpenAccountType"/>
+               <xsd:element name="OpenDeposit" type="saft:OpenDepositType"/>
+               <xsd:element name="ClosureDeposit" type="saft:ClosureDepositType"/>
+               <xsd:element name="ClosureAccount" type="saft:ClosureAccountType"/>
+               <xsd:element name="MTSystemTransfer" type="saft:MTSystemTransferType"/>
+               <xsd:element name="MTTransferEdit" type="saft:MTTransferEditType"/>
+               <xsd:element name="OuterCardTransfer" type="saft:OuterCardTransferType"/>
+               <xsd:element name="LoanRepaymentReq" type="saft:LoanRepaymentReq"/>
+               <xsd:element name="TradingFloorReplenishment" type="saft:TradingFloorReplenishmentType"/>
+               <xsd:element name="CreateSubscription" type="saft:CreateSubscriptionType"/>
+               <xsd:element name="OuterTransfer" type="saft:OuterTransferType"/>
+               <xsd:element name="CardTransfer" type="saft:CardTransferType"/>
+               <xsd:element name="BudgetTransfer" type="saft:BudgetTransferType"/>
+               <xsd:element name="ServicePayment" type="saft:ServicePaymentType"/>
+               <xsd:element name="PhoneNumberTransfer" type="saft:PhoneNumberTransferType"/>
+            <xsd:element name="TransactionCancellation" type="saft:TransactionCancellationType"/>
                 </xsd:choice>
-            </xsd:choice>
-            <xsd:element name="InitialSourceAmount" type="xsd:decimal"/>
-            <xsd:element name="ConfirmationSubjectType" type="saft:ConfirmationSubjectType"/>
-            <xsd:element name="DocumentConfirmationTimestamp" type="xsd:dateTime"/>
-            <xsd:element name="SessionId" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="Cfids" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="Channel" type="saft:ChannelType"/>
-            <xsd:element name="ClientDevice" type="safc:DeviceType" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="AdditionalAnswerType">
-        <xsd:sequence>
-            <xsd:element name="AdditionalAuthAnswer" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="AdditionalAuthCancel" type="xsd:boolean" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:simpleType name="ConfirmationSubjectType">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="CLIENT"/>
-            <xsd:enumeration value="CC"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:simpleType name="TransactionType">
-    	<xsd:annotation>
-    		<xsd:documentation>
-    			Тип финансовой транзакции
-    		</xsd:documentation>
-    	</xsd:annotation>
-    	<xsd:restriction base="xsd:string">
-    		<xsd:enumeration value="TRANSFER_BETWEEN_ACCOUNTS" />
-    		<xsd:enumeration value="OUTER_TRANSFER" />
-    		<xsd:enumeration value="CARD_TRANSFER" />
-    		<xsd:enumeration value="BUDGET_TRANSFER" />
-    		<xsd:enumeration value="SERVICE_PAYMENT" />
-    		<xsd:enumeration value="OPEN_DEPOSIT"/>
-    		<xsd:enumeration value="CLOSURE_DEPOSIT"/>
-    		<xsd:enumeration value="OPEN_ACCOUNT"/>
-    		<xsd:enumeration value="CLOSURE_ACCOUNT"/>
-			<xsd:enumeration value="OUTER_CARD_TRANSFER"/> <!-- 04.12.18. Яковлев: оставлен верный вариант-->
-    		<xsd:enumeration value="MT_SYSTEM_TRANSFER"/> <!-- 04.12.18. Яковлев: оставлен верный вариант -->
-    		<xsd:enumeration value="MT_TRANSFER_EDIT"/> <!-- 04.12.18. Яковлев: оставлен верный вариант -->
-    		<xsd:enumeration value="BUYING_INSURANCE"/>
-            <xsd:enumeration value="CREATE_SUBSCRIPTION"/>
+         </xsd:choice>
+         <xsd:element name="InitialSourceAmount" type="xsd:decimal"/>
+         <xsd:element name="ConfirmationSubjectType" type="saft:ConfirmationSubjectType"/>
+         <xsd:element name="DocumentConfirmationTimestamp" type="xsd:dateTime"/>
+         <xsd:element name="SessionId" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="Cfids" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="Channel" type="saft:ChannelType"/>
+         <xsd:element name="ClientDevice" type="safc:DeviceType" minOccurs="0"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="AdditionalAnswerType">
+      <xsd:sequence>
+         <xsd:element name="AdditionalAuthAnswer" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="AdditionalAuthCancel" type="xsd:boolean" minOccurs="0"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:simpleType name="ConfirmationSubjectType">
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="CLIENT"/>
+         <xsd:enumeration value="CC"/>
+      </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="TransactionType">
+      <xsd:annotation>
+         <xsd:documentation>Тип финансовой транзакции</xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="OPEN_DEPOSIT"/>
+         <xsd:enumeration value="CLOSURE_DEPOSIT"/>
+         <xsd:enumeration value="OPEN_ACCOUNT"/>
+         <xsd:enumeration value="CLOSURE_ACCOUNT"/>
+         <xsd:enumeration value="BUYING_INSURANCE"/>
+         <xsd:enumeration value="TRANSFER_BETWEEN_ACCOUNTS"/>
+         <xsd:enumeration value="OUTER_TRANSFER"/>
+         <xsd:enumeration value="CARD_TRANSFER"/>
+         <xsd:enumeration value="BUDGET_TRANSFER"/>
+         <xsd:enumeration value="SERVICE_PAYMENT"/>
+         <xsd:enumeration value="MT_SYSTEM_TRANSFER"/>
+         <!--04.12.18. Яковлев: оставлен верный вариант-->
+         <xsd:enumeration value="MT_TRANSFER_EDIT"/>
+         <!--04.12.18. Яковлев: оставлен верный вариант-->
+         <xsd:enumeration value="OUTER_CARD_TRANSFER"/>
+         <!--04.12.18. Яковлев: оставлен верный вариант-->
+         <xsd:enumeration value="CREATE_SUBSCRIPTION"/>
+         <xsd:enumeration value="LOAN_REPAYMENT_REQ"/>
+         <xsd:enumeration value="TRADING_FLOOR_REPLENISHMENT"/>
+         <xsd:enumeration value="PHONE_NUMBER_TRANSFER"/>
+      <xsd:enumeration value="TRANSACTION_CANCELLATION"/>
     	</xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:complexType name="TransferBetweenAccountsType">
+   </xsd:simpleType>
+   <xsd:complexType name="TransferBetweenAccountsType">
+      <xsd:annotation>
+         <xsd:documentation>Перевод между счетами/вкладами/картами клиента</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="SourceProduct" type="xsd:string"/>
+         <xsd:element name="DestinationProduct" type="xsd:string"/>
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
+         <xsd:element name="CommissionAmount" type="xsd:decimal"/>
+         <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode"/>
+         <xsd:element name="DestinationCurrencyIsoCode" type="saft:CurrencyIsoCode"/>
+         <xsd:element name="ConversionCourse" type="xsd:decimal" minOccurs="0"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="OuterTransferBaseType" abstract="true">
+      <xsd:annotation>
+         <xsd:documentation>Перевод физическому или юридическому лицу, в т.ч.
+				в бюджет</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="SourceProduct" type="xsd:string"/>
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
+         <xsd:element name="PayerName" type="xsd:string"/>
+         <xsd:element name="PayerINN" type="xsd:string"/>
+         <xsd:element name="PayeeProps" type="saft:PayeePropsType"/>
+         <xsd:element name="PayeeBankProps" type="saft:PayeeBankPropsType"/>
+         <xsd:element name="OperationDescription" type="xsd:string"/>
+         <xsd:element name="CommissionAmount" type="xsd:decimal"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="OuterTransferType">
+      <xsd:annotation>
+         <xsd:documentation>Перевод на счет другому лицу</xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexContent>
+         <xsd:extension base="saft:OuterTransferBaseType">
+            <xsd:sequence>
+               <xsd:element name="IsCommunalPayment" type="xsd:boolean"/>
+               <xsd:element name="CommunalPaymentProps" type="saft:CommunalPaymentPropsType" minOccurs="0"/>
+            </xsd:sequence>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+   <xsd:complexType name="CardTransferType">
+      <xsd:annotation>
+         <xsd:documentation>Перевод на карту другому лицу</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="SourceCardNumber" type="xsd:string"/>
+         <xsd:element name="DestinationCardNumber" type="xsd:string"/>
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
+         <xsd:element name="CommissionAmount" type="xsd:decimal"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="BudgetTransferType">
+      <xsd:annotation>
+         <xsd:documentation>Перевод в бюджет, оплата начислений, получаемых из
+				ГИС ГМП</xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexContent>
+         <xsd:extension base="saft:OuterTransferBaseType">
+            <xsd:sequence>
+               <xsd:element name="UIN" type="xsd:string"/>
+               <xsd:element name="TaxProps" type="saft:TaxPropsType"/>
+            </xsd:sequence>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+   <xsd:complexType name="ServicePaymentType">
+      <xsd:annotation>
+         <xsd:documentation>Оплата услуг</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="ServiceKind" type="xsd:string" maxOccurs="unbounded"/>
+         <!--11.06.19. КоваленкоПП: изменено в соответсвие с ФТ-->
+         <xsd:element name="ProviderName" type="xsd:string"/>
+         <xsd:element name="ServiceName" type="xsd:string"/>
+         <xsd:element name="SourceCardNumber" type="xsd:string"/>
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
+         <xsd:element name="CommissionAmount" type="xsd:decimal"/>
+         <xsd:element name="AdditionalField" type="saft:AdditionalFieldType" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="PayeePropsType">
+      <xsd:annotation>
+         <xsd:documentation>Реквизиты получателя платежа</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="PayeeName" type="xsd:string"/>
+         <xsd:element name="PayeeINN" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="PayeeKPP" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="PayeeAccount" type="xsd:string"/>
+         <xsd:element name="PayeeAccountOpenDate" type="xsd:date" minOccurs="0"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="PayeeBankPropsType">
+      <xsd:annotation>
+         <xsd:documentation>Реквизиты Банка получателя</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="BankName" type="xsd:string"/>
+         <xsd:element name="BIK" type="xsd:string"/>
+         <xsd:element name="CorrespondentAccountNumber" type="xsd:string"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="CommunalPaymentPropsType">
+      <xsd:annotation>
+         <xsd:documentation>Реквизиты при оплате услуг ЖКХ</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="PayDocId" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="PayDocNumber" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="UnifiedAccountNumber" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="ServiceId" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="PayerId" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="PayPeriod" type="xsd:string" minOccurs="0"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="TaxPropsType">
+      <xsd:annotation>
+         <xsd:documentation>Налоговые поля</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="TaxStatus" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="KBK" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="OKTMO" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="TaxGround" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="TaxPeriod" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="TaxDocNumber" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="TaxDocDate" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="IsDebtorPayment" type="xsd:boolean" minOccurs="0"/>
+         <xsd:element name="DebtorINN" type="xsd:string" minOccurs="0"/>
+         <xsd:element name="DebtorName" type="xsd:string" minOccurs="0"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="CreateSubscriptionType">
+      <xsd:annotation>
+         <xsd:documentation>Подписка на сервисы оплаты</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="SubscriptionId" type="xsd:string" minOccurs="0"/>
+         <!--ЯковлевМВ: необязательное-->
+         <xsd:element name="SubscriptionDBOId" type="xsd:string"/>
+         <!--ЯковлевМВ: добавил-->
+         <xsd:element name="SubscriptionStatus" type="saft:SubscriptionStatusType" minOccurs="0"/>
+         <!--ЯковлевМВ: необязательное-->
+         <xsd:element name="ActionType" type="saft:ActionType"/>
+         <xsd:element name="SubsType" type="saft:SubsType"/>
+         <xsd:choice>
+            <xsd:element name="SchedulePayment" type="saft:SchedulePaymentType"/>
+            <xsd:element name="BalanceLimitPayment" type="saft:BalanceLimitPaymentType"/>
+            <xsd:element name="AccuredPayment" type="saft:AccuredPaymentType"/>
+         </xsd:choice>
+         <xsd:element name="PaymentType" type="saft:PaymentType"/>
+         <xsd:element name="ServicePayment" type="saft:AutoPaymentDataType"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="SchedulePaymentType">
+      <xsd:annotation>
+         <xsd:documentation>Параметры платежа по расписанию</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="StartDate" type="xsd:date"/>
+         <xsd:element name="PeriodType" type="PeriodType"/>
+         <xsd:element name="EndDate" type="xsd:date" minOccurs="0"/>
+         <!--ЯковлевМВ: необязательно-->
+         <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode"/>
+         <!--ЯковлевМВ: добавлено-->
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
+         <!--ЯковлевМВ: добавлено-->
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="BalanceLimitPaymentType">
+      <xsd:annotation>
+         <xsd:documentation>Параметры платежа по достижению порога баланса</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="MinLimitBalance" type="xsd:decimal"/>
+         <xsd:element name="MaxAmount" type="xsd:decimal"/>
+         <xsd:element name="Period" type="saft:PeriodType2"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="AccuredPaymentType">
+      <xsd:annotation>
+         <xsd:documentation>Параметры платежа по начислению</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="MaxAmount" type="xsd:decimal"/>
+         <xsd:element name="Period" type="saft:PeriodType2"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="AutoPaymentDataType">
+      <xsd:annotation>
+         <xsd:documentation>Данные автоплатежа</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="ServiceKind" type="xsd:string"/>
+         <xsd:element name="ProviderName" type="xsd:string"/>
+         <xsd:element name="ServiceName" type="xsd:string"/>
+         <xsd:element name="SourceProduct" type="xsd:string"/>
+         <!--13.06.19 КоваленкоПП: изменение названия элемента-->
+         <xsd:element name="AdditionalField" type="saft:AdditionalFieldType" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="AdditionalFieldType">
+      <xsd:annotation>
+         <xsd:documentation>Описание поля на форме оплаты услуги</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="Id" type="xsd:string"/>
+         <xsd:element name="Name" type="xsd:string"/>
+         <xsd:element name="Value" type="xsd:string"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:simpleType name="SubscriptionStatusType">
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="CREATE"/>
+         <xsd:enumeration value="WAIT"/>
+         <xsd:enumeration value="ACTIVE"/>
+         <xsd:enumeration value="SUSPEND"/>
+         <xsd:enumeration value="DISABLED"/>
+      </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="ActionType">
+      <xsd:annotation>
+         <xsd:documentation>1 - создание, 2 - изменение, 3 - отключение</xsd:documentation>
+      </xsd:annotation>
+      <xsd:restriction base="xsd:positiveInteger">
+         <xsd:enumeration value="1"/>
+         <xsd:enumeration value="2"/>
+         <xsd:enumeration value="3"/>
+      </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="SubsType">
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="BY_SCHEDULE"/>
+         <xsd:enumeration value="BY_LIMIT"/>
+         <xsd:enumeration value="BY_INVOICE"/>
+      </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="PaymentType">
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="SERVICE_PAYMENT"/>
+      </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="PeriodType">
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="DAILY"/>
+         <xsd:enumeration value="WEEKLY"/>
+         <xsd:enumeration value="MONTHLY"/>
+         <xsd:enumeration value="QUARTERLY"/>
+         <xsd:enumeration value="ANNUALLY"/>
+      </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="PeriodType2">
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="DAY"/>
+         <xsd:enumeration value="WEEK"/>
+         <xsd:enumeration value="MONTH"/>
+      </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="CurrencyIsoCode">
+      <xsd:restriction base="xsd:positiveInteger">
+         <xsd:maxInclusive value="999"/>
+      </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="ChannelType">
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="INTERNET_CLIENT"/>
+         <xsd:enumeration value="MOBILE_BANK"/>
+      </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="OpenDepositType">
+      <xsd:annotation>
+         <xsd:documentation>Открытие вклада</xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexContent>
+         <xsd:extension base="saft:OpenBaseType"/>
+      </xsd:complexContent>
+   </xsd:complexType>
+   <xsd:complexType name="ClosureDepositType">
+      <xsd:annotation>
+         <xsd:documentation>Закрытие вклада</xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexContent>
+         <xsd:extension base="saft:CloseBaseType"/>
+      </xsd:complexContent>
+   </xsd:complexType>
+   <xsd:complexType name="OpenAccountType">
+      <xsd:annotation>
+         <xsd:documentation>Открытие текущего счета (в т.ч. накопительного)</xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexContent>
+         <xsd:extension base="saft:OpenBaseType"/>
+      </xsd:complexContent>
+   </xsd:complexType>
+   <xsd:complexType name="ClosureAccountType">
+      <xsd:annotation>
+         <xsd:documentation>Закрытие текущего счета (в т.ч. накопительного)</xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexContent>
+         <xsd:extension base="saft:CloseBaseType"/>
+      </xsd:complexContent>
+   </xsd:complexType>
+   <xsd:complexType name="MTSystemTransferPropsType" abstract="true">
+      <xsd:annotation>
+         <xsd:documentation>Перевод через систему денежных переводов</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="SourceProduct" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Счет/карта списания При переводе с платежной
+						карты передается номер карточного счета, для которого выпущена
+						карта</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="MtSystem" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Система денежных переводов Передается
+						наименование СДП</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Сумма операции. Передается сумма перевода в
+						валюте счета списания без учета комиссии банка за ее совершение.</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Комиссия за перевод. Размер комиссии за перевод.
+						В случае наличия двух комиссий передается сумма дух комиссий.</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Валюта перевода</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SenderName" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Наименование отправителя</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SenderPhoneNumber" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Номер телефона отправителя</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SenderDocument" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Паспортные данные отправителя, в виде строки</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SenderAddress" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Адрес отправителя, в виде строки</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SenderCountry" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Страна отправителя, наименование</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="IsResidentSender" type="xsd:boolean" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Признак резидентности отправителя</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="ReceiverName" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Наименование получателя</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="ReceiverCountry" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Страна получателя, наименование</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="MTTransferEditType">
+      <xsd:annotation>
+         <xsd:documentation>Изменение перевода, отправленного через систему
+				денежных переводов</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="EditingTransactionId" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Идентификатор перевода (номер заявки на
+						перевод). Указывается идентификатор перевода, в рамках которого
+						передаются изменения</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SystemTransferCont" type="saft:MTSystemTransferPropsType"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="ByuingInsuranceType">
+      <xsd:annotation>
+         <xsd:documentation>Покупка страховки держателей карт</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="InsuredPerson" type="saft:InsuredPersonPropsType" nillable="false" minOccurs="1" maxOccurs="unbounded">
+            <xsd:annotation>
+               <xsd:documentation>Застрахованное лицо</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="ProductCode" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Код программы</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Product" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Наименование программы</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="InsuranceCompany" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Страхователь</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="InsuranceTerritory" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Территория страхования</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AgreementStartDate" type="xsd:date" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Дата заключения договора</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AgreementEndDate" type="xsd:date" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Дата окончания договора</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AgreementCurrency" type="saft:CurrencyIsoCode" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Валюта договора</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="InsuranceCoverType" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Тип страхового покрытия</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="InsuranceAmount" type="xsd:decimal" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Страховая сумма</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="ExtendedCoverage" type="xsd:boolean" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Расширенное покрытие (дополнительные риски)</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="InsuranceSum" type="xsd:decimal" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Сумма страховой премии</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceProduct" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Счёт списания</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Валюта счёта списания</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="OuterCardTransferType">
+      <xsd:annotation>
+         <xsd:documentation>Перевод со сторонней карты на карту банка</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="SourceProduct" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Карта списания</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="DestinationProduct" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>Карта зачисления</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AmountInDestinationCurrency" type="xsd:decimal">
+            <xsd:annotation>
+               <xsd:documentation>Сумма зачисления</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Комиссия зачисления</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="DestinationCurrencyIsoCode" type="saft:CurrencyIsoCode">
+            <xsd:annotation>
+               <xsd:documentation>Валюта карты зачисления</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="OpenBaseType" abstract="true">
+      <xsd:annotation>
+         <xsd:documentation>Базовый тип для типов финансовых транзакций по
+				открытию вклада / текущего счета (в т.ч. накопительного)</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="Filial" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Филиал (офис получения)</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="OrderType" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Тип распоряжения 1 – открытие вклада 2 –
+						открытие вклада с открытием текущего счета 3 – открытие текущего
+						счета</xsd:documentation>
+               <!--04.12.18 Яковлев: открытие накопительного счета будет идти как
+						открытие вклада?-->
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:int">
+                  <xsd:maxInclusive value="10"/>
+                  <xsd:minInclusive value="1"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
+         <xsd:element name="ProductName" type="xsd:string" nillable="true">
+            <!--04.12.18 Яковлев: необязательное поле-->
+            <xsd:annotation>
+               <xsd:documentation>Продукт Указывается депозитный продукт (название
+						вклада) / продукт открываемого счета.</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <!--04.12.18. Яковлев: удален DestinationProduct-->
+         <xsd:element name="DestinationCurrencyIsoCode" type="saft:CurrencyIsoCode">
+            <xsd:annotation>
+               <xsd:documentation>Валюта вклада/счета</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Сумма операции Обязательно для открытия вклада.</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Period" type="xsd:int" minOccurs="0">
+            <!--04.12.18 Яковлев: необязательное поле-->
+            <xsd:annotation>
+               <xsd:documentation>Срок депозита в днях Обязательно для открытия
+						вклада.</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceProduct" type="xsd:string" minOccurs="0">
+            <!--04.12.18 Яковлев: необязательное поле-->
+            <xsd:annotation>
+               <xsd:documentation>Номер счета списания Обязательно для открытия
+						вклада</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode" minOccurs="0">
+            <!--04.12.18 Яковлев: необязательное поле-->
+            <xsd:annotation>
+               <xsd:documentation>Валюта счета списания</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="InterestRate" type="xsd:decimal" minOccurs="0"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="CloseBaseType" abstract="true">
+      <xsd:sequence>
+         <xsd:element name="Filial" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Филиал (офис получения)</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="OrderType" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Тип распоряжения 4 – закрытие вклада 5 –
+						закрытие текущего счета</xsd:documentation>
+               <!--04.12.18 Яковлев: добавлено описание-->
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:int">
+                  <xsd:maxInclusive value="10"/>
+                  <xsd:minInclusive value="1"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
+         <xsd:element name="SourceProduct" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Номер закрываемого вклада/счета</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="ProductName" type="xsd:string" nillable="true">
+            <!--04.12.18 Яковлев: необязательное поле-->
+            <xsd:annotation>
+               <xsd:documentation>Продукт</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Валюта вклада/счета</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Сумма операции</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Period" type="xsd:int" minOccurs="0">
+            <!--04.12.18 Яковлев: необязательное поле-->
+            <xsd:annotation>
+               <xsd:documentation>Срок депозита в днях</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="DestinationProduct" type="xsd:string" minOccurs="0">
+            <!--04.12.18 Яковлев: необязательное поле-->
+            <xsd:annotation>
+               <xsd:documentation>Номер счета зачисления</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="DestinationCurrencyIsoCode" type="saft:CurrencyIsoCode" minOccurs="0">
+            <!--04.12.18 Яковлев: необязательное поле-->
+            <xsd:annotation>
+               <xsd:documentation>Валюта счета зачисления</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="LoanRepaymentReq">
+      <xsd:annotation>
+         <xsd:documentation>Заявление на досрочное погашение кредита</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="RepaymentKind" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>Тип погашения</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AgreementNumber" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>Номер кредитного договора</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="RepaymentDate" type="xsd:date">
+            <xsd:annotation>
+               <xsd:documentation>Дата погашения</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal">
+            <xsd:annotation>
+               <xsd:documentation>Сумма операции</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode">
+            <xsd:annotation>
+               <xsd:documentation>Валюта операции</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AccountNumber" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>Счет для погашения кредита</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="TradingFloorReplenishmentType">
+      <xsd:annotation>
+         <xsd:documentation>Пополнение торговой площадки</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="SourceProduct" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>Источник списания</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="DestinationProduct" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>Брокерский счет</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="TradingFloorName" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>Наименование торговой площадки</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal">
+            <xsd:annotation>
+               <xsd:documentation>Сумма в валюте списания</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="CommissionAmount" type="xsd:decimal">
+            <xsd:annotation>
+               <xsd:documentation>Комиссия в валюте списания</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode">
+            <xsd:annotation>
+               <xsd:documentation>Числовой ISO код валюты списания</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="DestinationCurrencyIsoCode" type="saft:CurrencyIsoCode">
+            <xsd:annotation>
+               <xsd:documentation>Числовой ISO код валюты зачисления</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="PhoneNumberTransferType">
+      <xsd:sequence>
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal">
+            <xsd:annotation>
+               <xsd:documentation>Сумма операции</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:choice>
+            <xsd:element name="PayeePhone" type="xsd:string" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>Номер телефона получателя</xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+            <xsd:sequence>
+               <xsd:element name="BIK" type="xsd:string" minOccurs="0">
+                  <xsd:annotation>
+                     <xsd:documentation>БИК банка получателя</xsd:documentation>
+                  </xsd:annotation>
+               </xsd:element>
+               <xsd:element name="PayeeAccount" type="xsd:string" minOccurs="0">
+                  <xsd:annotation>
+                     <xsd:documentation>Номер счета списания</xsd:documentation>
+                  </xsd:annotation>
+               </xsd:element>
+            </xsd:sequence>
+            <xsd:element name="DestinationCardNumber" type="xsd:string" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>Номер карты получателя</xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+         </xsd:choice>
+         <xsd:element name="BankName" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Банк получателя платежа</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="PayeeName" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Получатель платежа</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="CommissionAmount" type="xsd:decimal">
+            <xsd:annotation>
+               <xsd:documentation>Комиссия</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceProduct" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Номер счета списания</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceCardNumber" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Номер карты списания</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+          <xsd:element name="SBP_id" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Идентификатор операции СБП</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="OperationDescription" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Сообщение получателю</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="InsuredPersonPropsType">
+      <xsd:sequence>
+         <xsd:element name="FullName" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>ФИО</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="DateOfBirth" type="xsd:date" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Дата рождения</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="RegAddress" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Адрес регистрации</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="MTSystemTransferType">
+      <xsd:complexContent>
+         <xsd:extension base="saft:MTSystemTransferPropsType"/>
+      </xsd:complexContent>
+   </xsd:complexType><xsd:complexType name="TransactionCancellationType">
         <xsd:annotation>
-            <xsd:documentation>Перевод между счетами/вкладами/картами клиента</xsd:documentation>
+            <xsd:documentation>Отмена операции</xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element name="SourceProduct" type="xsd:string"/>
-            <xsd:element name="DestinationProduct" type="xsd:string"/>
-            <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
-            <xsd:element name="CommissionAmount" type="xsd:decimal"/>
-            <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode"/>
-            <xsd:element name="DestinationCurrencyIsoCode" type="saft:CurrencyIsoCode"/>
-            <xsd:element name="ConversionCourse" type="xsd:decimal" minOccurs="0"/>
+            <xsd:element name="transactionIdToCancel" type="xsd:long"/>
+            <xsd:element name="reasonOfCancellation" type="xsd:string"/>
         </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="OuterTransferBaseType" abstract="true">
-        <xsd:annotation>
-            <xsd:documentation>Перевод физическому или юридическому лицу, в т.ч. в бюджет</xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="SourceProduct" type="xsd:string"/>
-            <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
-            <xsd:element name="PayerName" type="xsd:string"/>
-            <xsd:element name="PayerINN" type="xsd:string"/>
-            <xsd:element name="PayeeProps" type="saft:PayeePropsType"/>
-            <xsd:element name="PayeeBankProps" type="saft:PayeeBankPropsType"/>
-            <xsd:element name="OperationDescription" type="xsd:string"/>
-            <xsd:element name="CommissionAmount" type="xsd:decimal"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="OuterTransferType">
-        <xsd:annotation>
-            <xsd:documentation>Перевод на счет другому лицу</xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexContent>
-            <xsd:extension base="saft:OuterTransferBaseType">
-                <xsd:sequence>
-                    <xsd:element name="IsCommunalPayment" type="xsd:boolean"/>
-                    <xsd:element name="CommunalPaymentProps" type="saft:CommunalPaymentPropsType" minOccurs="0"/>
-                </xsd:sequence>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:complexType name="CardTransferType">
-        <xsd:annotation>
-            <xsd:documentation>Перевод на карту другому лицу</xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="SourceCardNumber" type="xsd:string"/>
-            <xsd:element name="DestinationCardNumber" type="xsd:string"/>
-            <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
-            <xsd:element name="CommissionAmount" type="xsd:decimal"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="BudgetTransferType">
-        <xsd:annotation>
-            <xsd:documentation>Перевод в бюджет, оплата начислений, получаемых из ГИС ГМП</xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexContent>
-            <xsd:extension base="saft:OuterTransferBaseType">
-                <xsd:sequence>
-                    <xsd:element name="UIN" type="xsd:string"/>
-                    <xsd:element name="TaxProps" type="saft:TaxPropsType"/>
-                </xsd:sequence>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:complexType name="ServicePaymentType">
-        <xsd:annotation>
-            <xsd:documentation>Оплата услуг</xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="ServiceKind" type="xsd:string" maxOccurs="unbounded"/>
-            <xsd:element name="ProviderName" type="xsd:string"/>
-            <xsd:element name="ServiceName" type="xsd:string"/>
-            <xsd:element name="SourceCardNumber" type="xsd:string"/>
-            <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
-            <xsd:element name="CommissionAmount" type="xsd:decimal"/>
-            <xsd:element name="AdditionalField" type="saft:AdditionalFieldType" minOccurs="0" maxOccurs="unbounded"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="PayeePropsType">
-        <xsd:annotation>
-            <xsd:documentation>Реквизиты получателя платежа</xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="PayeeName" type="xsd:string"/>
-            <xsd:element name="PayeeINN" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="PayeeKPP" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="PayeeAccount" type="xsd:string"/>
-            <xsd:element name="PayeeAccountOpenDate" type="xsd:date" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="PayeeBankPropsType">
-        <xsd:annotation>
-            <xsd:documentation>Реквизиты Банка получателя</xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="BankName" type="xsd:string"/>
-            <xsd:element name="BIK" type="xsd:string"/>
-            <xsd:element name="CorrespondentAccountNumber" type="xsd:string"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="CommunalPaymentPropsType">
-        <xsd:annotation>
-            <xsd:documentation>Реквизиты при оплате услуг ЖКХ</xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="PayDocId" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="PayDocNumber" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="UnifiedAccountNumber" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="ServiceId" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="PayerId" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="PayPeriod" type="xsd:string" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="TaxPropsType">
-        <xsd:annotation>
-            <xsd:documentation>Налоговые поля</xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="TaxStatus" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="KBK" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="OKTMO" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="TaxGround" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="TaxPeriod" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="TaxDocNumber" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="TaxDocDate" type="xsd:string" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="AutoPaymentType">
-        <xsd:annotation>
-            <xsd:documentation>Подписка на сервисы оплаты</xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-        	<xsd:element name="SubscriptionID" type="xsd:string"/>
-        	<xsd:element name="SubscriptionStatus" type="saft:SubscriptionStatusType"/>
-        	<xsd:element name="ActionType" type="saft:ActionType"/>
-        	<xsd:element name="SubsType" type="saft:SubsType"/>
-        	<xsd:element name="PaymentType" type="saft:PaymentType"/>
-            <xsd:element name="ServiceParameter" type="saft:AutoPaymentParametersType"/>
-            <xsd:element name="ServicePayment" type="saft:AutoPaymentDataType"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="AutoPaymentParametersType">
-        <xsd:annotation>
-            <xsd:documentation>Параметры автоплатежа</xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-        	<xsd:element name="StartDate" type="xsd:dateTime"/>
-            <xsd:element name="PeriodType" type="saft:PeriodType"/>
-            <xsd:element name="EndDate" type="xsd:dateTime"/>
-            <xsd:element name="MaxAmount" type="xsd:string"/>
-            <xsd:element name="MinLimitBalance" type="xsd:string"/>
-            <xsd:element name="Period" type="xsd:string"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="AutoPaymentDataType">
-        <xsd:annotation>
-            <xsd:documentation>Данные автоплатежа</xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-			<xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
-			<xsd:element name="ProviderName" type="xsd:string"/>
-			<xsd:element name="ServiceKind" type="xsd:decimal"/>
-			<xsd:element name="ServiceName" type="xsd:string"/>
-			<xsd:element name="SourceCardNumber" type="xsd:string"/>
-			<xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode"/>
-			<xsd:element name="AdditionalField" type="saft:AdditionalFieldType" minOccurs="0" maxOccurs="unbounded"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="AdditionalFieldType">
-        <xsd:annotation>
-            <xsd:documentation>Описание поля на форме оплаты услуги</xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="Id" type="xsd:string"/>
-            <xsd:element name="Name" type="xsd:string"/>
-            <xsd:element name="Value" type="xsd:string"/>
-        </xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:simpleType name="SubscriptionStatusType">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="CREATE"/>
-            <xsd:enumeration value="WAIT"/>
-            <xsd:enumeration value="ACTIVE"/>
-            <xsd:enumeration value="SUSPEND"/>
-            <xsd:enumeration value="DISABLED"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:simpleType name="ActionType">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="CREATE"/>
-            <xsd:enumeration value="CHANGE"/>
-            <xsd:enumeration value="DISABLED"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:simpleType name="SubsType">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="BY_SCHEDULE"/>
-            <xsd:enumeration value="BY_LIMIT"/>
-            <xsd:enumeration value="BY_INVOICE"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:simpleType name="PaymentType">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="SERVICE_PAYMENT"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:simpleType name="PeriodType">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="DAILY"/>
-            <xsd:enumeration value="WEEKLY"/>
-            <xsd:enumeration value="MONTHLY"/>
-            <xsd:enumeration value="QUARTERLY"/>
-            <xsd:enumeration value="ANNUALLY"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:simpleType name="CurrencyIsoCode">
-        <xsd:restriction base="xsd:positiveInteger">
-            <xsd:maxInclusive value="999"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:simpleType name="ChannelType">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="INTERNET_CLIENT"/>
-            <xsd:enumeration value="MOBILE_BANK"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:complexType name="OpenDepositType">
-    	<xsd:annotation>
-    		<xsd:documentation>Открытие вклада</xsd:documentation>
-    	</xsd:annotation>
-    	<xsd:complexContent>
-    		<xsd:extension base="saft:OpenBaseType"/>
-    	</xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:complexType name="ClosureDepositType">
-    	<xsd:annotation>
-    		<xsd:documentation>Закрытие вклада</xsd:documentation>
-    	</xsd:annotation>
-    	<xsd:complexContent>
-    		<xsd:extension base="saft:CloseBaseType"/>
-    	</xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:complexType name="OpenAccountType">
-    	<xsd:annotation>
-    		<xsd:documentation>
-    			Открытие текущего счета (в т.ч. накопительного)
-    		</xsd:documentation>
-    	</xsd:annotation>
-    	<xsd:complexContent>
-    		<xsd:extension base="saft:OpenBaseType">
-    		</xsd:extension>
-    	</xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:complexType name="ClosureAccountType">
-    	<xsd:annotation>
-    		<xsd:documentation>
-    			Закрытие текущего счета (в т.ч. накопительного)
-    		</xsd:documentation>
-    	</xsd:annotation>
-    	<xsd:complexContent>
-    		<xsd:extension base="saft:CloseBaseType"/>
-    	</xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:complexType name="MTSystemTransferPropsType" abstract="true">
-    	<xsd:annotation>
-    		<xsd:documentation>
-    			Перевод через систему денежных переводов
-    		</xsd:documentation>
-    	</xsd:annotation>
-    	<xsd:sequence>
-    		<xsd:element name="SourceProduct" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Счет/карта списания При переводе с платежной карты передается номер карточного
-                        счета, для которого выпущена карта
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="MtSystem" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Система денежных переводов Передается наименование СДП
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="AmountInSourceCurrency"
-    			type="xsd:decimal" nillable="false">
-                <xsd:annotation>
-                	<xsd:documentation>Сумма операции. Передается сумма перевода в валюте счета списания без учета
-                        комиссии банка за ее совершение.
-</xsd:documentation>
-                </xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="CommissionAmount" type="xsd:decimal" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Комиссия за перевод. Размер комиссии за перевод. В случае наличия двух комиссий
-                        передается сумма дух комиссий.
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="SourceCurrencyIsoCode"
-    			type="saft:CurrencyIsoCode" nillable="false">
-                <xsd:annotation>
-                	<xsd:documentation>Валюта перевода
-</xsd:documentation>
-                </xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="SenderName" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Наименование отправителя
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="SenderPhoneNumber" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Номер телефона отправителя
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="SenderDocument" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Паспортные данные отправителя, в виде строки
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="SenderAddress" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Адрес отправителя, в виде строки
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="SenderCountry" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Страна отправителя, наименование
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="IsResidentSender" type="xsd:boolean" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Признак резидентности отправителя
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="ReceiverName" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Наименование получателя
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="ReceiverCountry" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Страна получателя, наименование
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    	</xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="MTTransferEditType">
-    	<xsd:annotation>
-    		<xsd:documentation>
-    			Изменение перевода, отправленного через систему денежных
-    			переводов
-    		</xsd:documentation>
-    	</xsd:annotation>
-    	<xsd:sequence>
-    		<xsd:element name="EditingTransactionId"
-    			type="xsd:string" nillable="false">
-                <xsd:annotation>
-                	<xsd:documentation>Идентификатор перевода (номер заявки на перевод).
-					Указывается идентификатор
-                        перевода, в рамках которого передаются изменения</xsd:documentation></xsd:annotation>
-    		</xsd:element>
-
-    		<xsd:element name="SystemTransferCont" type="saft:MTSystemTransferPropsType"></xsd:element>
-    	</xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="ByuingInsuranceType">
-    	<xsd:annotation>
-    		<xsd:documentation>
-    			Покупка страховки держателей карт
-    		</xsd:documentation>
-    	</xsd:annotation>
-    	<xsd:sequence>
-    		<xsd:element name="InsuredPerson"
-    			type="saft:InsuredPersonPropsType" nillable="false" minOccurs="1" maxOccurs="unbounded">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Застрахованное лицо
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-
-
-
-    		<xsd:element name="ProductCode" type="xsd:string"
-    			nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Код программы</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="Product" type="xsd:string"
-    			nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Наименование программы
-</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="InsuranceCompany" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Страхователь
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="InsuranceTerritory" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Территория страхования
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="AgreementStartDate" type="xsd:date" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Дата заключения договора
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="AgreementEndDate" type="xsd:date" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Дата окончания договора
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="AgreementCurrency"
-    			type="saft:CurrencyIsoCode" nillable="false">
-                <xsd:annotation>
-                	<xsd:documentation>Валюта договора
-</xsd:documentation>
-                </xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="InsuranceCoverType" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Тип страхового покрытия
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="InsuranceAmount" type="xsd:decimal" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Страховая сумма
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="ExtendedCoverage" type="xsd:boolean" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Расширенное покрытие (дополнительные риски)
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="InsuranceSum" type="xsd:decimal" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Сумма страховой премии
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="SourceProduct" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Счёт списания
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    		<xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Валюта счёта списания
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    	</xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="OuterCardTransferType">
-    	<xsd:annotation>
-    		<xsd:documentation>
-    			Перевод со сторонней карты на карту банка
-    		</xsd:documentation>
-    	</xsd:annotation>
-    	<xsd:sequence>
-    		<xsd:element name="SourceProduct" type="xsd:string"
-    			nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Карта списания
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="DestinationProduct" type="xsd:string">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Карта зачисления
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="AmountInDestinationCurrency"
-    			type="xsd:decimal">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Сумма зачисления
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="CommissionAmount" type="xsd:decimal"
-    			nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Комиссия зачисления
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="DestinationCurrencyIsoCode" type="saft:CurrencyIsoCode">
-    			<xsd:annotation>
-    				<xsd:documentation>Валюта карты зачисления
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    	</xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="OpenBaseType" abstract="true">
-    	<xsd:annotation>
-    		<xsd:documentation>
-    			Базовый тип для типов финансовых транзакций по открытию
-    			вклада / текущего счета (в т.ч. накопительного)
-    		</xsd:documentation>
-    	</xsd:annotation>
-    	<xsd:sequence>
-    		<xsd:element name="Filial" type="xsd:string"
-    			nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Филиал (офис получения)
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="OrderType" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Тип распоряжения 1 – открытие вклада 2 –
-    					открытие вклада с открытием текущего счета 3 –
-    					открытие текущего счета
-    				</xsd:documentation> <!-- 04.12.18 Яковлев: открытие накопительного счета будет идти как открытие вклада? -->
-    			</xsd:annotation>
-
-    			<xsd:simpleType>
-    				<xsd:restriction base="xsd:int">
-
-
-    					<xsd:maxInclusive value="10"/>
-    					<xsd:minInclusive value="1"/>
-    				</xsd:restriction>
-    			</xsd:simpleType>
-    		</xsd:element>
-    		<xsd:element name="ProductName" type="xsd:string"
-    			nillable="true"> <!-- 04.12.18 Яковлев: необязательное поле -->
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Продукт Указывается депозитный продукт (название
-    					вклада) / продукт открываемого счета.
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element> <!-- 04.12.18. Яковлев: удален DestinationProduct -->
-    		<xsd:element name="DestinationCurrencyIsoCode"
-    			type="saft:CurrencyIsoCode">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Валюта вклада/счета
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="AmountInSourceCurrency"
-    			type="xsd:decimal">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Сумма операции Обязательно для открытия вклада.
-
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="Period" type="xsd:int" minOccurs="0"> <!-- 04.12.18 Яковлев: необязательное поле -->
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Срок депозита в днях Обязательно для открытия
-    					вклада.
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="SourceProduct" type="xsd:string" minOccurs="0"> <!-- 04.12.18 Яковлев: необязательное поле -->
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Номер счета списания Обязательно для открытия
-    					вклада
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode" minOccurs="0"> <!-- 04.12.18 Яковлев: необязательное поле -->
-    			<xsd:annotation>
-    				<xsd:documentation>Валюта счета списания
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    	</xsd:sequence>
-
-    </xsd:complexType>
-
-    <xsd:complexType name="CloseBaseType" abstract="true">
-    	<xsd:sequence>
-    		<xsd:element name="Filial" type="xsd:string"
-    			nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Филиал (офис получения)
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="OrderType" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Тип распоряжения 4 – закрытие вклада 5 –
-    					закрытие текущего счета
-    				</xsd:documentation> <!-- 04.12.18 Яковлев: добавлено описание -->
-    			</xsd:annotation>
-    			<xsd:simpleType>
-    				<xsd:restriction base="xsd:int">
-
-
-    					<xsd:maxInclusive value="10"/>
-    					<xsd:minInclusive value="1"/>
-    				</xsd:restriction>
-    			</xsd:simpleType>
-    		</xsd:element>
-    		<xsd:element name="SourceProduct" type="xsd:string"
-    			nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Номер закрываемого вклада/счета
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="ProductName" type="xsd:string"
-    			nillable="true"> <!-- 04.12.18 Яковлев: необязательное поле -->
-    			<xsd:annotation>
-    				<xsd:documentation>Продукт</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="SourceCurrencyIsoCode"
-    			type="saft:CurrencyIsoCode" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Валюта вклада/счета
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="AmountInSourceCurrency"
-    			type="xsd:decimal" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Сумма операции
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="Period" type="xsd:int" minOccurs="0"> <!-- 04.12.18 Яковлев: необязательное поле -->
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Срок депозита в днях
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="DestinationProduct" type="xsd:string" minOccurs="0"> <!-- 04.12.18 Яковлев: необязательное поле -->
-    			<xsd:annotation>
-    				<xsd:documentation>
-    					Номер счета зачисления
-    				</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="DestinationCurrencyIsoCode" type="saft:CurrencyIsoCode" minOccurs="0"> <!-- 04.12.18 Яковлев: необязательное поле -->
-    			<xsd:annotation>
-    				<xsd:documentation>Валюта счета зачисления
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    	</xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="InsuredPersonPropsType">
-    	<xsd:sequence>
-    		<xsd:element name="FullName" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>ФИО</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="DateOfBirth" type="xsd:date" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Дата рождения</xsd:documentation>
-    			</xsd:annotation>
-    		</xsd:element>
-    		<xsd:element name="RegAddress" type="xsd:string" nillable="false">
-    			<xsd:annotation>
-    				<xsd:documentation>Адрес регистрации
-</xsd:documentation>
-    			</xsd:annotation></xsd:element>
-    	</xsd:sequence>
-    </xsd:complexType>
-
-    <xsd:complexType name="MTSystemTransferType">
-    	<xsd:complexContent>
-    		<xsd:extension base="saft:MTSystemTransferPropsType"/>
-    	</xsd:complexContent>
     </xsd:complexType>
 </xsd:schema>

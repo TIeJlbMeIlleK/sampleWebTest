@@ -34,7 +34,7 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
             description = "Настройка и включение правила"
     )
     public void enableRules() {
-        System.out.println("\"Правило ExR_04_infectedDevice работает с новым типом транзакций \"Покупка страховки держателей карт \"\" -- BIQ2370" + " ТК№2");
+        System.out.println("\"Правило ExR_04_infectedDevice работает с новым типом транзакций \"Покупка страховки держателей карт \"\" -- BIQ2370" + " ТК№1");
 
         getIC().locateRules()
                 .selectVisible()

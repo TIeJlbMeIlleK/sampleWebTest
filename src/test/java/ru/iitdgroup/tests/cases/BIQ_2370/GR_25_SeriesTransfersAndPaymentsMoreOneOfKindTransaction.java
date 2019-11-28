@@ -6,7 +6,6 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.ves.mock.VesMock;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -31,12 +30,12 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RS
             description = "Настройка и включение правила"
     )
     public void enableRules() {
-        System.out.println("\"Проверка соблюдения требования:  в серии есть не менее одной транзакции типа «Перевод на счёт другому лицу» или «Перевод на карту другому лицу» и не менее одной транзакции «Оплата услуг»\" -- BIQ2370" + " ТК№8");
+        System.out.println("\"Проверка соблюдения требования:  в серии есть не менее одной транзакции типа «Перевод на счёт другому лицу» или «Перевод на карту другому лицу» и не менее одной транзакции «Оплата услуг»\" -- BIQ2370" + " ТК№22");
 
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .sleep(3);
+                .sleep(1);
 
         getIC().locateRules()
                 .editRule(RULE_NAME)
@@ -44,12 +43,11 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RS
                 .fillInputText("Период серии в минутах:","60")
                 .fillInputText("Сумма оплаты услуг:","1000")
                 .fillInputText("Сумма серии:","1000")
-                .fillCheckBox("Проверка регулярных:",false)
                 .save()
-                .sleep(5);
+                .sleep(10);
         getIC().close();
         try {
-            Thread.sleep(5_000);
+            Thread.sleep(15_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -61,7 +59,7 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RS
     )
     public void client() {
         try {
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 5; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
                 Client client = new Client("testCases/Templates/client.xml");
@@ -91,8 +89,17 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RS
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getCardTransfer().setAmountInSourceCurrency(new BigDecimal("500.00"));
-
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
     }
 
@@ -102,15 +109,20 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RS
     )
     public void transaction2() {
         time.add(Calendar.MINUTE, 1);
-        Transaction transaction = getTransactionCARD_TRANSFER();
+        Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getCardTransfer().setAmountInSourceCurrency(new BigDecimal("500.00"));
+        transactionData.getPhoneNumberTransfer().setAmountInSourceCurrency(new BigDecimal("500.00"));
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
     }
 
@@ -129,6 +141,11 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RS
         transactionData.getServicePayment().setAmountInSourceCurrency(new BigDecimal("1000.00"));
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_APPLY_BY_SUM_GR_25);
     }
 
@@ -147,6 +164,11 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RS
         transactionData.getServicePayment().setAmountInSourceCurrency(new BigDecimal("500.00"));
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
     }
 
@@ -165,6 +187,11 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RS
         transactionData.getServicePayment().setAmountInSourceCurrency(new BigDecimal("500.00"));
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
     }
     @Test(
@@ -182,6 +209,11 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RS
         transactionData.getOuterTransfer().setAmountInSourceCurrency(new BigDecimal("1000.00"));
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_APPLY_BY_SUM_GR_25);
     }
 
@@ -197,9 +229,37 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RS
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getOuterTransfer().setAmountInSourceCurrency(new BigDecimal("1000.00"));
+        transactionData.getServicePayment().setAmountInSourceCurrency(new BigDecimal("1000.00"));
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_APPLY_BY_SUM_GR_25);
+    }
+
+    @Test(
+            description = "Произвести транзакцию 8 \"Перевод по номеру телефона\" от Клиента 1, сумма 500",
+            dependsOnMethods = "transaction7"
+    )
+    public void transaction8() {
+        time2.add(Calendar.MINUTE, 1);
+        Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData.getPhoneNumberTransfer().setAmountInSourceCurrency(new BigDecimal("1000.00"));
+
+        sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_APPLY_BY_SUM_GR_25);
     }
 
@@ -239,8 +299,11 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RS
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
     }
-
-    private static VesMock getVesMock() {
-        return VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
+    private Transaction getTransactionPHONE_NUMBER_TRANSFER() {
+        Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
     }
 }

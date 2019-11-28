@@ -43,7 +43,6 @@ public class GR_25_SeriesTransfersAndPaymentsThresholds extends RSHBCaseTest {
                 .fillInputText("Период серии в минутах:","60")
                 .fillInputText("Сумма оплаты услуг:","2000")
                 .fillInputText("Сумма серии:","2000")
-                .fillCheckBox("Проверка регулярных:",false)
                 .save()
                 .sleep(5);
         getIC().close();

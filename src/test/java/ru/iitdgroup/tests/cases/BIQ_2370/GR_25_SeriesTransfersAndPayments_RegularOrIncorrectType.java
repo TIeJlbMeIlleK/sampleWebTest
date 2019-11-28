@@ -40,9 +40,8 @@ public class GR_25_SeriesTransfersAndPayments_RegularOrIncorrectType extends RSH
                 .fillInputText("Период серии в минутах:","60")
                 .fillInputText("Сумма оплаты услуг:","5000")
                 .fillInputText("Сумма серии:","10000")
-                .fillCheckBox("Проверка регулярных:",false)
                 .save()
-                .sleep(5);
+                .sleep(10);
         getIC().close();
     }
 
@@ -84,7 +83,11 @@ public class GR_25_SeriesTransfersAndPayments_RegularOrIncorrectType extends RSH
         transactionData.getClientDevice().getPC().setUserAgent("555");
         transactionData.getClientDevice().getPC().setIpAddress("178.219.186.12");
         transactionData.getClientDevice().getPC().setBrowserData("Browser");
-
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, REGULAR_TRANSACTION);
     }
@@ -106,6 +109,11 @@ public class GR_25_SeriesTransfersAndPayments_RegularOrIncorrectType extends RSH
         transactionData.getClientDevice().getPC().setBrowserData("Browser");
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
 
@@ -125,6 +133,11 @@ public class GR_25_SeriesTransfersAndPayments_RegularOrIncorrectType extends RSH
         transactionData.getClientDevice().getPC().setBrowserData("Browser");
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
 
@@ -144,6 +157,11 @@ public class GR_25_SeriesTransfersAndPayments_RegularOrIncorrectType extends RSH
         transactionData.getClientDevice().getPC().setBrowserData("Browser");
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
 
@@ -163,6 +181,11 @@ public class GR_25_SeriesTransfersAndPayments_RegularOrIncorrectType extends RSH
         transactionData.getClientDevice().getPC().setBrowserData("Browser");
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
 
@@ -182,6 +205,11 @@ public class GR_25_SeriesTransfersAndPayments_RegularOrIncorrectType extends RSH
         transactionData.getClientDevice().getPC().setBrowserData("Browser");
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, REGULAR_TRANSACTION);
     }
 

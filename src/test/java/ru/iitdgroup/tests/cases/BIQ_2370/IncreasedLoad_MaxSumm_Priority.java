@@ -21,14 +21,13 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
 
     private static final String TABLE = "(Policy_parameters) Параметры обработки событий";
     private static final String TABLE_2 = "(System_parameters) Интеграционные параметры";
-    private static final String TABLE_3 = "(Rule_tables) Запрещенные получатели НомерКарты";
+    private static final String TABLE_3 = "(Rule_tables) Запрещенные получатели НомерТелефона";
     private static final String RULE_NAME = "R01_BR_01_PayeeInBlackList";
-    private static final String CardNumber = "4378723741117915";
+    private static final String TELNumber = "9299925912";
     private static final String RDAK = "(Policy_parameters) Перечень статусов для которых применять РДАК";
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.AUGUST, 8, 0, 0, 0);
 
     private final List<String> clientIds = new ArrayList<>();
-//    FIXME Требуется доработать автотест после исправления тикета https://yt.iitdgroup.ru/issue/BIQ2370-110
 
     @Test(
             description = "Включение правила"
@@ -36,7 +35,7 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
     )
     public void enableRuleForAlert() {
         System.out.println("\"Проверка обработки транзакций при включенном признаке \"Повышенная нагрузка\"\n" +
-                "Джоб RemoveSignIncreasedLoadJob снимает признак \"Повышенная нагрузка\" в справочнике \"Интеграционные параметры\"\" -- BIQ2370" + " ТК№13");
+                "Джоб RemoveSignIncreasedLoadJob снимает признак \"Повышенная нагрузка\" в справочнике \"Интеграционные параметры\"\" -- BIQ2370" + " ТК№27");
 
         getIC().locateRules()
                 .selectVisible()
@@ -90,7 +89,7 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
                 .fillInputText("Пороговая сумма ДАК:","15000")
                 .fillCheckBox("Повышенная нагрузка:", true)
                 .fillCheckBox("Требуется выполнение РДАК:", true)
-                .fillCheckBox("Требуется выполнение АДАК:",true)
+                .fillCheckBox("Требуется выполнение АДАК:", true)
                 .fillInputText("Приоритет:", "2")
                 .select("Тип транзакции:","Оплата услуг")
                 .select("Наименование канала ДБО:","Интернет клиент")
@@ -101,7 +100,6 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
                 .fillInputText("Пороговая сумма ДАК:","15000")
                 .fillCheckBox("Повышенная нагрузка:", true)
                 .fillCheckBox("Требуется выполнение РДАК:", false)
-                .fillCheckBox("Требуется выполнение АДАК:",false)
                 .fillInputText("Приоритет:", "1")
                 .select("Тип транзакции:","Оплата услуг")
                 .select("Наименование канала ДБО:","Интернет клиент")
@@ -112,7 +110,7 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
                 .fillInputText("Пороговая сумма ДАК:","10000")
                 .fillCheckBox("Повышенная нагрузка:", false)
                 .fillCheckBox("Требуется выполнение РДАК:", true)
-                .fillCheckBox("Требуется выполнение АДАК:",true)
+                .fillCheckBox("Требуется выполнение АДАК:", true)
                 .fillInputText("Приоритет:", "1")
                 .select("Тип транзакции:","Оплата услуг")
                 .select("Наименование канала ДБО:","Интернет клиент")
@@ -135,7 +133,7 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Добавить в справочник запрещенных номер карты \"4378723741117915\"",
+            description = "Добавить в справочник запрещенных номер телефона \"89299925912\"",
             dependsOnMethods = "enableIncreasedLoad"
     )
 
@@ -146,7 +144,7 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
         }
         getIC().locateTable(TABLE_3)
                 .addRecord()
-                .fillInputText("НомерКарты:",CardNumber)
+                .fillInputText("Номер телефона:",TELNumber)
                 .save();
 
         getIC().locateWorkflows()
@@ -184,19 +182,19 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить транзакцию 1 \"Перевод на карту\" с DestinationCardNumber = 4378723741117915",
+            description = "Отправить транзакцию 1 \"Оплата услуг\" с Value = 9299925912",
             dependsOnMethods = "client"
     )
     public void transaction1() {
-        Transaction transaction = getTransactionCARD_TRANSFER();
+        Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getCardTransfer().setAmountInSourceCurrency(new BigDecimal(5001.00));
-        transactionData.getCardTransfer()
-                .setDestinationCardNumber(CardNumber);
+        transactionData.getServicePayment().setAmountInSourceCurrency(new BigDecimal(15000.00));
+        transactionData.getServicePayment()
+                .getAdditionalField().get(0).setValue("9299925912");
         sendAndAssert(transaction);
         try {
             Thread.sleep(5_000);
@@ -204,42 +202,26 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
             e.printStackTrace();
         }
 
-
         getIC().locateAlerts()
                 .openFirst();
-        assertTableField("Severity:","Normal");
+        assertTableField("Статус АДАК:","ENABLED");
 
-        getIC().locateAlerts()
-                .openFirst()
-                .action("Взять в работу для выполнения РДАК")
-                .rdak()
-                .sleep(3);
-
-        getIC()
-                .locateRules()
-                .openRecord(RULE_NAME)
-                .openSpoiler("Подозрительная транзакция")
-                .edit()
-                .editBlock(0)
-                .editTextField(1, 4, "71")
-                .getParent()
-                .save();
     }
 
     @Test(
-            description = "Отправить транзакцию 2 \"Перевод на карту\" с DestinationCardNumber = 4378723741117915",
+            description = "Отправить транзакцию 2 \"Оплата услуг\" с Value = 9299925912",
             dependsOnMethods = "transaction1"
     )
     public void transaction2() {
-        Transaction transaction = getTransactionCARD_TRANSFER();
+        Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(1));
-        transactionData.getCardTransfer().setAmountInSourceCurrency(new BigDecimal(5001.00));
-        transactionData.getCardTransfer()
-                .setDestinationCardNumber(CardNumber);
+                .withDboId(clientIds.get(0));
+        transactionData.getServicePayment().setAmountInSourceCurrency(new BigDecimal(15001.00));
+        transactionData.getServicePayment()
+                .getAdditionalField().get(0).setValue("9299925912");
         sendAndAssert(transaction);
         try {
             Thread.sleep(5_000);
@@ -249,71 +231,23 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
 
         getIC().locateAlerts()
                 .openFirst();
-        assertTableField("Severity:","Major");
-        assertTableField("Статус АДАК:","DISABLED");
-
-        getIC()
-                .locateRules()
-                .openRecord(RULE_NAME)
-                .openSpoiler("Подозрительная транзакция")
-                .edit()
-                .editBlock(0)
-                .editTextField(1, 4, "29")
-                .getParent()
-                .save();
+        assertTableField("Статус АДАК:","ENABLED");
     }
 
     @Test(
-            description = "В справочнике \"Параметры обработки событий\" заменить в записях по каналам значения:\n" +
-                    "normal --> minor\n" +
-                    "major --> critical",
+            description = "Отправить транзакцию 3 \"Оплата услуг\" с Value = 9299925912",
             dependsOnMethods = "transaction2"
     )
-    public void refactorParametres_2() {
-        Table.Formula rows = getIC().locateTable(TABLE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();}
-
-
-        getIC().locateTable(TABLE)
-                .addRecord()
-                .fillInputText("Пороговая сумма ДАК:","5000")
-                .fillInputText("Критичность транзакции:","Minor")
-                .fillCheckBox("Повышенная нагрузка:", true)
-                .fillCheckBox("Требуется выполнение РДАК:", true)
-                .fillCheckBox("Требуется выполнение АДАК:",true)
-                .fillInputText("Приоритет:", "1")
-                .select("Тип транзакции:","Перевод на карту другому лицу")
-                .select("Наименование канала ДБО:","Интернет клиент")
-                .save();
-
-        getIC().locateTable(TABLE)
-                .addRecord()
-                .fillInputText("Пороговая сумма ДАК:","5000")
-                .fillInputText("Критичность транзакции:","Critical")
-                .fillCheckBox("Повышенная нагрузка:", true)
-                .fillCheckBox("Требуется выполнение РДАК:", false)
-                .fillInputText("Приоритет:", "1")
-                .select("Тип транзакции:","Перевод на карту другому лицу")
-                .select("Наименование канала ДБО:","Интернет клиент")
-                .save();
-
-    }
-
-    @Test(
-            description = "Отправить транзакцию 3 \"Перевод на карту\" с DestinationCardNumber = 4378723741117915",
-            dependsOnMethods = "refactorParametres_2"
-    )
     public void transaction3() {
-        Transaction transaction = getTransactionCARD_TRANSFER();
+        Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(3));
-        transactionData.getCardTransfer().setAmountInSourceCurrency(new BigDecimal(5001.00));
-        transactionData.getCardTransfer()
-                .setDestinationCardNumber(CardNumber);
+                .withDboId(clientIds.get(0));
+        transactionData.getServicePayment().setAmountInSourceCurrency(new BigDecimal(14999.00));
+        transactionData.getServicePayment()
+                .getAdditionalField().get(0).setValue("9299925912");
         sendAndAssert(transaction);
         try {
             Thread.sleep(5_000);
@@ -323,39 +257,34 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
 
         getIC().locateAlerts()
                 .openFirst();
-        assertTableField("Severity:","Minor");
-
-        getIC().locateAlerts()
-                .openFirst()
-                .action("Взять в работу для выполнения РДАК")
-                .rdak()
-                .sleep(3);
-
-        getIC()
-                .locateRules()
-                .openRecord(RULE_NAME)
-                .openSpoiler("Подозрительная транзакция")
-                .edit()
-                .editBlock(0)
-                .editTextField(1, 4, "90")
-                .getParent()
-                .save();
+        assertTableField("Статус АДАК:","DISABLED");
     }
 
     @Test(
-            description = "Отправить транзакцию 4 \"Перевод на карту\" с DestinationCardNumber = 4378723741117915",
+            description = "Запустить JOB RemoveSignIncreasedLoad",
             dependsOnMethods = "transaction3"
     )
+    public void jobIncreasedLoad(){
+        getIC().locateJobs()
+                .selectJob("RemoveSignIncreasedLoadJob")
+                .run();
+        getIC().goToBack();
+    }
+
+    @Test(
+            description = "Отправить транзакцию 4 \"Оплата услуг\" с Value = 9299925912",
+            dependsOnMethods = "jobIncreasedLoad"
+    )
     public void transaction4() {
-        Transaction transaction = getTransactionCARD_TRANSFER();
+        Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(4));
-        transactionData.getCardTransfer().setAmountInSourceCurrency(new BigDecimal(5001.00));
-        transactionData.getCardTransfer()
-                .setDestinationCardNumber(CardNumber);
+                .withDboId(clientIds.get(0));
+        transactionData.getServicePayment().setAmountInSourceCurrency(new BigDecimal(10000.00));
+        transactionData.getServicePayment()
+                .getAdditionalField().get(0).setValue("9299925912");
         sendAndAssert(transaction);
         try {
             Thread.sleep(5_000);
@@ -365,8 +294,35 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
 
         getIC().locateAlerts()
                 .openFirst();
-        assertTableField("Severity:","Critical");
+        assertTableField("Статус АДАК:","ENABLED");
+    }
+
+    @Test(
+            description = "Отправить транзакцию 5 \"Оплата услуг\" с Value = 9299925912",
+            dependsOnMethods = "transaction4"
+    )
+    public void transaction5() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData.getServicePayment().setAmountInSourceCurrency(new BigDecimal(9999.00));
+        transactionData.getServicePayment()
+                .getAdditionalField().get(0).setValue("9299925912");
+        sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        getIC().locateAlerts()
+                .openFirst();
         assertTableField("Статус АДАК:","DISABLED");
+
+//        FIXME требуется актуализировать после исправления https://yt.iitdgroup.ru/issue/BIQ4274-30
     }
 
     @Override
@@ -374,8 +330,8 @@ public class IncreasedLoad_MaxSumm_Priority extends RSHBCaseTest {
         return RULE_NAME;
     }
 
-    private Transaction getTransactionCARD_TRANSFER() {
-        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
+    private Transaction getTransaction() {
+        Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

@@ -1,51 +1,50 @@
-<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
-	<ns4:ServerInfo>
-		<Ip>localhost</Ip>
-		<Port>8089</Port>
-	</ns4:ServerInfo>
-	<ns4:TransactionData>
-		<ns4:TransactionId>10040006</ns4:TransactionId>
-		<ns4:ClientIds>
-			<DboId>779</DboId>
-			<CifId>6BB494A3-95DC-4bc6-90AC-0DEF46CD3669</CifId>
-			<EksId>1234</EksId>
-			<PcId>123</PcId>
-			<ExpertSystemId>dba802f06396ebb51c3fb9fea0ce8f52f23e46fa</ExpertSystemId>
-			<LoginHash>3186dfa0cf270cff4a5cc7d3ebcf276484258c5f</LoginHash>
-		</ns4:ClientIds>
-		<ns4:DocumentSaveTimestamp>2019-05-21T07:07:20.840+03:00</ns4:DocumentSaveTimestamp>
-		<ns4:DocumentNumber>2423</ns4:DocumentNumber>
-		<ns4:Type>MT_SYSTEM_TRANSFER</ns4:Type>
-		<ns4:Regular>false</ns4:Regular>
-		<ns4:SessionTimeout>1800000</ns4:SessionTimeout>
-		<ns4:Limit>298767</ns4:Limit>
-		<ns4:MTSystemTransfer>
-			<ns4:SourceProduct>40817810300000010239</ns4:SourceProduct>
-			<ns4:MtSystem>РСХБ-Экспресс</ns4:MtSystem>
-			<ns4:AmountInSourceCurrency>333.00</ns4:AmountInSourceCurrency>
-			<ns4:CommissionAmount>450.00</ns4:CommissionAmount>
-			<ns4:SourceCurrencyIsoCode>810</ns4:SourceCurrencyIsoCode>
-			<ns4:SenderName>Московскова Виктория Викторовна</ns4:SenderName>
-			<ns4:SenderPhoneNumber>+79636552000</ns4:SenderPhoneNumber>
-			<ns4:SenderDocument>Паспорт, 45 15, 208463, выдан 19.09.2015 ОТДЕЛЕНИЕМ УФМС РОССИИ ПО ГОР. МОСКВЕ ПО РАЙОНУ БРАТЕЕВО, к/п 770-031</ns4:SenderDocument>
-			<ns4:SenderAddress>г Москва, ул Борисовские Пруды, 18-1, 369</ns4:SenderAddress>
-			<ns4:SenderCountry>РОССИЙСКАЯ ФЕДЕРАЦИЯ</ns4:SenderCountry>
-			<ns4:IsResidentSender>true</ns4:IsResidentSender>
-			<ns4:ReceiverName>Нано Василий Петрович</ns4:ReceiverName>
-			<ns4:ReceiverCountry>ГРУЗИЯ</ns4:ReceiverCountry>
-		</ns4:MTSystemTransfer>
-		<ns4:InitialSourceAmount>24563.46</ns4:InitialSourceAmount>
-		<ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
-		<ns4:DocumentConfirmationTimestamp>2019-03-25T13:28:00+03:00</ns4:DocumentConfirmationTimestamp>
-		<ns4:SessionId>FcS0WEvHiLOTEXwN0HhjpNU8h-A9BpSbKjknSotn6tGuLBUQj2mA!-242564380!1553508879303</ns4:SessionId>
-		<ns4:Channel>INTERNET_CLIENT</ns4:Channel>
-		<ns4:ClientDevice>
+<SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Transaction" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client">
+	<ServerInfo>
+		<ns2:Ip>localhost</ns2:Ip>
+		<ns2:Port>8089</ns2:Port>
+	</ServerInfo>
+	<TransactionData>
+		<TransactionId>500</TransactionId>
+		<ClientIds>
+			<ns2:DboId>20</ns2:DboId>
+			<ns2:CifId>6BB494A3-95DC-4bc6-90AC-0DEF46CD3669</ns2:CifId>
+			<ns2:EksId>1234</ns2:EksId>
+			<ns2:ExpertSystemId>dba802f06396ebb51c3fb9fea0ce8f52f23e46fa</ns2:ExpertSystemId>
+			<ns2:LoginHash>3186dfa0cf270cff4a5cc7d3ebcf276484258c5f</ns2:LoginHash>
+		</ClientIds>
+		<DocumentSaveTimestamp>2019-07-01T01:00:00.000+03:00</DocumentSaveTimestamp>
+		<DocumentNumber>3622350078823914099</DocumentNumber>
+		<Type>MT_SYSTEM_TRANSFER</Type>
+		<Regular>false</Regular>
+		<SessionTimeout>1800000</SessionTimeout>
+		<Limit>298767</Limit>
+		<MTSystemTransfer>
+			<SourceProduct>40817810300000010239</SourceProduct>
+			<MtSystem>QIWI</MtSystem>
+			<AmountInSourceCurrency>100.00</AmountInSourceCurrency>
+			<CommissionAmount>4.00</CommissionAmount>
+			<SourceCurrencyIsoCode>810</SourceCurrencyIsoCode>
+			<SenderName>Московскова Виктория Викторовна</SenderName>
+			<SenderPhoneNumber>+79636552000</SenderPhoneNumber>
+			<SenderDocument>Паспорт, 45 15, 208463, выдан 19.09.2015 ОТДЕЛЕНИЕМ УФМС РОССИИ ПО ГОР. МОСКВЕ ПО РАЙОНУ БРАТЕЕВО, к/п 770-031</SenderDocument>
+			<SenderAddress>г Москва, ул Борисовские Пруды, 18-1, 369</SenderAddress>
+			<SenderCountry>РОССИЙСКАЯ ФЕДЕРАЦИЯ</SenderCountry>
+			<IsResidentSender>true</IsResidentSender>
+			<ReceiverName>Ахметов Ильзат Эльдарович</ReceiverName>
+			<ReceiverCountry>Россия</ReceiverCountry>
+		</MTSystemTransfer>
+		<InitialSourceAmount>24563.46</InitialSourceAmount>
+		<ConfirmationSubjectType>CLIENT</ConfirmationSubjectType>
+		<DocumentConfirmationTimestamp>2019-07-01T01:00:00.000+03:00</DocumentConfirmationTimestamp>
+		<SessionId>6296228243827140704</SessionId>
+		<Channel>INTERNET_CLIENT</Channel>
+		<ClientDevice>
 			<ns3:Platform>PC</ns3:Platform>
 			<ns3:PC>
 				<ns3:IpAddress>213.87.149.82</ns3:IpAddress>
 				<ns3:UserAgent>Mozilla/5.0 (Windows NT 6.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.112 Safari/537.36</ns3:UserAgent>
 				<ns3:BrowserData>12456</ns3:BrowserData>
 			</ns3:PC>
-		</ns4:ClientDevice>
-	</ns4:TransactionData>
-</ns4:SendTransactionDataRequest>
+		</ClientDevice>
+	</TransactionData>
+</SendTransactionDataRequest>

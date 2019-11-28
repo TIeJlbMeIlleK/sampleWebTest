@@ -122,6 +122,29 @@
             <xsd:element name="SPN" type="xsd:string"/>
             <xsd:element name="OSVersion" type="xsd:string"/>
             <xsd:element name="AuthByFingerprint" type="xsd:boolean"/>
+            <xsd:element name="Manufacturer" type="xsd:string"/>
+            <xsd:element name="Model" type="xsd:string"/>
+            <xsd:element name="DeviceID" type="xsd:string"/>
+            <xsd:element name="Simulator" type="xsd:boolean"/>
+            <xsd:element name="Locale" type="xsd:string"/>
+            <xsd:element name="DefaultBrowser" type="xsd:string"/>
+            <xsd:element name="Root" type="xsd:boolean"/>
+            <xsd:element name="NetworkOperatorName" type="xsd:string"/>
+            <xsd:element name="SimOperatorName" type="xsd:string"/>
+            <xsd:element name="SimCount" type="xsd:int"/>
+            <xsd:element name="LocalIp" type="xsd:string"/>
+            <xsd:element name="SSID" type="xsd:string"/>
+            <xsd:element name="UserAgent" type="xsd:string"/>
+            <xsd:element name="Serial" type="xsd:string"/>
+            <xsd:element name="Bootloader" type="xsd:string"/>
+            <xsd:element name="SimSerial" type="xsd:string"/>
+            <xsd:element name="MacAddress" type="xsd:string"/>
+           <!-- Ниже поля относящиеся к PayControl -->
+            <xsd:element name="TimeZone" type="xsd:string"/>
+            <xsd:element name="Latitude" type="xsd:string"/>
+            <xsd:element name="Longitude" type="xsd:string"/>
+            <xsd:element name="EventID" type="xsd:string"/>
+            <xsd:element name="SessionID" type="xsd:string"/>
         </xsd:sequence>
     </xsd:complexType>
 
@@ -132,6 +155,25 @@
             <xsd:element name="OSVersion" type="xsd:string"/>
             <xsd:element name="Model" type="xsd:string"/>
             <xsd:element name="AuthByFingerprint" type="xsd:boolean"/>
+            <xsd:element name="Manufacturer" type="xsd:string"/>
+            <xsd:element name="DeviceID" type="xsd:string"/>
+            <xsd:element name="Simulator" type="xsd:boolean"/>
+            <xsd:element name="Locale" type="xsd:string"/>
+            <xsd:element name="DefaultBrowser" type="xsd:string"/>
+            <xsd:element name="Root" type="xsd:boolean"/>
+            <xsd:element name="NetworkOperatorName" type="xsd:string"/>
+            <xsd:element name="SimOperatorName" type="xsd:string"/>
+            <xsd:element name="SimCount" type="xsd:int"/>
+            <xsd:element name="LocalIp" type="xsd:string"/>
+            <xsd:element name="SSID" type="xsd:string"/>
+            <xsd:element name="UserAgent" type="xsd:string"/>
+            <xsd:element name="Product" type="xsd:string"/>
+            <!-- Ниже поля относящиеся к PayControl -->
+            <xsd:element name="TimeZone" type="xsd:string"/>
+            <xsd:element name="Latitude" type="xsd:string"/>
+            <xsd:element name="Longitude" type="xsd:string"/>
+            <xsd:element name="EventID" type="xsd:string"/>
+            <xsd:element name="SessionID" type="xsd:string"/>
         </xsd:sequence>
     </xsd:complexType>
 

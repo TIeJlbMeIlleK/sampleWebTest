@@ -1,0 +1,46 @@
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+         <ns4:ServerInfo>
+            <ns2:Ip>192.168.12.12</ns2:Ip>
+            <ns2:Port>8089</ns2:Port>
+         </ns4:ServerInfo>
+         <ns4:TransactionData>
+            <ns4:TransactionId>275500670</ns4:TransactionId>
+            <ns4:ClientIds>
+               <ns2:DboId>12</ns2:DboId>
+               <ns2:CifId>FF78546D-37E6-47e9-A13C-7E4228E361A7</ns2:CifId>
+               <ns2:ExpertSystemId>785119c47dea45622bacba20411368b105196903</ns2:ExpertSystemId>
+               <ns2:LoginHash>29d7d53affae3f486c087a7ac459861dabb3002e</ns2:LoginHash>
+            </ns4:ClientIds>
+            <ns4:DocumentSaveTimestamp>2018-11-10T14:35:00+03:00</ns4:DocumentSaveTimestamp>
+            <ns4:DocumentNumber>818</ns4:DocumentNumber>
+            <ns4:Type>PHONE_NUMBER_TRANSFER</ns4:Type>
+            <ns4:Regular>false</ns4:Regular>
+            <ns4:Limit>40000</ns4:Limit>
+            <ns4:PhoneNumberTransfer>
+               <ns4:AmountInSourceCurrency>100</ns4:AmountInSourceCurrency>
+
+               <!-- Case 1 -->
+               <ns4:PayeePhone>9412577001</ns4:PayeePhone>
+               <!-- /Case 1 -->
+
+               <!-- Case 2 -->
+               <ns4:BIK>042301514</ns4:BIK>
+               <ns4:PayeeAccount>4081710835650000700</ns4:PayeeAccount>
+               <!-- /Case 2 -->
+
+               <!-- Case 3 -->
+               <ns4:DestinationCardNumber>4574553752178978</ns4:DestinationCardNumber>
+               <!-- /Case 3-->
+
+               <ns4:BankName>AAAA</ns4:BankName>
+               <ns4:PayeeName>FFF</ns4:PayeeName>
+               <ns4:CommissionAmount>5</ns4:CommissionAmount>
+               <ns4:SourceProduct>810</ns4:SourceProduct>
+               <ns4:SourceCardNumber>323</ns4:SourceCardNumber>
+               <ns4:OperationDescription>rwerw</ns4:OperationDescription>
+            </ns4:PhoneNumberTransfer>
+            <ns4:InitialSourceAmount>10000.00</ns4:InitialSourceAmount>
+            <ns4:SessionId>F_lysKrnehz8i3bxOKz26ADG9pUaEZBJyxZIZuZFcbrpikdY5hC4!-1924546201!1479392930535</ns4:SessionId>
+            <ns4:Channel>INTERNET_CLIENT</ns4:Channel>
+         </ns4:TransactionData>
+      </ns4:SendTransactionDataRequest>

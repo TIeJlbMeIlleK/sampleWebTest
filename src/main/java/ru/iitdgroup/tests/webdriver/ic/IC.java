@@ -1,8 +1,6 @@
 package ru.iitdgroup.tests.webdriver.ic;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.properties.TestProperties;
@@ -38,6 +36,8 @@ public class IC implements AutoCloseable {
         //TODO: перенести путь в файл настроек - оно системно-специфическое
         System.setProperty("webdriver.chrome.driver", props.getChromeDriverPath());
         driver = new ChromeDriver();
+        driver.manage().window().setSize(new Dimension(1000, 800));
+        driver.manage().window().setPosition(new Point(0, 0));
         driver.manage().timeouts().implicitlyWait(7, TimeUnit.SECONDS);
         try {
             driver.get(props.getICUrl());
@@ -121,8 +121,9 @@ public class IC implements AutoCloseable {
     }
 
     public Jobs locateJobs() {
-        driver.findElementByXPath("//div[@id='app-navigation'][1]//following::span[@class='icon-gear']").click();
-        driver.findElementByXPath("//a[@data-url='/InvestigationCenter/ui/jobconsole']").click();
+        driver.findElementByClassName("adminMenuButton").click();
+        view.sleep(1);
+        driver.findElementByLinkText("Jobs & Services Manager").click();
         view.sleep(1);
         return new Jobs(driver);
     }
@@ -135,6 +136,12 @@ public class IC implements AutoCloseable {
         view.sleep(1);
         driver.findElementByLinkText("Workflows").click();
         view.sleep(1);
+        return new Workflows(driver);
+    }
+
+    public Workflows goToBack(){
+        driver.findElementByXPath("//div[@id='app-navigation'][1]//following::*[@class='icon-gear']").click();
+        driver.findElementByLinkText("Administration").click();
         return new Workflows(driver);
     }
 

@@ -180,7 +180,7 @@ public class GR_20_NewPayee extends RSHBCaseTest {
             dependsOnMethods = "step4"
     )
     public void step5() {
-//        TODO ТРЕБУЕТСЯ ДОРАБОТАТЬ ПОСЛЕ ДОБАВЛЕНИЯ ТРАНЗАКЦИИ ПЕРЕВОД ПО НОМЕРУ ТЕЛЕФОНА
+//        TODO ТРЕБУЕТСЯ РЕАЛИЗОВАТЬ ИЗМЕНЕНИЕ ПОЛЕЙ В REFERENCE TABLE
         Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.delete();}
 
@@ -241,7 +241,7 @@ public class GR_20_NewPayee extends RSHBCaseTest {
         return transaction;
     }
     private Transaction getTransactionTELEPHON_VALUE() {
-        Transaction transaction = getTransaction("testCases/Templates/TELEPHON_VALUE.xml");
+        Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

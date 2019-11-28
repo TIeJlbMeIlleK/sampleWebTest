@@ -25,6 +25,28 @@
                         <ns3:SPN>MTS RUS</ns3:SPN>
                         <ns3:OSVersion>9.0.0</ns3:OSVersion>
                         <ns3:AuthByFingerprint>true</ns3:AuthByFingerprint>
+                        <ns3:Manufacturer>123</ns3:Manufacturer>
+                        <ns3:Model>5</ns3:Model>
+                        <ns3:DeviceID>1268894521005</ns3:DeviceID>
+                        <ns3:Simulator>0</ns3:Simulator>
+                        <ns3:Locale>5</ns3:Locale>
+                        <ns3:DefaultBrowser>55</ns3:DefaultBrowser>
+                        <ns3:Root>0</ns3:Root>
+                        <ns3:NetworkOperatorName>5</ns3:NetworkOperatorName>
+                        <ns3:SimOperatorName>5</ns3:SimOperatorName>
+                        <ns3:SimCount>2</ns3:SimCount>
+                        <ns3:LocalIp>5</ns3:LocalIp>
+                        <ns3:SSID>123374556186120005946</ns3:SSID>
+                        <ns3:UserAgent>2</ns3:UserAgent>
+                        <ns3:Serial>615756158000065</ns3:Serial>
+                        <ns3:Bootloader>2</ns3:Bootloader>
+                        <ns3:SimSerial>15675615120657</ns3:SimSerial>
+                        <ns3:MacAddress>16355056605065410</ns3:MacAddress>
+                        <ns3:TimeZone>3</ns3:TimeZone>
+                        <ns3:Latitude>3</ns3:Latitude>
+                        <ns3:Longitude>5</ns3:Longitude>
+                        <ns3:EventID>5</ns3:EventID>
+                        <ns3:SessionID>255561789</ns3:SessionID>
                     </ns3:Android>
                 </ClientDevice>
                 <SessionId>SID-0000000000000003</SessionId>

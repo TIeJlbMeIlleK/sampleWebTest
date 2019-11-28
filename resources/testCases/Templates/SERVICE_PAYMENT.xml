@@ -16,7 +16,7 @@
         <ns4:Type>SERVICE_PAYMENT</ns4:Type>
         <ns4:Regular>false</ns4:Regular>
         <ns4:SessionTimeout>1800000</ns4:SessionTimeout>
-        <ns4:Limit>14999</ns4:Limit>
+        <ns4:Limit>149999</ns4:Limit>
         <ns4:ServicePayment>
             <ns4:ServiceKind>1</ns4:ServiceKind>
             <ns4:ProviderName>Сотовый - ОАО"МТС" - ОАО "Мобильные ТелеСистемы"</ns4:ProviderName>
@@ -30,7 +30,7 @@
                 <ns4:Value>9168133500</ns4:Value>
             </ns4:AdditionalField>
         </ns4:ServicePayment>
-        <ns4:InitialSourceAmount>100.00</ns4:InitialSourceAmount>
+        <ns4:InitialSourceAmount>10000.00</ns4:InitialSourceAmount>
         <ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
         <ns4:DocumentConfirmationTimestamp>2019-04-15T14:46:00+03:00</ns4:DocumentConfirmationTimestamp>
         <ns4:SessionId>SID-147324356</ns4:SessionId>

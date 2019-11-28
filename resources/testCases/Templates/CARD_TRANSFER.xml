@@ -22,10 +22,10 @@
 		<ns4:CardTransfer>
 			<ns4:SourceCardNumber>524448******8162</ns4:SourceCardNumber>
 			<ns4:DestinationCardNumber>4378723741117915</ns4:DestinationCardNumber>
-			<ns4:AmountInSourceCurrency>1999.00</ns4:AmountInSourceCurrency>
+			<ns4:AmountInSourceCurrency>100.00</ns4:AmountInSourceCurrency>
 			<ns4:CommissionAmount>00.00</ns4:CommissionAmount>
 		</ns4:CardTransfer>
-		<ns4:InitialSourceAmount>100.00</ns4:InitialSourceAmount>
+		<ns4:InitialSourceAmount>10000.00</ns4:InitialSourceAmount>
 		<ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
 		<ns4:DocumentConfirmationTimestamp>2018-11-13T13:08:00+03:00</ns4:DocumentConfirmationTimestamp>
 		<ns4:SessionId>-rYhPcDmSopuAeJw2ECdVz2Db9kAUk_nYdJONMfjGJRAsv_tKOXv!-770855897!1555335856358</ns4:SessionId>

@@ -2,8 +2,10 @@ package ru.iitdgroup.tests.cases.BIQ_2370;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
+import ru.iitdgroup.intellinx.dbo.client.AndroidDevice;
 import ru.iitdgroup.intellinx.dbo.client.IOSDevice;
 import ru.iitdgroup.intellinx.dbo.client.PlatformKind;
+import ru.iitdgroup.intellinx.dbo.transaction.ChannelType;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Authentication;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -156,12 +158,6 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
             dependsOnMethods = "client"
     )
     public void transaction1() {
-        vesMock = getVesMock();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"","\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd6sd5fg7155555\""));
-        vesMock.run();
-
         Authentication authentication = getAuthentication();
         authentication
                 .getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(0));
@@ -181,7 +177,8 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getClientDevice().setAndroid(null);
+        transactionData.getClientDevice().setPC(null);
+        transactionData.setChannel(ChannelType.MOBILE_BANK);
         transactionData.getClientDevice().setPlatform(PlatformKind.IOS);
         transactionData.getClientDevice().setIOS(new IOSDevice());
         transactionData.getClientDevice().getIOS().setOSVersion("9");
@@ -191,6 +188,11 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
         transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, SUSPICIOUS_DEVICE);
     }
 
@@ -213,13 +215,29 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transactionData.getClientDevice()
-                .getAndroid()
+        transactionData.getClientDevice().setPC(null);
+        transactionData.setChannel(ChannelType.MOBILE_BANK);
+        transactionData.getClientDevice().setPlatform(PlatformKind.ANDROID);
+        transactionData.getClientDevice().setAndroid(new AndroidDevice());
+        transactionData.getClientDevice().getAndroid()
                 .setIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
-        transactionData.getClientDevice()
-                .getAndroid()
-                .setIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
+        transactionData.getClientDevice().getAndroid()
+                .setIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
+        transactionData.getClientDevice().getAndroid()
+                .setOSVersion("10");
+        transactionData.getClientDevice().getAndroid()
+                .setIMEISV("12345");
+        transactionData.getClientDevice().getAndroid()
+                .setSPN("MTS RUS");
+        transactionData.getClientDevice().getAndroid()
+                .setIpAddress("213.87.156.94");
+
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, SUSPICIOUS_DEVICE);
     }
     @Test(
@@ -242,6 +260,10 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(2));
+        transactionData.getClientDevice().setPC(null);
+        transactionData.setChannel(ChannelType.MOBILE_BANK);
+        transactionData.getClientDevice().setPlatform(PlatformKind.ANDROID);
+        transactionData.getClientDevice().setAndroid(new AndroidDevice());
         transactionData.getClientDevice()
                 .getAndroid()
                 .setIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
@@ -249,6 +271,11 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
                 .getAndroid()
                 .setIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, SUSPICIOUS_DEVICE);
     }
 
@@ -257,7 +284,11 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
             dependsOnMethods = "transaction3"
     )
     public void transaction4() {
-
+        vesMock = getVesMock();
+        vesMock.setVesExtendResponse(vesMock
+                .getVesExtendResponse()
+                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"","\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd6sd5fg7155555\""));
+        vesMock.run();
         Authentication authentication = getAuthentication();
         authentication
                 .getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(3));
@@ -274,6 +305,10 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(3));
+        transactionData.getClientDevice().setPC(null);
+        transactionData.setChannel(ChannelType.MOBILE_BANK);
+        transactionData.getClientDevice().setPlatform(PlatformKind.ANDROID);
+        transactionData.getClientDevice().setAndroid(new AndroidDevice());
         transactionData.getClientDevice()
                 .getAndroid()
                 .setIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
