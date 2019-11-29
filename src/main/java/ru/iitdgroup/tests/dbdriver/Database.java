@@ -63,8 +63,10 @@ public class Database implements AutoCloseable {
         appendUpdate(table, values, sql);
         sql.append(" ").append(whereString).append("\n");
         try {
-            Statement statement = getConn().createStatement();
+            Connection conn = getConn();
+            Statement statement = conn.createStatement();
             System.out.println(statement.executeUpdate(sql.toString().replaceAll(",$", "")));
+            conn.commit();
             statement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);

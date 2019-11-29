@@ -11,7 +11,6 @@ import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -21,8 +20,7 @@ public class GR_20_NewPayee_Time_After_Add_To_Carantine extends RSHBCaseTest {
 
     private static final String TABLE_QUARANTINE = "(Rule_tables) Карантин получателей";
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
-    private static final BigDecimal MAX_AMMOUNT = BigDecimal.valueOf(11);
-
+    private static final String CARDNUMBER = "4378723743757560";
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.AUGUST, 1, 1, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
 
@@ -84,13 +82,13 @@ public class GR_20_NewPayee_Time_After_Add_To_Carantine extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getCardTransfer()
-                .setDestinationCardNumber("4378723743757555");
+                .setDestinationCardNumber("4378723743757560");
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
         Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.click();}
-        assertTableField("Номер Карты получателя:","4378723743757555");
+        assertTableField("Номер Карты получателя:","4378723743757560");
     }
 
     @Test(
@@ -104,9 +102,14 @@ public class GR_20_NewPayee_Time_After_Add_To_Carantine extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getCardTransfer()
-                .setDestinationCardNumber("4378723743757555");
+                .setDestinationCardNumber("4378723743757560");
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, YOUNG_QUARANTINE);
     }
 
@@ -117,16 +120,15 @@ public class GR_20_NewPayee_Time_After_Add_To_Carantine extends RSHBCaseTest {
     public void step3() {
         Map<String, Object> values = new HashMap<>();
         values.put("TIME_STAMP", Instant.now().minus(2, ChronoUnit.DAYS).toString());
-
         try (Database db = getDatabase()) {
-            db.updateWhere("dbo.QUARANTINE_LIST", values, "WHERE DBO_ID ="+ clientIds.get(0));
+            db.updateWhere("dbo.QUARANTINE_LIST", values, "WHERE CARDNUMBER = " + CARDNUMBER);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Test(
-            description = "Провести транзакцию № 2 \"Перевод по номеру телефона\" от имени клиенат № 1 в пользу получателя, находящегося в карантине",
+            description = "Провести транзакцию № 2 \"Перевод по номеру телефона\" от имени клиента № 1 в пользу получателя, находящегося в карантине",
             dependsOnMethods = "step3"
     )
     public void step4() {
@@ -136,10 +138,10 @@ public class GR_20_NewPayee_Time_After_Add_To_Carantine extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getCardTransfer()
-                .setDestinationCardNumber("4378723743757555");
+                .setDestinationCardNumber("4378723743757560");
 
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, YOUNG_QUARANTINE);
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_EXIST_QUARANTINE_LOCATION);
     }
 
 
