@@ -120,6 +120,11 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_GRAY_LIST = "Найдено совпадение с серым списком";
     protected static final String NO_MATCHES_FOUND = "Совпадений не найдено";
     protected static final String NO_DATA_TO_ANALYZE = "Отсутствуют данные для анализа";
+    protected static final String RESULT_GRAY_BANK = "Подозрительный БИН банка";
+    protected static final String RESULT_NOT_GREY_BIN = "Не подозрительный БИН банка";
+    protected static final String MISSING_CARD_NUMBER = "Отсутствует номер карты получателя";
+    protected static final String RESULT_RULE_NOT_APPLY_MAX_SUM = "Допустимая сумма перевода";
+    protected static final String RESULT_RULE_NOT_APPLY_REGULAR = "Правило не применяется для периодических платежей";
 
     private DBOAntiFraudWS ws;
     private TestProperties props;
@@ -174,7 +179,7 @@ public abstract class RSHBCaseTest {
     protected IC getIC() {
         if (ic == null) {
             ic = new IC(getProps());
-            ic.getDriver().manage().window().setSize(new Dimension(1000, 1000));
+            ic.getDriver().manage().window().setSize(new Dimension(1200, 2000));
         }
         return ic;
     }

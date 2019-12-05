@@ -1,4 +1,4 @@
-package ru.iitdgroup.tests.cases.BIQ_2370;
+package ru.iitdgroup.tests.cases.BIQ_4274;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
@@ -16,7 +16,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction extends RSHBCaseTest {
+public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction_4274 extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_25_SeriesTransfersAndPayments";
 
