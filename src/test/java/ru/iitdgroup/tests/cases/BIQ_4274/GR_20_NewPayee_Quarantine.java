@@ -230,7 +230,6 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
                 .fillInputText("Номер карты получателя:","4154551178964123")
                 .fillUser("Клиент:",clientIds.get(4))
                 .save();
-
 //        TODO Требуется перезагрузка САФ и Игнайт
     }
 
