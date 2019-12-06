@@ -6,26 +6,25 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
+import ru.iitdgroup.tests.dbdriver.Database;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
 
     private static final String TABLE_QUARANTINE = "(Rule_tables) Карантин получателей";
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
-    private static final BigDecimal MAX_AMMOUNT = BigDecimal.valueOf(11);
 
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.AUGUST, 1, 1, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-
+    private static final String TABLE_GOOD = "(Rule_tables) Доверенные получатели";
+    private static final String LOCAL_TABLE = "(Policy_parameters) Параметры обработки справочников и флагов";
 
     @Test(
             description = "Настройка и включение правила"
@@ -43,9 +42,27 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
                 .selectRule(RULE_NAME)
                 .activate()
                 .sleep(5);
-
+// Чистим справочники доверенных получателей и Карантина получателей по клиентам
         Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.delete();}
+        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
+            getIC().getDriver().findElementByCssSelector("div[align='center']").click();
+            getIC().getDriver().findElementByXPath("//*[text()='Actions']").click();
+            getIC().getDriver().findElementByXPath("//*[@id=\"qtip-1-content\"]/a").click();
+            getIC().getDriver().findElementByXPath("/html/body/div[17]/div[3]/div/button[2]").click();
+        }
+        Table.Formula rows1 = getIC().locateTable(TABLE_GOOD).findRowsBy();
+        if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {
+            getIC().getDriver().findElementByCssSelector("div[align='center']").click();
+            getIC().getDriver().findElementByXPath("//*[text()='Actions']").click();
+            getIC().getDriver().findElementByXPath("//*[@id=\"qtip-1-content\"]/a").click();
+            getIC().getDriver().findElementByXPath("/html/body/div[17]/div[3]/div/button[2]").click();
+        }
+
+        getIC().locateTable(LOCAL_TABLE).findRowsBy().match("Код значения","TIME_AFTER_ADDING_TO_QUARANTINE")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1")
+                .save();
 
     }
 
@@ -55,7 +72,7 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
     )
     public void step0() {
         try {
-            for (int i = 0; i < 1; i++) {
+            for (int i = 0; i < 7; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
                 Client client = new Client("testCases/Templates/client.xml");
@@ -78,19 +95,23 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
             dependsOnMethods = "step0"
     )
     public void step1() {
-        Transaction transaction = getTransactionCARD_TRANSFER();
+        Transaction transaction = getTransactionPhoneNumberTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getCardTransfer()
-                .setDestinationCardNumber("4378723743757555");
+
+        transactionData.getPhoneNumberTransfer()
+                .setBIK(null);
+        transactionData.getPhoneNumberTransfer()
+                .setPayeeAccount(null);
+        transactionData.getPhoneNumberTransfer()
+                .setDestinationCardNumber(null);
+        transactionData.getPhoneNumberTransfer()
+                .setPayeePhone("79599925915");
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.click();}
-        assertTableField("Номер Карты получателя:","4378723743757555");
     }
 
     @Test(
@@ -98,25 +119,23 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
             dependsOnMethods = "step1"
     )
     public void step2() {
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.delete();}
-
-        Transaction transaction = getTransactionSDP();
+        Transaction transaction = getTransactionPhoneNumberTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getMTSystemTransfer()
-                .withReceiverName("Иванов Иван Иванович")
-                .setReceiverCountry("РОССИЯ");
+                .withDboId(clientIds.get(1));
+
+        transactionData.getPhoneNumberTransfer()
+                .setBIK(null);
+        transactionData.getPhoneNumberTransfer()
+                .setPayeeAccount(null);
+        transactionData.getPhoneNumberTransfer()
+                .setDestinationCardNumber("4650551178965454");
+        transactionData.getPhoneNumberTransfer()
+                .setPayeePhone(null);
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-        Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
-        assertTableField("Наименование получателя в системе денежных переводов:","Иванов Иван Иванович");
-        assertTableField("Страна получателя в системе денежных переводов:","РОССИЯ");
-
     }
 
     @Test(
@@ -124,25 +143,23 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
             dependsOnMethods = "step2"
     )
     public void step3() {
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.delete();}
-
-        Transaction transaction = getTransactionSDP_REFACTOR();
+        Transaction transaction = getTransactionPhoneNumberTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getMTTransferEdit()
-                .getSystemTransferCont().setReceiverName("Григорьев Николай Петрович");
-        transactionData.getMTTransferEdit()
-                .getSystemTransferCont().setReceiverCountry("США");
+                .withDboId(clientIds.get(2));
+
+        transactionData.getPhoneNumberTransfer()
+                .setBIK("042301514");
+        transactionData.getPhoneNumberTransfer()
+                .setPayeeAccount("4081710835650000700");
+        transactionData.getPhoneNumberTransfer()
+                .setDestinationCardNumber(null);
+        transactionData.getPhoneNumberTransfer()
+                .setPayeePhone(null);
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-        Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
-        assertTableField("Наименование получателя в системе денежных переводов:","Григорьев Николай Петрович");
-        assertTableField("Страна получателя в системе денежных переводов:","США");
     }
 
     @Test(
@@ -150,29 +167,23 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
             dependsOnMethods = "step3"
     )
     public void step4() {
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.delete();}
-
-        Transaction transaction = getTransactionOUTER_TRANSFER();
+        Transaction transaction = getTransactionPhoneNumberTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getOuterTransfer()
-                .getPayeeProps().setPayeeAccount("4081710835620000888");
-        transactionData.getOuterTransfer()
-                .getPayeeProps().setPayeeINN("0987654321");
-        transactionData.getOuterTransfer()
-                .getPayeeProps().setPayeeName("Иванов Иван Иванович");
+                .withDboId(clientIds.get(3));
+
+        transactionData.getPhoneNumberTransfer()
+                .setBIK(null);
+        transactionData.getPhoneNumberTransfer()
+                .setPayeeAccount(null);
+        transactionData.getPhoneNumberTransfer()
+                .setDestinationCardNumber("4670551178965500");
+        transactionData.getPhoneNumberTransfer()
+                .setPayeePhone(null);
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-        Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
-        assertTableField("Имя получателя:","Иванов Иван Иванович");
-        assertTableField("Счет получателя:","4081710835620000888");
-        assertTableField("ИНН получателя:","0987654321");
-
     }
 
     @Test(
@@ -180,30 +191,164 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
             dependsOnMethods = "step4"
     )
     public void step5() {
-//        TODO ТРЕБУЕТСЯ РЕАЛИЗОВАТЬ ИЗМЕНЕНИЕ ПОЛЕЙ В REFERENCE TABLE
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.delete();}
-
-        Transaction transaction = getTransactionTELEPHON_VALUE();
+        time.add(Calendar.MINUTE,5);
+        Transaction transaction = getTransactionPhoneNumberTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(0));
-//        transactionData.getOuterTransfer()
-//                .getPayeeProps().setPayeeAccount("4081710835620000888");
-//        transactionData.getOuterTransfer()
-//                .getPayeeProps().setPayeeINN("0987654321");
-//        transactionData.getOuterTransfer()
-//                .getPayeeProps().setPayeeName("Иванов Иван Иванович");
+                .withDboId(clientIds.get(3));
 
-//        sendAndAssert(transaction);
-//        assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-//        Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-//        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
-//        assertTableField("Имя получателя:","Иванов Иван Иванович");
-//        assertTableField("Счет получателя:","4081710835620000888");
-//        assertTableField("ИНН получателя:","0987654321");
+        transactionData.getPhoneNumberTransfer()
+                .setBIK(null);
+        transactionData.getPhoneNumberTransfer()
+                .setPayeeAccount(null);
+        transactionData.getPhoneNumberTransfer()
+                .setDestinationCardNumber("4670551178965500");
+        transactionData.getPhoneNumberTransfer()
+                .setPayeePhone(null);
 
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, YOUNG_QUARANTINE);
+    }
+
+    @Test(
+            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
+            dependsOnMethods = "step5"
+    )
+    public void datePlus2Days() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("TIME_STAMP", Instant.now().minus(2, ChronoUnit.DAYS).toString());
+
+        try (Database db = getDatabase()) {
+            db.updateWhere("dbo.QUARANTINE_LIST", values, "WHERE CARDNUMBER = 4670551178965500");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        getIC().locateTable(TABLE_GOOD)
+                .addRecord()
+                .fillInputText("Номер карты получателя:","4154551178964123")
+                .fillUser("Клиент:",clientIds.get(4))
+                .save();
+
+//        TODO Требуется перезагрузка САФ и Игнайт
+    }
+
+    @Test(
+            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
+            dependsOnMethods = "datePlus2Days"
+    )
+    public void step6() {
+        time.add(Calendar.MINUTE,5);
+        Transaction transaction = getTransactionPhoneNumberTransfer();
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(3));
+
+        transactionData.getPhoneNumberTransfer()
+                .setBIK(null);
+        transactionData.getPhoneNumberTransfer()
+                .setPayeeAccount(null);
+        transactionData.getPhoneNumberTransfer()
+                .setDestinationCardNumber("4670551178965500");
+        transactionData.getPhoneNumberTransfer()
+                .setPayeePhone(null);
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(FEW_DATA, RESULT_EXIST_QUARANTINE_LOCATION);
+    }
+
+    @Test(
+            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
+            dependsOnMethods = "step6"
+    )
+    public void step7() {
+        Transaction transaction = getTransactionPhoneNumberTransfer();
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(4));
+
+        transactionData.getPhoneNumberTransfer()
+                .setBIK(null);
+        transactionData.getPhoneNumberTransfer()
+                .setPayeeAccount(null);
+        transactionData.getPhoneNumberTransfer()
+                .setDestinationCardNumber("4154551178964123");
+        transactionData.getPhoneNumberTransfer()
+                .setPayeePhone(null);
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, IN_WHITE_LIST);
+    }
+
+    @Test(
+            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
+            dependsOnMethods = "step7"
+    )
+    public void step8() {
+        Transaction transaction = getTransactionCARD_TRANSFER();
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(4));
+
+        transactionData.getCardTransfer()
+                .setDestinationCardNumber("4154551178964123");
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, IN_WHITE_LIST);
+    }
+
+    @Test(
+            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
+            dependsOnMethods = "step8"
+    )
+    public void step9() {
+        Transaction transaction = getTransactionPhoneNumberTransfer();
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(5));
+
+        transactionData.getPhoneNumberTransfer()
+                .setBIK(null);
+        transactionData.getPhoneNumberTransfer()
+                .setPayeeAccount(null);
+        transactionData.getPhoneNumberTransfer()
+                .setDestinationCardNumber("4104551178964155");
+        transactionData.getPhoneNumberTransfer()
+                .setPayeePhone("79559295901");
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
+    }
+
+    @Test(
+            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
+            dependsOnMethods = "step9"
+    )
+    public void step10() {
+        Transaction transaction = getTransactionPhoneNumberTransfer();
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(5));
+
+        transactionData.getPhoneNumberTransfer()
+                .setBIK(null);
+        transactionData.getPhoneNumberTransfer()
+                .setPayeeAccount(null);
+        transactionData.getPhoneNumberTransfer()
+                .setDestinationCardNumber("4104551178965500");
+        transactionData.getPhoneNumberTransfer()
+                .setPayeePhone("79559295901");
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_EXIST_QUARANTINE_LOCATION);
+
+        getIC().close();
     }
 
 
@@ -240,7 +385,7 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
     }
-    private Transaction getTransactionTELEPHON_VALUE() {
+    private Transaction getTransactionPhoneNumberTransfer() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
