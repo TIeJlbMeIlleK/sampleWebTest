@@ -38,6 +38,10 @@ public class BR_01_PayeeInBlackList_Black_CONSOLIDATED_INN extends RSHBCaseTest 
                 .selectRule(RULE_NAME)
                 .activate()
                 .sleep(3);
+        getIC().locateTable("(Rule_tables) Карантин получателей")
+                .addRecord()
+                .fillUser("ФИО Клиента:",clientIds.get(0))
+                .fillInputText("Имя получателя:","1234").save();
     }
 
     @Test(

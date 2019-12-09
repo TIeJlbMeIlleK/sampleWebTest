@@ -1,5 +1,8 @@
 package ru.iitdgroup.tests.cases;
 
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteMessaging;
+import org.apache.ignite.cluster.ClusterGroup;
 import org.openqa.selenium.Dimension;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -9,6 +12,7 @@ import ru.iitdgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitdgroup.tests.apidriver.Template;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.dbdriver.Database;
+import ru.iitdgroup.tests.ignitedriver.SampleIgnite;
 import ru.iitdgroup.tests.properties.TestProperties;
 import ru.iitdgroup.tests.webdriver.ic.IC;
 
@@ -112,7 +116,7 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_RULE_NOT_APPLY_BY_PERIOD = "Правило не применилось, т.к. найдены другие транзакции за период";
     protected static final String EMPTY_VIP_LIST = "Не найдено совпадений параметров со списком VIP клиентов";
     protected static final String EXIST_IN_VIP_LIST = "В списке VIP клиентов найденны совпадающие параметры";
-    protected static final  String RESULT_BLOCK_PHONE = "Телефон получателя в чёрном списке";
+    protected static final String RESULT_BLOCK_PHONE = "Телефон получателя в чёрном списке";
     protected static final String REPLACE_SIM = "Произошла замена SIM";
     protected static final String REPLACE_IMEI = "Произошла замена IMEI";
     protected static final String RESULT_RULE_APPLY_BY_LENGHT = "Количество транзакций больше допустимой длины серии";
@@ -130,11 +134,13 @@ public abstract class RSHBCaseTest {
     private TestProperties props;
     private IC ic;
     private Database database;
+    private Ignite ignite;
 
     @BeforeClass
     public void setUpProperties() throws IOException {
         props = new TestProperties();
         props.load(new FileInputStream("resources/test.properties"));
+        ignite = SampleIgnite.runLocalignite(true);
     }
 
     @BeforeMethod
@@ -150,6 +156,15 @@ public abstract class RSHBCaseTest {
         if (ic != null) {
             getIC().close();
         }
+        ignite.close();
+    }
+
+    protected IgniteMessaging getMsg() {
+        ClusterGroup clients = ignite
+            .cluster()
+            .forClients()
+            .forAttribute("ROLE", "clientNode");
+        return ignite.message(clients);
     }
 
     protected DBOAntiFraudWS getWS() {
@@ -277,5 +292,9 @@ public abstract class RSHBCaseTest {
     }
 
     protected abstract String getRuleName();
+
+    protected Ignite getIgnite() {
+        return ignite;
+    }
 
 }

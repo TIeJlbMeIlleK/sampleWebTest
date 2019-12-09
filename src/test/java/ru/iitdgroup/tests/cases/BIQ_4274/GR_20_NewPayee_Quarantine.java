@@ -1,6 +1,11 @@
 package ru.iitdgroup.tests.cases.BIQ_4274;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteMessaging;
+import org.apache.ignite.cluster.ClusterGroup;
+import org.apache.ignite.lang.IgniteRunnable;
+import org.apache.ignite.resources.SpringResource;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -45,17 +50,11 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
 // Чистим справочники доверенных получателей и Карантина получателей по клиентам
         Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            getIC().getDriver().findElementByCssSelector("div[align='center']").click();
-            getIC().getDriver().findElementByXPath("//*[text()='Actions']").click();
-            getIC().getDriver().findElementByXPath("//*[@id=\"qtip-1-content\"]/a").click();
-            getIC().getDriver().findElementByXPath("/html/body/div[17]/div[3]/div/button[2]").click();
+            rows.delete();
         }
         Table.Formula rows1 = getIC().locateTable(TABLE_GOOD).findRowsBy();
         if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {
-            getIC().getDriver().findElementByCssSelector("div[align='center']").click();
-            getIC().getDriver().findElementByXPath("//*[text()='Actions']").click();
-            getIC().getDriver().findElementByXPath("//*[@id=\"qtip-1-content\"]/a").click();
-            getIC().getDriver().findElementByXPath("/html/body/div[17]/div[3]/div/button[2]").click();
+            rows1.delete();
         }
 
         getIC().locateTable(LOCAL_TABLE).findRowsBy().match("Код значения","TIME_AFTER_ADDING_TO_QUARANTINE")
@@ -231,7 +230,9 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
                 .fillUser("Клиент:",clientIds.get(4))
                 .save();
 
-//        TODO Требуется перезагрузка САФ и Игнайт
+        IgniteMessaging rmtMsg = getMsg();
+        rmtMsg.send("RELOAD_QUARANTINE", this.getClass().getSimpleName());
+//      Для WhiteList - RELOAD_WHITE
     }
 
     @Test(
