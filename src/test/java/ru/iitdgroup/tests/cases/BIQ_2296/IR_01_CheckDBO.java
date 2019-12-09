@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IR_01_CheckDBO extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_IR_01_CheckDBO";
-    private static final String TABLE_IP = "(Rule_tables) Подозрительные IP адреса";
+    private static final String TRANSACTION_TYPES = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
 
 
 
@@ -54,57 +54,54 @@ public class IR_01_CheckDBO extends RSHBCaseTest {
             dependsOnMethods = "enableRules"
     )
     public void editIP() {
-        getIC().locateTable("(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО")
+        getIC().locateTable(TRANSACTION_TYPES)
+                .addRecord()
+                .select("Тип транзакции:","Открытие вклада")
+                .save();
+        getIC().locateTable(TRANSACTION_TYPES)
                 .addRecord()
                 .select("Тип транзакции:","Закрытие вклада")
                 .save();
-        getIC().locateTable("(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО")
+        getIC().locateTable(TRANSACTION_TYPES)
                 .addRecord()
-                .select("Тип транзакции:","Открытие вклада")
+                .select("Тип транзакции:","Открытие счёта (в том числе накопительного)")
                 .save();
-        getIC().locateTable("(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО")
+        getIC().locateTable(TRANSACTION_TYPES)
                 .addRecord()
-                .select("Тип транзакции:","Открытие вклада")
+                .select("Тип транзакции:","Закрытие счёта (в том числе накопительного)")
                 .save();
-        getIC().locateTable("(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО")
+        getIC().locateTable(TRANSACTION_TYPES)
                 .addRecord()
-                .select("Тип транзакции:","Открытие вклада")
+                .select("Тип транзакции:","Перевод между счетами")
                 .save();
-        getIC().locateTable("(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО")
+        getIC().locateTable(TRANSACTION_TYPES)
                 .addRecord()
-                .select("Тип транзакции:","Открытие вклада")
+                .select("Тип транзакции:","Перевод другому лицу")
                 .save();
-        getIC().locateTable("(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО")
+        getIC().locateTable(TRANSACTION_TYPES)
                 .addRecord()
-                .select("Тип транзакции:","Открытие вклада")
+                .select("Тип транзакции:","Перевод на карту другому лицу")
                 .save();
-        getIC().locateTable("(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО")
+        getIC().locateTable(TRANSACTION_TYPES)
                 .addRecord()
-                .select("Тип транзакции:","Открытие вклада")
+                .select("Тип транзакции:","Перевод в сторону государства")
                 .save();
-        getIC().locateTable("(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО")
+        getIC().locateTable(TRANSACTION_TYPES)
                 .addRecord()
-                .select("Тип транзакции:","Открытие вклада")
+                .select("Тип транзакции:","Перевод через систему денежных переводов")
                 .save();
-        getIC().locateTable("(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО")
+        getIC().locateTable(TRANSACTION_TYPES)
                 .addRecord()
-                .select("Тип транзакции:","Открытие вклада")
+                .select("Тип транзакции:","Изменение перевода, отправленного через систему денежных переводов")
                 .save();
-        getIC().locateTable("(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО")
+        getIC().locateTable(TRANSACTION_TYPES)
                 .addRecord()
-                .select("Тип транзакции:","Открытие вклада")
+                .select("Тип транзакции:","Перевод с платежной карты стороннего банка на платежную карту РСХБ")
                 .save();
-        getIC().locateTable("(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО")
+        getIC().locateTable(TRANSACTION_TYPES)
                 .addRecord()
-                .select("Тип транзакции:","Открытие вклада")
+                .select("Тип транзакции:","Оплата услуг")
                 .save();
-        getIC().locateTable("(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО")
-                .addRecord()
-                .select("Тип транзакции:","Открытие вклада")
-                .save();
-
-
-
     }
     @Test(
             description = "Создаем клиента",
