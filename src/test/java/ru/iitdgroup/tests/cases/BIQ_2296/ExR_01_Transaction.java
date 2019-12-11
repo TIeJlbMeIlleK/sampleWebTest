@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.cases.BIQ_2296;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import org.apache.ignite.IgniteMessaging;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -94,8 +95,8 @@ public class ExR_01_Transaction extends RSHBCaseTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-//        TODO требуется наполнить кеш Клиентов
+        IgniteMessaging rmtMsg = getMsg();
+        rmtMsg.send("RELOAD_CLIENT", this.getClass().getSimpleName());
 
     }
 
@@ -154,7 +155,7 @@ public class ExR_01_Transaction extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(3));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_CHANGE_CONTACT + " " + RESULT_CHANGE_IMSI);
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_CHANGE_CONTACT);
     }
 
 
