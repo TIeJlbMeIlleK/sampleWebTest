@@ -15,15 +15,9 @@ import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 public class SampleIgnite {
 
 	public static Ignite runLocalignite(boolean isClient) {
-
 		final IgniteConfiguration config = createConfig();
 		config.setClientMode(isClient);
-		Ignition.start(config);
-
-		final Ignite ignite = Ignition.ignite();
-
-		return ignite;
-
+		return Ignition.start(config);
 	}
 
 	public static IgniteConfiguration createConfig() {
@@ -33,19 +27,15 @@ public class SampleIgnite {
 		final TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
 		final List<String> addresses = Arrays.asList(addressesConf);
 		ipFinder
-		.setAddresses(addresses)
-		.setShared(true);
+		    .setAddresses(addresses)
+		    .setShared(true);
 		discoSpi.setIpFinder(ipFinder);
-
 		configuration.setDiscoverySpi(discoSpi);
-
-
 		return configuration;
 	}
 
 	public static void main(String[] args) {
 		runLocalignite(false);
 	}
-
 
 }
