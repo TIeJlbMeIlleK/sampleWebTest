@@ -129,6 +129,11 @@ public abstract class RSHBCaseTest {
     protected static final String MISSING_CARD_NUMBER = "Отсутствует номер карты получателя";
     protected static final String RESULT_RULE_NOT_APPLY_MAX_SUM = "Допустимая сумма перевода";
     protected static final String RESULT_RULE_NOT_APPLY_REGULAR = "Правило не применяется для периодических платежей";
+    protected static final String FALSE_EX_IR1 = "Проверяемая пара канал ДБО - тип транзакции";
+    protected static final String EX_IR1 = "Непроверяемая пара канал ДБО - тип транзакции";
+    protected static final String RESULT_CHANGE_CONTACT = "Изменен контакт клиента для аутентификации";
+    protected static final String RESULT_CHANGE_IMSI = "Изменен IMSI телефона для аутентификации";
+    protected static final String RESULT_ATTENTION_CLIENT = "Клиент с пометкой Особое внимание";
 
     private DBOAntiFraudWS ws;
     private TestProperties props;

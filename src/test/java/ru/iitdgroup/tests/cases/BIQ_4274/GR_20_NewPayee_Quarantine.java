@@ -1,11 +1,7 @@
 package ru.iitdgroup.tests.cases.BIQ_4274;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteMessaging;
-import org.apache.ignite.cluster.ClusterGroup;
-import org.apache.ignite.lang.IgniteRunnable;
-import org.apache.ignite.resources.SpringResource;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -27,6 +23,7 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
 
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.AUGUST, 1, 1, 0, 0);
+    private final GregorianCalendar time1 = new GregorianCalendar(Calendar.getInstance().getTimeZone());
     private final List<String> clientIds = new ArrayList<>();
     private static final String TABLE_GOOD = "(Rule_tables) Доверенные получатели";
     private static final String LOCAL_TABLE = "(Policy_parameters) Параметры обработки справочников и флагов";
@@ -240,8 +237,8 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
             dependsOnMethods = "datePlus2Days"
     )
     public void step6() {
-        time.add(Calendar.MINUTE,5);
-        Transaction transaction = getTransactionPhoneNumberTransfer();
+        time1.add(Calendar.SECOND,30);
+        Transaction transaction = getTransactionPhoneNumberTransfer_new();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
@@ -347,7 +344,7 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
                 .setPayeePhone("79559295901");
 
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_EXIST_QUARANTINE_LOCATION);
+        assertLastTransactionRuleApply(TRIGGERED, YOUNG_QUARANTINE);
 
         getIC().close();
     }
@@ -358,29 +355,15 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
         return RULE_NAME;
     }
 
-    private Transaction getTransactionOUTER_TRANSFER() {
-        Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER.xml");
+    private Transaction getTransactionPhoneNumberTransfer_new() {
+        Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time1))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time1));
         return transaction;
     }
     private Transaction getTransactionCARD_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
-    }
-    private Transaction getTransactionSDP() {
-        Transaction transaction = getTransaction("testCases/Templates/SDP.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
-    }
-    private Transaction getTransactionSDP_REFACTOR() {
-        Transaction transaction = getTransaction("testCases/Templates/SDP_Refactor.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
