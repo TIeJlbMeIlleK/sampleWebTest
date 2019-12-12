@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.cases.BIQ_2296;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import org.apache.ignite.IgniteMessaging;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -106,6 +107,8 @@ public class EXR_08_With_JOB extends RSHBCaseTest {
                 .selectJob("UpdateAttentionClients")
                 .run();
         getIC().close();
+        IgniteMessaging rmtMsg = getMsg();
+        rmtMsg.send("RELOAD_ATTENTION_CLIENT", this.getClass().getSimpleName());
     }
 
     @Test(
