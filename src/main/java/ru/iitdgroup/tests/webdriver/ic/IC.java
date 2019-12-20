@@ -1,15 +1,17 @@
 package ru.iitdgroup.tests.webdriver.ic;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.properties.TestProperties;
+import ru.iitdgroup.tests.webdriver.administration.Workflows;
+import ru.iitdgroup.tests.webdriver.alerts.Alerts;
 import ru.iitdgroup.tests.webdriver.importruletable.ImportRuleTable;
 import ru.iitdgroup.tests.webdriver.jobconfiguration.Jobs;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
+import ru.iitdgroup.tests.webdriver.report.Reports;
 import ru.iitdgroup.tests.webdriver.ruleconfiguration.Rules;
+import ru.iitdgroup.tests.webdriver.scoringmodels.ScoringModels;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +36,8 @@ public class IC implements AutoCloseable {
         //TODO: перенести путь в файл настроек - оно системно-специфическое
         System.setProperty("webdriver.chrome.driver", props.getChromeDriverPath());
         driver = new ChromeDriver();
+        driver.manage().window().setSize(new Dimension(1000, 800));
+        driver.manage().window().setPosition(new Point(0, 0));
         driver.manage().timeouts().implicitlyWait(7, TimeUnit.SECONDS);
         try {
             driver.get(props.getICUrl());
@@ -111,14 +115,51 @@ public class IC implements AutoCloseable {
         locateView(TopMenuItem.RULES);
         driver.findElementByXPath("//span[text()='All Rules']/..").click();
         view.sleep(1);
+        driver.executeScript("window.scrollBy(0,5000)");
+        view.sleep(1);
         return new Rules(driver);
     }
 
     public Jobs locateJobs() {
-        driver.findElementByXPath("//div[@id='app-navigation'][1]//following::span[@class='icon-gear']").click();
-        driver.findElementByXPath("//a[@data-url='/InvestigationCenter/ui/jobconsole']").click();
+        driver.findElementByClassName("adminMenuButton").click();
+        view.sleep(1);
+        driver.findElementByLinkText("Jobs & Services Manager").click();
         view.sleep(1);
         return new Jobs(driver);
+    }
+
+    public Workflows locateWorkflows() {
+        driver.findElementByClassName("adminMenuButton").click();
+//        driver.findElementByXPath("//div[@id='app-navigation'][1]//following::*[@class='icon-gear']").click();
+        view.sleep(1);
+        driver.findElementByLinkText("Administration").click();
+        view.sleep(1);
+        driver.findElementByLinkText("Workflows").click();
+        view.sleep(1);
+        return new Workflows(driver);
+    }
+
+    public Workflows goToBack(){
+        driver.findElementByXPath("//div[@id='app-navigation'][1]//following::*[@class='icon-gear']").click();
+        driver.findElementByLinkText("Administration").click();
+        return new Workflows(driver);
+    }
+
+    public Alerts locateAlerts() {
+        locateView(TopMenuItem.ALERTS);
+        return new Alerts(driver);
+    }
+
+    public Reports locateReports() {
+        locateView(TopMenuItem.REPORTS);
+        locateView(TopMenuItem.REPORT_MANAGEMENT);
+        return new Reports(driver);
+    }
+
+    public ScoringModels locateScoringModels() {
+        locateView(TopMenuItem.ANALYTICS);
+        locateView(TopMenuItem.SCORING_MODELS);
+        return new ScoringModels(driver);
     }
 
     private void locateView(TopMenuItem item) {
@@ -142,13 +183,14 @@ public class IC implements AutoCloseable {
         return this;
     }
 
+
     class View extends AbstractView<View> {
         public View(RemoteWebDriver driver) {
             super(driver);
         }
 
         @Override
-        protected View getSelf() {
+        public View getSelf() {
             return this;
         }
     }

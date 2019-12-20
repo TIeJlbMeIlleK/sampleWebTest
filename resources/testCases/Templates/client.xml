@@ -1,0 +1,77 @@
+<ns3:SendClientDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+    <ns3:ServerInfo>
+        <Ip>localhost</Ip>
+        <Port>8089</Port>
+    </ns3:ServerInfo>
+    <ns3:ClientData>
+        <ns3:Client>
+            <ns3:State>ACTIVE</ns3:State>
+            <ns3:ClientIds>
+                <DboId>500</DboId>
+                <CifId>B40E1298983er2</CifId>
+                <ExpertSystemId>ff4dc5ff14643c5bb3d8e74e1753797fe0258055</ExpertSystemId>
+                <LoginHash>7c82ed97f5a054440c1b1e23c27da2063878bf45</LoginHash>
+            </ns3:ClientIds>
+            <ns3:FirstName>Полковник_Петр</ns3:FirstName>
+            <ns3:LastName>Петр</ns3:LastName>
+            <ns3:MiddleName>Михаилов</ns3:MiddleName>
+            <ns3:Sex>M</ns3:Sex>
+            <ns3:BirthDate>2005-06-23+04:00</ns3:BirthDate>
+            <ns3:Birthplace>гор.Москва</ns3:Birthplace>
+            <ns3:Citizenship>RUS</ns3:Citizenship>
+            <ns3:INN/>
+            <ns3:Resident>true</ns3:Resident>
+            <ns3:Login>николь</ns3:Login>
+            <ns3:PasswordHash>B7BE32223904C6C5F21CFEA2282B4DAA84757299CB</ns3:PasswordHash>
+            <ns3:Role>FULL</ns3:Role>
+            <ns3:useOTPForLoginAction>true</ns3:useOTPForLoginAction>
+            <ns3:useOTPForOtherAction>true</ns3:useOTPForOtherAction>
+            <ns3:LastUpdateDate>2019-08-07T10:36:31.792+03:00</ns3:LastUpdateDate>
+        </ns3:Client>
+        <ns3:ContactInfo>
+            <ns3:Contact>
+                <ns3:ContactChannel>PHONE</ns3:ContactChannel>
+                <ns3:ContactKind>AUTH</ns3:ContactKind>
+                <ns3:Value>+79479555478</ns3:Value>
+            </ns3:Contact>
+            <ns3:LivingAddress>
+                <ns3:CountryISOCode>RUS</ns3:CountryISOCode>
+                <ns3:ZipCode>117141</ns3:ZipCode>
+                <ns3:Region>г Москва</ns3:Region>
+                <ns3:Area/>
+                <ns3:City>г Москва</ns3:City>
+                <ns3:Street>Свобод</ns3:Street>
+                <ns3:House>5</ns3:House>
+                <ns3:Building/>
+                <ns3:Flat>71</ns3:Flat>
+            </ns3:LivingAddress>
+            <ns3:RegisteredAddress>
+                <ns3:CountryISOCode>RUS</ns3:CountryISOCode>
+                <ns3:ZipCode>117141</ns3:ZipCode>
+                <ns3:Region>г Москва</ns3:Region>
+                <ns3:Area/>
+                <ns3:City>г Москва</ns3:City>
+                <ns3:Street>Свободы</ns3:Street>
+                <ns3:House>5</ns3:House>
+                <ns3:Building/>
+                <ns3:Flat>71</ns3:Flat>
+            </ns3:RegisteredAddress>
+        </ns3:ContactInfo>
+        <ns3:ClientDocument>
+            <ns3:DocType>21</ns3:DocType>
+            <ns3:Series>4213</ns3:Series>
+            <ns3:Number>185478</ns3:Number>
+            <ns3:IssueDate>2008-08-10+03:00</ns3:IssueDate>
+            <ns3:Organization>Паспортно-визовым отделением ОВД района Южное Бутово города Москвы</ns3:Organization>
+            <ns3:OrgCode>742-135</ns3:OrgCode>
+        </ns3:ClientDocument>
+        <ns3:ClientDevice>
+            <ns3:Platform>PC</ns3:Platform>
+            <ns4:SessionId>SID-6172344556534210052</ns4:SessionId>
+            <ns3:PC>
+                <ns3:IpAddress>44.61.213.110</ns3:IpAddress>
+                <ns3:UserAgent>Mozilla/8.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36</ns3:UserAgent>
+            </ns3:PC>
+        </ns3:ClientDevice>
+    </ns3:ClientData>
+</ns3:SendClientDataRequest>

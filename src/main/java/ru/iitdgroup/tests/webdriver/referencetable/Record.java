@@ -2,16 +2,17 @@ package ru.iitdgroup.tests.webdriver.referencetable;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import ru.iitdgroup.tests.webdriver.TabledView;
 import ru.iitdgroup.tests.webdriver.ic.AbstractEdit;
 
-public class Record extends AbstractEdit<Record> {
+public class Record extends AbstractEdit<Record> implements TabledView<Record> {
 
     public Record(RemoteWebDriver driver) {
         super(driver);
     }
 
     @Override
-    protected Record getSelf() {
+    public Record getSelf() {
         return this;
     }
 

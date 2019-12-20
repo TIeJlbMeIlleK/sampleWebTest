@@ -2,6 +2,7 @@ package ru.iitdgroup.tests.webdriver.referencetable;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import ru.iitdgroup.tests.webdriver.TabledView;
 import ru.iitdgroup.tests.webdriver.ic.AbstractView;
 import ru.iitdgroup.tests.webdriver.ic.ICXPath;
 
@@ -11,14 +12,14 @@ import java.util.stream.Collectors;
 
 import static org.testng.Assert.fail;
 
-public class Table extends AbstractView<Table> {
+public class Table extends AbstractView<Table> implements TabledView<Table> {
 
     public static final int FIRST_ROW = 2; //данные в IC начинаются со 2-ой строчки
     public static final int FIRST_COL = 4; //данные в IC начинаются с 4-ой колонки
     private final String ROW = "%row%";
     private final String COL = "%col%";
     private final String thXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[1]/th[*]//span";
-    private final String tdXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[%col%]//span";
+    private final String tdXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[%col%]";
     private final String allRowsXPath = "//div[@class='panelTable af_table']//table[2]/tbody/tr[*]";
     private final String firstColXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[4]//span";
     private final String checkBoxXPath = "//div[@class='panelTable af_table']/table[2]/tbody/tr[%row%]/td[1]/input";
@@ -46,8 +47,12 @@ public class Table extends AbstractView<Table> {
                 .map(WebElement::getText)
                 .toArray(String[]::new);
 
-        final int rowCount = driver.findElementsByXPath(allRowsXPath)
-                .size() - 1; //первая строка - заголовок
+        final int rowCount = driver.findElementsByXPath(allRowsXPath).size() - 1; //первая строка - заголовок
+
+        if (rowCount == -1) {
+            data = new String[0][heads.length];
+            return this;
+        }
 
         data = new String[rowCount][heads.length];
         for (int i = 0; i < rowCount; i++) {
@@ -59,8 +64,7 @@ public class Table extends AbstractView<Table> {
                 final String xpath = tdXPath
                         .replaceAll(ROW, String.valueOf(i + FIRST_ROW))  //начина со второй  строки
                         .replaceAll(COL, String.valueOf(j + FIRST_COL)); //данные начинаются с четвёртого столбца
-                data[i][j] = driver.findElementByXPath(xpath
-                ).getText().trim();
+                data[i][j] = driver.findElementByXPath(xpath).getText().trim();
             }
         }
         return this;
@@ -76,6 +80,7 @@ public class Table extends AbstractView<Table> {
                 .element("Actions")
                 .preceding(ICXPath.WebElements.IMG)
                 .click();
+        waitUntil("//a[@id='btnSave']");
         return new TableEdit(driver);
     }
 
@@ -89,6 +94,12 @@ public class Table extends AbstractView<Table> {
     public Record click(int technicalRow) {
         final String xpath = firstColXPath.replaceAll(ROW, String.valueOf(technicalRow));
         driver.findElementByXPath(xpath).click();
+        return new Record(driver);
+    }
+
+    public Record click(String itemName) {
+        driver.findElementByXPath(String.format("//div[@title='%s'", itemName)).click();
+        waitUntil("//img[@class='ToolbarButton editRuleMain']");
         return new Record(driver);
     }
 
@@ -133,9 +144,8 @@ public class Table extends AbstractView<Table> {
     public Table delete() {
         driver.findElementByXPath("//span[text()='Actions']").click();
         driver.findElementByXPath("//div[contains(@class,'qtip') and contains(@aria-hidden, 'false')]//div[@class='qtip-content']/a[text()='Delete']").click();
-        driver.findElementsByXPath("//button[2]/span[text()='Yes']")
-                .forEach(e -> System.out.println(String.format("Displayed: %b, Enabled: %b, Text: %s", e.isDisplayed(), e.isEnabled(), e.getText())));
-        sleep(5);
+        driver.findElementByXPath("//button[2]/span[text()='Yes']").click();
+        waitUntil("//*[contains(text(),'Operation succeeded') and @class='globalMessagesInfo']");
 
         return this;
     }
@@ -167,14 +177,12 @@ public class Table extends AbstractView<Table> {
          * Вызывает Assert#fail (чтобы тест упал) для случая, если у таблицы удовлетворяющих формуле строк
          */
         private void failIfNoRows() {
-            if ( matchedRows.rows.size() == 0) {
+            if (matchedRows.rows.size() == 0) {
                 final String formula = expressions.stream()
                         .map(exp -> String.format("%s = %s", exp.colHeading, exp.rowText))
                         .collect(Collectors.joining(", "));
 
-                fail(String.format("По формуле %s не удалось выбрать ни одной строки из таблицы",
-                        formula
-                ));
+                fail(String.format("По формуле %s не удалось выбрать ни одной строки из таблицы", formula));
             }
         }
 
@@ -267,7 +275,7 @@ public class Table extends AbstractView<Table> {
     }
 
     @Override
-    protected Table getSelf() {
+    public Table getSelf() {
         return this;
     }
 

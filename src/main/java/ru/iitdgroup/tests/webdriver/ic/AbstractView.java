@@ -63,7 +63,7 @@ public abstract class AbstractView<S> {
      * Должен быть перекрыт в каждом классе потомке
      * @return S экземпляр конкретного класса
      */
-    protected abstract S getSelf();
+    public abstract S getSelf();
 
     public RemoteWebDriver getDriver() {
         return driver;

@@ -12,21 +12,6 @@ public class Transaction extends Template<SendTransactionDataRequestType> {
         super(fileName);
     }
 
-    public Transaction withDBOId(String newDboId) {
-        getData().getTransactionData().getClientIds().setDboId(newDboId);
-        return this;
-    }
-
-    public Transaction withTransactionId(String newTransactionId) {
-        getData().getTransactionData().setTransactionId(newTransactionId);
-        return this;
-    }
-
-    public Transaction withCIFId(String newCIFId) {
-        getData().getTransactionData().getClientIds().setCifId(newCIFId);
-        return this;
-    }
-
     @Override
     protected Class getObjectFactoryClazz() {
         return ObjectFactory.class;

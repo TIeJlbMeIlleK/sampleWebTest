@@ -1,0 +1,54 @@
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+	<ns4:ServerInfo>
+		<ns2:Ip>localhost</ns2:Ip>
+		<ns2:Port>8089</ns2:Port>
+	</ns4:ServerInfo>
+	<ns4:TransactionData>
+		<ns4:TransactionId>123456</ns4:TransactionId>
+		<ns4:ClientIds>
+			<ns2:DboId>3947824505607266158</ns2:DboId>
+			<ns2:CifId>DA97B20B-1CF0-4f34-BBC6-FC3C24548821</ns2:CifId>
+			<ns2:ExpertSystemId>119705151038f583a70c50d60467b8d944657abe</ns2:ExpertSystemId>
+			<ns2:LoginHash>ba455e110cedd2f317a69d72b0c3b26117073089</ns2:LoginHash>
+		</ns4:ClientIds>
+		<ns4:DocumentSaveTimestamp>2019-05-10T15:16:31.666+03:00</ns4:DocumentSaveTimestamp>
+		<ns4:DocumentNumber>64</ns4:DocumentNumber>
+		<ns4:Type>OUTER_TRANSFER</ns4:Type>
+		<ns4:Regular>false</ns4:Regular>
+		<ns4:SessionTimeout>1800000</ns4:SessionTimeout>
+		<ns4:Limit>300000</ns4:Limit>
+		<ns4:OuterTransfer>
+			<ns4:SourceProduct>40817810241000013200</ns4:SourceProduct>
+			<ns4:AmountInSourceCurrency>100</ns4:AmountInSourceCurrency>
+			<ns4:PayerName>Акимова Ольга Михайловна</ns4:PayerName>
+			<ns4:PayerINN/>
+			<ns4:PayeeProps>
+				<ns4:PayeeName>Hdjr fjrjr</ns4:PayeeName>
+				<ns4:PayeeINN></ns4:PayeeINN>
+				<ns4:PayeeKPP/>
+				<ns4:PayeeAccount>4081710835620000480</ns4:PayeeAccount>
+			</ns4:PayeeProps>
+			<ns4:PayeeBankProps>
+				<ns4:BankName>ФИЛИАЛ № 6318 БАНКА ВТБ (ПАО)</ns4:BankName>
+				<ns4:BIK>042301968</ns4:BIK>
+				<ns4:CorrespondentAccountNumber>30101810422023601968</ns4:CorrespondentAccountNumber>
+			</ns4:PayeeBankProps>
+			<ns4:OperationDescription>Оплата кредита по кд 0020726477 Чижикова А.С. сч.30232810100000000004 ТКС Банк(ЗАО)</ns4:OperationDescription>
+			<ns4:CommissionAmount>390</ns4:CommissionAmount>
+			<ns4:IsCommunalPayment>false</ns4:IsCommunalPayment>
+		</ns4:OuterTransfer>
+		<ns4:InitialSourceAmount>50000</ns4:InitialSourceAmount>
+		<ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+		<ns4:DocumentConfirmationTimestamp>2019-04-15T15:16:00+03:00</ns4:DocumentConfirmationTimestamp>
+		<ns4:SessionId>BC8g5t8OJGy-t5vCkpmHNsufwtBi_GDwSYL-Fjdu261DBzhbLpbR!-770855897!1555330162446</ns4:SessionId>
+		<ns4:Channel>INTERNET_CLIENT</ns4:Channel>
+		<ns4:ClientDevice>
+			<ns3:Platform>PC</ns3:Platform>
+			<ns3:PC>
+				<ns3:IpAddress>10.28.45.183</ns3:IpAddress>
+				<ns3:UserAgent>Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36</ns3:UserAgent>
+				<ns3:BrowserData>123</ns3:BrowserData>
+			</ns3:PC>
+		</ns4:ClientDevice>
+	</ns4:TransactionData>
+</ns4:SendTransactionDataRequest>

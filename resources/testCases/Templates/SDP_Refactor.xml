@@ -1,0 +1,51 @@
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+	<ns4:ServerInfo>
+		<ns2:Ip>localhost</ns2:Ip>
+		<ns2:Port>8089</ns2:Port>
+	</ns4:ServerInfo>
+	<ns4:TransactionData>
+		<ns4:TransactionId>501</ns4:TransactionId>
+		<ns4:ClientIds>
+			<DboId>20</DboId>
+			<CifId>6BB494A3-95DC-4bc6-90AC-0DEF46CD3669</CifId>
+			<ExpertSystemId>dba802f06396ebb51c3fb9fea0ce8f52f23e46fa</ExpertSystemId>
+			<LoginHash>3186dfa0cf270cff4a5cc7d3ebcf276484258c5f</LoginHash>
+		</ns4:ClientIds>
+		<ns4:DocumentSaveTimestamp>2019-05-13T01:35:02+03:00</ns4:DocumentSaveTimestamp>
+		<ns4:DocumentNumber>2423</ns4:DocumentNumber>
+		<ns4:Type>MT_TRANSFER_EDIT</ns4:Type>
+		<ns4:Regular>false</ns4:Regular>
+		<ns4:SessionTimeout>1800000</ns4:SessionTimeout>
+		<ns4:Limit>297984</ns4:Limit>
+		<ns4:MTTransferEdit>
+			<ns4:EditingTransactionId>1534</ns4:EditingTransactionId>
+			<ns4:SystemTransferCont xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns4:MTSystemTransferType">
+				<ns4:SourceProduct>40817810300000010239</ns4:SourceProduct>
+				<ns4:MtSystem>РСХБ-Экспресс</ns4:MtSystem>
+				<ns4:AmountInSourceCurrency>1000.00</ns4:AmountInSourceCurrency>
+				<ns4:CommissionAmount>45.00</ns4:CommissionAmount>
+				<ns4:SourceCurrencyIsoCode>810</ns4:SourceCurrencyIsoCode>
+				<ns4:SenderName>Московскова Виктория Викторовна</ns4:SenderName>
+				<ns4:SenderPhoneNumber>+79636552000</ns4:SenderPhoneNumber>
+				<ns4:SenderDocument>Паспорт, 45 15, 208463, выдан 19.09.2015 ОТДЕЛЕНИЕМ УФМС РОССИИ ПО ГОР. МОСКВЕ ПО РАЙОНУ БРАТЕЕВО, к/п 770-031</ns4:SenderDocument>
+				<ns4:SenderAddress>г Москва, ул Борисовские Пруды, 18-1, 369</ns4:SenderAddress>
+				<ns4:SenderCountry>РОССИЙСКАЯ ФЕДЕРАЦИЯ</ns4:SenderCountry>
+				<ns4:IsResidentSender>true</ns4:IsResidentSender>
+				<ns4:ReceiverName>Нано Василий Петрович</ns4:ReceiverName>
+				<ns4:ReceiverCountry>ГРУЗИЯ</ns4:ReceiverCountry>
+			</ns4:SystemTransferCont>
+		</ns4:MTTransferEdit>
+		<ns4:InitialSourceAmount>23780.46</ns4:InitialSourceAmount>
+		<ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+		<ns4:DocumentConfirmationTimestamp>2019-03-25T13:28:00+03:00</ns4:DocumentConfirmationTimestamp>
+		<ns4:SessionId>A760kg38a8MT7q0wC4gw49z35yBhlS4n8kU_xl7tsg1wtbc6m4Ph!-242564380!1553512664572</ns4:SessionId>
+		<ns4:Channel>INTERNET_CLIENT</ns4:Channel>
+		<ns4:ClientDevice>
+			<ns3:Platform>PC</ns3:Platform>
+			<ns3:PC>
+				<ns3:IpAddress>193.106.170.62</ns3:IpAddress>
+				<ns3:UserAgent>Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36</ns3:UserAgent>
+			</ns3:PC>
+		</ns4:ClientDevice>
+	</ns4:TransactionData>
+</ns4:SendTransactionDataRequest>

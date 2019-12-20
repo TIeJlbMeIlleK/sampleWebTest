@@ -15,11 +15,12 @@ public class RuleEdit extends AbstractEdit<RuleEdit> {
 
     public Rules save() {
         driver.findElementByXPath("//a[@id='btnSave']").click();
+        waitUntil("//img[@class='ToolbarButton editRuleMain']");
         return new Rules(driver);
     }
 
     @Override
-    protected RuleEdit getSelf() {
+    public RuleEdit getSelf() {
         return this;
     }
 }

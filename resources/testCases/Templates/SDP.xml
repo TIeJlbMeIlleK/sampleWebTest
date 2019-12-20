@@ -1,0 +1,50 @@
+<SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Transaction" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client">
+	<ServerInfo>
+		<ns2:Ip>localhost</ns2:Ip>
+		<ns2:Port>8089</ns2:Port>
+	</ServerInfo>
+	<TransactionData>
+		<TransactionId>500</TransactionId>
+		<ClientIds>
+			<ns2:DboId>20</ns2:DboId>
+			<ns2:CifId>6BB494A3-95DC-4bc6-90AC-0DEF46CD3669</ns2:CifId>
+			<ns2:EksId>1234</ns2:EksId>
+			<ns2:ExpertSystemId>dba802f06396ebb51c3fb9fea0ce8f52f23e46fa</ns2:ExpertSystemId>
+			<ns2:LoginHash>3186dfa0cf270cff4a5cc7d3ebcf276484258c5f</ns2:LoginHash>
+		</ClientIds>
+		<DocumentSaveTimestamp>2019-07-01T01:00:00.000+03:00</DocumentSaveTimestamp>
+		<DocumentNumber>3622350078823914099</DocumentNumber>
+		<Type>MT_SYSTEM_TRANSFER</Type>
+		<Regular>false</Regular>
+		<SessionTimeout>1800000</SessionTimeout>
+		<Limit>298767</Limit>
+		<MTSystemTransfer>
+			<SourceProduct>40817810300000010239</SourceProduct>
+			<MtSystem>QIWI</MtSystem>
+			<AmountInSourceCurrency>100.00</AmountInSourceCurrency>
+			<CommissionAmount>4.00</CommissionAmount>
+			<SourceCurrencyIsoCode>810</SourceCurrencyIsoCode>
+			<SenderName>Московскова Виктория Викторовна</SenderName>
+			<SenderPhoneNumber>+79636552000</SenderPhoneNumber>
+			<SenderDocument>Паспорт, 45 15, 208463, выдан 19.09.2015 ОТДЕЛЕНИЕМ УФМС РОССИИ ПО ГОР. МОСКВЕ ПО РАЙОНУ БРАТЕЕВО, к/п 770-031</SenderDocument>
+			<SenderAddress>г Москва, ул Борисовские Пруды, 18-1, 369</SenderAddress>
+			<SenderCountry>РОССИЙСКАЯ ФЕДЕРАЦИЯ</SenderCountry>
+			<IsResidentSender>true</IsResidentSender>
+			<ReceiverName>Ахметов Ильзат Эльдарович</ReceiverName>
+			<ReceiverCountry>Россия</ReceiverCountry>
+		</MTSystemTransfer>
+		<InitialSourceAmount>24563.46</InitialSourceAmount>
+		<ConfirmationSubjectType>CLIENT</ConfirmationSubjectType>
+		<DocumentConfirmationTimestamp>2019-07-01T01:00:00.000+03:00</DocumentConfirmationTimestamp>
+		<SessionId>6296228243827140704</SessionId>
+		<Channel>INTERNET_CLIENT</Channel>
+		<ClientDevice>
+			<ns3:Platform>PC</ns3:Platform>
+			<ns3:PC>
+				<ns3:IpAddress>213.87.149.82</ns3:IpAddress>
+				<ns3:UserAgent>Mozilla/5.0 (Windows NT 6.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.112 Safari/537.36</ns3:UserAgent>
+				<ns3:BrowserData>12456</ns3:BrowserData>
+			</ns3:PC>
+		</ClientDevice>
+	</TransactionData>
+</SendTransactionDataRequest>

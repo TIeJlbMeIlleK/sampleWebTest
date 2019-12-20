@@ -121,7 +121,9 @@ public class ICXPath {
     public WebElement type(String newText) {
         final WebElement element = locate();
         //waitFor( element);
-        clear(element);
+        element.click();
+        element.clear();
+        element.click();
         element.sendKeys(newText);
         return element;
     }

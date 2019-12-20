@@ -95,7 +95,7 @@ public class ImportRuleTable extends AbstractView<ImportRuleTable> {
     }
 
     @Override
-    protected ImportRuleTable getSelf() {
+    public ImportRuleTable getSelf() {
         return this;
     }
 }

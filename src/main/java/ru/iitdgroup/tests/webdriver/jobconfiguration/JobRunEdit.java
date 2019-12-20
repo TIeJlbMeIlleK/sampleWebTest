@@ -98,7 +98,7 @@ public class JobRunEdit extends AbstractEdit<JobRunEdit> {
     }
 
     @Override
-    protected JobRunEdit getSelf() {
+    public JobRunEdit getSelf() {
         return this;
     }
 

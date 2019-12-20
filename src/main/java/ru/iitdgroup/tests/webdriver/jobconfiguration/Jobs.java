@@ -19,7 +19,7 @@ public class Jobs extends AbstractView<Jobs> {
     }
 
     @Override
-    protected Jobs getSelf() {
+    public Jobs getSelf() {
         return this;
     }
 }

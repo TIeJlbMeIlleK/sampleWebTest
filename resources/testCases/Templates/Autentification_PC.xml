@@ -1,0 +1,26 @@
+<ClientAuthenticationRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+	<ServerInfo>
+		<ns2:Ip>localhost</ns2:Ip>
+		<ns2:Port>8089</ns2:Port>
+	</ServerInfo>
+	<ClientAuthentication>
+		<Login>serg</Login>
+		<AuthSuccessful>true</AuthSuccessful>
+		<ClientIds>
+			<ns2:DboId>40</ns2:DboId>
+			<ns2:CifId>B40E123</ns2:CifId>
+			<ns2:ExpertSystemId>119705151038f583a70c50d60467b8d944657abe</ns2:ExpertSystemId>
+			<ns2:LoginHash>ba455e110cedd2f317a69d72b0c3b26117073089</ns2:LoginHash>
+		</ClientIds>
+		<AuthTimestamp>2019-05-01T21:10:01.530+03:00</AuthTimestamp>
+		<ClientDevice>
+			<ns3:Platform>PC</ns3:Platform>
+			<ns3:PC>
+				<ns3:IpAddress>44.28.45.183</ns3:IpAddress>
+				<ns3:UserAgent>Mozilla/10.1 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36</ns3:UserAgent>
+				<ns3:BrowserData>123</ns3:BrowserData>
+			</ns3:PC>
+		</ClientDevice>
+		<SessionId>SID-000006</SessionId>
+	</ClientAuthentication>
+</ClientAuthenticationRequest>
