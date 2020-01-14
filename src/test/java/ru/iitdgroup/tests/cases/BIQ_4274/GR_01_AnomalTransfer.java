@@ -26,7 +26,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_GR_01_AnomalTransfer";
     private static final BigDecimal MAX_AMMOUNT = BigDecimal.valueOf(11);
 
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 1, 1, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
     private final List<String> clientIds = new ArrayList<>();
 
 

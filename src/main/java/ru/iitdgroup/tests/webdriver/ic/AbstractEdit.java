@@ -46,6 +46,7 @@ public abstract class AbstractEdit<S> extends AbstractView<S> {
         WebElement inputTextField = driver.findElementByXPath(String.format(DEFAULT_X_PATH_TEMPLATE, fieldName, INPUT_TAG));
 
         inputTextField.clear();
+        inputTextField.click();
         inputTextField.sendKeys(input);
 
         return getSelf();

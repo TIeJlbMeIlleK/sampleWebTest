@@ -24,9 +24,10 @@
 			<ns4:PayerINN/>
 			<ns4:PayeeProps>
 				<ns4:PayeeName>Hdjr fjrjr</ns4:PayeeName>
-				<ns4:PayeeINN></ns4:PayeeINN>
+				<ns4:PayeeINN>1234567111</ns4:PayeeINN>
 				<ns4:PayeeKPP/>
 				<ns4:PayeeAccount>4081710835620000480</ns4:PayeeAccount>
+				<ns4:PayeeAccountOpenDate>2019-12-01+03:00</ns4:PayeeAccountOpenDate>
 			</ns4:PayeeProps>
 			<ns4:PayeeBankProps>
 				<ns4:BankName>ФИЛИАЛ № 6318 БАНКА ВТБ (ПАО)</ns4:BankName>

@@ -134,6 +134,17 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_CHANGE_CONTACT = "Изменен контакт клиента для аутентификации";
     protected static final String RESULT_CHANGE_IMSI = "Изменен IMSI телефона для аутентификации";
     protected static final String RESULT_ATTENTION_CLIENT = "Клиент с пометкой Особое внимание";
+    protected static final String EX_WR2 = "Транзакция в сторону государства";
+    protected static final String NOT_EXIST_OLD_ACCOUNT = "Нет совпадений со списком старых клиентов";
+    protected static final String EXIST_OLD_ACCOUNT = "Есть совпадение со списком старых клиентов";
+    protected static final String RESULT_RESET_BALANCE = "Обнуление остатка";
+    protected static final String NO_TRUSTED_IMSI = "Нет доверенного устройства с таким IMSI. Будут проверяться транзакции.";
+    protected static final String NO_TRUSTED_IMEI = "Нет доверенного устройства с таким IMEI. Будут проверяться транзакции.";
+    protected static final String RESULT_GRAYBIK_BANK = "Банк получателя находится в сером списке";
+    protected static final String RESULT_GRAY_SYSTEM = "Система денежных переводов получателя находится в сером списке";
+    protected static final String RESULT_GRAY_BENEFICIAR_INN = "Получатель находится в сером списке по ИНН";
+    protected static final String RESULT_GRAY_BENEFICIAR_BIC_ACC = "Получатель находится в сером списке по БИК + Счет";
+
 
     private DBOAntiFraudWS ws;
     private TestProperties props;
@@ -216,7 +227,7 @@ public abstract class RSHBCaseTest {
                     .field("DESCRIPTION")
                     .from("INCIDENT_WRAP")
                     .with("RULE_TITLE", "=", "'" + ruleName + "'")
-                    .sort("id", false)
+                    .sort("timestamp", false)
                     .limit(1)
                     .get();
         } catch (SQLException e) {

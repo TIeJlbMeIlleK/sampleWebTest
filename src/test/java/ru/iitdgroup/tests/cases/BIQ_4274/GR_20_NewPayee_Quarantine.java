@@ -212,6 +212,12 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
             dependsOnMethods = "step5"
     )
     public void datePlus2Days() {
+        getIC().locateTable(TABLE_GOOD)
+                .addRecord()
+                .fillInputText("Номер карты получателя:","4154551178964123")
+                .fillUser("Клиент:",clientIds.get(4))
+                .save();
+
         Map<String, Object> values = new HashMap<>();
         values.put("TIME_STAMP", Instant.now().minus(2, ChronoUnit.DAYS).toString());
 
@@ -220,13 +226,6 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        getIC().locateTable(TABLE_GOOD)
-                .addRecord()
-                .fillInputText("Номер карты получателя:","4154551178964123")
-                .fillUser("Клиент:",clientIds.get(4))
-                .save();
-
         IgniteMessaging rmtMsg = getMsg();
         rmtMsg.send("RELOAD_QUARANTINE", this.getClass().getSimpleName());
 //      Для WhiteList - RELOAD_WHITE

@@ -27,7 +27,7 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
 
 
 
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
     private final List<String> clientIds = new ArrayList<>();
     private VesMock vesMock = getVesMock();
 
@@ -110,6 +110,11 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(FEW_DATA, DISABLED_INTEGR_VES_1);
     }
 
@@ -159,7 +164,7 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
         sendAndAssert(transaction);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(3_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

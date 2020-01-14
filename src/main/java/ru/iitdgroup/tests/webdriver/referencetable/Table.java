@@ -145,7 +145,7 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
         driver.findElementByXPath("//span[text()='Actions']").click();
         driver.findElementByXPath("//div[contains(@class,'qtip') and contains(@aria-hidden, 'false')]//div[@class='qtip-content']/a[text()='Delete']").click();
         driver.findElementByXPath("//button[2]/span[text()='Yes']").click();
-        waitUntil("//*[contains(text(),'Operation succeeded') and @class='globalMessagesInfo']");
+        waitUntil("//*[contains(text(),'Operation succeeded')]");
 
         return this;
     }

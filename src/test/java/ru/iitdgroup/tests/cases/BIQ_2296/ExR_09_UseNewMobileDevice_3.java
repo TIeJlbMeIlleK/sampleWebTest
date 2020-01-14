@@ -26,9 +26,9 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
 //    private static String tableDFP = "";
     private static String tableIMEI_IMSI = "(Rule_tables) Доверенные устройства для клиента";
 
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.DECEMBER, 7, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private final VesMock vesMock = VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
+    private VesMock vesMock = getVesMock();
 
     private String IMEI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
     private String new_IMEI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
@@ -466,5 +466,8 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
+    }
+    private static VesMock getVesMock() {
+        return VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
     }
 }

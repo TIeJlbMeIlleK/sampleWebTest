@@ -21,8 +21,8 @@ public class GR_25_SeriesTransfersAndPaymentsMoreOneOfKindTransaction_4274 exten
     private static final String RULE_NAME = "R01_GR_25_SeriesTransfersAndPayments";
 
 
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 10, 0, 0, 0);
-    private final GregorianCalendar time2 = new GregorianCalendar(2019, Calendar.JULY, 10, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.DECEMBER, 10, 0, 0, 0);
+    private final GregorianCalendar time2 = new GregorianCalendar(2019, Calendar.DECEMBER, 10, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
 
 

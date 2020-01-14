@@ -23,7 +23,7 @@ public class GR_20_NewPayee extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
     private static final BigDecimal MAX_AMMOUNT = BigDecimal.valueOf(11);
 
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.AUGUST, 1, 1, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
     private final List<String> clientIds = new ArrayList<>();
 
 
@@ -87,6 +87,11 @@ public class GR_20_NewPayee extends RSHBCaseTest {
                 .setDestinationCardNumber("4378723743757555");
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
         Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.click();}
@@ -99,7 +104,8 @@ public class GR_20_NewPayee extends RSHBCaseTest {
     )
     public void step2() {
         Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.delete();}
+        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
+            rows.delete();}
 
         Transaction transaction = getTransactionSDP();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
@@ -111,6 +117,11 @@ public class GR_20_NewPayee extends RSHBCaseTest {
                 .setReceiverCountry("РОССИЯ");
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
         Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
@@ -138,6 +149,11 @@ public class GR_20_NewPayee extends RSHBCaseTest {
                 .getSystemTransferCont().setReceiverCountry("США");
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
         Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
@@ -166,6 +182,11 @@ public class GR_20_NewPayee extends RSHBCaseTest {
                 .getPayeeProps().setPayeeName("Иванов Иван Иванович");
 
         sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
         Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
@@ -189,21 +210,22 @@ public class GR_20_NewPayee extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-//        transactionData.getOuterTransfer()
-//                .getPayeeProps().setPayeeAccount("4081710835620000888");
-//        transactionData.getOuterTransfer()
-//                .getPayeeProps().setPayeeINN("0987654321");
-//        transactionData.getOuterTransfer()
-//                .getPayeeProps().setPayeeName("Иванов Иван Иванович");
+        transactionData.getPhoneNumberTransfer()
+                .setPayeeAccount("4081710835620000888");
+        transactionData.getPhoneNumberTransfer()
+                .setPayeeName("Иванов Иван Иванович");
 
-//        sendAndAssert(transaction);
-//        assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-//        Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-//        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
-//        assertTableField("Имя получателя:","Иванов Иван Иванович");
-//        assertTableField("Счет получателя:","4081710835620000888");
-//        assertTableField("ИНН получателя:","0987654321");
-
+        sendAndAssert(transaction);
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
+        Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
+        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
+        assertTableField("Имя получателя:","Иванов Иван Иванович");
+        assertTableField("Счет получателя:","4081710835620000888");
     }
 
 
