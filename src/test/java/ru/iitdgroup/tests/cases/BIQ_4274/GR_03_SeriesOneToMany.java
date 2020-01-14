@@ -32,7 +32,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .sleep(3);
+                .sleep(5);
 
         getIC().locateRules()
                 .editRule(RULE_NAME)
@@ -41,7 +41,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
                 .fillInputText("Период серии в минутах:","10")
                 .fillInputText("Сумма серии:","1000")
                 .save()
-                .sleep(10);
+                .sleep(20);
         getIC().close();
     }
 
@@ -80,14 +80,14 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getPhoneNumberTransfer().setAmountInSourceCurrency(new BigDecimal("999.00"));
+        transactionData.getPhoneNumberTransfer().setAmountInSourceCurrency(new BigDecimal("998.00"));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
     }
 
     @Test(
@@ -125,10 +125,10 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getMTTransferEdit().getSystemTransferCont().setAmountInSourceCurrency(new BigDecimal(1));
+        transactionData.getMTTransferEdit().getSystemTransferCont().setAmountInSourceCurrency(new BigDecimal("1.00"));
         transaction.getData().getTransactionData().getMTTransferEdit().setEditingTransactionId(id);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
         try {
             Thread.sleep(2_000);
         } catch (InterruptedException e) {
@@ -150,7 +150,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
                 .withDboId(clientIds.get(1));
         transactionData.getMTSystemTransfer().setAmountInSourceCurrency(new BigDecimal("10.00"));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
         try {
             Thread.sleep(2_000);
         } catch (InterruptedException e) {
@@ -172,7 +172,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
                 .withDboId(clientIds.get(1));
         transactionData.getMTSystemTransfer().setAmountInSourceCurrency(new BigDecimal("10.00"));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
         try {
             Thread.sleep(2_000);
         } catch (InterruptedException e) {

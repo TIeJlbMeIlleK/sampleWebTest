@@ -19,7 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class GR_07_BigTransfer extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_GR_07_BigTransfer";
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.SEPTEMBER, 11, 10, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
     private final List<String> clientIds = new ArrayList<>();
 
     @Test(
@@ -33,7 +33,14 @@ public class GR_07_BigTransfer extends RSHBCaseTest {
                 .fillCheckBox("Active:", true)
                 .fillInputText("Контроль лимита  (пример 0.05):","0,1")
                 .save()
-                .sleep(10);
+                .sleep(5);
+
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .selectRule(RULE_NAME)
+                .activate()
+                .sleep(5);
         getIC().close();
     }
 
@@ -84,7 +91,7 @@ public class GR_07_BigTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -105,7 +112,7 @@ public class GR_07_BigTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -129,7 +136,7 @@ public class GR_07_BigTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, RESULT_BIG_TRANSFER);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -153,7 +160,7 @@ public class GR_07_BigTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, RESULT_BIG_TRANSFER);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -177,7 +184,7 @@ public class GR_07_BigTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, RESULT_BIG_TRANSFER);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -200,7 +207,7 @@ public class GR_07_BigTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -224,7 +231,7 @@ public class GR_07_BigTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -248,7 +255,7 @@ public class GR_07_BigTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -272,7 +279,7 @@ public class GR_07_BigTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(FEW_DATA, RESULT_FEW_DATA);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -296,7 +303,7 @@ public class GR_07_BigTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(FEW_DATA, RESULT_FEW_DATA);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -320,7 +327,7 @@ public class GR_07_BigTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(FEW_DATA, RESULT_FEW_DATA);
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(5_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

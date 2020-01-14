@@ -6,32 +6,34 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.dbdriver.Database;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+public class GR_19_GrayBeneficiar_INN extends RSHBCaseTest {
 
-public class EXR_08_With_JOB extends RSHBCaseTest {
+    private static final String RULE_NAME = "R01_GR_19_GrayBeneficiar";
+    private String GRAY_INN = "1234567890";
 
-    private static final String RULE_NAME = "R01_ExR_08_AttentionClient";
-    private static final String  TABLE = "(Rule_tables) Список клиентов с пометкой особое внимание";
+    private static final String  TABLE = "(Rule_tables) Подозрительные получатели ИНН";
 
-    private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
+
+
+
+    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.JANUARY, 10, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-
 
     @Test(
             description = "Генерация клиентов"
     )
     public void client() {
+        System.out.println("Правило GR_19 работает с \"Подозрительные получатели ИНН\" ТК№ 32 BIQ2296");
         try {
             for (int i = 0; i < 1; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
@@ -64,63 +66,71 @@ public class EXR_08_With_JOB extends RSHBCaseTest {
         getIC().locateRules()
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
-                .save();
+                .save()
+                .sleep(15);
+    }
 
-        getIC().locateTable("(Policy_parameters) Параметры обработки справочников и флагов")
-                .findRowsBy().match("Код значения","CLAIM_PERIOD")
-                .click().edit().fillInputText("Значение:","2").save();
-
+    @Test(
+            description = "Настройка и включение правила",
+            dependsOnMethods = "enableRules"
+    )
+    public void editReferenceData(){
         Table.Formula rows = getIC().locateTable(TABLE).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
             rows.delete();
         }
-    }
-
-    @Test(
-            description = "Добавить клиента № 1 в справочник \"Список клиентов с пометкой особое внимание\" и установить флаг \"Признак \"Особое внимание\".",
-            dependsOnMethods = "enableRules"
-    )
-
-    public void step1() {
         getIC().locateTable(TABLE)
                 .addRecord()
-                .fillUser("Клиент:", clientIds.get(0))
-                .fillCheckBox("Признак «Особое внимание»:",true)
+                .fillInputText("ИНН:",GRAY_INN)
                 .save();
-
-        Map<String, Object> values = new HashMap<>();
-        values.put("created", Instant.now().minus(3, ChronoUnit.DAYS).toString());
-
-        try (Database db = getDatabase()) {
-            db.updateWhere("dbo.ATTENTION_CLIENTS", values, "WHERE ATTENTION_FLAG = 1");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    @Test(
-            description = "Запустить джоб UpdateAttentionClients",
-            dependsOnMethods = "step1"
-    )
-    public void step2() {
-        getIC().locateJobs()
-                .selectJob("UpdateAttentionClients")
-                .run();
         getIC().close();
 
-//        TODO требуется реализовать перезапись КЭШ ATTENTION_CLIENTS
     }
 
     @Test(
-            description = "Провести транзакцию от имени клиента № 1",
-            dependsOnMethods = "step2"
+            description = "Провести транзакцию № 1 \"Перевод на счет\" на ИНН 1234567890",
+            dependsOnMethods = "editReferenceData"
     )
-    public void step3() {
-        Transaction transaction = getTransaction();
+    public void step1() {
+        Transaction transaction = getTransactionOUTER_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
+        transactionData
+                .getOuterTransfer()
+                .getPayeeProps().setPayeeINN(GRAY_INN);
+
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, RESULT_GRAY_BENEFICIAR_INN);
+    }
+    @Test(
+            description = "Провести транзакцию № 2\"Перевод на счет\" на ИНН 9876543210",
+            dependsOnMethods = "step1"
+    )
+    public void step2() {
+        Transaction transaction = getTransactionOUTER_TRANSFER();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getOuterTransfer()
+                .getPayeeProps().setPayeeINN("9876543210");
+
+        try {
+            Thread.sleep(5_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
@@ -131,12 +141,11 @@ public class EXR_08_With_JOB extends RSHBCaseTest {
         return RULE_NAME;
     }
 
-    private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_MOBILE.xml");
+    private Transaction getTransactionOUTER_TRANSFER() {
+        Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
     }
-
 }

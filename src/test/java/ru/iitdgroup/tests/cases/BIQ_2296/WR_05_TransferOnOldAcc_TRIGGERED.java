@@ -9,55 +9,59 @@ import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+public class WR_05_TransferOnOldAcc_TRIGGERED extends RSHBCaseTest {
 
-public class BR_01_PayeeInBlackList_CARD extends RSHBCaseTest {
-
-    private static final String RULE_NAME = "R01_BR_01_PayeeInBlackList";
-    private static final String REFERENCE_ITEM = "(Rule_tables) Запрещенные получатели НомерКарты";
+    private static final String RULE_NAME = "R01_WR_05_TransferOnOldAcc";
 
     private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
     private final List<String> clientIds = new ArrayList<>();
-
 
     @Test(
             description = "Настройка и включение правила"
     )
     public void enableRules() {
+
+        System.out.println("Правило WR_05 не срабатывает для непроверяемых типов транзакций и несоблюдении условий сработки" + "ТК№23 --- BIQ2296");
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .selectRule(RULE_NAME)
-                .activate()
                 .sleep(3);
-    }
 
-    @Test(
-            description = "Занести номер карты получателя в справочник запрещенных ",
-            dependsOnMethods = "enableRules"
-    )
+        getIC().locateRules()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillInputText("Период в днях для «старого» счёта:","1")
+                .save()
+                .sleep(5);
 
-    public void editReferenceData(){
-        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
+        Table.Formula rows1 = getIC().locateTable("(Rule_tables) БИК Банка").findRowsBy();
+        if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {
+            rows1.delete();
         }
-        getIC().locateTable(REFERENCE_ITEM)
+
+        getIC().locateTable("(Rule_tables) БИК Банка")
                 .addRecord()
-                .fillMasked("НомерКарты:", "4378723741117915")
+                .fillInputText("БИК:","044525219")
+                .fillInputText("Регион:","Москва")
                 .save();
+
         getIC().close();
     }
 
     @Test(
             description = "Создаем клиента",
-            dependsOnMethods = "editReferenceData"
+            dependsOnMethods = "enableRules"
     )
     public void step0() {
         try {
@@ -73,58 +77,52 @@ public class BR_01_PayeeInBlackList_CARD extends RSHBCaseTest {
                         .withDboId(dboId);
                 sendAndAssert(client);
                 clientIds.add(dboId);
-                System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
     }
-
     @Test(
-            description = "Провести транзакцию № 1 Перевод на карту на карту из справочника запрещенных",
+            description = "Провести транзакцию \"Перевод на счет\" (БИК в справочнике \"БИК Банка\", \"Дата открытия счета получателем\" 1 дней назад)",
             dependsOnMethods = "step0"
     )
 
     public void step1() {
-        Transaction transaction = getTransaction();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy +3:00");
+        LocalDateTime localDateTimeMinus9Days = LocalDateTime.now().minusDays(1);
+        dateTimeFormatter.format(localDateTimeMinus9Days);
+        GregorianCalendar calendar = GregorianCalendar.from(localDateTimeMinus9Days.atZone(ZoneId.systemDefault()));
+        XMLGregorianCalendar xmlGregorianCalendar = new XMLGregorianCalendarImpl(calendar);
+
+        Transaction transaction = getTransactionOUTER_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData
-                .getCardTransfer()
-                .setDestinationCardNumber("4378723741117915");
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_CARD_IN_BLACK_LIST);
-    }
-
-    @Test(
-            description = "Провести транзакцию № 1 Перевод на карту на карту из справочника запрещенных",
-            dependsOnMethods = "step1"
-    )
-    public void step2() {
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getCardTransfer()
-                .setDestinationCardNumber("1234523741117915");
+        transactionData.getOuterTransfer()
+                .getPayeeBankProps().setBIK("044525219");
+        transactionData.getOuterTransfer()
+                .getPayeeProps()
+                .setPayeeAccountOpenDate(xmlGregorianCalendar);
 
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED,NOT_EXIST_IN_BLACK_LIST);
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertLastTransactionRuleApply(TRIGGERED, EXIST_OLD_ACCOUNT);
     }
+
 
     @Override
     protected String getRuleName() {
         return RULE_NAME;
     }
 
-    private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
+    private Transaction getTransactionOUTER_TRANSFER() {
+        Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

@@ -22,8 +22,9 @@ public class BR_01_PayeeInBlackList_Black_Payment_Systems extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_BR_01_PayeeInBlackList";
     private static final String REFERENCE_ITEM_BLACK_RULE_TABLE = "(Rule_tables) Запрещенные получатели систем денежных переводов";
 
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 1, 1, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
     private final List<String> clientIds = new ArrayList<>();
+    private static String id;
 
 
     @Test(
@@ -145,6 +146,7 @@ public class BR_01_PayeeInBlackList_Black_Payment_Systems extends RSHBCaseTest {
                 .getMTTransferEdit()
                 .getSystemTransferCont()
                 .setReceiverName("Ахметов Ильзат Эльдарович");
+        id = transaction.getData().getTransactionData().getTransactionId();
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, NOT_EXIST_IN_BLACK_LIST);
     }
@@ -169,6 +171,7 @@ public class BR_01_PayeeInBlackList_Black_Payment_Systems extends RSHBCaseTest {
                 .getMTTransferEdit()
                 .getSystemTransferCont()
                 .setReceiverName("Иванов Иван Иванович");
+        transactionData.getMTTransferEdit().withEditingTransactionId(id);
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, RESULT_BLOCK_MT_SYSTEM);
     }

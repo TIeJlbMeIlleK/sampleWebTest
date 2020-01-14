@@ -16,15 +16,24 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ExR_07_Devices extends RSHBCaseTest {
+public class ExR_07_IMSI_and_IMEI extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_ExR_07_Devices";
     private String IMSI_1 = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
     private String IMEI_1 = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+
     private String IMSI_2 = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
     private String IMEI_2 = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+
     private String IMSI_3 = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
     private String IMEI_3 = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+
+    private String IMSI_4 = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private String IMEI_4 = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+
+    private String IMSI_5 = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private String IMEI_5 = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+
     private static final String  TABLE = "(Rule_tables) Доверенные устройства для клиента";
 
 
@@ -39,7 +48,7 @@ public class ExR_07_Devices extends RSHBCaseTest {
     )
     public void client() {
         try {
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 2; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
                 Client client = new Client("testCases/Templates/client.xml");
@@ -73,6 +82,12 @@ public class ExR_07_Devices extends RSHBCaseTest {
                 .fillInputText("Период контроля смены атрибутов клиента  (пример: 72 часа):","1")
                 .save()
                 .sleep(5);
+
+        getIC().locateTable("(Policy_parameters) Параметры обработки справочников и флагов")
+                .findRowsBy().match("Код значения","PERIOD_CHANGE_CUSTOMER_ATTRIBUTES").click()
+                .edit()
+                .fillInputText("Значение:","1")
+                .save();
     }
 
     @Test(
@@ -88,14 +103,20 @@ public class ExR_07_Devices extends RSHBCaseTest {
 
         getIC().locateTable(TABLE)
                 .addRecord()
-                .fillInputText("IMSI:",IMSI_3)
+                .fillInputText("IMSI:",IMSI_1)
                 .fillUser("Клиент:",clientIds.get(0))
                 .fillCheckBox("Доверенный:",true)
-                .fillInputText("IMEI:",IMEI_3)
+                .fillInputText("IMEI:",IMEI_1)
+                .save();
+        getIC().locateTable(TABLE)
+                .addRecord()
+                .fillInputText("IMSI:",IMSI_4)
+                .fillUser("Клиент:",clientIds.get(0))
+                .fillCheckBox("Доверенный:",true)
+                .fillInputText("IMEI:",IMEI_4)
                 .save();
         getIC().close();
 
-        /// Доверенное устройство для клиента 1: IMEI = 11557984121113527 IMSI = 11315784121115541
     }
 
 
@@ -105,7 +126,6 @@ public class ExR_07_Devices extends RSHBCaseTest {
     )
 
     public void step1() {
-        time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -122,14 +142,13 @@ public class ExR_07_Devices extends RSHBCaseTest {
                 .setIMSI(IMSI_1);
 
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_TRASACTION_WITH_SAME_IMSI + "\n" + NO_TRASACTION_WITH_SAME_IMEI + "\n");
+        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_IMSI + "\n" + EXIST_TRUSTED_IMEI + "\n");
     }
     @Test(
-            description = "Провести транзакцию № 2 от имени клиента № 1 с устройства № 2 IMEI_2 IMSI_2",
+            description = "Провести транзакцию № 2 от имени клиента № 1 с устройства № 2 IMEI_2 IMSI_1",
             dependsOnMethods = "step1"
     )
     public void step2() {
-        time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -143,18 +162,17 @@ public class ExR_07_Devices extends RSHBCaseTest {
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMSI(IMSI_2);
+                .setIMSI(IMSI_1);
 
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_TRASACTION_WITH_SAME_IMSI + "\n" + NO_TRASACTION_WITH_SAME_IMEI + "\n");
+        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_IMSI + "\n" + NO_TRUSTED_IMEI + "\n" + NO_TRASACTION_WITH_SAME_IMSI + "\n" + NO_TRASACTION_WITH_SAME_IMEI + "\n");
     }
 
     @Test(
-            description = "Провести транзакцию № 3 от имени клиента № 1 с устройства № 1 IMEI_1 IMSI_1",
+            description = "Провести транзакцию № 3 от имени клиента № 1 с устройства № 3 IMEI_1 IMSI_2",
             dependsOnMethods = "step2"
     )
     public void step3() {
-        time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -168,18 +186,17 @@ public class ExR_07_Devices extends RSHBCaseTest {
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMSI(IMSI_1);
+                .setIMSI(IMSI_2);
 
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_TRASACTION_WITH_SAME_IMSI + "\n" + NO_TRASACTION_WITH_SAME_IMEI + "\n");
+        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_IMEI + "\n" + NO_TRUSTED_IMSI + "\n" + NO_TRASACTION_WITH_SAME_IMSI + "\n" + NO_TRASACTION_WITH_SAME_IMEI + "\n");
     }
 
     @Test(
-            description = "Провести транзакцию № 4 от имени клиента № 2 с устройства № 2 IMEI_2 IMSI_2",
+            description = "Провести транзакцию № 4 от имени клиента № 2 с устройства № 4 IMEI_5 IMSI_4",
             dependsOnMethods = "step3"
     )
     public void step4() {
-        time_2.add(Calendar.MINUTE, 5);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -189,22 +206,21 @@ public class ExR_07_Devices extends RSHBCaseTest {
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMEI(IMEI_2);
+                .setIMEI(IMEI_5);
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMSI(IMSI_2);
+                .setIMSI(IMSI_4);
 
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_HAS_TRANSACTIONS);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_TRASACTION_WITH_SAME_IMSI + "\n" + NO_TRASACTION_WITH_SAME_IMEI + "\n");
     }
 
     @Test(
-            description = "Провести транзакцию № 5 от имени клиента № 2 с устройства № 2 IMEI_2 IMSI_2 (прошло более часа с  транзакции № 4)",
+            description = "Провести транзакцию № 5 от имени клиента № 2 с устройства № 5 IMEI_4 IMSI_5",
             dependsOnMethods = "step4"
     )
     public void step5() {
-        time_2.add(Calendar.MINUTE, 70);
         Transaction transaction = getTransaction2();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -214,111 +230,11 @@ public class ExR_07_Devices extends RSHBCaseTest {
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMEI(IMEI_2);
+                .setIMEI(IMEI_4);
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMSI(IMSI_2);
-
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_TRASACTION_WITH_SAME_IMSI + "\n" + NO_TRASACTION_WITH_SAME_IMEI + "\n");
-    }
-
-    @Test(
-            description = " Провести транзакцию № 6 от имени клиента № 1 с устройства № 3 IMEI_3 IMSI_3",
-            dependsOnMethods = "step5"
-    )
-    public void step6() {
-        time.add(Calendar.MINUTE, 1);
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMEI(IMEI_3);
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMSI(IMSI_3);
-
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_IMSI + "\n" + EXIST_TRUSTED_IMEI + "\n");
-    }
-
-    @Test(
-            description = "Провести транзакцию № 7 от имени клиента № 2 с устройства № 3 IMEI_3 IMSI_3",
-            dependsOnMethods = "step6"
-    )
-    public void step7() {
-        time.add(Calendar.MINUTE, 1);
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(1));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMEI(IMEI_3);
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMSI(IMSI_3);
-
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_EXR_07);
-    }
-
-    @Test(
-            description = "Провести транзакцию № 8 от имени клиента № 3 с устройства № 3 IMEI_3 IMSI_3",
-            dependsOnMethods = "step7"
-    )
-    public void step8() {
-        time.add(Calendar.MINUTE, 1);
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(2));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMEI(IMEI_3);
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMSI(IMSI_3);
-
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_HAS_TRANSACTIONS);
-    }
-
-    @Test(
-            description = "Провести транзакцию № 9 от имени клиента № 3 с устройства № 3 IMEI_3 IMSI_3 (прошло более часа с транзакции № 8)",
-            dependsOnMethods = "step7"
-    )
-    public void step9() {
-        time.add(Calendar.MINUTE, 71);
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(2));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMEI(IMEI_3);
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .setIMSI(IMSI_3);
+                .setIMSI(IMSI_5);
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, NO_TRASACTION_WITH_SAME_IMSI + "\n" + NO_TRASACTION_WITH_SAME_IMEI + "\n");

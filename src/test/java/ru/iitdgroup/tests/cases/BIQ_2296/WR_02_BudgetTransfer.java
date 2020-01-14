@@ -1,47 +1,34 @@
-package ru.iitdgroup.tests.cases.BIQ_2370;
+package ru.iitdgroup.tests.cases.BIQ_2296;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class NoSuchOfHanglingTransaction extends RSHBCaseTest {
+public class WR_02_BudgetTransfer extends RSHBCaseTest {
 
-    private static final String TABLE = "(Policy_parameters) Параметры обработки событий";
-    private static final String RULE_NAME = "R01_GR_15_NonTypicalGeoPosition";
-    private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
+    private static final String RULE_NAME = "R01_WR_02_BudgetTransfer";
 
+    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private String IP = "%s.%s.%s.%s";
-
-    @BeforeClass
-    public void beforeClass() {
-        IP = String.format(IP,
-                ThreadLocalRandom.current().nextInt(0, 255) + "",
-                ThreadLocalRandom.current().nextInt(0, 255) + "",
-                ThreadLocalRandom.current().nextInt(0, 255) + "",
-                ThreadLocalRandom.current().nextInt(0, 255) + "");
-    }
 
     @Test(
-            description = "Включение правила"
-
+            description = "Настройка и включение правила"
     )
-    public void enableRuleForAlert() {
-        System.out.println("\"Обработка транзакции без учета справочника\" -- BIQ2370" + " ТК№15");
+    public void enableRules() {
 
+        System.out.println("Правило WR_02 срабатывает корректно" + "ТК№22 --- BIQ2296");
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
@@ -51,25 +38,15 @@ public class NoSuchOfHanglingTransaction extends RSHBCaseTest {
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
                 .save()
-                .sleep(15);
-    }
-
-    @Test(
-            description = "Очистить справочник \"Параметры обработки событий\" от всех записей",
-            dependsOnMethods = "enableRuleForAlert"
-    )
-    public void refactorWorkFlow() {
-        Table.Formula rows = getIC().locateTable(TABLE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
+                .sleep(5);
+        getIC().close();
     }
 
     @Test(
             description = "Создаем клиента",
-            dependsOnMethods = "refactorWorkFlow"
+            dependsOnMethods = "enableRules"
     )
-    public void client() {
+    public void step0() {
         try {
             for (int i = 0; i < 1; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
@@ -88,40 +65,65 @@ public class NoSuchOfHanglingTransaction extends RSHBCaseTest {
             throw new IllegalStateException(e);
         }
     }
+    @Test(
+            description = "Провести транзакцию \"Перевод в бюджет\"",
+            dependsOnMethods = "step0"
+    )
+    public void step1() {
+        Transaction transaction = getTransactionBUDGET_TRANSFER();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(true);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData.getBudgetTransfer()
+                .setAmountInSourceCurrency(new BigDecimal(10.00));
+
+        sendAndAssert(transaction);
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertLastTransactionRuleApply(TRIGGERED, EX_WR2);
+    }
 
     @Test(
-            description = "Отправить транзакцию, которая не попадет под обработку согласно справочнику из предусловия",
-            dependsOnMethods = "client"
+            description = "Провести транзакцию \"Оплата услуг\"",
+            dependsOnMethods = "step1"
     )
-    public void transaction1() {
-        Transaction transaction = getTransactionSERVICE_PAYMENT_1();
+    public void step2() {
+        Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getClientDevice().getPC().setIpAddress(IP);
-        sendAndAssert(transaction);
 
+        sendAndAssert(transaction);
         try {
-            Thread.sleep(5_000);
+            Thread.sleep(2_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        getIC().locateAlerts()
-                .openFirst();
-        assertTableField("Статус АДАК:","DISABLED");
-        getIC().close();
-        System.out.printf("Тест кейс выполнен успешно!");
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
     }
+
 
     @Override
     protected String getRuleName() {
         return RULE_NAME;
     }
 
-    private Transaction getTransactionSERVICE_PAYMENT_1() {
+    private Transaction getTransactionBUDGET_TRANSFER() {
+        Transaction transaction = getTransaction("testCases/Templates/BUDGET_TRANSFER.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
+    }
+
+    private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
