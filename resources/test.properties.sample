@@ -1,4 +1,4 @@
-#Подключение к интерфейсу IC
+#РџРѕРґРєР»СЋС‡РµРЅРёРµ Рє РёРЅС‚РµСЂС„РµР№СЃСѓ IC
 ic.url=http://192.168.7.151:7780/InvestigationCenter/
 #ic.user=ic_admin
 #ic.password=ic_admin
@@ -8,10 +8,12 @@ chromedriver.path=c:/webdrivers/chromedriver.exe
 pictures.folder=c:/tmp
 
 
-#Подключение к Web-сервису для отправки транзакций
-ws.url=http://192.168.7.151:7780/InvestigationCenter/api/webservices/DBOAntiFraudWS
+#РџРѕРґРєР»СЋС‡РµРЅРёРµ Рє Web-СЃРµСЂРІРёСЃСѓ РґР»СЏ РѕС‚РїСЂР°РІРєРё С‚СЂР°РЅР·Р°РєС†РёР№
+ws.url=http://localhost:8080/rs/api/webservices/DBOAntiFraudWS
+ws.user=wsUser
+ws.password=wsUser
 
-#Подключение к базе данных для проверки операций
+#РџРѕРґРєР»СЋС‡РµРЅРёРµ Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С… РґР»СЏ РїСЂРѕРІРµСЂРєРё РѕРїРµСЂР°С†РёР№
 db.driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
 db.url=jdbc:sqlserver://192.168.101.25;database=rshb-53-57-db
 db.user=sa

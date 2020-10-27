@@ -19,6 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class BR_01_PayeeInBlackList_Black_Bik extends RSHBCaseTest {
 
+
     private static final String RULE_NAME = "R01_BR_01_PayeeInBlackList";
     private static final String REFERENCE_ITEM = "(Rule_tables) Запрещенные получатели БИКСЧЕТ";
 
