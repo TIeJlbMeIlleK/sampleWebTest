@@ -144,6 +144,8 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_GRAY_SYSTEM = "Система денежных переводов получателя находится в сером списке";
     protected static final String RESULT_GRAY_BENEFICIAR_INN = "Получатель находится в сером списке по ИНН";
     protected static final String RESULT_GRAY_BENEFICIAR_BIC_ACC = "Получатель находится в сером списке по БИК + Счет";
+    protected static final String EXISTS_MATCHES = "Правило применилось, найдены совпадающие параметры";
+    protected static final String NO_MATCHES = "Нет совпадений";
 
 
     private DBOAntiFraudWS ws;
@@ -210,7 +212,7 @@ public abstract class RSHBCaseTest {
     protected IC getIC() {
         if (ic == null) {
             ic = new IC(getProps());
-            ic.getDriver().manage().window().setSize(new Dimension(1200, 2000));
+            ic.getDriver().manage().window().setSize(new Dimension(2000, 3000));
         }
         return ic;
     }
