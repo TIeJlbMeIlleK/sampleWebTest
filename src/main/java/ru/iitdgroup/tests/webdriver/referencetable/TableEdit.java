@@ -59,11 +59,35 @@ public class TableEdit extends AbstractEdit<TableEdit> implements TabledView {
         return this;
     }
 
+    public TableEdit getElement(String fieldName) {
+        icxpath()
+                .element(fieldName)
+                .following(ICXPath.WebElements.IMG)
+                .click();
+        return this;
+    }
+
+    public TableEdit getSelect(String fieldName) {
+        getDriver().findElementByXPath("//span[text()='"+fieldName+"']").click();
+        return this;
+    }
+
+    public TableEdit tapToSelect() {
+        getDriver().findElementByXPath("//span[text()='Select']").click();
+        return this;
+    }
+
     public Record save() {
         final WebElement element = driver.findElementByXPath("//a[@id='btnSave']");
        // System.out.println("============ enabled ========= "+element.isEnabled());
         element.click();
         waitUntil("//a[@id='btnEdit']");
         return new Record(driver);
+    }
+
+    public TableEdit refresh() {
+        getSelf().getDriver().findElementByXPath("//img[@title='Refresh']").click();
+        getSelf().sleep(2);
+        return this;
     }
 }

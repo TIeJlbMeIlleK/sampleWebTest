@@ -12,6 +12,7 @@ import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.ves.mock.VesMock;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
@@ -86,7 +87,7 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
         }
         getIC().locateTable(Table_IMEI)
                 .addRecord()
-                .fillMasked("IMEI:",IMEI)
+                .fillMasked("imei:",IMEI)
                 .save();
         Table.Formula rows4 = getIC().locateTable(Table_IMSI).findRowsBy();
         if (rows4.calcMatchedRows().getTableRowNums().size() > 0) {
@@ -94,7 +95,7 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
         }
         getIC().locateTable(Table_IMSI)
                 .addRecord()
-                .fillMasked("IMSI:",IMSI)
+                .fillMasked("imsi:",IMSI)
                 .save();
     }
 
@@ -106,7 +107,7 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
 
         getIC().locateTable(TABLE)
                 .findRowsBy()
-                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
+                .match("Описание", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
                 .click()
                 .edit()
                 .fillInputText("Значение:", "1").save();
@@ -123,8 +124,14 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
         }
         getIC().locateTable(TABLE_2)
                 .addRecord()
-                .select("Тип транзакции:","Покупка страховки держателей карт")
                 .select("Наименование канала ДБО:","Интернет клиент")
+                .getElement("Тип транзакции:")
+                .getSelect("Покупка страховки держателей карт")
+                .tapToSelect()
+                .getElement("Наименование группы клиентов:")
+                .refresh()
+                .getSelect("Группа по умолчанию")
+                .tapToSelect()
                 .save();
         getIC().close();
     }
