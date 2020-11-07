@@ -1,189 +1,35 @@
 {
-  "status": "success",
-  "error": null,
-  "data": {
-    "major": 1,
-    "minor": 0,
-    "count": 4,
-    "fromEventId": "348332009",
-    "toEventId": "348332014",
-    "events": [
-      {
-        "id": "348332009",
-        "priority": "MEDIUM",
-        "type_id": "10",
-        "type": "Смена провайдера у клиента",
-        "created": "2019-04-02T13:04:48+03:00",
-        "published": "2019-04-02T13:04:53+03:00",
-        "remote_addr": "195.26.169.61",
-        "remote_addr_info": {
-          "country": "RU",
-          "city": "Москва",
-          "isp": "ZAO Laborotory of New Information Technologies LAN"
-        },
-        "sid": "1325843881000",
-        "csid": "NETdgiDku6H3exK3negsU2G_C7WRh4aKh3XuvbhXXasu_kc-k3hb!1297066326!1554199486692",
-        "uid": "b4ab28f4-448f-4684-90f6-7953bd604c50",
-        "login_hash": "246aace1ef37723d05a0b2cb031265935b236ec3",
-        "login_rsa": "",
-        "channel": {
-          "type": "web",
-          "version": "1.0",
-          "name": null
-        },
-        "device": {
-          "id": "448395921",
-          "platform": "Win32",
-          "isMobile": "N",
-          "browser": "Chrome"
-        },
-        "screen": {
-          "id": "3463685950",
-          "width": "1366",
-          "height": "768",
-          "color_depth": "24"
-        },
-        "referer": "https://online.rshb.ru/ib6/wf2/retail/ib/loginretaildefault;jsessionid=NETdgiDku6H3exK3negsU2G_C7WRh4aKh3XuvbhXXasu_kc-k3hb!1297066326",
-        "user_agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 YaBrowser/19.3.1.828 Yowser/2.5 Safari/537.36",
-        "comment": "",
-        "score_device": 10,
-        "score_events": 50,
-        "virus_detected": "",
-        "fingerprint": "b4ab28f4-448f-4684-90f6-7953bd604c50",
-        "details": {}
-      },
-      {
-        "id": "348332011",
-        "priority": "LOW",
-        "type_id": "7",
-        "type": "Более двух клиентов с одного устройства",
-        "created": "2019-04-02T13:04:48+03:00",
-        "published": "2019-04-02T13:04:53+03:00",
-        "remote_addr": "195.26.169.61",
-        "remote_addr_info": {
-          "country": "RU",
-          "city": "Москва",
-          "isp": "ZAO Laborotory of New Information Technologies LAN"
-        },
-        "sid": "1325843881000",
-        "csid": "NETdgiDku6H3exK3negsU2G_C7WRh4aKh3XuvbhXXasu_kc-k3hb!1297066326!1554199486692",
-        "uid": "b4ab28f4-448f-4684-90f6-7953bd604c50",
-        "login_hash": "246aace1ef37723d05a0b2cb031265935b236ec3",
-        "login_rsa": "",
-        "channel": {
-          "type": "web",
-          "version": "1.0",
-          "name": null
-        },
-        "device": {
-          "id": "448395921",
-          "platform": "Win32",
-          "isMobile": "N",
-          "browser": "Chrome"
-        },
-        "screen": {
-          "id": "3463685950",
-          "width": "1366",
-          "height": "768",
-          "color_depth": "24"
-        },
-        "referer": "https://online.rshb.ru/ib6/wf2/retail/ib/loginretaildefault;jsessionid=NETdgiDku6H3exK3negsU2G_C7WRh4aKh3XuvbhXXasu_kc-k3hb!1297066326",
-        "user_agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 YaBrowser/19.3.1.828 Yowser/2.5 Safari/537.36",
-        "comment": "",
-        "score_device": 10,
-        "score_events": 0,
-        "virus_detected": "",
-        "fingerprint": "b4ab28f4-448f-4684-90f6-7953bd604c50",
-        "details": {}
-      },
-      {
-        "id": "348332013",
-        "priority": "MEDIUM",
-        "type_id": "111",
-        "type": "Новое устройство у Клиента (устройство + отпечаток)",
-        "created": "2019-04-02T13:04:48+03:00",
-        "published": "2019-04-02T13:04:53+03:00",
-        "remote_addr": "195.26.169.61",
-        "remote_addr_info": {
-          "country": "RU",
-          "city": "Москва",
-          "isp": "ZAO Laborotory of New Information Technologies LAN"
-        },
-        "sid": "1325843881000",
-        "csid": "NETdgiDku6H3exK3negsU2G_C7WRh4aKh3XuvbhXXasu_kc-k3hb!1297066326!1554199486692",
-        "uid": "b4ab28f4-448f-4684-90f6-7953bd604c50",
-        "login_hash": "246aace1ef37723d05a0b2cb031265935b236ec3",
-        "login_rsa": "",
-        "channel": {
-          "type": "web",
-          "version": "1.0",
-          "name": null
-        },
-        "device": {
-          "id": "448395921",
-          "platform": "Win32",
-          "isMobile": "N",
-          "browser": "Chrome"
-        },
-        "screen": {
-          "id": "3463685950",
-          "width": "1366",
-          "height": "768",
-          "color_depth": "24"
-        },
-        "referer": "https://online.rshb.ru/ib6/wf2/retail/ib/loginretaildefault;jsessionid=NETdgiDku6H3exK3negsU2G_C7WRh4aKh3XuvbhXXasu_kc-k3hb!1297066326",
-        "user_agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 YaBrowser/19.3.1.828 Yowser/2.5 Safari/537.36",
-        "comment": "",
-        "score_device": 20,
-        "score_events": 50,
-        "virus_detected": "",
-        "fingerprint": "b4ab28f4-448f-4684-90f6-7953bd604c50",
-        "details": {}
-      },
-      {
-        "id": "348332014",
-        "priority": "LOW",
-        "type_id": "46",
-        "type": "Вход в ДБО",
-        "created": "2019-04-02T13:04:48+03:00",
-        "published": "2019-04-02T13:04:53+03:00",
-        "remote_addr": "195.26.169.61",
-        "remote_addr_info": {
-          "country": "RU",
-          "city": "Москва",
-          "isp": "ZAO Laborotory of New Information Technologies LAN"
-        },
-        "sid": "1325843881000",
-        "csid": "NETdgiDku6H3exK3negsU2G_C7WRh4aKh3XuvbhXXasu_kc-k3hb!1297066326!1554199486692",
-        "uid": "b4ab28f4-448f-4684-90f6-7953bd604c50",
-        "login_hash": "246aace1ef37723d05a0b2cb031265935b236ec3",
-        "login_rsa": "",
-        "channel": {
-          "type": "web",
-          "version": "1.0",
-          "name": null
-        },
-        "device": {
-          "id": "448395921",
-          "platform": "Win32",
-          "isMobile": "N",
-          "browser": "Chrome"
-        },
-        "screen": {
-          "id": "3463685950",
-          "width": "1366",
-          "height": "768",
-          "color_depth": "24"
-        },
-        "referer": "https://online.rshb.ru/ib6/wf2/retail/ib/loginretaildefault;jsessionid=NETdgiDku6H3exK3negsU2G_C7WRh4aKh3XuvbhXXasu_kc-k3hb!1297066326",
-        "user_agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 YaBrowser/19.3.1.828 Yowser/2.5 Safari/537.36",
-        "comment": "",
-        "score_device": 20,
-        "score_events": 0,
-        "virus_detected": "",
-        "fingerprint": "b4ab28f4-448f-4684-90f6-7953bd604c50",
-        "details": {}
-      }
-    ]
-  }
+  "uuid": "9265faf0-8974-11ea-be28-e52c21e9dc49",
+  "customer_id": 122,
+  "type_id": 4,
+  "type_title": "Вход в личный кабинет",
+  "risk_level": "LOW",
+  "time": "2020-05-28T20:20:35+03:00",
+  "ip": "83.219.147.193",
+  "ip_info": {
+    "country": "RU",
+    "city": "Калининград",
+    "isp": "TIS Dialog LLC"
+  },
+  "agent_id": "9bc1dde2-d1f3-48b5-a1e1-9881f4725844",
+  "login_hash": "305",
+  "login": "ilushka305",
+  "score_alert": 0,
+  "score_device": 0,
+
+  "session_id": "dfgjnsdfgnfdkjsgnlfdgfdhkjdf",
+  "screen": {
+    "width": 892,
+    "height": 412,
+    "bit_depth": 24
+  },
+  "device": {
+    "platform": "Linux armv8l",
+    "browser": "Netscape Mozilla",
+    "mobile": true
+  },
+  "device_hash": "dfgjnsdfgnfdkjsgnlfdgfdhkjdf",
+  "user_agent": "Mozilla/5.0 (Linux; Android 9; SM-A505FN Build/PPR1.180610.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/81.0.4044.117 Mobile Safari/537.36",
+  "referer": "https://online.rshb.ru/",
+  "channel": "android"
 }

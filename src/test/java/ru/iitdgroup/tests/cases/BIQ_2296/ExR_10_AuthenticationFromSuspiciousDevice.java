@@ -36,7 +36,6 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private VesMock vesMock = getVesMock();
 
     @Test(
             description = "Настройка и включение правила"
@@ -123,7 +122,8 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                         .getClientData()
                         .getClient()
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withDboId(dboId)
+                        .setLoginHash("1657651657"+i+"");
                 sendAndAssert(client);
                 clientIds.add(dboId);
             }
@@ -137,11 +137,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
             dependsOnMethods = "client"
     )
     public void transaction1() {
-        vesMock = getVesMock();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"","\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd6sd5fg7155555\""));
-        vesMock.run();
+//TODO требуется реализовать новый ВЭС
 
         Authentication authentication = getAuthentication();
         authentication
@@ -272,7 +268,6 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
             dependsOnMethods = "transaction3"
     )
     public void transaction4() {
-
         Authentication authentication = getAuthentication();
         authentication
                 .getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(3));
@@ -310,12 +305,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
             dependsOnMethods = "transaction4"
     )
     public void transaction5() {
-        vesMock.stop();
-        vesMock = getVesMock();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"","\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd6sd5fg156dfg741adfg\""));
-        vesMock.run();
+//TODO требуется реализовать новый ВЭС
 
         Authentication authentication = getAuthentication();
         authentication
