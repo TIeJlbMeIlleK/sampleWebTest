@@ -1,0 +1,66 @@
+        <ns4:SendTransactionDataRequest
+            xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth"
+            xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common"
+            xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client"
+            xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+            <ns4:ServerInfo>
+                <ns2:Ip>localhost</ns2:Ip>
+                <ns2:Port>8090</ns2:Port>
+            </ns4:ServerInfo>
+            <ns4:TransactionData>
+                <ns4:TransactionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(6)}</ns4:TransactionId>
+                <ns4:ClientIds>
+                    <ns2:DboId>251</ns2:DboId>
+                    <ns2:CifId>251</ns2:CifId>
+                    <ns2:EksId>251</ns2:EksId>
+                    <ns2:ExpertSystemId>251</ns2:ExpertSystemId>
+                    <ns2:LoginHash>251</ns2:LoginHash>
+                    <ns2:AlfaIds>
+                        <ns2:AlfaId>251</ns2:AlfaId>
+                    </ns2:AlfaIds>
+                </ns4:ClientIds>
+                <ns4:DocumentSaveTimestamp>2020-07-10T14:35:00+03:00</ns4:DocumentSaveTimestamp>
+                <ns4:DocumentNumber>818</ns4:DocumentNumber>
+                <ns4:Type>REQUEST_FOR_GOSUSLUGI</ns4:Type>
+                <ns4:Regular>false</ns4:Regular>
+                <ns4:RequestForGosuslugi>
+                    <ns4:AuthenticationType>email</ns4:AuthenticationType>
+                    <ns4:GosuslugiRequestType>3</ns4:GosuslugiRequestType>
+                </ns4:RequestForGosuslugi>
+                <ns4:InitialSourceAmount>95817.36</ns4:InitialSourceAmount>
+                <ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+                <ns4:ConfirmationBigTransfer>CC</ns4:ConfirmationBigTransfer>
+                <ns4:DocumentConfirmationTimestamp>2020-07-10T14:35:00+03:00</ns4:DocumentConfirmationTimestamp>
+                <ns4:SessionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(10)}</ns4:SessionId>
+                <ns4:Channel>INTERNET_CLIENT</ns4:Channel>
+                <ns4:ClientDevice>
+                    <ns3:Platform>PC</ns3:Platform>
+                    <ns3:PC>
+                        <ns3:IpAddress>213.87.149.82</ns3:IpAddress>
+                        <ns3:UserAgent>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36</ns3:UserAgent>
+                        <ns3:BrowserData>{
+  "ua" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36",
+  "browser" : {
+    "name" : "Chrome",
+    "version" : "54.0.2840.99",
+    "major" : "54"
+  },
+  "engine" : {
+    "version" : "537.36",
+    "name" : "WebKit"
+  },
+  "os" : {
+    "name" : "Windows",
+    "version" : "10"
+  },
+  "device" : { },
+  "cpu" : {
+    "architecture" : "amd64"
+  }
+}</ns3:BrowserData>
+                    </ns3:PC>
+                </ns4:ClientDevice>
+                <ns4:ClientAuthenticationMethod/>
+                <ns4:AuthenticationMethodInfo/>
+            </ns4:TransactionData>
+        </ns4:SendTransactionDataRequest>

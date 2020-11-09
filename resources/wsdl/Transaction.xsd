@@ -1,4 +1,9 @@
-<xsd:schema targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/Transaction" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:saft="http://www.iitdgroup.ru/Intellinx/DBO/Transaction" xmlns:safc="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:saf="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+<xsd:schema targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/Transaction" elementFormDefault="qualified"
+            attributeFormDefault="unqualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:saft="http://www.iitdgroup.ru/Intellinx/DBO/Transaction"
+            xmlns:safc="http://www.iitdgroup.ru/Intellinx/DBO/Client"
+            xmlns:saf="http://www.iitdgroup.ru/Intellinx/DBO/Common"
+            xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
    <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Common" schemaLocation="Common.xsd"/>
    <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Client" schemaLocation="ClientData.xsd"/>
    <xsd:element name="SendTransactionDataRequest" type="saft:SendTransactionDataRequestType"/>
@@ -11,6 +16,7 @@
    <xsd:complexType name="TransactionDataType">
       <xsd:sequence>
          <xsd:element name="TransactionId" type="xsd:string"/>
+         <xsd:element name="Version" type="xsd:long" minOccurs="0"/>
          <xsd:element name="ClientIds" type="saf:ClientIdsType"/>
          <xsd:element name="DocumentSaveTimestamp" type="xsd:dateTime"/>
          <xsd:element name="DocumentNumber" type="xsd:string"/>
@@ -38,16 +44,25 @@
                <xsd:element name="BudgetTransfer" type="saft:BudgetTransferType"/>
                <xsd:element name="ServicePayment" type="saft:ServicePaymentType"/>
                <xsd:element name="PhoneNumberTransfer" type="saft:PhoneNumberTransferType"/>
-            <xsd:element name="TransactionCancellation" type="saft:TransactionCancellationType"/>
-                </xsd:choice>
+               <xsd:element name="TransactionCancellation" type="saft:TransactionCancellationType"/>
+               <xsd:element name="RequestForGosuslugi" type="saft:RequestForGosuslugiType"/>
+               <xsd:element name="GettingCredit" type="saft:GettingCreditType"/>
+               <xsd:element name="RequestPAN" type="saft:RequestPANType"/>
+               <xsd:element name="RequestCCV" type="saft:RequestCCVType"/>
+               <xsd:element name="PaymentC2B" type="saft:PaymentC2B"/>
+            </xsd:choice>
          </xsd:choice>
          <xsd:element name="InitialSourceAmount" type="xsd:decimal"/>
-         <xsd:element name="ConfirmationSubjectType" type="saft:ConfirmationSubjectType"/>
+         <xsd:element name="ConfirmationSubjectType" type="xsd:string"/>
+         <xsd:element name="ConfirmationBigTransfer" type="xsd:string"/>
          <xsd:element name="DocumentConfirmationTimestamp" type="xsd:dateTime"/>
          <xsd:element name="SessionId" type="xsd:string" minOccurs="0"/>
          <xsd:element name="Cfids" type="xsd:string" minOccurs="0"/>
          <xsd:element name="Channel" type="saft:ChannelType"/>
          <xsd:element name="ClientDevice" type="safc:DeviceType" minOccurs="0"/>
+         <xsd:element name="ClientAuthenticationMethod" type="saf:ClientAuthenticationMethod"/>
+         <xsd:element name="AuthenticationMethodInfo" type="saf:AuthenticationMethodInfo" nillable="true"
+                      minOccurs="0"/>
       </xsd:sequence>
    </xsd:complexType>
    <xsd:complexType name="AdditionalAnswerType">
@@ -56,12 +71,6 @@
          <xsd:element name="AdditionalAuthCancel" type="xsd:boolean" minOccurs="0"/>
       </xsd:sequence>
    </xsd:complexType>
-   <xsd:simpleType name="ConfirmationSubjectType">
-      <xsd:restriction base="xsd:string">
-         <xsd:enumeration value="CLIENT"/>
-         <xsd:enumeration value="CC"/>
-      </xsd:restriction>
-   </xsd:simpleType>
    <xsd:simpleType name="TransactionType">
       <xsd:annotation>
          <xsd:documentation>Тип финансовой транзакции</xsd:documentation>
@@ -87,8 +96,14 @@
          <xsd:enumeration value="LOAN_REPAYMENT_REQ"/>
          <xsd:enumeration value="TRADING_FLOOR_REPLENISHMENT"/>
          <xsd:enumeration value="PHONE_NUMBER_TRANSFER"/>
-      <xsd:enumeration value="TRANSACTION_CANCELLATION"/>
-    	</xsd:restriction>
+         <xsd:enumeration value="TRANSACTION_CANCELLATION"/>
+         <xsd:enumeration value="REQUEST_FOR_GOSUSLUGI"/>
+         <xsd:enumeration value="GETTING_CREDIT"/>
+         <!--30.06.20. BIQ5363 -->
+         <xsd:enumeration value="REQUEST_PAN"/>
+         <xsd:enumeration value="REQUEST_CCV"/>
+         <xsd:enumeration value="PAYMENT_C2B"/>
+      </xsd:restriction>
    </xsd:simpleType>
    <xsd:complexType name="TransferBetweenAccountsType">
       <xsd:annotation>
@@ -98,7 +113,7 @@
          <xsd:element name="SourceProduct" type="xsd:string"/>
          <xsd:element name="DestinationProduct" type="xsd:string"/>
          <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
-         <xsd:element name="CommissionAmount" type="xsd:decimal"/>
+         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="true" default="-1"/>
          <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode"/>
          <xsd:element name="DestinationCurrencyIsoCode" type="saft:CurrencyIsoCode"/>
          <xsd:element name="ConversionCourse" type="xsd:decimal" minOccurs="0"/>
@@ -107,7 +122,8 @@
    <xsd:complexType name="OuterTransferBaseType" abstract="true">
       <xsd:annotation>
          <xsd:documentation>Перевод физическому или юридическому лицу, в т.ч.
-				в бюджет</xsd:documentation>
+            в бюджет
+         </xsd:documentation>
       </xsd:annotation>
       <xsd:sequence>
          <xsd:element name="SourceProduct" type="xsd:string"/>
@@ -117,7 +133,7 @@
          <xsd:element name="PayeeProps" type="saft:PayeePropsType"/>
          <xsd:element name="PayeeBankProps" type="saft:PayeeBankPropsType"/>
          <xsd:element name="OperationDescription" type="xsd:string"/>
-         <xsd:element name="CommissionAmount" type="xsd:decimal"/>
+         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="true" default="-1"/>
       </xsd:sequence>
    </xsd:complexType>
    <xsd:complexType name="OuterTransferType">
@@ -141,13 +157,14 @@
          <xsd:element name="SourceCardNumber" type="xsd:string"/>
          <xsd:element name="DestinationCardNumber" type="xsd:string"/>
          <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
-         <xsd:element name="CommissionAmount" type="xsd:decimal"/>
+         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="true" default="-1"/>
       </xsd:sequence>
    </xsd:complexType>
    <xsd:complexType name="BudgetTransferType">
       <xsd:annotation>
          <xsd:documentation>Перевод в бюджет, оплата начислений, получаемых из
-				ГИС ГМП</xsd:documentation>
+            ГИС ГМП
+         </xsd:documentation>
       </xsd:annotation>
       <xsd:complexContent>
          <xsd:extension base="saft:OuterTransferBaseType">
@@ -169,7 +186,7 @@
          <xsd:element name="ServiceName" type="xsd:string"/>
          <xsd:element name="SourceCardNumber" type="xsd:string"/>
          <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"/>
-         <xsd:element name="CommissionAmount" type="xsd:decimal"/>
+         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="true" default="-1"/>
          <xsd:element name="AdditionalField" type="saft:AdditionalFieldType" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
    </xsd:complexType>
@@ -402,26 +419,30 @@
          <xsd:element name="SourceProduct" type="xsd:string" nillable="false">
             <xsd:annotation>
                <xsd:documentation>Счет/карта списания При переводе с платежной
-						карты передается номер карточного счета, для которого выпущена
-						карта</xsd:documentation>
+                  карты передается номер карточного счета, для которого выпущена
+                  карта
+               </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="MtSystem" type="xsd:string" nillable="false">
             <xsd:annotation>
                <xsd:documentation>Система денежных переводов Передается
-						наименование СДП</xsd:documentation>
+                  наименование СДП
+               </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="AmountInSourceCurrency" type="xsd:decimal" nillable="false">
             <xsd:annotation>
                <xsd:documentation>Сумма операции. Передается сумма перевода в
-						валюте счета списания без учета комиссии банка за ее совершение.</xsd:documentation>
+                  валюте счета списания без учета комиссии банка за ее совершение.
+               </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="false">
+         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="true" default="-1">
             <xsd:annotation>
                <xsd:documentation>Комиссия за перевод. Размер комиссии за перевод.
-						В случае наличия двух комиссий передается сумма дух комиссий.</xsd:documentation>
+                  В случае наличия двух комиссий передается сумма дух комиссий.
+               </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode" nillable="false">
@@ -474,14 +495,16 @@
    <xsd:complexType name="MTTransferEditType">
       <xsd:annotation>
          <xsd:documentation>Изменение перевода, отправленного через систему
-				денежных переводов</xsd:documentation>
+            денежных переводов
+         </xsd:documentation>
       </xsd:annotation>
       <xsd:sequence>
          <xsd:element name="EditingTransactionId" type="xsd:string" nillable="false">
             <xsd:annotation>
                <xsd:documentation>Идентификатор перевода (номер заявки на
-						перевод). Указывается идентификатор перевода, в рамках которого
-						передаются изменения</xsd:documentation>
+                  перевод). Указывается идентификатор перевода, в рамках которого
+                  передаются изменения
+               </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="SystemTransferCont" type="saft:MTSystemTransferPropsType"/>
@@ -492,7 +515,8 @@
          <xsd:documentation>Покупка страховки держателей карт</xsd:documentation>
       </xsd:annotation>
       <xsd:sequence>
-         <xsd:element name="InsuredPerson" type="saft:InsuredPersonPropsType" nillable="false" minOccurs="1" maxOccurs="unbounded">
+         <xsd:element name="InsuredPerson" type="saft:InsuredPersonPropsType" nillable="false" minOccurs="1"
+                      maxOccurs="unbounded">
             <xsd:annotation>
                <xsd:documentation>Застрахованное лицо</xsd:documentation>
             </xsd:annotation>
@@ -584,7 +608,7 @@
                <xsd:documentation>Сумма зачисления</xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="false">
+         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="true" default="-1">
             <xsd:annotation>
                <xsd:documentation>Комиссия зачисления</xsd:documentation>
             </xsd:annotation>
@@ -599,7 +623,8 @@
    <xsd:complexType name="OpenBaseType" abstract="true">
       <xsd:annotation>
          <xsd:documentation>Базовый тип для типов финансовых транзакций по
-				открытию вклада / текущего счета (в т.ч. накопительного)</xsd:documentation>
+            открытию вклада / текущего счета (в т.ч. накопительного)
+         </xsd:documentation>
       </xsd:annotation>
       <xsd:sequence>
          <xsd:element name="Filial" type="xsd:string" nillable="false">
@@ -610,10 +635,11 @@
          <xsd:element name="OrderType" nillable="false">
             <xsd:annotation>
                <xsd:documentation>Тип распоряжения 1 – открытие вклада 2 –
-						открытие вклада с открытием текущего счета 3 – открытие текущего
-						счета</xsd:documentation>
+                  открытие вклада с открытием текущего счета 3 – открытие текущего
+                  счета
+               </xsd:documentation>
                <!--04.12.18 Яковлев: открытие накопительного счета будет идти как
-						открытие вклада?-->
+                        открытие вклада?-->
             </xsd:annotation>
             <xsd:simpleType>
                <xsd:restriction base="xsd:int">
@@ -626,7 +652,8 @@
             <!--04.12.18 Яковлев: необязательное поле-->
             <xsd:annotation>
                <xsd:documentation>Продукт Указывается депозитный продукт (название
-						вклада) / продукт открываемого счета.</xsd:documentation>
+                  вклада) / продукт открываемого счета.
+               </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <!--04.12.18. Яковлев: удален DestinationProduct-->
@@ -644,14 +671,16 @@
             <!--04.12.18 Яковлев: необязательное поле-->
             <xsd:annotation>
                <xsd:documentation>Срок депозита в днях Обязательно для открытия
-						вклада.</xsd:documentation>
+                  вклада.
+               </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="SourceProduct" type="xsd:string" minOccurs="0">
             <!--04.12.18 Яковлев: необязательное поле-->
             <xsd:annotation>
                <xsd:documentation>Номер счета списания Обязательно для открытия
-						вклада</xsd:documentation>
+                  вклада
+               </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode" minOccurs="0">
@@ -673,7 +702,8 @@
          <xsd:element name="OrderType" nillable="false">
             <xsd:annotation>
                <xsd:documentation>Тип распоряжения 4 – закрытие вклада 5 –
-						закрытие текущего счета</xsd:documentation>
+                  закрытие текущего счета 7 - закрытие металлического счета
+               </xsd:documentation>
                <!--04.12.18 Яковлев: добавлено описание-->
             </xsd:annotation>
             <xsd:simpleType>
@@ -786,7 +816,7 @@
                <xsd:documentation>Сумма в валюте списания</xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="CommissionAmount" type="xsd:decimal">
+         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="true" default="-1">
             <xsd:annotation>
                <xsd:documentation>Комиссия в валюте списания</xsd:documentation>
             </xsd:annotation>
@@ -844,7 +874,7 @@
                <xsd:documentation>Получатель платежа</xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="CommissionAmount" type="xsd:decimal">
+         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="true" default="-1">
             <xsd:annotation>
                <xsd:documentation>Комиссия</xsd:documentation>
             </xsd:annotation>
@@ -859,7 +889,7 @@
                <xsd:documentation>Номер карты списания</xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-          <xsd:element name="SBP_id" type="xsd:string" minOccurs="0">
+         <xsd:element name="SBP_id" type="xsd:string" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>Идентификатор операции СБП</xsd:documentation>
             </xsd:annotation>
@@ -894,13 +924,207 @@
       <xsd:complexContent>
          <xsd:extension base="saft:MTSystemTransferPropsType"/>
       </xsd:complexContent>
-   </xsd:complexType><xsd:complexType name="TransactionCancellationType">
-        <xsd:annotation>
-            <xsd:documentation>Отмена операции</xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="transactionIdToCancel" type="xsd:long"/>
-            <xsd:element name="reasonOfCancellation" type="xsd:string"/>
-        </xsd:sequence>
-    </xsd:complexType>
+   </xsd:complexType>
+   <xsd:complexType name="TransactionCancellationType">
+      <xsd:annotation>
+         <xsd:documentation>Отмена операции</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="transactionIdToCancel" type="xsd:long"/>
+         <xsd:element name="reasonOfCancellation" type="xsd:string"/>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="RequestForGosuslugiType">
+      <xsd:annotation>
+         <xsd:documentation>Запрос в госуслуги</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="AuthenticationType" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>Способ доставки пароля для первого входа в систему</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="GosuslugiRequestType" type="xsd:int">
+            <xsd:annotation>
+               <xsd:documentation>Тип запроса</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="GettingCreditType">
+      <xsd:annotation>
+         <xsd:documentation>Запрос на выдачу кредита</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="Filial" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Счет зачисления средств</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="OrderType" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Тип распоряжения 4 – закрытие вклада 5 – закрытие текущего счета
+                  6 – закрытие карточного счета 7 - закрытие металлического счета 8 – выдача кредита
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:int">
+                  <xsd:maxInclusive value="8"/>
+                  <xsd:minInclusive value="4"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
+         <xsd:element name="SourceProduct" type="xsd:string" nillable="true">
+            <xsd:annotation>
+               <xsd:documentation>Номер счета/вклада списания</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="DestinationProduct" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Счет зачисления средств</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="DestinationCurrencyIsoCode" type="saft:CurrencyIsoCode">
+            <xsd:annotation>
+               <xsd:documentation>Валюта счета зачисления</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal"  nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Сумма кредита/кредитного лимита, которую выбрал клиент</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Валюта счета списания. Только для кредитов</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="ApprovedLoanSum" type="xsd:long" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Максимальная одобренная сумма кредита (кредит выдается без копеек)</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="InsuranceFee" type="xsd:decimal" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Сумма страховки</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="LoanRate" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Процентная ставка по кредиту</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="LoanType" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Тип кредита (кредит/кредитная карта)</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="ProductName" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Продукт</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="Period" type="xsd:int">
+            <xsd:annotation>
+               <xsd:documentation>Срок кредита в месяцах</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="RequestCardReqType" abstract="true">
+      <xsd:sequence>
+         <xsd:element name="SourceCardNumber" type="xsd:string" nillable="false" minOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>Полный номер карты клиента, запросившего реквизиты</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="RequestPANType">
+      <xsd:complexContent>
+         <xsd:extension base="saft:RequestCardReqType"/>
+      </xsd:complexContent>
+   </xsd:complexType>
+   <xsd:complexType name="RequestCCVType">
+      <xsd:complexContent>
+         <xsd:extension base="saft:RequestCardReqType"/>
+      </xsd:complexContent>
+   </xsd:complexType>
+
+   <xsd:complexType name="PaymentC2B">
+      <xsd:sequence>
+         <xsd:element name="qrCodeID" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>Идентификатор операции в СБП</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceProduct" type="xsd:string" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Номер карточного счета списания</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="AmountInSourceCurrency" type="xsd:decimal" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Сумма операции в валюте счёта списания без учёта комиссии за её совершение.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="SourceCurrencyIsoCode" type="saft:CurrencyIsoCode" nillable="false">
+            <xsd:annotation>
+               <xsd:documentation>Валюта, всегда российский рубль</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="CommissionAmount" type="xsd:decimal" nillable="true">
+            <xsd:annotation>
+               <xsd:documentation>Комиссия за перевод
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="PayerINN" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>ИНН плательщика</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="PayeeName" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Наименование юридического лица получателя</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="PayeeINN" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>ИНН Получателя перевода</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="TSPName" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Название ТСП</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="TSPType" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Категория ТСП</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="PayeeAddress" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Адрес получателя</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="BIK" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>Идентификатор банка получателя</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="OperationDescription" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>Назначение платежа</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="qrCodeType" type="xsd:string">
+            <xsd:annotation>
+               <xsd:documentation>Тип QR-кода</xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
 </xsd:schema>

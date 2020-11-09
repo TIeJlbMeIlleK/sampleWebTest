@@ -38,4 +38,6 @@
 			</xsd:element>
         </xsd:sequence>
     </xsd:complexType>
+    <xsd:complexType name="ClientAuthenticationMethod"></xsd:complexType>
+    <xsd:complexType name="AuthenticationMethodInfo"></xsd:complexType>
 </xsd:schema>

@@ -25,6 +25,16 @@
             <ns4:AmountInSourceCurrency>200.00</ns4:AmountInSourceCurrency>
             <ns4:CommissionAmount>2.50</ns4:CommissionAmount>
             <ns4:AdditionalField>
+                <ns4:Id>114</ns4:Id>
+                <ns4:Name>vetka</ns4:Name>
+                <ns4:Value>1</ns4:Value>
+            </ns4:AdditionalField>
+            <ns4:AdditionalField>
+                <ns4:Id>114</ns4:Id>
+                <ns4:Name>vetka</ns4:Name>
+                <ns4:Value>1</ns4:Value>
+            </ns4:AdditionalField>
+            <ns4:AdditionalField>
                 <ns4:Id>ACCOUNT</ns4:Id>
                 <ns4:Name>Номер телефона</ns4:Name>
                 <ns4:Value>9168133500</ns4:Value>

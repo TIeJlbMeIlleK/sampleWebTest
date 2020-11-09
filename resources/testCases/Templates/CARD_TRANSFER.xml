@@ -6,12 +6,14 @@
 	<ns4:TransactionData>
 		<ns4:TransactionId>43781459710001</ns4:TransactionId>
 		<ns4:ClientIds>
-			<ns2:DboId>4378145970848295981</ns2:DboId>
-			<ns2:CifId>83207D40-64C9-4a4f-BF46-0B69B17E27A5</ns2:CifId>
-			<ns2:EksId>1141</ns2:EksId>
-			<ns2:PcId>2433</ns2:PcId>
-			<ns2:ExpertSystemId>5cf0eb5f24f8c6a6500c052e697f5e4e2fa2d233</ns2:ExpertSystemId>
-			<ns2:LoginHash>d23f5cd1adcca9ff113819a22102bac579008741</ns2:LoginHash>
+			<ns2:DboId>251</ns2:DboId>
+			<ns2:CifId>251</ns2:CifId>
+			<ns2:EksId>251</ns2:EksId>
+			<ns2:ExpertSystemId>251</ns2:ExpertSystemId>
+			<ns2:LoginHash>251</ns2:LoginHash>
+			<ns2:AlfaIds>
+				<ns2:AlfaId>251</ns2:AlfaId>
+			</ns2:AlfaIds>
 		</ns4:ClientIds>
 		<ns4:DocumentSaveTimestamp>2019-05-31T13:07:20.840+03:00</ns4:DocumentSaveTimestamp>
 		<ns4:DocumentNumber>97</ns4:DocumentNumber>
@@ -25,10 +27,11 @@
 			<ns4:AmountInSourceCurrency>100.00</ns4:AmountInSourceCurrency>
 			<ns4:CommissionAmount>00.00</ns4:CommissionAmount>
 		</ns4:CardTransfer>
-		<ns4:InitialSourceAmount>10000.00</ns4:InitialSourceAmount>
+		<ns4:InitialSourceAmount>99995955.23</ns4:InitialSourceAmount>
 		<ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
-		<ns4:DocumentConfirmationTimestamp>2018-11-13T13:08:00+03:00</ns4:DocumentConfirmationTimestamp>
-		<ns4:SessionId>-rYhPcDmSopuAeJw2ECdVz2Db9kAUk_nYdJONMfjGJRAsv_tKOXv!-770855897!1555335856358</ns4:SessionId>
+		<ns4:ConfirmationBigTransfer>CC</ns4:ConfirmationBigTransfer>
+		<ns4:DocumentConfirmationTimestamp>2020-07-10T14:35:00+03:00</ns4:DocumentConfirmationTimestamp>
+		<ns4:SessionId>15d6g61fd56g7fdg65df5g6d1f0g650f6</ns4:SessionId>
 		<ns4:Channel>INTERNET_CLIENT</ns4:Channel>
 		<ns4:ClientDevice>
 			<ns3:Platform>PC</ns3:Platform>
@@ -38,5 +41,7 @@
 				<ns3:BrowserData>123</ns3:BrowserData>
 			</ns3:PC>
 		</ns4:ClientDevice>
+		<ns4:ClientAuthenticationMethod/>
+		<ns4:AuthenticationMethodInfo/>
 	</ns4:TransactionData>
 </ns4:SendTransactionDataRequest>

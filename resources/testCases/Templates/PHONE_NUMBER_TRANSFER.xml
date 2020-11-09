@@ -1,46 +1,77 @@
-<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
-         <ns4:ServerInfo>
-            <ns2:Ip>localhost</ns2:Ip>
-            <ns2:Port>3005</ns2:Port>
-         </ns4:ServerInfo>
-         <ns4:TransactionData>
-            <ns4:TransactionId>275500670</ns4:TransactionId>
-            <ns4:ClientIds>
-               <ns2:DboId>12</ns2:DboId>
-               <ns2:CifId>FF78546D-37E6-47e9-A13C-7E4228E361A7</ns2:CifId>
-               <ns2:ExpertSystemId>785119c47dea45622bacba20411368b105196903</ns2:ExpertSystemId>
-               <ns2:LoginHash>29d7d53affae3f486c087a7ac459861dabb3002e</ns2:LoginHash>
-            </ns4:ClientIds>
-            <ns4:DocumentSaveTimestamp>2018-11-10T14:35:00+03:00</ns4:DocumentSaveTimestamp>
-            <ns4:DocumentNumber>818</ns4:DocumentNumber>
-            <ns4:Type>PHONE_NUMBER_TRANSFER</ns4:Type>
-            <ns4:Regular>false</ns4:Regular>
-            <ns4:Limit>40000</ns4:Limit>
-            <ns4:PhoneNumberTransfer>
-               <ns4:AmountInSourceCurrency>100</ns4:AmountInSourceCurrency>
-
-               <!-- Case 1 -->
-               <ns4:PayeePhone>9412577001</ns4:PayeePhone>
-               <!-- /Case 1 -->
-
-               <!-- Case 2 -->
-               <ns4:BIK>042301514</ns4:BIK>
-               <ns4:PayeeAccount>4081710835650000700</ns4:PayeeAccount>
-               <!-- /Case 2 -->
-
-               <!-- Case 3 -->
-               <ns4:DestinationCardNumber>4574553752178978</ns4:DestinationCardNumber>
-               <!-- /Case 3-->
-
-               <ns4:BankName>AAAA</ns4:BankName>
-               <ns4:PayeeName>FFF</ns4:PayeeName>
-               <ns4:CommissionAmount>5</ns4:CommissionAmount>
-               <ns4:SourceProduct>810</ns4:SourceProduct>
-               <ns4:SourceCardNumber>323</ns4:SourceCardNumber>
-               <ns4:OperationDescription>rwerw</ns4:OperationDescription>
-            </ns4:PhoneNumberTransfer>
-            <ns4:InitialSourceAmount>10000.00</ns4:InitialSourceAmount>
-            <ns4:SessionId>F_lysKrnehz8i3bxOKz26ADG9pUaEZBJyxZIZuZFcbrpikdY5hC4!-1924546201!1479392930535</ns4:SessionId>
-            <ns4:Channel>INTERNET_CLIENT</ns4:Channel>
-         </ns4:TransactionData>
-      </ns4:SendTransactionDataRequest>
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth"
+                                xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common"
+                                xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client"
+                                xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+   <ns4:ServerInfo>
+      <ns2:Ip>localhost</ns2:Ip>
+      <ns2:Port>8090</ns2:Port>
+   </ns4:ServerInfo>
+   <ns4:TransactionData>
+      <ns4:TransactionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(10)}</ns4:TransactionId>
+      <ns4:ClientIds>
+         <ns2:DboId>251</ns2:DboId>
+         <ns2:CifId>251</ns2:CifId>
+         <ns2:EksId>251</ns2:EksId>
+         <ns2:ExpertSystemId>251</ns2:ExpertSystemId>
+         <ns2:LoginHash>251</ns2:LoginHash>
+         <ns2:AlfaIds>
+            <ns2:AlfaId>251</ns2:AlfaId>
+         </ns2:AlfaIds>
+      </ns4:ClientIds>
+      <ns4:DocumentSaveTimestamp>2020-06-03T08:00:00.000+03:00</ns4:DocumentSaveTimestamp>
+      <ns4:DocumentNumber>1</ns4:DocumentNumber>
+      <ns4:Type>PHONE_NUMBER_TRANSFER</ns4:Type>
+      <ns4:Regular>false</ns4:Regular>
+      <ns4:SessionTimeout>1800000</ns4:SessionTimeout>
+      <ns4:Limit>9615</ns4:Limit>
+      <ns4:PhoneNumberTransfer>
+         <ns4:AmountInSourceCurrency>500.00</ns4:AmountInSourceCurrency>
+         <ns4:PayeePhone>79050100240</ns4:PayeePhone>
+         <ns4:BankName>РОССЕЛЬХОЗБАНК</ns4:BankName>
+         <ns4:PayeeName>Иван Иванович Иванович</ns4:PayeeName>
+         <ns4:CommissionAmount>5.00</ns4:CommissionAmount>
+         <ns4:SourceProduct>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(9)}</ns4:SourceProduct>
+         <ns4:SBP_id>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(10)}</ns4:SBP_id>
+      </ns4:PhoneNumberTransfer>
+      <ns4:InitialSourceAmount>95817.36</ns4:InitialSourceAmount>
+      <ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+      <ns4:ConfirmationBigTransfer>CC</ns4:ConfirmationBigTransfer>
+      <ns4:DocumentConfirmationTimestamp>2020-07-10T14:35:00+03:00</ns4:DocumentConfirmationTimestamp>
+      <ns4:SessionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(10)}</ns4:SessionId>
+      <ns4:Channel>MOBILE_BANK</ns4:Channel>
+      <ns4:ClientDevice>
+         <ns3:Platform>Android</ns3:Platform>
+         <ns3:Android>
+            <ns3:IpAddress>44.87.156.36</ns3:IpAddress>
+            <ns3:IMSI>1655756165585055</ns3:IMSI>
+            <ns3:IMEI>1655756165425055</ns3:IMEI>
+            <ns3:IMEISV>777</ns3:IMEISV>
+            <ns3:MSISDN/>
+            <ns3:SPN>MTS RUS</ns3:SPN>
+            <ns3:OSVersion>9.0.0</ns3:OSVersion>
+            <ns3:AuthByFingerprint>true</ns3:AuthByFingerprint>
+            <ns3:Manufacturer>123</ns3:Manufacturer>
+            <ns3:Model>5</ns3:Model>
+            <ns3:DeviceID>1268894521005</ns3:DeviceID>
+            <ns3:Simulator>0</ns3:Simulator>
+            <ns3:Locale>5</ns3:Locale>
+            <ns3:DefaultBrowser>55</ns3:DefaultBrowser>
+            <ns3:Root>0</ns3:Root>
+            <ns3:NetworkOperatorName>5</ns3:NetworkOperatorName>
+            <ns3:SimOperatorName>5</ns3:SimOperatorName>
+            <ns3:SimCount>2</ns3:SimCount>
+            <ns3:LocalIp>5</ns3:LocalIp>
+            <ns3:SSID>123374556186120005946</ns3:SSID>
+            <ns3:UserAgent>2</ns3:UserAgent>
+            <ns3:Serial>615756158000065</ns3:Serial>
+            <ns3:Bootloader>2</ns3:Bootloader>
+            <ns3:SimSerial>15675615120657</ns3:SimSerial>
+            <ns3:MacAddress>16355056605065410</ns3:MacAddress>
+            <ns3:TimeZone>3</ns3:TimeZone>
+            <ns3:Latitude>3</ns3:Latitude>
+            <ns3:Longitude>5</ns3:Longitude>
+            <ns3:EventID>5</ns3:EventID>
+         </ns3:Android>
+      </ns4:ClientDevice>
+   </ns4:TransactionData>
+</ns4:SendTransactionDataRequest>
