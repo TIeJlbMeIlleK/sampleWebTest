@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 
 import static org.mockserver.model.HttpRequest.request;
 
+//TODO требуется переписать класс для работы с браузером и отрпавки сообщения ВЭС через РЭББИТ
+
 public class VesMock implements Closeable {
 
     private final static Path RESOURCES = Paths.get("resources");
