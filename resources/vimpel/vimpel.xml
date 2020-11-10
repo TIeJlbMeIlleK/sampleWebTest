@@ -1,0 +1,8 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:on:partners-interface:schema">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <urn:addSubscriptionResponse>
+            <urn:result>SUCCESS</urn:result>
+        </urn:addSubscriptionResponse>
+    </soapenv:Body>
+</soapenv:Envelope>
