@@ -1,0 +1,47 @@
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+    <ns4:ServerInfo>
+        <ns2:Ip>localhost</ns2:Ip>
+        <ns2:Port>8090</ns2:Port>
+    </ns4:ServerInfo>
+    <ns4:TransactionData>
+        <ns4:TransactionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(5)}</ns4:TransactionId>
+        <ns4:ClientIds>
+            <ns2:DboId>1</ns2:DboId>
+            <ns2:CifId>1</ns2:CifId>
+            <ns2:ExpertSystemId>1</ns2:ExpertSystemId>
+            <ns2:LoginHash>1</ns2:LoginHash>
+        </ns4:ClientIds>
+        <ns4:DocumentSaveTimestamp>${=new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new java.util.Date())}.000+03:00</ns4:DocumentSaveTimestamp>
+        <ns4:DocumentNumber>63</ns4:DocumentNumber>
+        <ns4:Type>SERVICE_PAYMENT</ns4:Type>
+        <ns4:Regular>false</ns4:Regular>
+        <ns4:SessionTimeout>1800000</ns4:SessionTimeout>
+        <ns4:Limit>14999</ns4:Limit>
+        <ns4:ServicePayment>
+            <ns4:ServiceKind>1</ns4:ServiceKind>
+            <ns4:ProviderName>Сотовый - ОАО"МТС" - ОАО "Мобильные ТелеСистемы"</ns4:ProviderName>
+            <ns4:ServiceName>Сотовый - ОАО"МТС"</ns4:ServiceName>
+            <ns4:SourceCardNumber>418384******6213</ns4:SourceCardNumber>
+            <ns4:AmountInSourceCurrency>10.00</ns4:AmountInSourceCurrency>
+            <ns4:CommissionAmount>2.50</ns4:CommissionAmount>
+            <ns4:AdditionalField>
+                <ns4:Id>ACCOUNT</ns4:Id>
+                <ns4:Name>vetka</ns4:Name>
+                <ns4:Value>1</ns4:Value>
+            </ns4:AdditionalField>
+        </ns4:ServicePayment>
+        <ns4:InitialSourceAmount>99995955.23</ns4:InitialSourceAmount>
+        <ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+        <ns4:DocumentConfirmationTimestamp>${=new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new java.util.Date())}.000+03:00</ns4:DocumentConfirmationTimestamp>
+        <ns4:SessionId>385A32B4DC20d0000000000d06541065105606</ns4:SessionId>
+        <ns4:Channel>MOBILE_BANK</ns4:Channel>
+        <ns4:ClientDevice>
+            <ns3:Platform>IOS</ns3:Platform>
+            <ns3:IOS>
+                <ns3:IpAddress>192.168.0.1</ns3:IpAddress>
+                <ns3:IdentifierForVendor>sd1f6g54sd5g60fd6g00s6df7dfg7500056162</ns3:IdentifierForVendor>
+                <ns3:OSVersion>6.0</ns3:OSVersion>
+            </ns3:IOS>
+        </ns4:ClientDevice>
+    </ns4:TransactionData>
+</ns4:SendTransactionDataRequest>
