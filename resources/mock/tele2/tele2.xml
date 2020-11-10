@@ -1,0 +1,9 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://webserv.my/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <web:XMLmessageResponse>
+            <!--Optional:-->
+            <return>&lt;body&gt;&lt;OperationResult&gt;0&lt;/OperationResult&gt;&lt;ClientResultS&gt;&lt;ClientResult&gt;&lt;MSISDN&gt;79050102225&lt;/MSISDN&gt;&lt;Result&gt;0&lt;/Result&gt;&lt;/ClientResult&gt;&lt;/ClientResultS&gt;&lt;/body&gt;</return>
+        </web:XMLmessageResponse>
+    </soapenv:Body>
+</soapenv:Envelope>

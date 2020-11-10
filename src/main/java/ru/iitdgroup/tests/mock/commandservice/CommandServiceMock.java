@@ -140,7 +140,7 @@ public class CommandServiceMock implements Closeable {
             checkRequirements();
             Header header = Header.header("Content-Type", "application/xml");
             this.clientAndServer
-                    .when(request().withMethod("PUT").withPath(commandServicePath))
+                    .when(request().withMethod("POST").withPath(commandServicePath))
                     .respond(HttpResponse.response(commandServiceResponse).withHeader(header));
 //            this.clientAndServer
 //                    .when(request().withMethod("POST").withPath(vesExtendPath))

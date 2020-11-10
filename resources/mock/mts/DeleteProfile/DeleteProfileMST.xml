@@ -1,0 +1,12 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:prof="http://10.241.35.91:8082/soap/profilemanage">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <prof:DeleteProfileResponse>
+            <prof:return>
+                <prof:StatusCode>0000</prof:StatusCode>
+                <prof:Description>DESC</prof:Description>
+                <prof:ReqId>0</prof:ReqId>
+            </prof:return>
+        </prof:DeleteProfileResponse>
+    </soapenv:Body>
+</soapenv:Envelope>
