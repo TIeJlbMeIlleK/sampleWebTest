@@ -169,6 +169,27 @@ public class WR_07_TransferToOtherBankOwnAccount_NumberPhone extends RSHBCaseTes
         assertLastTransactionRuleApply(TRIGGERED, EXISTS_MATCHES);
     }
 
+    @Test(
+            description = "Отправить транзакцию №5 Перевод по номеру телефона с PayeeName = \"Иван Иванович И\" и незаполненным полем PayeePhone",
+            dependsOnMethods = "step4"
+    )
+
+    public void step5() {
+        Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPhoneNumberTransfer()
+                .setPayeeName("Иван Иванович И");
+        transactionData
+                .getPhoneNumberTransfer()
+                .setPayeePhone("");
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не применилось, т.к. отсутствует номер телефона получателя");
+    }
 
     @Override
     protected String getRuleName() {

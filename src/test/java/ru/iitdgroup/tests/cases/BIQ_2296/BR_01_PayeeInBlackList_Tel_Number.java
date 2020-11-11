@@ -25,7 +25,7 @@ public class BR_01_PayeeInBlackList_Tel_Number extends RSHBCaseTest {
     private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
     private final List<String> clientIds = new ArrayList<>();
 
-    private static final String PHONE_IN_BLACKLIST = "79102222222";
+    private static final String PHONE_IN_BLACKLIST = "79101111111";
     private static final String ALLOWED_PHONE = "79105555555";
 
     @Test(
@@ -37,7 +37,7 @@ public class BR_01_PayeeInBlackList_Tel_Number extends RSHBCaseTest {
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(3);
+                .sleep(5);
     }
 
     @Test(
@@ -96,7 +96,11 @@ public class BR_01_PayeeInBlackList_Tel_Number extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
         transactionData
                 .getPhoneNumberTransfer()
+                .setPayeeName("Номер телефона");
+        transactionData
+                .getPhoneNumberTransfer()
                 .setPayeePhone(PHONE_IN_BLACKLIST);
+
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, RESULT_BLOCK_PHONE);
     }

@@ -1,16 +1,22 @@
 package ru.iitdgroup.tests.cases.BIQ6046;
 
+import com.google.i18n.phonenumbers.Phonenumber;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
-import ru.iitdgroup.intellinx.dbo.transaction.AdditionalFieldType;
+import ru.iitdgroup.intellinx.dbo.client.ContactChannelType;
+import ru.iitdgroup.intellinx.dbo.client.ContactInfoType;
+import ru.iitdgroup.intellinx.dbo.client.ContactKind;
+import ru.iitdgroup.intellinx.dbo.client.ContactType;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
+import ru.iitdgroup.tests.webdriver.ic.AbstractEdit;
+import ru.iitdgroup.tests.webdriver.ic.ICXPath;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
+import ru.iitdgroup.tests.webdriver.ruleconfiguration.RuleEdit;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.soap.Name;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,31 +25,37 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 
-public class PaymentServicesVetka extends RSHBCaseTest {
+public class WR_08_EntrustedAccMask extends RSHBCaseTest {
 
-    private static final String PHONE1 = "1";
-    private static final String PHONE2 = "0";
-    private static final String RULE_NAME = "";
-    private static final String REFERENCE_ITEM = "";
 
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
+    private static final String RULE_NAME = "R01_WR_08_EntrustedAccMask";
+    private static final String PAYMENT_MASK = "464512";
+    private static final String WRONG_PAYMENT_MASK = "464515";
+
+    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 11, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
 
-//
-//    @Test(
-//            description = "Настройка и включение правила"
-//    )
-//    public void enableRules() {
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .selectRule(RULE_NAME)
-//                .activate()
-//                .sleep(15);
-//    }
 
     @Test(
-            description = "Создаем клиента"
+            description = "Настройка и включение правила"
+    )
+    public void enableRules() {
+        getIC().locateRules()
+                .openRecord(RULE_NAME)
+                .attach("Маски счетов", "Маски счетов доверенных получателей", "Equals", PAYMENT_MASK)
+                .sleep(3);
+
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .selectRule(RULE_NAME)
+                .activate()
+                .sleep(5);
+    }
+
+    @Test(
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
     )
     public void step0() {
         try {
@@ -67,9 +79,7 @@ public class PaymentServicesVetka extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить транзакции №1" +
-                    "-- «Parameter.Name» =  vetka" +
-                    "-- «Parameter.Value» = 1",
+            description = "Отправить транзакцию №1 Перевод между счетами где первые цифры SourceProduct = 464512",
             dependsOnMethods = "step0"
     )
 
@@ -80,19 +90,17 @@ public class PaymentServicesVetka extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
+
+        String oldSourceProduct = transactionData.getTransferBetweenAccounts().getSourceProduct();
         transactionData
-                .getServicePayment()
-                .getAdditionalField();
-
-
+                .getTransferBetweenAccounts()
+                .setSourceProduct(PAYMENT_MASK + oldSourceProduct.substring(PAYMENT_MASK.length()));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply("vetka", PHONE1);
+        assertLastTransactionRuleApply(TRIGGERED, EXISTS_MATCHES);
     }
 
     @Test(
-            description = "Отправить транзакции №1" +
-                    "-- «Parameter.Name» =  vetka" +
-                    "-- «Parameter.Value» = 0",
+            description = "Отправить транзакцию №2 Перевод между счетами где первые цифры SourceProduct = 464515",
             dependsOnMethods = "step1"
     )
     public void step2() {
@@ -102,11 +110,13 @@ public class PaymentServicesVetka extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
+
+        String oldSourceProduct = transactionData.getTransferBetweenAccounts().getSourceProduct();
         transactionData
-                .getServicePayment()
-                .withAdditionalField(getPhoneField(PHONE2));
+                .getTransferBetweenAccounts()
+                .setSourceProduct(WRONG_PAYMENT_MASK + oldSourceProduct.substring(WRONG_PAYMENT_MASK.length()));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(PHONE2,"vetka");
+        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_MATCHES);
     }
 
 
@@ -115,15 +125,9 @@ public class PaymentServicesVetka extends RSHBCaseTest {
         return RULE_NAME;
     }
 
-    private AdditionalFieldType getPhoneField(String phone) {
-        return new AdditionalFieldType()
-                .withId("account")
-                .withName("vetka")
-                .withValue(phone);
-    }
 
     private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT_MB.xml");
+        Transaction transaction = getTransaction("testCases/Templates/TRANSFER_BETWEEN_ACCOUNTS.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
