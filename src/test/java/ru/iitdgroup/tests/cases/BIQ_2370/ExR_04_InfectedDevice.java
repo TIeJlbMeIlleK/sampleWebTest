@@ -28,7 +28,7 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 8, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private VesMock vesMock = getVesMock();
+    private VesMock vesMock;
 
     @Test(
             description = "Настройка и включение правила"
@@ -136,11 +136,7 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
             dependsOnMethods = "client"
     )
     public void transaction1() {
-        vesMock = getVesMock();
-        vesMock.setVesResponse(vesMock
-                .getVesResponse()
-                .replaceAll("7","27"));
-        vesMock.run();
+//TODO требуется реализовать отправку сообщения через новый ВЭС
         try {
             Thread.sleep(15_000);
         } catch (InterruptedException e) {
@@ -174,7 +170,4 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
         return transaction;
     }
 
-    private static VesMock getVesMock() {
-        return VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
-    }
 }

@@ -1,4 +1,4 @@
-package ru.iitdgroup.tests.ves.mock;
+package ru.iitdgroup.tests.mock.Megafon;
 
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.Header;
@@ -16,28 +16,31 @@ import java.util.stream.Collectors;
 
 import static org.mockserver.model.HttpRequest.request;
 
-public class VesMock implements Closeable {
+public class Megafon implements Closeable {
 
-    private final static Path RESOURCES = Paths.get("resources");
-    private static final String DEFAULT_VES_PATH = "/ves/ves-data.json";
-    public static final int DEFAULT_VES_PORT = 8010;
+    private final static Path RESOURCES = Paths.get("resources/mock");
+    private static final String DEFAULT_ADD_PROFILE_MEGAFON_PATH = "/megafon/megafon.json";
+    private static final String DEFAULT_DELETE_MEGAFON_PATH = "/megafon/megafon.json";
+    public static final int DEFAULT_MEGAFON_PORT = 3007;
     private final CountDownLatch latch = new CountDownLatch(1);
 
-    private String vesPath = DEFAULT_VES_PATH;
-    private String vesResponse;
-    private String vesExtendResponse;
-    private int port = DEFAULT_VES_PORT;
+    private String addProfilePath = DEFAULT_ADD_PROFILE_MEGAFON_PATH;
+    private String deleteProfilePath = DEFAULT_DELETE_MEGAFON_PATH;
+    private String addProfileResponse;
+    private String deleteProfileResponse;
+    private int port = DEFAULT_MEGAFON_PORT;
     private Server server;
 
     private Thread thread;
 
-    private VesMock(int port) {
+    private Megafon(int port) {
         this.port = port;
-        withVesResponse(DEFAULT_VES_PATH);
+        withAddProfileResponse(DEFAULT_ADD_PROFILE_MEGAFON_PATH);
+        withDeleteProfileResponse(DEFAULT_DELETE_MEGAFON_PATH);
     }
 
 
-    public VesMock run() {
+    public Megafon run() {
         this.server = new Server();
         thread = new Thread(server);
         thread.start();
@@ -54,24 +57,15 @@ public class VesMock implements Closeable {
         thread.interrupt();
     }
 
-    public static VesMock create() {
-        return new VesMock(DEFAULT_VES_PORT);
+    public static Megafon create() {
+        return new Megafon(DEFAULT_MEGAFON_PORT);
     }
 
-    public VesMock withPort(int port) {
-        this.port = port;
-        return this;
-    }
 
-    public VesMock withVesPath(String vesPath) {
-        this.vesPath = vesPath;
-        return this;
-    }
-
-    public VesMock withVesResponse(String vesResponseFile) {
+    public Megafon withAddProfileResponse(String addProfileResponse) {
         try {
-            this.vesResponse = Files
-                    .lines(Paths.get(RESOURCES.toAbsolutePath() + "/" + vesResponseFile), StandardCharsets.UTF_8)
+            this.addProfileResponse = Files
+                    .lines(Paths.get(RESOURCES.toAbsolutePath() + "/" + addProfileResponse), StandardCharsets.UTF_8)
                     .collect(Collectors.joining(System.lineSeparator()));
         } catch (IOException e) {
             e.printStackTrace();
@@ -79,31 +73,15 @@ public class VesMock implements Closeable {
         return this;
     }
 
-    public VesMock withVesExtendResponse(String vesExtendResponseFile) {
+    public Megafon withDeleteProfileResponse(String deleteProfileResponse) {
         try {
-            this.vesExtendResponse = Files
-                    .lines(Paths.get(RESOURCES.toAbsolutePath() + "/" + vesExtendResponseFile), StandardCharsets.UTF_8)
+            this.deleteProfileResponse = Files
+                    .lines(Paths.get(RESOURCES.toAbsolutePath() + "/" + deleteProfileResponse), StandardCharsets.UTF_8)
                     .collect(Collectors.joining(System.lineSeparator()));
         } catch (IOException e) {
             e.printStackTrace();
         }
         return this;
-    }
-
-    public String getVesResponse() {
-        return vesResponse;
-    }
-
-    public void setVesResponse(String vesResponse) {
-        this.vesResponse = vesResponse;
-    }
-
-    public String getVesExtendResponse() {
-        return vesExtendResponse;
-    }
-
-    public void setVesExtendResponse(String vesExtendResponse) {
-        this.vesExtendResponse = vesExtendResponse;
     }
 
     @Override
@@ -132,13 +110,16 @@ public class VesMock implements Closeable {
             checkRequirements();
             Header header = Header.header("Content-Type", "application/json");
             this.clientAndServer
-                    .when(request().withMethod("GET").withPath(vesPath))
-                    .respond(HttpResponse.response(vesResponse).withHeader(header));
+                    .when(request().withMethod("POST").withPath(addProfilePath))
+                    .respond(HttpResponse.response(addProfileResponse).withHeader(header));
+            this.clientAndServer
+                    .when(request().withMethod("POST").withPath(deleteProfilePath))
+                    .respond(HttpResponse.response(deleteProfileResponse).withHeader(header));
         }
 
         private void checkRequirements() {
-            Objects.requireNonNull(vesResponse, "Необходимо установить ответ ВЭС1");
-            Objects.requireNonNull(vesExtendResponse, "Необходимо установить ответ ВЭС2");
+            Objects.requireNonNull(addProfileResponse, "Необходимо установить ответ на добавление подписки Мегафон");
+            Objects.requireNonNull(deleteProfileResponse, "Необходимо установить ответ на удаление подписки Мегафон");
         }
 
         public void stop() {

@@ -8,7 +8,6 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.ves.mock.VesMock;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -24,7 +23,7 @@ public class ExR_09_UseNewMobileDevice_2 extends RSHBCaseTest {
     private static final String TABLE= "(System_parameters) Интеграционные параметры";
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private final VesMock vesMock = VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
+//TODO требуется реализовать отправку сообщения через новый ВЭС
 
     private String stepNSessionIdForIOC;
     private String stepNSessionIdForAndroid;
@@ -93,7 +92,7 @@ public class ExR_09_UseNewMobileDevice_2 extends RSHBCaseTest {
             dependsOnMethods = "client"
     )
     public void transaction1() {
-        vesMock.run();
+//TODO требуется реализовать отправку сообщения через новый ВЭС
         try {
             Thread.sleep(5_000);
         } catch (InterruptedException e) {

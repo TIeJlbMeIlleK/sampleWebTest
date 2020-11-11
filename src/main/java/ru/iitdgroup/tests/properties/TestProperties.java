@@ -9,6 +9,18 @@ public class TestProperties extends Properties {
         return getProperty("ic.url");
     }
 
+    public String getRabbitUrl(){
+        return getProperty("rabbit.url");
+    }
+
+    public String getRabbitPassword() {
+        return getProperty("rabbit.password");
+    }
+
+    public String getRabbitUser() {
+        return getProperty("rabbit.user");
+    }
+
     public String getICUser() {
         return getProperty("ic.user");
     }
@@ -52,5 +64,7 @@ public class TestProperties extends Properties {
     public String getDbPassword() {
         return getProperty("db.password");
     }
+
+
 
 }

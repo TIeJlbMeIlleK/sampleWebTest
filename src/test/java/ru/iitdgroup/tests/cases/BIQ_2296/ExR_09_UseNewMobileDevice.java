@@ -29,7 +29,7 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
     private final List<String> clientIds = new ArrayList<>();
-    private VesMock vesMock = getVesMock();
+//TODO требуется реализовать отправку сообщения через новый ВЭС
 
     @Test(
             description = "Настройка и включение правила"
@@ -149,8 +149,8 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
             dependsOnMethods = "disableCheckboxesInRule"
     )
     public void transaction2() {
-        vesMock = getVesMock();
-        vesMock.run();
+//TODO требуется реализовать отправку сообщения через новый ВЭС
+
         try {
             Thread.sleep(5_000);
         } catch (InterruptedException e) {
@@ -320,8 +320,5 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
-    }
-    private static VesMock getVesMock() {
-        return VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
     }
 }

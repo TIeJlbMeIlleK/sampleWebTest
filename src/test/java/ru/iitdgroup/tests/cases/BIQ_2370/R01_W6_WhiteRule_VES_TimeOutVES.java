@@ -6,7 +6,7 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.ves.mock.VesMock;
+//TODO требуется реализовать отправку сообщения через новый ВЭС
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class R01_W6_WhiteRule_VES_TimeOutVES extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 10, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private VesMock vesMock = getVesMock();
+    //TODO требуется реализовать отправку сообщения через новый ВЭС
     private static String DFP = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
 
 
@@ -104,11 +104,8 @@ public class R01_W6_WhiteRule_VES_TimeOutVES extends RSHBCaseTest {
             dependsOnMethods = "client"
     )
     public void transaction1() {
-        vesMock = getVesMock();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"","\"fingerprint\": \"b4ab28f4-448f-4684-90f6-615sd74fga7q4\""));
-        vesMock.run();
+//TODO требуется реализовать отправку сообщения через новый ВЭС
+
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -139,7 +136,6 @@ public class R01_W6_WhiteRule_VES_TimeOutVES extends RSHBCaseTest {
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
     }
-    private static VesMock getVesMock() {
-        return VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
-    }
+//TODO требуется реализовать отправку сообщения через новый ВЭС
+
 }
