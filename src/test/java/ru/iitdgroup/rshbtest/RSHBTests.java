@@ -7,6 +7,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import ru.iitdgroup.tests.properties.TestProperties;
 import ru.iitdgroup.tests.webdriver.ic.IC;
+import ru.iitdgroup.tests.webdriver.rabbit.Rabbit;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,6 +20,7 @@ public abstract class RSHBTests {
     protected TestProperties props;
     protected IC ic;
     private String testName;
+    protected Rabbit rabbit;
 
     @BeforeClass
     public void setUpProperties() throws IOException {
@@ -29,7 +31,7 @@ public abstract class RSHBTests {
     @BeforeMethod
     public void setupMethod(Method method) {
         ic = new IC(props);
-
+        rabbit = new Rabbit(props);
         testName = Arrays.stream(method.getAnnotations())
                 .map(this::getTestName)
                 .findFirst()

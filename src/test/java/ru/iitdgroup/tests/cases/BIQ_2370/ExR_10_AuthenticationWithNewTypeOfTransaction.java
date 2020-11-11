@@ -11,7 +11,6 @@ import ru.iitdgroup.tests.apidriver.Authentication;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.ves.mock.VesMock;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
@@ -39,7 +38,6 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
 
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private VesMock vesMock = getVesMock();
     private static final String TABLE_2 = "(Policy_parameters) Параметры обработки событий";
 
     @Test(
@@ -291,11 +289,8 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
             dependsOnMethods = "transaction3"
     )
     public void transaction4() {
-        vesMock = getVesMock();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"","\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd6sd5fg7155555\""));
-        vesMock.run();
+//TODO требуется реализовать отправку сообщения через новый ВЭС
+
         Authentication authentication = getAuthentication();
         authentication
                 .getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(3));
@@ -350,7 +345,4 @@ public class ExR_10_AuthenticationWithNewTypeOfTransaction extends RSHBCaseTest 
         return transaction;
     }
 
-    private static VesMock getVesMock() {
-        return VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
-    }
 }

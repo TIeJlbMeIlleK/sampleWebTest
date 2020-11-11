@@ -6,7 +6,7 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.ves.mock.VesMock;
+//TODO требуется реализовать отправку сообщения через новый ВЭС
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class R01_W6_WhiteRule_VES_TRIGGERED extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 10, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private VesMock vesMock = VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
+//TODO требуется реализовать отправку сообщения через новый ВЭС
 
     @Test(
             description = "Настройка и включение правила"
@@ -102,10 +102,8 @@ public class R01_W6_WhiteRule_VES_TRIGGERED extends RSHBCaseTest {
         System.out.println("\"R01_W6_Whiterule_VES.\n" +
                         "Проверка на соответствие значениям ответа VES со справочником \"Коды ответов ВЭС\" -- BIQ2370 " + "ТК №21");
 
-        vesMock.setVesResponse(vesMock
-                .getVesResponse()
-                .replaceAll("7","15"));
-        vesMock.run();
+//TODO требуется реализовать отправку сообщения через новый ВЭС
+
         try {
             Thread.sleep(10_000);
         } catch (InterruptedException e) {
