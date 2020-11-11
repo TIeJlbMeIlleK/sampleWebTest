@@ -15,6 +15,7 @@ import ru.iitdgroup.tests.dbdriver.Database;
 import ru.iitdgroup.tests.ignitedriver.SampleIgnite;
 import ru.iitdgroup.tests.properties.TestProperties;
 import ru.iitdgroup.tests.webdriver.ic.IC;
+import ru.iitdgroup.tests.webdriver.rabbit.Rabbit;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.soap.SOAPException;
@@ -22,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.testng.AssertJUnit.*;
@@ -151,6 +153,7 @@ public abstract class RSHBCaseTest {
     private DBOAntiFraudWS ws;
     private TestProperties props;
     private IC ic;
+    private Rabbit rabbit;
     private Database database;
     private Ignite ignite;
 
@@ -215,6 +218,14 @@ public abstract class RSHBCaseTest {
             ic.getDriver().manage().window().setSize(new Dimension(2000, 3000));
         }
         return ic;
+    }
+
+    protected Rabbit getRabbit() {
+        if (rabbit == null) {
+            rabbit = new Rabbit(getProps());
+            rabbit.getDriver().manage().window().setSize(new Dimension(2000, 3000));
+        }
+        return rabbit;
     }
 
     protected Database getDatabase() {

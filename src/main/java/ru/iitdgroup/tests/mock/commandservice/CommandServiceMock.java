@@ -20,14 +20,11 @@ public class CommandServiceMock implements Closeable {
 
     private final static Path RESOURCES = Paths.get("resources");
     private static final String DEFAULT_COMMAND_SERVICE_PATH = "/commandservice/commandservice.xml";
-//    private static final String DEFAULT_DEFAULT_COMMAND_SERVICE_PATH_EXTEND_PATH = "/ves/ves-extended.json";
     public static final int DEFAULT_COMMAND_SERVICE_PORT = 3005;
     private final CountDownLatch latch = new CountDownLatch(1);
 
     private String commandServicePath = DEFAULT_COMMAND_SERVICE_PATH;
-//    private String vesExtendPath = DEFAULT_DEFAULT_COMMAND_SERVICE_PATH_EXTEND_PATH;//FIX THIS
     private String commandServiceResponse;
-//    private String vesExtendResponse;
     private int port = DEFAULT_COMMAND_SERVICE_PORT;
     private Server server;
 
@@ -36,7 +33,6 @@ public class CommandServiceMock implements Closeable {
     private CommandServiceMock(int port) {
         this.port = port;
         withCommandServiceResponse(DEFAULT_COMMAND_SERVICE_PATH);
-//        withVesExtendResponse(DEFAULT_DEFAULT_COMMAND_SERVICE_PATH_EXTEND_PATH);
     }
 
 
@@ -71,10 +67,6 @@ public class CommandServiceMock implements Closeable {
         return this;
     }
 
-//    public CommandServiceMock withVesExtendPath(String commandServiceExtendPath) {
-//        this.vesExtendPath = commandServiceExtendPath;
-//        return this;
-//    }
 
     public CommandServiceMock withCommandServiceResponse(String commandServiceResponseFile) {
         try {
@@ -87,32 +79,14 @@ public class CommandServiceMock implements Closeable {
         return this;
     }
 
-//    public CommandServiceMock withVesExtendResponse(String vesExtendResponseFile) {
-//        try {
-//            this.vesExtendResponse = Files
-//                    .lines(Paths.get(RESOURCES.toAbsolutePath() + "/" + vesExtendResponseFile), StandardCharsets.UTF_8)
-//                    .collect(Collectors.joining(System.lineSeparator()));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return this;
-//    }
 
-    public String getVesResponse() {
+    public String getCommandServiceResponse() {
         return commandServiceResponse;
     }
 
-    public void setVesResponse(String commandServiceResponse) {
+    public void setCommandServiceResponse(String commandServiceResponse) {
         this.commandServiceResponse = commandServiceResponse;
     }
-
-//    public String getVesExtendResponse() {
-//        return vesExtendResponse;
-//    }
-//
-//    public void setVesExtendResponse(String vesExtendResponse) {
-//        this.vesExtendResponse = vesExtendResponse;
-//    }
 
     @Override
     public void close() {
@@ -142,14 +116,10 @@ public class CommandServiceMock implements Closeable {
             this.clientAndServer
                     .when(request().withMethod("POST").withPath(commandServicePath))
                     .respond(HttpResponse.response(commandServiceResponse).withHeader(header));
-//            this.clientAndServer
-//                    .when(request().withMethod("POST").withPath(vesExtendPath))
-//                    .respond(HttpResponse.response(vesExtendResponse).withHeader(header));
         }
 
         private void checkRequirements() {
             Objects.requireNonNull(commandServiceResponse, "Необходимо установить ответ от ДБО");
-//            Objects.requireNonNull(vesExtendResponse, "Необходимо установить ответ от ДБО_2");
         }
 
         public void stop() {

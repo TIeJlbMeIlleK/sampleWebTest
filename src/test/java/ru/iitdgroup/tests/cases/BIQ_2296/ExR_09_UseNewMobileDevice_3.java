@@ -8,7 +8,6 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.ves.mock.VesMock;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
@@ -28,8 +27,6 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.DECEMBER, 7, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private VesMock vesMock = getVesMock();
-
     private String IMEI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
     private String new_IMEI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
     private String IMSI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
@@ -135,7 +132,8 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
             dependsOnMethods = "enableIFV"
     )
     public void transaction1() {
-        vesMock.run();
+//TODO требуется реализовать отправку сообщения через новый ВЭС
+
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -158,13 +156,6 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
             e.printStackTrace();
         }
         assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_ANDROID_DEVICE);
-
-//        vesMock.stop();
-//        vesMock.setVesExtendResponse(vesMock
-//                .getVesExtendResponse()
-//                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"", "\"fingerprint\": \"123\""));
-//        vesMock.run();
-
     }
 
     @Test(
@@ -172,6 +163,8 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
             dependsOnMethods = "transaction1"
     )
     public void transaction2() {
+        //TODO требуется реализовать отправку сообщения через новый ВЭС
+
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -194,14 +187,6 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
             e.printStackTrace();
         }
         assertLastTransactionRuleApply(FEW_DATA, DEVICE_NOT_EXIST);
-
-//        vesMock.stop();
-//        vesMock.setVesExtendResponse(vesMock
-//                .getVesExtendResponse()
-//                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"", "\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd605a80\""));
-//        vesMock.run();
-
-
     }
     @Test(
             description = "Провести транзакцию № 3 с устройства № 2 от клиента № 1",
@@ -267,6 +252,8 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
             dependsOnMethods = "transaction4"
     )
     public void transaction5() {
+        //TODO требуется реализовать отправку сообщения через новый ВЭС
+
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -289,13 +276,6 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
             e.printStackTrace();
         }
         assertLastTransactionRuleApply(TRIGGERED, REPLACE_IMEI);
-
-//        vesMock.stop();
-//        vesMock.setVesExtendResponse(vesMock
-//                .getVesExtendResponse()
-//                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"", "\"fingerprint\": \"123\""));
-//        vesMock.run();
-
     }
     @Test(
             description = "Изменить в устройстве № 1 IMSI (устройство № 4). Провести транзакцию № 6 с устройства № 4 для клиента № 1",
@@ -342,11 +322,8 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
                 .save()
                 .sleep(5);
         getIC().close();
-        vesMock.stop();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd604c50\"", "\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd605a80\""));
-        vesMock.run();
+        //TODO требуется реализовать отправку сообщения через новый ВЭС
+
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -381,11 +358,8 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
             dependsOnMethods = "transaction7"
     )
     public void transaction8() {
-        vesMock.stop();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-4684-90f6-7953bd605a80\"", "\"fingerprint\": \"b4ab28f4-448f-1sd5-90f6-7s47bd604aaa\""));
-        vesMock.run();
+        //TODO требуется реализовать отправку сообщения через новый ВЭС
+
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -420,11 +394,8 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
     )
     public void transaction9() {
         assertLastTransactionRuleApply(TRIGGERED, NEW_DEVICE);
-        vesMock.stop();
-        vesMock.setVesExtendResponse(vesMock
-                .getVesExtendResponse()
-                .replaceAll("\"fingerprint\": \"b4ab28f4-448f-1sd5-90f6-7s47bd604aaa\"","\"fingerprint\": \"b4ab28f4-448f-4684-57re51-7953bd615fggh7fg\""));
-        vesMock.run();
+        //TODO требуется реализовать отправку сообщения через новый ВЭС
+
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -466,8 +437,5 @@ public class ExR_09_UseNewMobileDevice_3 extends RSHBCaseTest {
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
-    }
-    private static VesMock getVesMock() {
-        return VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
     }
 }

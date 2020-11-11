@@ -16,18 +16,14 @@ import java.util.stream.Collectors;
 
 import static org.mockserver.model.HttpRequest.request;
 
-//TODO требуется переписать класс для работы с браузером и отрпавки сообщения ВЭС через РЭББИТ
-
 public class VesMock implements Closeable {
 
     private final static Path RESOURCES = Paths.get("resources");
     private static final String DEFAULT_VES_PATH = "/ves/ves-data.json";
-    private static final String DEFAULT_VES_EXTEND_PATH = "/ves/ves-extended.json";
     public static final int DEFAULT_VES_PORT = 8010;
     private final CountDownLatch latch = new CountDownLatch(1);
 
     private String vesPath = DEFAULT_VES_PATH;
-    private String vesExtendPath = DEFAULT_VES_EXTEND_PATH;
     private String vesResponse;
     private String vesExtendResponse;
     private int port = DEFAULT_VES_PORT;
@@ -38,7 +34,6 @@ public class VesMock implements Closeable {
     private VesMock(int port) {
         this.port = port;
         withVesResponse(DEFAULT_VES_PATH);
-        withVesExtendResponse(DEFAULT_VES_EXTEND_PATH);
     }
 
 
@@ -70,11 +65,6 @@ public class VesMock implements Closeable {
 
     public VesMock withVesPath(String vesPath) {
         this.vesPath = vesPath;
-        return this;
-    }
-
-    public VesMock withVesExtendPath(String vesExtendPath) {
-        this.vesExtendPath = vesExtendPath;
         return this;
     }
 
@@ -144,9 +134,6 @@ public class VesMock implements Closeable {
             this.clientAndServer
                     .when(request().withMethod("GET").withPath(vesPath))
                     .respond(HttpResponse.response(vesResponse).withHeader(header));
-            this.clientAndServer
-                    .when(request().withMethod("GET").withPath(vesExtendPath))
-                    .respond(HttpResponse.response(vesExtendResponse).withHeader(header));
         }
 
         private void checkRequirements() {

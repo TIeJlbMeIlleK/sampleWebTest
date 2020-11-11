@@ -9,7 +9,6 @@ import ru.iitdgroup.tests.apidriver.Authentication;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.ves.mock.VesMock;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
@@ -305,7 +304,8 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
             dependsOnMethods = "transaction4"
     )
     public void transaction5() {
-//TODO требуется реализовать новый ВЭС
+//TODO требуется реализовать отправку сообщения через новый ВЭС
+
 
         Authentication authentication = getAuthentication();
         authentication
@@ -360,7 +360,4 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
         return transaction;
     }
 
-    private static VesMock getVesMock() {
-        return VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
-    }
 }

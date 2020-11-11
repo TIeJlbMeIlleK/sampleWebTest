@@ -6,7 +6,6 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.ves.mock.VesMock;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -24,7 +23,6 @@ public class R01_W6_WhiteRule_VES_BigSend extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 10, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private VesMock vesMock = VesMock.create().withVesPath("/ves/vesEvent").withVesExtendPath("/ves/vesExtendEvent");
 
 
     @Test(
@@ -125,7 +123,8 @@ public class R01_W6_WhiteRule_VES_BigSend extends RSHBCaseTest {
             dependsOnMethods = "transaction1"
     )
     public void transaction2() {
-        vesMock.run();
+//TODO требуется реализовать отправку сообщения через новый ВЭС
+
         try {
             Thread.sleep(5_000);
         } catch (InterruptedException e) {
