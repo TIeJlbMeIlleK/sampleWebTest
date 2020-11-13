@@ -56,6 +56,7 @@ public class BR_01_PayeeInBlackList_Tel_Number extends RSHBCaseTest {
                 .save();
         getIC().close();
     }
+    //TODO требуется реализовать Перезагрузку САФ и игнайт
 
     @Test(
             description = "Создаем клиента",

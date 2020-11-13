@@ -21,7 +21,6 @@ public class WR_07_TransferToOtherBankOwnAccount extends RSHBCaseTest {
 
 
     private static final String RULE_NAME = "R01_WR_07_TransferToOtherBankOwnAccount";
-    private static final String REFERENCE_ITEM = "(Rule_tables) Запрещенные получатели БИКСЧЕТ";
 
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();

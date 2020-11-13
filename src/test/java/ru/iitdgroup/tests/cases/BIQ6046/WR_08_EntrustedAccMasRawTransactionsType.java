@@ -1,21 +1,11 @@
 package ru.iitdgroup.tests.cases.BIQ6046;
 
-import com.google.i18n.phonenumbers.Phonenumber;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import org.openqa.selenium.ElementNotInteractableException;
 import org.testng.annotations.Test;
-import ru.iitdgroup.intellinx.dbo.client.ContactChannelType;
-import ru.iitdgroup.intellinx.dbo.client.ContactInfoType;
-import ru.iitdgroup.intellinx.dbo.client.ContactKind;
-import ru.iitdgroup.intellinx.dbo.client.ContactType;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.ic.AbstractEdit;
-import ru.iitdgroup.tests.webdriver.ic.ICXPath;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
-import ru.iitdgroup.tests.webdriver.ruleconfiguration.RuleEdit;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -26,12 +16,10 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 
-public class WR_08_EntrustedAccMask extends RSHBCaseTest {
+public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
 
     private static final String RULE_NAME = "R01_WR_08_EntrustedAccMask";
-    private static final String PAYMENT_MASK = "464512";
-    private static final String WRONG_PAYMENT_MASK = "464515";
 
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 11, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
@@ -41,18 +29,13 @@ public class WR_08_EntrustedAccMask extends RSHBCaseTest {
             description = "Настройка и включение правила"
     )
     public void enableRules() {
-        getIC().locateRules()
-                .openRecord(RULE_NAME)
-                .detach("Маски счетов")
-                .attach("Маски счетов", "Маски счетов доверенных получателей", "Equals", PAYMENT_MASK)
-                .sleep(3);
+
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
                 .sleep(5);
-
     }
 
     @Test(
@@ -81,44 +64,52 @@ public class WR_08_EntrustedAccMask extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить транзакцию №1 Перевод между счетами где первые цифры SourceProduct = 464512",
+            description = "Отправить транзакцию №1 Перевод другому лицу",
             dependsOnMethods = "step0"
     )
 
     public void step1() {
-        Transaction transaction = getTransaction();
+        Transaction transaction = getTransferToAnotherPerson();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
 
-        String oldSourceProduct = transactionData.getTransferBetweenAccounts().getSourceProduct();
-        transactionData
-                .getTransferBetweenAccounts()
-                .setSourceProduct(PAYMENT_MASK + oldSourceProduct.substring(PAYMENT_MASK.length()));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, EXISTS_MATCHES);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
 
     @Test(
-            description = "Отправить транзакцию №2 Перевод между счетами где первые цифры SourceProduct = 464515",
+            description = "Отправить транзакцию №2 Перевод на карту другому лицу",
             dependsOnMethods = "step1"
     )
     public void step2() {
-        Transaction transaction = getTransaction();
+        Transaction transaction = getTransferToCard();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
 
-        String oldSourceProduct = transactionData.getTransferBetweenAccounts().getSourceProduct();
-        transactionData
-                .getTransferBetweenAccounts()
-                .setSourceProduct(WRONG_PAYMENT_MASK + oldSourceProduct.substring(WRONG_PAYMENT_MASK.length()));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, NO_MATCHES);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
+    }
+
+    @Test(
+            description = "Отправить транзакцию №2 Перевод в сторону государства",
+            dependsOnMethods = "step2"
+    )
+    public void step3() {
+        Transaction transaction = getTransferToBudget();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
 
 
@@ -128,8 +119,24 @@ public class WR_08_EntrustedAccMask extends RSHBCaseTest {
     }
 
 
-    private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/TRANSFER_BETWEEN_ACCOUNTS.xml");
+    private Transaction getTransferToAnotherPerson() {
+        Transaction transaction = getTransaction("testCases/Templates/TRANSlATION_TO_ANOTHER_PERSON.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
+    }
+
+    private Transaction getTransferToCard() {
+        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_MOBILE.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
+    }
+
+    private Transaction getTransferToBudget() {
+        Transaction transaction = getTransaction("testCases/Templates/BUDGET_TRANSFER_MOBILE.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
