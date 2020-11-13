@@ -148,6 +148,10 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_GRAY_BENEFICIAR_BIC_ACC = "Получатель находится в сером списке по БИК + Счет";
     protected static final String EXISTS_MATCHES = "Правило применилось, найдены совпадающие параметры";
     protected static final String NO_MATCHES = "Нет совпадений";
+    protected static final String PHONE_CONDITIONS_NOT_MET = "Для типа «Перевод по номеру телефона» условия правила не выполнены";
+    protected static final String TRIGGERED_TRUE = "Найдена подтвержденная транзакция с совпадающими реквизитами";
+    protected static final String ANOTHER_TRANSACTION = "Непроверяемый тип транзакции";
+    protected static final String RULE_CONDITIONS_NOT_MET = "Условия правила не выполнены";
 
 
     private DBOAntiFraudWS ws;

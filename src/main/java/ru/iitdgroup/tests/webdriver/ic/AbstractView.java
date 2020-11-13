@@ -7,8 +7,6 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import ru.iitdgroup.tests.webdriver.referencetable.Record;
-import ru.iitdgroup.tests.webdriver.referencetable.TableEdit;
 
 /**
  * Абстрактный контекст для работы с экранными формами.
@@ -93,5 +91,25 @@ public abstract class AbstractView<S> {
         actions.perform();
         ((JavascriptExecutor)driver).executeScript("arguments[0].style.border='3px solid red'", elem);
         return elem;
+    }
+
+    public AbstractView<S> getActions(){
+        getDriver()
+                .findElementByXPath("//*[@id=\"moduleDetailsActionsToolbar\"]/div/table/tbody/tr/td[5]/table/tbody/tr/td/span/img").click();
+        return this;
+    }
+
+    public AbstractView<S> doAction(String text) {
+        getDriver()
+                .findElementByXPath("//*[@id=\"qtip-0-content\"]/a[text()='"+text+"']")
+                .click();
+        return this;
+    }
+
+    public AbstractView<S> approved() {
+        getDriver()
+                .findElementByXPath("/html/body/div[16]/div[3]/div/button[2]/span")
+                .click();
+        return this;
     }
 }

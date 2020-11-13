@@ -13,7 +13,7 @@ public class ReportRecord extends AbstractView<ReportRecord> implements TabledVi
     public ReportDetail openFirst() {
         driver.findElementByXPath("//div[@class='panelTable af_table']/table[@class='af_table_content']/tbody/tr[2]")
                 .click();
-        waitUntil("//a[@id='btnEdit']");
+//        waitUntil("//a[@id='btnEdit']");
         return new ReportDetail(driver);
     }
 
