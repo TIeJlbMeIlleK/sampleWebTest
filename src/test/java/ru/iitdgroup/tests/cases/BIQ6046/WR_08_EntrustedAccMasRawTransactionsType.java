@@ -176,6 +176,38 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
 
+    @Test(
+            description = "Отправить транзакцию №8 Перевод по номеру телефона",
+            dependsOnMethods = "step7"
+    )
+    public void step8() {
+        Transaction transaction = getPhoneNumber();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
+    }
+
+    @Test(
+            description = "Отправить транзакцию №9 Запрос в госуслуги",
+            dependsOnMethods = "step8"
+    )
+    public void step9() {
+        Transaction transaction = getRequestGosuslugi();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
+    }
+
     @Override
     protected String getRuleName() {
         return RULE_NAME;
@@ -232,6 +264,22 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
     private Transaction getBuyingInsurance() {
         Transaction transaction = getTransaction("testCases/Templates/BUYING_INSURANCE.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
+    }
+
+    private Transaction getPhoneNumber() {
+        Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
+    }
+
+    private Transaction getRequestGosuslugi() {
+        Transaction transaction = getTransaction("testCases/Templates/REQUEST_FOR_GOSUSLUGI_PC.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
