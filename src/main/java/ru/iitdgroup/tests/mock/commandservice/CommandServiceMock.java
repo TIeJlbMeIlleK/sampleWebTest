@@ -30,7 +30,7 @@ public class CommandServiceMock implements Closeable {
 
     private Thread thread;
 
-    private CommandServiceMock(int port) {
+    public CommandServiceMock(int port) {
         this.port = port;
         withCommandServiceResponse(DEFAULT_COMMAND_SERVICE_PATH);
     }
