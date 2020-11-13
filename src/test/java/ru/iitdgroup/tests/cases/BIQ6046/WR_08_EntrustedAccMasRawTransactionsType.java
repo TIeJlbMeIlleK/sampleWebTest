@@ -6,6 +6,7 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
+import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
-
+    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
     private static final String RULE_NAME = "R01_WR_08_EntrustedAccMask";
 
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 11, 0, 0, 0);
@@ -35,7 +36,10 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(5);
+                .sleep(30);
+
+        commandServiceMock.run();
+
     }
 
     @Test(
@@ -206,6 +210,7 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
+        commandServiceMock.stop();
     }
 
     @Override
