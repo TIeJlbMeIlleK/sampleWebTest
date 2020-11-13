@@ -97,7 +97,7 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить транзакцию №2 Перевод в сторону государства",
+            description = "Отправить транзакцию №3 Перевод в сторону государства",
             dependsOnMethods = "step2"
     )
     public void step3() {
@@ -112,6 +112,69 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
 
+    @Test(
+            description = "Отправить транзакцию №4 Оплата услуг",
+            dependsOnMethods = "step3"
+    )
+    public void step4() {
+        Transaction transaction = getPaymentServices();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
+    }
+
+    @Test(
+            description = "Отправить транзакцию №5 Перевод через систему денежных переводов",
+            dependsOnMethods = "step4"
+    )
+    public void step5() {
+        Transaction transaction = getSDP();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
+    }
+
+    @Test(
+            description = "Отправить транзакцию №6  Изменение перевода, отправленного через систему денежных переводов",
+            dependsOnMethods = "step5"
+    )
+    public void step6() {
+        Transaction transaction = getSDPRefactor();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
+    }
+
+    @Test(
+            description = "Отправить транзакцию №7 Покупка страховки держателей карт",
+            dependsOnMethods = "step6"
+    )
+    public void step7() {
+        Transaction transaction = getBuyingInsurance();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
+    }
 
     @Override
     protected String getRuleName() {
@@ -137,6 +200,38 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
     private Transaction getTransferToBudget() {
         Transaction transaction = getTransaction("testCases/Templates/BUDGET_TRANSFER_MOBILE.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
+    }
+
+    private Transaction getPaymentServices() {
+        Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT_MB.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
+    }
+
+    private Transaction getSDP() {
+        Transaction transaction = getTransaction("testCases/Templates/SDP.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
+    }
+
+    private Transaction getSDPRefactor() {
+        Transaction transaction = getTransaction("testCases/Templates/SDP_Refactor.xml");
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
+    }
+
+    private Transaction getBuyingInsurance() {
+        Transaction transaction = getTransaction("testCases/Templates/BUYING_INSURANCE.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
