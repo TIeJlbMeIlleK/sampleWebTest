@@ -1,7 +1,7 @@
 <ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
     <ns4:ServerInfo>
         <ns2:Ip>localhost</ns2:Ip>
-        <ns2:Port>8090</ns2:Port>
+        <ns2:Port>8050</ns2:Port>
     </ns4:ServerInfo>
     <ns4:TransactionData>
         <ns4:TransactionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(5)}</ns4:TransactionId>
@@ -27,12 +27,12 @@
             <ns4:AdditionalField>
                 <ns4:Id>ACCOUNT</ns4:Id>
                 <ns4:Name>vetka</ns4:Name>
-                <ns4:Value>1</ns4:Value>
+                <ns4:Value>3</ns4:Value>
             </ns4:AdditionalField>
         </ns4:ServicePayment>
         <ns4:InitialSourceAmount>99995955.23</ns4:InitialSourceAmount>
         <ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
-        <ns4:DocumentConfirmationTimestamp>${=new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new java.util.Date())}.000+03:00</ns4:DocumentConfirmationTimestamp>
+        <ns4:DocumentConfirmationTimestamp>2019-04-15T14:46:00+03:00</ns4:DocumentConfirmationTimestamp>
         <ns4:SessionId>385A32B4DC20d0000000000d06541065105606</ns4:SessionId>
         <ns4:Channel>MOBILE_BANK</ns4:Channel>
         <ns4:ClientDevice>

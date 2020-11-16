@@ -12,6 +12,7 @@ import ru.iitdgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitdgroup.tests.apidriver.Template;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.dbdriver.Database;
+import ru.iitdgroup.tests.dbdriver.With;
 import ru.iitdgroup.tests.ignitedriver.SampleIgnite;
 import ru.iitdgroup.tests.properties.TestProperties;
 import ru.iitdgroup.tests.webdriver.ic.IC;
@@ -27,6 +28,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
 
 public abstract class RSHBCaseTest {
 
@@ -263,6 +265,36 @@ public abstract class RSHBCaseTest {
         String[][] dbResult = getResults(getRuleName());
         assertEquals(ruleResult, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
+    }
+
+    protected void assertTransactionAdditionalFieldApply(String transactionID, String fieldId, String fieldName, String fieldValue) {
+        try {
+            Thread.sleep(1000);
+            String[][] id = getDatabase()
+                    .select()
+                    .field("id")
+                    .from("PAYMENT_TRANSACTION")
+                    .with("TRANSACTION_ID", "=", "'" + transactionID + "'")
+                    .sort("timestamp", false)
+                    .limit(1)
+                    .get();
+            String[][] result = getDatabase()
+                    .select()
+                    .field("ADDITIONAL_FIELD_ID")
+                    .field("ADDITIONAL_FIELD_NAME")
+                    .field("ADDITIONAL_FIELD_VALUE")
+                    .from("ADDITIONAL_FIELD_TYPE")
+                    .with("transaction_id", "=", id[0][0])
+                    .sort("timestamp", false)
+                    .limit(1)
+                    .get();
+            assertEquals(fieldId, result[0][0]);
+            assertEquals(fieldName, result[0][1]);
+            assertEquals(fieldValue, result[0][2]);
+        } catch (InterruptedException | SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
     }
 
     protected void assertPaymentMaxAmount(String clientId, String txType, BigDecimal amount) {

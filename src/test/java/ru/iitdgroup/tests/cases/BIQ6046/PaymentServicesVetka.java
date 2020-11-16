@@ -21,26 +21,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class PaymentServicesVetka extends RSHBCaseTest {
 
-    private static final String PHONE1 = "1";
-    private static final String PHONE2 = "0";
     private static final String RULE_NAME = "";
-    private static final String REFERENCE_ITEM = "";
 
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-
-//
-//    @Test(
-//            description = "Настройка и включение правила"
-//    )
-//    public void enableRules() {
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .selectRule(RULE_NAME)
-//                .activate()
-//                .sleep(15);
-//    }
 
     @Test(
             description = "Создаем клиента"
@@ -80,17 +64,15 @@ public class PaymentServicesVetka extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData
-                .getServicePayment()
-                .getAdditionalField();
-
+        updateTransactionAdditionalFields(transactionData, "ACCOUNT", "vetka", "1");
 
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply("vetka", PHONE1);
+        assertTransactionAdditionalFieldApply(transactionData.getTransactionId(), "ACCOUNT", "vetka", "1");
     }
 
+
     @Test(
-            description = "Отправить транзакции №1" +
+            description = "Отправить транзакции №2" +
                     "-- «Parameter.Name» =  vetka" +
                     "-- «Parameter.Value» = 0",
             dependsOnMethods = "step1"
@@ -102,11 +84,10 @@ public class PaymentServicesVetka extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData
-                .getServicePayment()
-                .withAdditionalField(getPhoneField(PHONE2));
+        updateTransactionAdditionalFields(transactionData, "ACCOUNT", "vetka", "0");
+
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(PHONE2,"vetka");
+        assertTransactionAdditionalFieldApply(transactionData.getTransactionId(), "ACCOUNT", "vetka", "0");
     }
 
 
@@ -117,7 +98,7 @@ public class PaymentServicesVetka extends RSHBCaseTest {
 
     private AdditionalFieldType getPhoneField(String phone) {
         return new AdditionalFieldType()
-                .withId("account")
+                .withId("ACCOUNT")
                 .withName("vetka")
                 .withValue(phone);
     }
@@ -128,5 +109,39 @@ public class PaymentServicesVetka extends RSHBCaseTest {
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
+    }
+
+    private void updateTransactionAdditionalFields(TransactionDataType transactionData, String id, String nameForNewField, String value) {
+        List<AdditionalFieldType> l = transactionData
+                .getServicePayment()
+                .getAdditionalField();
+        boolean exists = false;
+        for (AdditionalFieldType f : l) {
+            if (f.getId().equals(id)) {
+                f.setValue(value);
+                exists = true;
+            }
+        }
+        for (AdditionalFieldType k : l) {
+            if (k.getId().equals(id)) {
+                k.setName(nameForNewField);
+                exists = true;
+            }
+        }
+
+        for (AdditionalFieldType j : l) {
+            if (j.getId().equals(id)) {
+                j.setId(id);
+                exists = true;
+            }
+        }
+        if (!exists) {
+            l.add(new AdditionalFieldType()
+                    .withId(id)
+                    .withName(nameForNewField)
+                    .withValue(value)
+            );
+        }
+
     }
 }
