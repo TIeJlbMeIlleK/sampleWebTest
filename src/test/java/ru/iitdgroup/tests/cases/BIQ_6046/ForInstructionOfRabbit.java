@@ -1,4 +1,4 @@
-package ru.iitdgroup.tests.cases.BIQ6046;
+package ru.iitdgroup.tests.cases.BIQ_6046;
 
 import org.testng.annotations.Test;
 
