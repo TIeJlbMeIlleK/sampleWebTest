@@ -1,4 +1,4 @@
-package ru.iitdgroup.tests.cases.BIQ6046;
+package ru.iitdgroup.tests.cases.BIQ_6046;
 
 import com.google.i18n.phonenumbers.Phonenumber;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
