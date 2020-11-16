@@ -1,0 +1,58 @@
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+    <ns4:ServerInfo>
+        <Ip>localhost</Ip>
+        <Port>8089</Port>
+    </ns4:ServerInfo>
+    <ns4:TransactionData>
+        <ns4:TransactionId>17</ns4:TransactionId>
+        <ns4:ClientIds>
+            <ns2:DboId>5117630342759914973</ns2:DboId>
+            <ns2:CifId>DA97B20B-1CF0-4f34-BBC6-FC3C24548821</ns2:CifId>
+            <ns2:ExpertSystemId>119705151038f583a70c50d60467b8d944657abe</ns2:ExpertSystemId>
+            <ns2:LoginHash>ba455e110cedd2f317a69d72b0c3b26117073089</ns2:LoginHash>
+        </ns4:ClientIds>
+        <ns4:DocumentSaveTimestamp>2019-07-22T19:00:47+03:00</ns4:DocumentSaveTimestamp>
+        <ns4:DocumentNumber>63</ns4:DocumentNumber>
+        <ns4:Type>SERVICE_PAYMENT</ns4:Type>
+        <ns4:Regular>false</ns4:Regular>
+        <ns4:SessionTimeout>1800000</ns4:SessionTimeout>
+        <ns4:Limit>149999</ns4:Limit>
+        <ns4:ServicePayment>
+            <ns4:ServiceKind>1</ns4:ServiceKind>
+            <ns4:ProviderName>Сотовый - ОАО"МТС" - ОАО "Мобильные ТелеСистемы"</ns4:ProviderName>
+            <ns4:ServiceName>Сотовый - ОАО"МТС"</ns4:ServiceName>
+            <ns4:SourceCardNumber>418384******6213</ns4:SourceCardNumber>
+            <ns4:AmountInSourceCurrency>200.00</ns4:AmountInSourceCurrency>
+            <ns4:CommissionAmount>2.50</ns4:CommissionAmount>
+            <ns4:AdditionalField>
+                <ns4:Id>114</ns4:Id>
+                <ns4:Name>vetka</ns4:Name>
+                <ns4:Value>1</ns4:Value>
+            </ns4:AdditionalField>
+            <ns4:AdditionalField>
+                <ns4:Id>114</ns4:Id>
+                <ns4:Name>vetka</ns4:Name>
+                <ns4:Value>1</ns4:Value>
+            </ns4:AdditionalField>
+            <ns4:AdditionalField>
+                <ns4:Id>ACCOUNT</ns4:Id>
+                <ns4:Name>Номер телефона</ns4:Name>
+                <ns4:Value>9168133500</ns4:Value>
+            </ns4:AdditionalField>
+        </ns4:ServicePayment>
+        <ns4:InitialSourceAmount>10000.00</ns4:InitialSourceAmount>
+        <ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+        <ns4:DocumentConfirmationTimestamp>2019-04-15T14:46:00+03:00</ns4:DocumentConfirmationTimestamp>
+        <ns4:SessionId>SID-147324356</ns4:SessionId>
+        <ns4:Channel>INTERNET_CLIENT</ns4:Channel>
+        <ns4:ClientDevice>
+            <ns3:Platform>PC</ns3:Platform>
+            <ns3:PC>
+                <ns3:IpAddress>44.106.170.62</ns3:IpAddress>
+                <ns3:UserAgent>Mozilla/7.7 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36</ns3:UserAgent>
+            </ns3:PC>
+        </ns4:ClientDevice>
+        <ns4:ClientAuthenticationMethod>CardNumber</ns4:ClientAuthenticationMethod>
+        <ns4:AuthenticationMethodInfo>CardInfo</ns4:AuthenticationMethodInfo>
+    </ns4:TransactionData>
+</ns4:SendTransactionDataRequest>

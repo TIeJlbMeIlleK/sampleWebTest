@@ -21,23 +21,37 @@
             <xsd:element name="Port" type="xsd:unsignedShort"/>
         </xsd:sequence>
     </xsd:complexType>
-    
+
     <xsd:complexType name="ClientIdsType">
         <xsd:sequence>
             <xsd:element name="DboId" type="xsd:string"/>
             <xsd:element name="CifId" type="xsd:string"/>
             <xsd:element name="EksId" type="xsd:string"/>
+            <xsd:element name="PcId" type="xsd:string"/>
             <xsd:element name="ExpertSystemId" type="xsd:string"/>
             <xsd:element name="LoginHash" type="xsd:string"/>
             <xsd:element name="AlfaIds">
-				<xsd:complexType>
-					<xsd:sequence>
-						<xsd:element name="AlfaId" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
-					</xsd:sequence>
-				</xsd:complexType>
-			</xsd:element>
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="AlfaId" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="ClientAuthenticationMethod"></xsd:complexType>
-    <xsd:complexType name="AuthenticationMethodInfo"></xsd:complexType>
+
+    <xsd:simpleType name="ClientAuthenticationMethod">
+        <xsd:annotation>
+            <xsd:documentation>Способ аутентификации клиента</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType >
+
+    <xsd:simpleType name="AuthenticationMethodInfo">
+        <xsd:annotation>
+            <xsd:documentation>Дополнительная информация о способе аутентификации клиента</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType >
+
 </xsd:schema>

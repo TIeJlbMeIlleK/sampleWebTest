@@ -12,14 +12,14 @@
     <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Common" schemaLocation="Common.xsd"/>
 
     <xsd:element name="ClientAuthenticationRequest" type="safa:ClientAuthenticationRequestType"/>
-    
+
     <xsd:complexType name="ClientAuthenticationRequestType">
         <xsd:sequence>
             <xsd:element name="ServerInfo" type="saf:ServerInfoType"/>
             <xsd:element name="ClientAuthentication" type="safa:ClientAuthenticationType"/>
         </xsd:sequence>
     </xsd:complexType>
-    
+
     <xsd:complexType name="ClientAuthenticationType">
         <xsd:sequence>
             <xsd:element name="Login" type="xsd:string"/>
@@ -29,6 +29,8 @@
             <xsd:element name="ClientDevice" type="safc:DeviceType" minOccurs="0"/>
             <xsd:element name="SessionId" type="xsd:string"/>
             <xsd:element name="Cfids" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="ClientAuthenticationMethod" type="saf:ClientAuthenticationMethod"/>
+            <xsd:element name="AuthenticationMethodInfo" type="saf:AuthenticationMethodInfo" nillable="true" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
 </xsd:schema>

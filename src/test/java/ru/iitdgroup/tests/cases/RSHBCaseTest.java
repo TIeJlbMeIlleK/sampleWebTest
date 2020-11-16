@@ -154,6 +154,9 @@ public abstract class RSHBCaseTest {
     protected static final String TRIGGERED_TRUE = "Найдена подтвержденная транзакция с совпадающими реквизитами";
     protected static final String ANOTHER_TRANSACTION = "Непроверяемый тип транзакции";
     protected static final String RULE_CONDITIONS_NOT_MET = "Условия правила не выполнены";
+    protected static final String SCENARIO_BLOCK_TRUE = "Выражение блока сценариев ИСТИННО!";
+    protected static final String MAX_PERIOD_BETWEEN_PASSWORD_RECOVERY_FIRST_TRANSACTION = "Превышен период между моментом восстановления доступа к ДБО и первой транзакцией серии";
+
 
 
     private DBOAntiFraudWS ws;

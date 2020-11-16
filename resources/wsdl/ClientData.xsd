@@ -42,12 +42,33 @@
             <xsd:element name="CodePhrase" type="xsd:string" minOccurs="0"/>
             <xsd:element name="Login" type="xsd:string"/>
             <xsd:element name="PasswordHash" type="xsd:string"/>
-            <xsd:element name="Role" type="safc:ClientRole"/>
+            <xsd:element name="Role" type="xsd:string"/>
             <xsd:element name="useOTPForLoginAction" type="xsd:boolean"/>
             <xsd:element name="useOTPForOtherAction" type="xsd:boolean"/>
             <xsd:element name="ETokenSerialNumber" type="xsd:string" minOccurs="0"/>
             <xsd:element name="Category" type="xsd:string" minOccurs="0"/>
             <xsd:element name="LastUpdateDate" type="xsd:dateTime"/>
+            <xsd:element name="ChangeAuthIMSI" type="xsd:boolean" minOccurs="1"/>
+            <xsd:element name="AuthIMSIDateChange" type="xsd:dateTime" minOccurs="0"/>
+            <xsd:element name="ConfirmationISCode" type="safc:ConfirmationISCodeType" minOccurs="0"/>
+            <xsd:element name="ConfirmationDate" type="xsd:dateTime" minOccurs="0"/>
+            <xsd:element name="PasswordRecoveryPoint" type="xsd:string" nillable="true" minOccurs="0"/>
+            <xsd:element name="PasswordRecoveryDateTime" type="xsd:dateTime" nillable="true" minOccurs="0"/>
+            <xsd:element name="PasswordRecoveryInformation" type="xsd:string" nillable="true" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation>Значение, которое использовалось для восстановления пароля</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="DboConnectionMethod" type="xsd:string" nillable="true" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation>Способ подключения ДБО</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="DboConnectionInformation" type="xsd:string" nillable="true" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation>Способ подключения ДБО. Дополнительная информация</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
 
@@ -118,33 +139,33 @@
             <xsd:element name="IMSI" type="xsd:string"/>
             <xsd:element name="IMEI" type="xsd:string"/>
             <xsd:element name="IMEISV" type="xsd:string"/>
-            <xsd:element name="MSISDN" type="xsd:string"/>
-            <xsd:element name="SPN" type="xsd:string"/>
+            <xsd:element name="MSISDN" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="SPN" type="xsd:string" minOccurs="0"/>
             <xsd:element name="OSVersion" type="xsd:string"/>
             <xsd:element name="AuthByFingerprint" type="xsd:boolean"/>
-            <xsd:element name="Manufacturer" type="xsd:string"/>
+            <xsd:element name="Manufacturer" type="xsd:string" minOccurs="0"/>
             <xsd:element name="Model" type="xsd:string"/>
-            <xsd:element name="DeviceID" type="xsd:string"/>
-            <xsd:element name="Simulator" type="xsd:boolean"/>
-            <xsd:element name="Locale" type="xsd:string"/>
-            <xsd:element name="DefaultBrowser" type="xsd:string"/>
-            <xsd:element name="Root" type="xsd:boolean"/>
-            <xsd:element name="NetworkOperatorName" type="xsd:string"/>
-            <xsd:element name="SimOperatorName" type="xsd:string"/>
-            <xsd:element name="SimCount" type="xsd:int"/>
-            <xsd:element name="LocalIp" type="xsd:string"/>
-            <xsd:element name="SSID" type="xsd:string"/>
-            <xsd:element name="UserAgent" type="xsd:string"/>
-            <xsd:element name="Serial" type="xsd:string"/>
-            <xsd:element name="Bootloader" type="xsd:string"/>
-            <xsd:element name="SimSerial" type="xsd:string"/>
-            <xsd:element name="MacAddress" type="xsd:string"/>
-           <!-- Ниже поля относящиеся к PayControl -->
-            <xsd:element name="TimeZone" type="xsd:string"/>
-            <xsd:element name="Latitude" type="xsd:string"/>
-            <xsd:element name="Longitude" type="xsd:string"/>
-            <xsd:element name="EventID" type="xsd:string"/>
-            <xsd:element name="SessionID" type="xsd:string"/>
+            <xsd:element name="DeviceID" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Simulator" type="xsd:boolean" minOccurs="0"/>
+            <xsd:element name="Locale" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="DefaultBrowser" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Root" type="xsd:boolean" minOccurs="0"/>
+            <xsd:element name="NetworkOperatorName" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="SimOperatorName" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="SimCount" type="xsd:int" minOccurs="0"/>
+            <xsd:element name="LocalIp" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="SSID" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="UserAgent" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Serial" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Bootloader" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="SimSerial" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="MacAddress" type="xsd:string" minOccurs="0"/>
+            <!-- Ниже поля относящиеся к PayControl -->
+            <xsd:element name="TimeZone" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Latitude" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Longitude" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="EventID" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="SessionID" type="xsd:string" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
 
@@ -155,25 +176,25 @@
             <xsd:element name="OSVersion" type="xsd:string"/>
             <xsd:element name="Model" type="xsd:string"/>
             <xsd:element name="AuthByFingerprint" type="xsd:boolean"/>
-            <xsd:element name="Manufacturer" type="xsd:string"/>
-            <xsd:element name="DeviceID" type="xsd:string"/>
-            <xsd:element name="Simulator" type="xsd:boolean"/>
-            <xsd:element name="Locale" type="xsd:string"/>
-            <xsd:element name="DefaultBrowser" type="xsd:string"/>
-            <xsd:element name="Root" type="xsd:boolean"/>
-            <xsd:element name="NetworkOperatorName" type="xsd:string"/>
-            <xsd:element name="SimOperatorName" type="xsd:string"/>
-            <xsd:element name="SimCount" type="xsd:int"/>
-            <xsd:element name="LocalIp" type="xsd:string"/>
-            <xsd:element name="SSID" type="xsd:string"/>
-            <xsd:element name="UserAgent" type="xsd:string"/>
+            <xsd:element name="Manufacturer" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="DeviceID" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Simulator" type="xsd:boolean" minOccurs="0"/>
+            <xsd:element name="Locale" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="DefaultBrowser" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Root" type="xsd:boolean" minOccurs="0"/>
+            <xsd:element name="NetworkOperatorName" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="SimOperatorName" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="SimCount" type="xsd:int" minOccurs="0"/>
+            <xsd:element name="LocalIp" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="SSID" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="UserAgent" type="xsd:string" minOccurs="0"/>
             <xsd:element name="Product" type="xsd:string"/>
             <!-- Ниже поля относящиеся к PayControl -->
-            <xsd:element name="TimeZone" type="xsd:string"/>
-            <xsd:element name="Latitude" type="xsd:string"/>
-            <xsd:element name="Longitude" type="xsd:string"/>
-            <xsd:element name="EventID" type="xsd:string"/>
-            <xsd:element name="SessionID" type="xsd:string"/>
+            <xsd:element name="TimeZone" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Latitude" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Longitude" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="EventID" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="SessionID" type="xsd:string" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
 
@@ -184,6 +205,8 @@
             <xsd:enumeration value="BLOCKED"/>
             <xsd:enumeration value="DISCONNECTING"/>
             <xsd:enumeration value="CLOSED"/>
+            <xsd:enumeration value="BLOCKED_SIM"/>
+            <xsd:enumeration value="BLOCKED_CLIENT"/>
         </xsd:restriction>
     </xsd:simpleType>
 
@@ -194,20 +217,13 @@
         </xsd:restriction>
     </xsd:simpleType>
 
-    <xsd:simpleType name="ClientRole">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="INFO"/>
-            <xsd:enumeration value="FULL"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-
     <xsd:simpleType name="ContactChannelType">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="PHONE"/>
             <xsd:enumeration value="EMAIL"/>
         </xsd:restriction>
     </xsd:simpleType>
-    
+
     <xsd:simpleType name="ContactKind">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="HOME"/>
@@ -223,6 +239,19 @@
             <xsd:enumeration value="PC"/>
             <xsd:enumeration value="Android"/>
             <xsd:enumeration value="IOS"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="ConfirmationISCodeType">
+        <xsd:annotation>
+            <xsd:documentation>1 - ДБО ФЛ, 2 - УС, 3 - OCRM ФЛ, 4 - САФ
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:positiveInteger">
+            <xsd:enumeration value="1" />
+            <xsd:enumeration value="2" />
+            <xsd:enumeration value="3" />
+            <xsd:enumeration value="4" />
         </xsd:restriction>
     </xsd:simpleType>
 </xsd:schema>
