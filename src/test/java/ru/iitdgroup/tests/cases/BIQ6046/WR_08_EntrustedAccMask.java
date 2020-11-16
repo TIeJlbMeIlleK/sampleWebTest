@@ -43,8 +43,8 @@ public class WR_08_EntrustedAccMask extends RSHBCaseTest {
     public void enableRules() {
         getIC().locateRules()
                 .openRecord(RULE_NAME)
-                .detach("Маски счетов")
-                .attach("Маски счетов", "Маски счетов доверенных получателей", "Equals", PAYMENT_MASK)
+                .detachWithoutRecording("Маски счетов")
+                .attachAddingValue("Маски счетов", "Маски счетов доверенных получателей", "Equals", PAYMENT_MASK)
                 .sleep(3);
         getIC().locateRules()
                 .selectVisible()

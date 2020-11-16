@@ -45,6 +45,38 @@ public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView<R
         driver.findElementByXPath(getGroupElement(group)).findElements(By.xpath("//a[text()='Show All']"))
                 .forEach(WebElement::click);
         sleep(3);
+        driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//input[@type='checkbox']")).click();
+        sleep(1);
+        driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Detach']")).click();
+        sleep(1);
+        driver.findElementByXPath("//button[2]/span[text()='Yes']").click();
+        sleep(3);
+        return getSelf();
+    }
+
+    public RuleRecord attach(String group, String field, String operator, String value) {
+        driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
+        waitUntil("//*[@title='Refresh']");
+        clearTableFilters();
+        setTableFilter(field, operator, value);
+        refreshTable();
+        sleep(2);
+        for (WebElement webElement : driver.findElementsByXPath("//a[text()='Show All']")) {
+            webElement.click();
+        }
+        sleep(2);
+        driver.executeScript("window.scrollTo(0, 10000)");
+        driver.findElementByXPath("//*[@class='af_column_header-icon-format']//input[1]").click();
+        driver.findElementByXPath("//a[@title='OK']").click();
+        waitUntil("//a[@id='btnEdit']");
+
+        return getSelf();
+    }
+
+    public RuleRecord detachWithoutRecording(String group) {
+        driver.findElementByXPath(getGroupElement(group)).findElements(By.xpath("//a[text()='Show All']"))
+                .forEach(WebElement::click);
+        sleep(3);
         if (driver.findElementsByXPath("//*[text()='No records were found.']").size() > 0) {
             return getSelf();
         }
@@ -58,7 +90,7 @@ public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView<R
         return getSelf();
     }
 
-    public RuleRecord attach(String group, String field, String operator, String value) {
+    public RuleRecord attachAddingValue(String group, String field, String operator, String value) {
         driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
         waitUntil("//*[@title='Refresh']");
         clearTableFilters();
