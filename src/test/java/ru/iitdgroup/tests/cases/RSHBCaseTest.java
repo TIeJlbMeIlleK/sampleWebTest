@@ -3,6 +3,7 @@ package ru.iitdgroup.tests.cases;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteMessaging;
 import org.apache.ignite.cluster.ClusterGroup;
+import org.junit.Assert;
 import org.openqa.selenium.Dimension;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -27,6 +28,7 @@ import java.sql.SQLException;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.junit.Assert.assertThat;
 import static org.testng.AssertJUnit.*;
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -224,7 +226,7 @@ public abstract class RSHBCaseTest {
     protected IC getIC() {
         if (ic == null) {
             ic = new IC(getProps());
-            ic.getDriver().manage().window().setSize(new Dimension(2000, 3000));
+            ic.getDriver().manage().window().setSize(new Dimension(2000, 10000));
         }
         return ic;
     }
@@ -294,6 +296,55 @@ public abstract class RSHBCaseTest {
             assertEquals(fieldId, result[0][0]);
             assertEquals(fieldName, result[0][1]);
             assertEquals(fieldValue, result[0][2]);
+        } catch (InterruptedException | SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected void assertClientEmailApply(String dboID, String email) {
+        try {
+            Thread.sleep(1000);
+
+            String[][] result = getDatabase()
+                    .select()
+                    .field("id")
+                    .field("AUTH_CHANGE_TIMESTAMP")
+                    .field("NOTIFICATION_EMAIL")
+                    .field("DATE_REGISTRATION")
+                    .from("Client")
+                    .with("DBO_ID", "=", dboID)
+                    .sort("AUTH_CHANGE_TIMESTAMP", false)
+                    .limit(1)
+                    .get();
+            assertNull(result[0][1]);//проверяет, что строка пустая
+            assertEquals(email, result[0][2]);//проверяет на наличе email в строке
+            assertNotNull(result[0][3]);//проверяет на наличе регистрационной даты в строке
+        } catch (InterruptedException | SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected void assertClientEmailChanged(String dboID, String email) {
+        try {
+            Thread.sleep(1000);
+
+            String[][] result = getDatabase()
+                    .select()
+                    .field("id")
+                    .field("AUTH_CHANGE_TIMESTAMP")
+                    .field("NOTIFICATION_EMAIL")
+                    .field("DATE_REGISTRATION")
+                    .from("Client")
+                    .with("DBO_ID", "=", dboID)
+                    .sort("AUTH_CHANGE_TIMESTAMP", false)
+                    .limit(1)
+                    .get();
+            assertNotNull(result[0][1]);//строка не пустая, есть запись даты изменения email
+            assertEquals(email, result[0][2]);//есть запись еmail
+            assertNotNull(result[0][3]);//есть дата регистрации клиента
+            Assert.assertNotEquals(result[0][1], result[0][3]);//даты регистрации и изменения email не равны
         } catch (InterruptedException | SQLException e) {
             e.printStackTrace();
             throw new IllegalStateException(e);

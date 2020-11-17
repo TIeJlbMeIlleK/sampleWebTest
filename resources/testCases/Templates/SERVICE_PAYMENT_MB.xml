@@ -27,7 +27,7 @@
             <ns4:AdditionalField>
                 <ns4:Id>ACCOUNT</ns4:Id>
                 <ns4:Name>vetka</ns4:Name>
-                <ns4:Value>3</ns4:Value>
+                <ns4:Value>0</ns4:Value>
             </ns4:AdditionalField>
         </ns4:ServicePayment>
         <ns4:InitialSourceAmount>99995955.23</ns4:InitialSourceAmount>

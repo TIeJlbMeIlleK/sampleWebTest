@@ -52,7 +52,7 @@ public class WR_08_EntrustedAccMask extends RSHBCaseTest {
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(5);
+                .sleep(15);
 
     }
 

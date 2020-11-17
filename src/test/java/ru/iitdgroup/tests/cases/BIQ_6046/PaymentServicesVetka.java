@@ -65,7 +65,9 @@ public class PaymentServicesVetka extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         updateTransactionAdditionalFields(transactionData, "ACCOUNT", "vetka", "1");
-
+        transactionData
+                .getServicePayment()
+                .getAdditionalField();
         sendAndAssert(transaction);
         assertTransactionAdditionalFieldApply(transactionData.getTransactionId(), "ACCOUNT", "vetka", "1");
     }
@@ -85,7 +87,9 @@ public class PaymentServicesVetka extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         updateTransactionAdditionalFields(transactionData, "ACCOUNT", "vetka", "0");
-
+        transactionData
+                .getServicePayment()
+                .getAdditionalField();
         sendAndAssert(transaction);
         assertTransactionAdditionalFieldApply(transactionData.getTransactionId(), "ACCOUNT", "vetka", "0");
     }
@@ -94,13 +98,6 @@ public class PaymentServicesVetka extends RSHBCaseTest {
     @Override
     protected String getRuleName() {
         return RULE_NAME;
-    }
-
-    private AdditionalFieldType getPhoneField(String phone) {
-        return new AdditionalFieldType()
-                .withId("ACCOUNT")
-                .withName("vetka")
-                .withValue(phone);
     }
 
     private Transaction getTransaction() {
@@ -119,20 +116,9 @@ public class PaymentServicesVetka extends RSHBCaseTest {
         for (AdditionalFieldType f : l) {
             if (f.getId().equals(id)) {
                 f.setValue(value);
+                f.setName(nameForNewField);
                 exists = true;
-            }
-        }
-        for (AdditionalFieldType k : l) {
-            if (k.getId().equals(id)) {
-                k.setName(nameForNewField);
-                exists = true;
-            }
-        }
-
-        for (AdditionalFieldType j : l) {
-            if (j.getId().equals(id)) {
-                j.setId(id);
-                exists = true;
+                break;
             }
         }
         if (!exists) {
