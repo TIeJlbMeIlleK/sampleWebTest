@@ -5,7 +5,7 @@
         xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
     <ns4:ServerInfo>
         <ns2:Ip>localhost</ns2:Ip>
-        <ns2:Port>8090</ns2:Port>
+        <ns2:Port>3005</ns2:Port>
     </ns4:ServerInfo>
     <ns4:TransactionData>
         <ns4:TransactionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(6)}</ns4:TransactionId>

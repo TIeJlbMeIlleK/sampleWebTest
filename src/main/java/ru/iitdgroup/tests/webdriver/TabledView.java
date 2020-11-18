@@ -68,6 +68,30 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
+    default S setNewTableFilterForTransactions(String field, String operator, String value) {
+        getSelf().getDriver().findElementByXPath("//*[@id=\"custom_tableReportFilters:custom_btnReportAddFilter\"]").click();
+        getSelf().getDriver().findElementByXPath("//*[@id=\"custom_tableReportFilters:1:cmdMoveUp\"]/img").click();
+        getSelf().sleep(2);
+
+        Select columnField = new Select(getSelf().getDriver()
+                .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
+                .findElements(By.className("af_selectOneChoice_content"))
+                .get(0));
+        columnField.selectByVisibleText(field);
+        getSelf().sleep(2);
+        Select operatorField = new Select(getSelf().getDriver()
+                .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
+                .findElements(By.className("af_selectOneChoice_content"))
+                .get(1));
+        operatorField.selectByVisibleText(operator);
+
+        getSelf().sleep(3);
+
+        getSelf().getDriver().findElementByXPath("//*[@id=\"custom_tableReportFilters:0:custom_cmbValue\"]").sendKeys(value);
+
+        return getSelf();
+    }
+
     //FIXME поправить в случае поля Active (пример Список клиентов)
     default S setTableFilterWithActive(String field, String operator, String value) {
         clearTableFilters();

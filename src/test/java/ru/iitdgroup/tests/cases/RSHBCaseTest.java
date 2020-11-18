@@ -295,6 +295,14 @@ public abstract class RSHBCaseTest {
                         .getText());
     }
 
+    protected void assertTableFieldInReportsTransaction(String fieldName, String expectedValue) {
+        assertEquals(
+                expectedValue,
+                getIC().getDriver()
+                        .findElementByXPath(String.format("//span[text()='%s']", fieldName))
+                        .getText());
+    }
+
     protected String copyThisLine(String fieldName){
         String result = String.format("//span[text()='%s']/../following::td", fieldName);
         return getIC().getDriver().findElementByXPath(result).getText();
