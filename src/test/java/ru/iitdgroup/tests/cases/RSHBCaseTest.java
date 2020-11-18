@@ -219,6 +219,41 @@ public abstract class RSHBCaseTest {
         return result;
     }
 
+    /**
+     * Возвращает поцизию (широта, долгота) клиента
+     * @param DBO_Id dbo-id клиента
+     * @return массив их двух чисел (latitude, longitude)
+     */
+    protected String[] getClientsPosition(String DBO_Id) {
+        try {
+            Thread.sleep(1000);
+            String[][] id = getDatabase()
+                    .select()
+                    .field("id")
+                    .from("Client")
+                    .with("DBO_ID", "=", "'" + DBO_Id + "'")
+                    .sort("id", false)
+                    .limit(1)
+                    .get();
+            String[][] result = getDatabase()
+                    .select()
+                    .field("LATITUDE")
+                    .field("LONGITUDE")
+                    .from("QUARANTINE_LOCATION")
+                    .with("CLIENT_FK", "=", id[0][0])
+                    .sort("id", false)
+                    .limit(1)
+                    .get();
+            String latitude = result[0][0].replace('.', ',');
+            String longitude = result[0][1].replace('.', ',');
+            return new String[] {latitude, longitude};
+
+        } catch (InterruptedException | SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
     protected TestProperties getProps() {
         return props;
     }

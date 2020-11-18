@@ -21,7 +21,12 @@ public class TableEdit extends AbstractEdit<TableEdit> implements TabledView {
     }
 
 
-
+    /**
+     * щелкает по значку Select, заходи в таблицу клиентов, выбирает нужного клиента по сортировке по ID
+     * @param fieldName название поля
+     * @param dboId Id клиента
+     * @return
+     */
     public TableEdit fillUser(String fieldName, String dboId) {
         icxpath()
                 .element(fieldName)
