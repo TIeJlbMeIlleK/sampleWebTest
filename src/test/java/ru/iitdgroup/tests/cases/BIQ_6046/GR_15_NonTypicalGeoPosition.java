@@ -25,7 +25,6 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
     private static final String IP_ADDRESS1 = "95.73.149.81";
     private static final String IP_ADDRESS2 = "95.24.51.82";
     private static final String NON_EXISTENT_IP_ADDRESS = "1.1.1.1";
-    private static final String IP_ADDRESS3 = "95.77.77.77";
     private static final String REFERENCE_ITEM3 = "(Rule_tables) Типичное расположение";
 
     private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
@@ -60,9 +59,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
                 .fillInputText("Значение:", "2")
                 .save();
 
-        getIC().locateTable(REFERENCE_ITEM2)//как спустится в браузере вниз? если не видит нужное...
-                .setTableFilter("Описание", "Equals", "Система, геоданные из которой будут использоваться. Если стоит Нет, то используются геоданные ВЭС.")
-                .refreshTable()
+        getIC().locateTable(REFERENCE_ITEM2)
                 .findRowsBy()
                 .match("Описание", "Система, геоданные из которой будут использоваться. Если стоит Нет, то используются геоданные ВЭС.")
                 .click()
@@ -76,7 +73,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
     )
     public void enableGIS() {
 
-        getIC().locateTable(REFERENCE_ITEM2)//как спустится в браузере вниз? если не видит нужное...
+        getIC().locateTable(REFERENCE_ITEM2)
                 .setTableFilter("Описание", "Equals", "Система, геоданные из которой будут использоваться. Если стоит Нет, то используются геоданные ВЭС.")
                 .refreshTable()
                 .findRowsBy()
@@ -227,7 +224,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
             description = "Провести транзакцию № 5 с несуществующего ip-адреса",
             dependsOnMethods = "step4"
     )
-
+    //TODO проверить после исправления
     public void step5() {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()

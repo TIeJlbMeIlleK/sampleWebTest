@@ -112,4 +112,14 @@ public abstract class AbstractView<S> {
                 .click();
         return this;
     }
+
+    public AbstractView<S>  refreshTab() {
+        getDriver()
+                .findElementByXPath("//img[@title='Refresh']")
+                .click();
+        return this;
+    }
+
+
+
 }

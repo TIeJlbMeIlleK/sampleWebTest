@@ -18,8 +18,7 @@ public class Record extends AbstractEdit<Record> implements TabledView<Record> {
 
     public TableEdit edit() {
         driver.findElement(By.xpath("//a[@id='btnEdit']/img")).click();
-        //FIXME: что-то в IC не успевает отрабатывать, и надо бы ловить это не задержкой по времени, а появлением соответствующего элемента на странице
-        sleep(0.5);
+        waitUntil("//a[@id='btnSave']");
         return new TableEdit(driver);
     }
 }
