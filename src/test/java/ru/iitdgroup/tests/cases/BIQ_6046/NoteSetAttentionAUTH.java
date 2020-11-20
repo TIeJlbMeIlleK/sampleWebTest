@@ -24,10 +24,10 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
 
-public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
+public class NoteSetAttentionAUTH extends RSHBCaseTest {
 
     private static final String RULE_NAME = "";
-    private static final String REFERENCE_ITEM = "(Policy_parameters) Шаблоны СМС";
+    private static final String REFERENCE_ITEM = "(System_tables) Действия по событиям от Сотовых операторов";
     private static final String SMS_TEMPLATE =
             "RSHB operatsiya na summu ${tx_amount} ${tx_isoCurCode} ${tx_isoCountryCode} priostanovlena. " +
                     "Dlya podtverzhdeniya pozvonite v bank po nomeru 88001000100 ili 84957265646 libo dozhdites zvonka";
@@ -39,8 +39,9 @@ public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
     private final List<String> clientIds = new ArrayList<>();
 
     @Test(
-            description = " Создать в справочнике \"Шаблоны СМС\" шаблон для отправки СМС, " +
-                    "Привязать шаблон к статусу Complete, резолюции CONTINUE и  включить LOG_SMS = 1"
+            description = "В справочнике «Действия по событиям от Сотовых операторов» добавлены запись по каждому оператору:\n" +
+                    "-- «Установить признак «Особое внимание», с любым, соответствующим оператору кодом события\n" +
+                    "-- Active = True"
 
     )
 
@@ -53,10 +54,13 @@ public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
 
         getIC().locateTable(REFERENCE_ITEM)
                 .addRecord()
-                .fillInputText("AlertStatus:", "Complete")
-                .fillInputText("AlertResolution:", "CONTINUE")
-                .fillInputText("Template:", SMS_TEMPLATE)
-                .save();
+                .fillUser("Код события:", "\"Блокировка по утере или краже")
+                .refresh()
+                .setTableFilter("Description", "Equals", "\"Блокировка по утере или краже")
+                .refreshTab();
+//                .refresh()
+//                .fillUser("Код события:", "\"Блокировка по утере или краже")
+//                .doAction("Действие включено:");
 
         getIC().locateTable(REFERENCE_ITEM2)
                 .findRowsBy()

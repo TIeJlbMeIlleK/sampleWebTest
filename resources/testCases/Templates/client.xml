@@ -11,36 +11,36 @@
         <ns3:ConfirmationISCode>2</ns3:ConfirmationISCode>
         <ns3:ConfirmationDate>2020-02-06T12:59:06.314+03:00</ns3:ConfirmationDate>-->
       <ns3:ClientIds>
-        <ns2:DboId>306</ns2:DboId>
-        <ns2:EksId>306</ns2:EksId>
+        <ns2:DboId>315</ns2:DboId>
+        <ns2:EksId>315</ns2:EksId>
         <ns2:AlfaIds>
-          <ns2:AlfaId>306</ns2:AlfaId>
+          <ns2:AlfaId>315</ns2:AlfaId>
         </ns2:AlfaIds>
-        <ns2:CifId>306</ns2:CifId>
-        <ns2:ExpertSystemId>306</ns2:ExpertSystemId>
-        <ns2:LoginHash>306</ns2:LoginHash>
+        <ns2:CifId>315</ns2:CifId>
+        <ns2:ExpertSystemId>315</ns2:ExpertSystemId>
+        <ns2:LoginHash>315</ns2:LoginHash>
       </ns3:ClientIds>
       <ns3:FirstName>Иван</ns3:FirstName>
       <ns3:LastName>Иванов</ns3:LastName>
       <ns3:MiddleName>Иванович</ns3:MiddleName>
       <ns3:Sex>M</ns3:Sex>
       <ns3:BirthDate>1996-07-19+03:00</ns3:BirthDate>
-      <ns3:Birthplace>г.Ташкент Узбекистан</ns3:Birthplace>
+      <ns3:Birthplace>г.Москва РФ</ns3:Birthplace>
       <ns3:Citizenship/>
       <ns3:INN/>
       <ns3:Resident>true</ns3:Resident>
-      <ns3:Login>ivashka306</ns3:Login>
+      <ns3:Login>abrakadabra25</ns3:Login>
       <ns3:PasswordHash>78B1C90455C0021CFEA2282B4DAA847572FF15</ns3:PasswordHash>
       <ns3:Role>FULL</ns3:Role>
       <ns3:useOTPForLoginAction>true</ns3:useOTPForLoginAction>
       <ns3:useOTPForOtherAction>true</ns3:useOTPForOtherAction>
-      <ns3:LastUpdateDate>2020-10-08T00:01:00.111+03:00</ns3:LastUpdateDate>
+      <ns3:LastUpdateDate>2020-11-20T00:01:00.111+03:00</ns3:LastUpdateDate>
     </ns3:Client>
     <ns3:ContactInfo>
       <ns3:Contact>
         <ns3:ContactChannel>EMAIL</ns3:ContactChannel>
         <ns3:ContactKind>NOTIFICATION</ns3:ContactKind>
-        <ns3:Value>qw2222306e@mail.ru</ns3:Value>
+        <ns3:Value>vfvfvfvf@mail.ru</ns3:Value>
       </ns3:Contact>
       <ns3:Contact>
         <ns3:ContactChannel>PHONE</ns3:ContactChannel>

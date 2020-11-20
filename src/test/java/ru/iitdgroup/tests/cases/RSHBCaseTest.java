@@ -13,7 +13,6 @@ import ru.iitdgroup.tests.apidriver.DBOAntiFraudWS;
 import ru.iitdgroup.tests.apidriver.Template;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.dbdriver.Database;
-import ru.iitdgroup.tests.dbdriver.With;
 import ru.iitdgroup.tests.ignitedriver.SampleIgnite;
 import ru.iitdgroup.tests.properties.TestProperties;
 import ru.iitdgroup.tests.webdriver.ic.IC;
@@ -25,7 +24,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertThat;
@@ -305,6 +303,41 @@ public abstract class RSHBCaseTest {
         String[][] dbResult = getResults(getRuleName());
         assertEquals(ruleResult, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
+    }
+
+    /**
+     * Возвращает информацию о последнем отправленном СМС
+     * @return массив:
+     * [id,
+     * JMS_CORRELATION_ID,
+     * JMS_MESSAGE_ID,
+     * MESSAGE,
+     * MESSAGE_DATE,
+     * MSISDN,
+     * SECRET_KEY_DATE,
+     * SMS_SECRET_KEY_FK]
+     */
+    protected String[] getLastSentSMSInformation() {
+        try {
+             String[][] results = getDatabase()
+                    .select()
+                    .field("id")
+                    .field("JMS_CORRELATION_ID")
+                    .field("JMS_MESSAGE_ID")
+                    .field("MESSAGE")
+                    .field("MESSAGE_DATE")
+                    .field("MSISDN")
+                    .field("SECRET_KEY_DATE")
+                    .field("SMS_SECRET_KEY_FK")
+                    .from("SMS_MESSAGE")
+                    .sort("MESSAGE_DATE", false)
+                    .limit(1)
+                    .get();
+             return results[0];
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
     }
 
     protected void assertTransactionAdditionalFieldApply(String transactionID, String fieldId, String fieldName, String fieldValue) {
