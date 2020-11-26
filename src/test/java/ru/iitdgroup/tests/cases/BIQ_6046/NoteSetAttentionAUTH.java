@@ -28,15 +28,15 @@ public class NoteSetAttentionAUTH extends RSHBCaseTest {
 
     private static final String RULE_NAME = "";
     private static final String REFERENCE_ITEM = "(System_tables) Действия по событиям от Сотовых операторов";
-    private static final String SMS_TEMPLATE =
-            "RSHB operatsiya na summu ${tx_amount} ${tx_isoCurCode} ${tx_isoCountryCode} priostanovlena. " +
-                    "Dlya podtverzhdeniya pozvonite v bank po nomeru 88001000100 ili 84957265646 libo dozhdites zvonka";
-    private static final String REFERENCE_ITEM2 = "(System_parameters) Интеграционные параметры";
-    private static final String AUTH_PHONE = "79250252525";
-    private static final String NOTIFICATION_PHONE = "79250333333";
+    private static final String AUTH_PHONE_MTS = "+79101001010";
+    private static final String AUTH_PHONE_VIMPEL = "+79202002020";
+    private static final String AUTH_PHONE_TELE2 = "+79303003030";
+    private static final String AUTH_PHONE_MEGAFON = "+79104004040";
+
 
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
+
 
     @Test(
             description = "В справочнике «Действия по событиям от Сотовых операторов» добавлены запись по каждому оператору:\n" +
@@ -54,60 +54,59 @@ public class NoteSetAttentionAUTH extends RSHBCaseTest {
 
         getIC().locateTable(REFERENCE_ITEM)
                 .addRecord()
-                .fillUser("Код события:", "\"Блокировка по утере или краже")
-                .refresh()
-                .setTableFilter("Description", "Equals", "\"Блокировка по утере или краже")
-                .refreshTab();
-//                .refresh()
-//                .fillUser("Код события:", "\"Блокировка по утере или краже")
-//                .doAction("Действие включено:");
-
-        getIC().locateTable(REFERENCE_ITEM2)
-                .findRowsBy()
-                .match("Описание", "Логирование сообщений SMS шлюза (in/out)")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "1").save();
-    }
-
-    @Test(
-            description = "Включить все правила и установить cutting score 1",
-            dependsOnMethods = "editReferenceData"
-    )
-    public void enableRules() {
-        getIC().locateRules()
-                .selectVisible()
-                .activate()
-                .sleep(5);
-        getIC().locateScoringModels()
-                .openRecord("Подозрительная транзакция")
-                .edit()
-                .fillInputText("Cutting score:", "1")
+                .fillFromExistingValues("Код события:", "Description", "Equals", "\"Блокировка по утере или краже")
+                .select("Реакция:", "SET_ATTENTION")
+                .fillCheckBox("Действие включено:", true)
                 .save();
+        getIC().locateTable(REFERENCE_ITEM)
+                .addRecord()
+                .fillFromExistingValues("Код события:", "Description", "Equals", "Заключительная блокировка")
+                .select("Реакция:", "SET_ATTENTION")
+                .fillCheckBox("Действие включено:", true)
+                .save();
+        getIC().locateTable(REFERENCE_ITEM)
+                .addRecord()
+                .fillFromExistingValues("Код события:", "Description", "Equals", "Блокировка перед расторжением (MNP)")
+                .select("Реакция:", "SET_ATTENTION")
+                .fillCheckBox("Действие включено:", true)
+                .save();
+        getIC().locateTable(REFERENCE_ITEM)
+                .addRecord()
+                .fillFromExistingValues("Код события:", "Description", "Equals", "Телефон заражен")
+                .select("Реакция:", "SET_ATTENTION")
+                .fillCheckBox("Действие включено:", true)
+                .save();
+        getIC().close();
     }
 
 
     @Test(
-            description = "Создаем клиента и меняем телефон для уведомления" +
-                    "(указываем новый отличный от аутентификации, если уже был указан)",
-            dependsOnMethods = "enableRules"
+            description = "Создать по одному клиенту от каждого оператора связи с Активными телефономи в роли AUTH",
+            dependsOnMethods = "editReferenceData"
     )
     public void step0() {
         try {
-            for (int i = 0; i < 1; i++) {
+            for (int i = 0; i < 4; i++) {
                 //FIXME Добавить проверку на существование клиента в базе
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
                 Client client = new Client("testCases/Templates/client.xml");
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withFirstName("Ольга")
-                        .withLastName("Кузина")
-                        .withMiddleName("Васильевна")
                         .getClientIds()
                         .withDboId(dboId);
 
-                updatePhones(client);
+                for (ContactType c : client.getData().getClientData().getContactInfo().getContact()) {
+                    if (c.getContactKind().value().equals("AUTH") && i == 0) {
+                        c.setValue(AUTH_PHONE_MTS);
+                    } else if (c.getContactKind().value().equals("AUTH") && i == 1) {
+                        c.setValue(AUTH_PHONE_TELE2);
+                    } else if (c.getContactKind().value().equals("AUTH") && i == 2) {
+                        c.setValue(AUTH_PHONE_VIMPEL);
+                    } else if (c.getContactKind().value().equals("AUTH") && i == 3) {
+                        c.setValue(AUTH_PHONE_MEGAFON);
+                    }
+                }
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -117,38 +116,37 @@ public class NoteSetAttentionAUTH extends RSHBCaseTest {
         }
     }
 
-
     @Test(
-            description = "Отправить транзакцю. Открыть алерт и выполнить созданный Action (отправить СМС)",
+            description = "Отправить сообщение от ОСС с кодом события из предусловия по Телефонам, от соответствующих операторов",
             dependsOnMethods = "step0"
     )
 
     public void step1() {
-        String lastSMSId = getLastSentSMSInformation()[0];
-
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-
-        sendAndAssert(transaction);
-
-        getIC().locateAlerts()
-                .openFirst()
-                .action("SEND_SMS")
-                .sleep(2);
-
-        getIC().locateReports()
-                .openFolder("Системные отчеты")
-                .openFolder("Логированные сообщения");//визуально увидеть отправку СМС
-
-        getIC().close();
+//        String lastSMSId = getLastSentSMSInformation()[0];
+//
+//        Transaction transaction = getTransaction();
+//        TransactionDataType transactionData = transaction.getData().getTransactionData()
+//                .withRegular(false);
+//        transactionData
+//                .getClientIds()
+//                .withDboId(clientIds.get(0));
+//
+//        sendAndAssert(transaction);
+//
+//        getIC().locateAlerts()
+//                .openFirst()
+//                .action("SEND_SMS")
+//                .sleep(2);
+//
+//        getIC().locateReports()
+//                .openFolder("Системные отчеты")
+//                .openFolder("Логированные сообщения");//визуально увидеть отправку СМС
+//
+//        getIC().close();
 
         String[] lastSMS = getLastSentSMSInformation(); //в переменной информация о последней переданной СМС
-        Assert.assertNotEquals(lastSMSId, lastSMS[0]);//проверка отличия ID от предыдущего отправленного СМС
-        assertEquals(NOTIFICATION_PHONE, lastSMS[5]);//проверка отправки смс по номеру телефона
+        //Assert.assertNotEquals(lastSMSId, lastSMS[0]);//проверка отличия ID от предыдущего отправленного СМС
+        // assertEquals(NOTIFICATION_PHONE, lastSMS[5]);//проверка отправки смс по номеру телефона
         String SMStext = lastSMS[3];//текст смс
         assertFalse(SMStext.contains("${tx_amount}"));//проверка смс, что в ней не содержатся такие строки
         assertFalse(SMStext.contains("${tx_isoCurCode}"));
@@ -165,48 +163,7 @@ public class NoteSetAttentionAUTH extends RSHBCaseTest {
         return RULE_NAME;
     }
 
-    private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_MOBILE.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
-    }
-
-    private void updatePhones(Client client) {
-        List<ContactType> contacts = client.getData().getClientData()
-                .getContactInfo()
-                .getContact();
-
-        boolean authExist = false;
-        boolean notificExist = false;
-        for (ContactType contact : contacts) {
-            if (contact.getContactChannel() == ContactChannelType.PHONE &&
-                    contact.getContactKind() == ContactKind.AUTH) {
-                contact.setValue(AUTH_PHONE);
-                authExist = true;
-                break;
-            }
-        }
-        if (!authExist) {
-            contacts.add(new ContactType()
-                    .withContactChannel(ContactChannelType.PHONE)
-                    .withContactKind(ContactKind.AUTH)
-                    .withValue(AUTH_PHONE));
-        }
-        for (ContactType contact : contacts) {
-            if (contact.getContactChannel() == ContactChannelType.PHONE &&
-                    contact.getContactKind() == ContactKind.NOTIFICATION) {
-                contact.setValue(NOTIFICATION_PHONE);
-                notificExist = true;
-                break;
-            }
-        }
-        if (!notificExist) {
-            contacts.add(new ContactType()
-                    .withContactChannel(ContactChannelType.PHONE)
-                    .withContactKind(ContactKind.NOTIFICATION)
-                    .withValue(NOTIFICATION_PHONE));
-        }
+    private Transaction getMessage() {
+        return getMessage();
     }
 }
