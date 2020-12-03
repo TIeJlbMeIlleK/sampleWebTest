@@ -1,7 +1,7 @@
 {
         "uuid": "9265faf0-8974-11ea-be28-e52c21e9dc49",
         "customer_id": 122,
-        "type_id": 4,
+        "type_id": 46,
         "type_title": "Вход в личный кабинет",
         "risk_level": "LOW",
         "time": "2020-05-28T20:20:35+03:00",

@@ -154,6 +154,17 @@ public abstract class RSHBCaseTest {
     protected static final String RULE_CONDITIONS_NOT_MET = "Условия правила не выполнены";
     protected static final String SCENARIO_BLOCK_TRUE = "Выражение блока сценариев ИСТИННО!";
     protected static final String MAX_PERIOD_BETWEEN_PASSWORD_RECOVERY_FIRST_TRANSACTION = "Превышен период между моментом восстановления доступа к ДБО и первой транзакцией серии";
+    protected static final String FALSE_EX_IR2 = "Клиент не иcключён из проверки";
+    protected static final String EX_IR2 = "Клиент исключен из проверки";
+    protected static final String DISABLED_INTEGR_VES_NEW = "Правило не применяется, в системе выключена проверка IntegrVES2";
+    protected static final String RESULT_FEW_DATA_NEW = "Не достаточно данных";
+    protected static final String RESULT_ALERTS = "В ответе ВЕС присутствует признак 'Анормальная смена устройства' или 'Новое устройство у клиента'";
+    protected static final String RESULT_HAS_TRANSACTIONS_NEW = "Найдена транзакция с этого устройства, сделанная другим клиентом. " +
+            "Устройство не находится в списке доверенных для текущего клиента.";
+    protected static final String RESULT_EXIST_QUARANTINE_LOCATION_FOR_IP = "Местоположение уже находится в карантине";
+
+
+
 
 
 

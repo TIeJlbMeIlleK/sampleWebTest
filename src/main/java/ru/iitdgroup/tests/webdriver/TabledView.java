@@ -39,7 +39,8 @@ public interface TabledView<S extends AbstractView> {
 
         getSelf().sleep(3);
 
-        getSelf().icxpath().element("Value").following(ICXPath.WebElements.INPUT).type(value);
+//        getSelf().icxpath().element("Value").following(ICXPath.WebElements.INPUT).type(value);
+        getSelf().getDriver().findElementByXPath("//*[@id=\"custom_tableReportFilters:0:custom_cmbValue\"]").sendKeys(value);
 
         return getSelf();
     }

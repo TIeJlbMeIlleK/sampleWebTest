@@ -99,6 +99,12 @@ public abstract class AbstractView<S> {
         return this;
     }
 
+    public AbstractView<S> getActionsForClient(){
+        getDriver()
+                .findElementByXPath("//span[text()='Actions']").click();
+        return this;
+    }
+
     public AbstractView<S> doAction(String text) {
         getDriver()
                 .findElementByXPath("//*[@id=\"qtip-0-content\"]/a[text()='"+text+"']")
@@ -110,6 +116,7 @@ public abstract class AbstractView<S> {
         getDriver()
                 .findElementByXPath("/html/body/div[16]/div[3]/div/button[2]/span")
                 .click();
+        sleep(5);
         return this;
     }
 }

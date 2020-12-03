@@ -67,6 +67,18 @@ public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView<R
         return getSelf();
     }
 
+    public RuleRecord attachVESCode46(String group) {
+        driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
+        waitUntil("//*[@title='Refresh']");
+        refreshTable();
+        sleep(2);
+        driver.findElementByXPath("//span[text()='Вход в ДБО']").click();
+        driver.findElementByXPath("//span[text()='Select']").click();
+        driver.findElementByXPath("//a[@title='OK']").click();
+        waitUntil("//a[@id='btnEdit']");
+        return getSelf();
+    }
+
     public String getGroupElement(String group) {
         return String.format("//div[@class='%s' and text()='%s']", "customTitle ellipsisContent", group);
     }

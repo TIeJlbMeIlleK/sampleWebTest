@@ -73,6 +73,13 @@ public class Rabbit implements AutoCloseable {
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").clear();
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").sendKeys(getVesResponse());
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/input[4]").click();
+        driver.findElementByXPath("//span[text()='Close']").click();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").clear();
+        return this;
+    }
+
+    public Rabbit closePublishMessage(){
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
         return this;
     }
 
