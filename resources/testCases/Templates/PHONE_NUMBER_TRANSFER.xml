@@ -18,7 +18,7 @@
             <ns2:AlfaId>251</ns2:AlfaId>
          </ns2:AlfaIds>
       </ns4:ClientIds>
-      <ns4:DocumentSaveTimestamp>2020-06-03T08:00:00.000+03:00</ns4:DocumentSaveTimestamp>
+      <ns4:DocumentSaveTimestamp>2020-12-03T12:15:00.000+03:00</ns4:DocumentSaveTimestamp>
       <ns4:DocumentNumber>1</ns4:DocumentNumber>
       <ns4:Type>PHONE_NUMBER_TRANSFER</ns4:Type>
       <ns4:Regular>false</ns4:Regular>
