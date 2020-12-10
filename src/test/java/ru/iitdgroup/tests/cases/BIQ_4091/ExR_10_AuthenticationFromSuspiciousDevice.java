@@ -28,7 +28,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     private static final String Table_IFV = "(Rule_tables) Подозрительные устройства IdentifierForVendor";
     private static final String Table_IMEI = "(Rule_tables) Подозрительные устройства IMEI";
     private static final String Table_IMSI = "(Rule_tables) Подозрительные устройства IMSI";
-    private static final String DFP = (ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 25);
+    private static final String DFP = (ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15);
     private static final String IFV = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
     private static final String IMEI = (ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15);
     private static final String IMSI = (ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15);
@@ -124,7 +124,12 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                         .getClient().withLogin(dboId)
                         .getClientIds()
                         .withLoginHash(dboId)
-                        .withDboId(dboId);
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
                 sendAndAssert(client);
                 clientIds.add(dboId);
             }
@@ -185,14 +190,6 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
         transactionData.getClientDevice()
                 .getIOS()
                 .setAuthByFingerprint(false);
-        String sessionID = transactionData.getSessionId();
-        getRabbit().setVesResponse(getRabbit().getVesResponse()
-                .replaceAll("46","46")
-                .replaceAll("ilushka305",clientIds.get(0))
-                .replaceAll("305",clientIds.get(0))
-                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",sessionID));
-        getRabbit()
-                .sendMessage();
         sendAndAssert(transaction);
         try {
             Thread.sleep(12_000);
@@ -234,15 +231,6 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
         transactionData.getClientDevice()
                 .getAndroid()
                 .setIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
-        String sessionID = transactionData.getSessionId();
-        getRabbit().setVesResponse(getRabbit().getVesResponse()
-                .replaceAll("46","46")
-                .replaceAll("ilushka305",clientIds.get(1))
-                .replaceAll("305",clientIds.get(1))
-                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",sessionID));
-        getRabbit()
-                .closePublishMessage()
-                .sendMessage();
         sendAndAssert(transaction);
         try {
             Thread.sleep(12_000);
@@ -269,7 +257,6 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
             e.printStackTrace();
         }
 
-
         Transaction transaction = getTransactionREQUEST_FOR_GOSUSLUGI();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -282,15 +269,6 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
         transactionData.getClientDevice()
                 .getAndroid()
                 .setIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
-        String sessionID = transactionData.getSessionId();
-        getRabbit().setVesResponse(getRabbit().getVesResponse()
-                .replaceAll("46","46")
-                .replaceAll("ilushka305",clientIds.get(2))
-                .replaceAll("305",clientIds.get(2))
-                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",sessionID));
-        getRabbit()
-                .closePublishMessage()
-                .sendMessage();
         sendAndAssert(transaction);
         try {
             Thread.sleep(12_000);
@@ -307,9 +285,12 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     public void transaction4() {
 //        TODO требуется перепроверить после исправления взведения флага при поступлении подозрительного DFP
         Authentication authentication = getAuthentication();
-        authentication
-                .getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(3));
+        authentication.getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(3));
         authentication.getData().getClientAuthentication().setSessionId(DFP);
+        authentication.getData().getClientAuthentication().setLogin(clientIds.get(3));
+        authentication.getData().getClientAuthentication().getClientIds().setLoginHash(clientIds.get(3));
+        authentication.getData().getClientAuthentication().getClientIds().setCifId(clientIds.get(3));
+        authentication.getData().getClientAuthentication().getClientIds().setEksId(clientIds.get(3));
         sendAndAssert(authentication);
         getRabbit().setVesResponse(getRabbit().getVesResponse()
                 .replaceAll("46","46")
@@ -317,7 +298,6 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .replaceAll("305",clientIds.get(3))
                 .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",DFP));
         getRabbit()
-                .closePublishMessage()
                 .sendMessage();
         try {
             Thread.sleep(2_000);
@@ -337,15 +317,6 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
         transactionData.getClientDevice()
                 .getAndroid()
                 .setIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
-        String sessionID = transactionData.getSessionId();
-        getRabbit().setVesResponse(getRabbit().getVesResponse()
-                .replaceAll("46","46")
-                .replaceAll("ilushka305",clientIds.get(3))
-                .replaceAll("305",clientIds.get(3))
-                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",sessionID));
-        getRabbit()
-                .closePublishMessage()
-                .sendMessage();
         sendAndAssert(transaction);
         try {
             Thread.sleep(12_000);
@@ -357,7 +328,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить аутентификацию с сессией № 4 для клиента № 4 с подозрительного DFP",
+            description = "Отправить аутентификацию с сессией № 4 для клиента № 4 не с подозрительного DFP",
             dependsOnMethods = "transaction4"
     )
     public void transaction5() {
@@ -398,7 +369,6 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .replaceAll("305",clientIds.get(4))
                 .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",sessionID));
         getRabbit()
-                .closePublishMessage()
                 .sendMessage();
         getRabbit().close();
         sendAndAssert(transaction);

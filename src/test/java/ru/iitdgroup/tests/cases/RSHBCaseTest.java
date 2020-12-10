@@ -162,6 +162,12 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_HAS_TRANSACTIONS_NEW = "Найдена транзакция с этого устройства, сделанная другим клиентом. " +
             "Устройство не находится в списке доверенных для текущего клиента.";
     protected static final String RESULT_EXIST_QUARANTINE_LOCATION_FOR_IP = "Местоположение уже находится в карантине";
+    protected static final String RESULT_RULE_NOT_APPLY_NO_TYPE_TRANZACTION = "Правило не применилось (Метод не возвращает суммы для данного типа транзакции): ";
+    protected static final String NOT_APPLY_SUCH_TRANSACTION_TYPE = "Правило не применяется для данного типа транзакции";
+    protected static final String WRONG_TRANSACTION_TYPE = "Не тот тип транзакции";
+    protected static final String EXIST_TRUSTED_DEVICE_MSG = "Устройство клиента найдено в списке ранее использовавшихся";
+
+
 
 
 

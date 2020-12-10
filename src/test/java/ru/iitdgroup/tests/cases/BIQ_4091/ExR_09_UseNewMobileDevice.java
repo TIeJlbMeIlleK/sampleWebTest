@@ -52,7 +52,12 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                         .getClient().withLogin(dboId)
                         .getClientIds()
                         .withLoginHash(dboId)
-                        .withDboId(dboId);
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
                 sendAndAssert(client);
                 clientIds.add(dboId);
             }
@@ -153,14 +158,13 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",DFP_FOR_ANDROID));
         getRabbit()
                 .sendMessage();
-        getRabbit().close();
         sendAndAssert(transaction);
         try {
             Thread.sleep(12_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_ANDROID_DEVICE);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_DEVICE_MSG);
     }
 
     @Test(
@@ -187,14 +191,13 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",DFP_FOR_IOC));
         getRabbit()
                 .sendMessage();
-        getRabbit().close();
         sendAndAssert(transaction);
         try {
-            Thread.sleep(3_000);
+            Thread.sleep(12_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_IFV);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_DEVICE_MSG);
     }
     @Test(
             description = "Провести транзакцию № 3 с устройства № 3(Android) от клиента № 1",
@@ -223,7 +226,6 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",sessionID));
         getRabbit()
                 .sendMessage();
-        getRabbit().close();
         sendAndAssert(transaction);
         try {
             Thread.sleep(12_000);
