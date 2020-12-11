@@ -3,13 +3,16 @@ package ru.iitdgroup.tests.cases.BIQ_6046;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.openqa.selenium.TimeoutException;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
+import ru.iitdgroup.tests.webdriver.referencetable.Record;
+import ru.iitdgroup.tests.webdriver.referencetable.Table;
+import org.openqa.selenium.TimeoutException;
 import ru.iitdgroup.tests.webdriver.administration.WorkflowAction;
+import ru.iitdgroup.tests.webdriver.report.ReportRecord;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -19,20 +22,22 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.testng.AssertJUnit.*;
+
+
 public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBCaseTest {
 
-    private static final String RULE_NAME = "R01_ExR_04_InfectedDevice";
+    private static final String RULE_NAME = "R01_ExR_07_Devices";
     private static final String REFERENCE_ITEM1 = "(System_parameters) Интеграционные параметры";
-    private static final String LOGIN_HASH = "777";
-    private static final String LOGIN = "korol777";
-    private static final String SESSION_ID = "popopo777";
-    private static final String UNIQUENAME = "SEND_FROM_VES";
-    private static String TRANSACTION_ID1;
-    private static String TRANSACTION_ID2;
+    private static final String LOGIN_HASH = "345";
+    private static final String LOGIN = "popopo345";
+    private static final String SESSION_ID = "555krl345";
+    private static final String UNIQUENAME = "SEND_FROM_VES1";
 
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
-    private String workflowRecordUniqueName = "";
+    private String workflowRecordUniqueName;
+    private String lastVESFeedbackIdBeforeTest;
 
 
     @Test(
@@ -59,6 +64,7 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
         while (!savedSuccessfully) {
             try {
                 record.setDisplayName(recordUniqueName);
+                record.getUniqueName();
                 record.setUniqueName(recordUniqueName);
                 record.save();
                 savedSuccessfully = true;
@@ -75,21 +81,32 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
     )
     public void addClient() {
         try {
-            for (int i = 0; i < 1; i++) {
+            for (int i = 0; i < 2; i++) {
                 String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
                 Client client = new Client("testCases/Templates/client.xml");
-
-                client.getData().getClientData().getClient()
-                        .getClientIds()
-                        .withLoginHash(LOGIN_HASH);
-                client.getData().getClientData().getClient()
-                        .withFirstName("Зинаида")
-                        .withLastName("Любимова")
-                        .withMiddleName("Марковна")
-                        .withLogin(LOGIN)
-                        .getClientIds()
-                        .withDboId(dboId);
-
+                if (i == 0) {
+                    client.getData().getClientData().getClient()
+                            .getClientIds()
+                            .withLoginHash(LOGIN_HASH);
+                    client.getData().getClientData().getClient()
+                            .withFirstName("Ирина")
+                            .withLastName("Любимова")
+                            .withMiddleName("Марковна")
+                            .withLogin(LOGIN)
+                            .getClientIds()
+                            .withDboId(dboId);
+                } else {
+                    client.getData().getClientData().getClient()
+                            .getClientIds()
+                            .withLoginHash(LOGIN_HASH + "1");
+                    client.getData().getClientData().getClient()
+                            .withFirstName("Ольга")
+                            .withLastName("Любимкина")
+                            .withMiddleName("Марковна")
+                            .withLogin(LOGIN + "1")
+                            .getClientIds()
+                            .withDboId(dboId);
+                }
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -100,7 +117,7 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
     }
 
     @Test(
-            description = "отправка сообщения ВЭС с Раббита",
+            description = "отправка сообщения ВЭС с Раббита на 2 клиентов",
             dependsOnMethods = "addClient"
     )
 
@@ -116,7 +133,17 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
             String newStr = json.toString();
             getRabbit().setVesResponse(newStr);
             getRabbit().sendMessage();
+
+            json.put("login", LOGIN + "1");
+            json.put("login_hash", LOGIN_HASH + "1");
+            json.put("session_id", SESSION_ID + "1");
+            json.put("device_hash", SESSION_ID + "1");
+            newStr = json.toString();
+            getRabbit().setVesResponse(newStr);
+            getRabbit().sendMessage();
+
             getRabbit().close();
+
         } catch (JSONException e) {
             throw new IllegalStateException();
         }
@@ -168,8 +195,23 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
     }
 
     @Test(
+            description = "В логированных сообщениях для будующей проверки " +
+                    "сохраняем последний Идентификатор,поступивший от VES_FEEDBACKt",
+            dependsOnMethods = "enableVES2"
+    )
+    public void saveLastVESFeedbackId() {
+        lastVESFeedbackIdBeforeTest = getIC()
+                .locateReports()
+                .openFolder("Системные отчеты")
+                .openRecord("Логированные сообщения")
+                .setTableFilter("Тип сервиса", "Equals", "VES_FEEDBACK")
+                .getLastRecordIdentificator();
+
+    }
+
+    @Test(
             description = "Выключить: VES_FFEDBACK = 0",
-            dependsOnMethods = "goToLoggedMessages"
+            dependsOnMethods = "goToLoggedMessages1"
     )
     public void turnOffVES2() {
 
@@ -185,14 +227,11 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
 
     @Test(
             description = " Отправить транзакцию № 1 от клиента №1 ",
-            dependsOnMethods = "enableVES2"
+            dependsOnMethods = "saveLastVESFeedbackId"
     )
 
     public void step0() {
         Transaction transaction = getTransaction();
-        String transaction_id = transaction.getData().getTransactionData().getTransactionId();
-        TRANSACTION_ID1 = transaction_id;
-
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
@@ -212,15 +251,13 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
 
     public void step1() {
         Transaction transaction = getTransaction();
-        String transaction_id = transaction.getData().getTransactionData().getTransactionId();
-        TRANSACTION_ID2 = transaction_id;
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getClientIds().withLoginHash(LOGIN_HASH);
-        transactionData.withSessionId(SESSION_ID);
+                .withDboId(clientIds.get(1));
+        transactionData.getClientIds().withLoginHash(LOGIN_HASH + "1");
+        transactionData.withSessionId(SESSION_ID + "1");
 
         sendAndAssert(transaction);
     }
@@ -231,9 +268,9 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
             dependsOnMethods = "step0"
     )
 
-    public void goToAletrt() {
+    public void goToAletrt1() {
         getIC()
-                .locateAlerts().sleep(10)
+                .locateAlerts()
                 .openFirst()
                 .action("Мошенничество")
                 .goToTransactionPage()
@@ -242,20 +279,57 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
     }
 
     @Test(
-            description = "Проверить логированные сообщения на отправку сообщения ВЭС"
-//            dependsOnMethods = "goToAletrt"
+            description = "Перейти в сформированный алерт и проставить Статус = Обработано, Резолюция = Мошенничество и" +
+                    "Перейти в транзакцию №2 и выполнить Action Send_from_VES",
+            dependsOnMethods = "step1"
     )
 
-    public void goToLoggedMessages() {
+    public void goToAletrt2() {
         getIC()
+                .locateAlerts()
+                .openFirst()
+                .action("Мошенничество")
+                .goToTransactionPage()
+                .action(workflowRecordUniqueName)
+                .sleep(3);
+    }
+
+    @Test(
+            description = "Проверить логированные сообщения на отправку сообщения ВЭС",
+            dependsOnMethods = "goToAletrt1"
+    )
+
+    public void goToLoggedMessages1() {
+        ReportRecord recordsPage = getIC()
                 .locateReports()
                 .openFolder("Системные отчеты")
                 .openRecord("Логированные сообщения")
-                .filterDeactivation1()
-                .filterDeactivation2()
-                .setTableFilter("Смежная система", "Equals", "VES")
-                .refreshTable().sleep(3)
-        ;
+                .setTableFilter("Тип сервиса", "Equals", "VES_FEEDBACK");
+        String lastId = recordsPage
+                .getLastRecordIdentificator();
+
+        assertNotSame(lastVESFeedbackIdBeforeTest, lastId);
+        lastVESFeedbackIdBeforeTest = lastId;
+
+        String success = recordsPage.getLastRecordSuccess();
+        assertEquals(success, "Yes");
+    }
+
+    @Test(
+            description = "Проверить логированные сообщения на отправку сообщения ВЭС",
+            dependsOnMethods = "goToAletrt2"
+    )
+
+    public void goToLoggedMessages() {
+        ReportRecord recordsPage = getIC()
+                .locateReports()
+                .openFolder("Системные отчеты")
+                .openRecord("Логированные сообщения")
+                .setTableFilter("Тип сервиса", "Equals", "VES_FEEDBACK");
+        String lastId = recordsPage
+                .getLastRecordIdentificator();
+
+        assertEquals(lastVESFeedbackIdBeforeTest, lastId);
     }
 
     @Override

@@ -68,11 +68,22 @@ public class Rabbit implements AutoCloseable {
     }
 
     public Rabbit sendMessage(){
-        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
-        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").click();
+        try {
+            driver.findElementByXPath("//div[starts-with (@class,'section-hidden')][3]/div[@style='display:block;']");
+        } catch (NoSuchElementException e) { // проверяет открытие скролинга (окно Publish message)
+            driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
+        }
+        driver.findElementByXPath("//*[@id='main']/div[4]/div/form/table/tbody/tr[5]/td/textarea").click();
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").clear();
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").sendKeys(getVesResponse());
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/input[4]").click();
+//        try {
+//            Thread.sleep(500);
+//        } catch (InterruptedException e) {
+//            throw new IllegalStateException(e.getMessage());
+//        }
+        driver.findElementByXPath("//span[text()='Close']").click();
+
         return this;
     }
 

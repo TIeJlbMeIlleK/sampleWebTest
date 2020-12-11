@@ -1,8 +1,14 @@
 package ru.iitdgroup.tests.webdriver.administration;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.Select;
 import ru.iitdgroup.tests.webdriver.ic.AbstractEdit;
+import ru.iitdgroup.tests.webdriver.referencetable.Table;
+
+import java.util.List;
 
 public class WorkflowAction extends AbstractEdit<WorkflowAction> {
 
@@ -22,7 +28,13 @@ public class WorkflowAction extends AbstractEdit<WorkflowAction> {
     }
 
     public WorkflowAction setUniqueName(String uniqueName) {
+        driver.findElementById("txtUniqueName").clear();
         fillInputText("Unique name:", uniqueName);
+        return getSelf();
+    }
+
+    public WorkflowAction getUniqueName() {
+        driver.findElementById("txtUniqueName").clear();
         return getSelf();
     }
 
@@ -116,6 +128,75 @@ public class WorkflowAction extends AbstractEdit<WorkflowAction> {
                         transition))
                 .click();
         sleep(1);
+    }
+
+    public WorkflowAction setCondition(String conditionText) {
+        driver.findElementById("btnCondition").click();
+        sleep(1);
+        WebElement textArea = driver.findElementById("builderExpression:expressionTextBox");
+        textArea.clear();
+        textArea.sendKeys(conditionText);
+        driver.findElementById("btnOk").click();
+        sleep(1);
+        return getSelf();
+    }
+
+    public WorkflowAction addFieldMapping(String transactionField, String value, String condition) {
+        driver.findElementById("mapFieldsBtnCreate").click();
+        sleep(1);
+        List<WebElement> fieldMappingRows = driver.findElementsByXPath("//div[@id='fieldsMappingTbl:innerTbl']//table[@class='af_table_content']//tr");
+        Select select = new Select(driver.findElementById("fieldsMappingTbl:innerTbl:" + (fieldMappingRows.size() - 2) + ":selectField"));
+        select.selectByVisibleText(transactionField);
+        sleep(1);
+        if (value != null && !value.isEmpty()) {
+            driver.findElementById("fieldsMappingTbl:innerTbl:" + (fieldMappingRows.size() - 2) + ":fieldValueForDisplay").click();
+            sleep(1);
+            driver.findElementById("builderExpression:expressionTextBox").sendKeys(value);
+            driver.findElementById("btnOk").click();
+            sleep(0.5);
+        }
+        if (condition != null && !condition.isEmpty()) {
+            driver.findElementById("fieldsMappingTbl:innerTbl:" + (fieldMappingRows.size() - 2) + ":conditionForDisplay").click();
+            sleep(1);
+            driver.findElementById("builderExpression:expressionTextBox").sendKeys(condition);
+            driver.findElementById("btnOk").click();
+            // TODO: добавить проверку что система разрешила сохранить этот condition, не появилась ошибка на странице
+            sleep(0.5);
+        }
+        return getSelf();
+    }
+
+    /**
+     * Устанавливает или снимает галочку Send VES feedback в таблице Custom External APIs
+     *
+     * @return
+     */
+    public WorkflowAction setCustomExternalAPIsSendVESfeedback() {
+        driver.findElementById("customExternalApiTbl:2").click();
+        sleep(1);
+        return getSelf();
+    }
+
+    /**
+     * Устанавливает или снимает галочку Update Transaction In Cache в таблице Custom External APIs
+     *
+     * @return
+     */
+    public WorkflowAction setCustomExternalAPIsUpdateTransactionInCache() {
+        driver.findElementById("customExternalApiTbl:1").click();
+        sleep(1);
+        return getSelf();
+    }
+
+    /**
+     * Устанавливает или снимает галочку Update Alert Status Based On Transaction Status в таблице Custom External APIs
+     *
+     * @return
+     */
+    public WorkflowAction setCustomExternalAPIsUpdateAlertStatus() {
+        driver.findElementById("customExternalApiTbl:0").click();
+        sleep(1);
+        return getSelf();
     }
 
     private enum WorkflowTransition {

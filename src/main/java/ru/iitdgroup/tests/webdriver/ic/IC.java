@@ -129,8 +129,12 @@ public class IC implements AutoCloseable {
     }
 
     public Workflows locateWorkflows() {
-        driver.findElementByClassName("adminMenuButton").click();
-//        driver.findElementByXPath("//div[@id='app-navigation'][1]//following::*[@class='icon-gear']").click();
+        try {
+            driver.findElementByClassName("adminMenuButton").click();
+        } catch (NoSuchElementException e) {
+            driver.findElementByXPath("//div[@id='app-navigation'][1]//following::*[@class='icon-gear']").click();
+            //driver.findElementByXPath("//ul[@class='nav navbar-nav navbar-right']/li[position()=4]").click();
+        }
         view.sleep(1);
         driver.findElementByLinkText("Administration").click();
         view.sleep(1);
