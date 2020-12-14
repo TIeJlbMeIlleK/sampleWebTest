@@ -1,5 +1,7 @@
 package ru.iitdgroup.tests.webdriver.alerts;
 
+import org.openqa.selenium.Point;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.webdriver.ic.AbstractEdit;
 
@@ -27,5 +29,10 @@ public class AlertRecord extends AbstractEdit<AlertRecord> {
     @Override
     public AlertRecord getSelf() {
         return this;
+    }
+
+    public AlertRecord goToTransactionPage() {
+        driver.findElementByXPath("//div[@id='_panel_0_0_:content']//table[@class='DetailsLayoutPanel ']/tbody/tr[3]/td[2]//a").click();
+        return getSelf();
     }
 }

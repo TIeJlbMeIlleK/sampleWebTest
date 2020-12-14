@@ -19,6 +19,7 @@ public class ForInstructionOfRabbit extends RSHBCaseTest {
                 .replaceAll("305","306")
                 .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf","306"));
         getRabbit().sendMessage();
+        getRabbit().close();
     }
     //TODO так же через класс Рэббит по аналогии с методом sendVes можно отправлять сообщения от КАФ в определенные очереди
 

@@ -63,7 +63,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
         }
         getIC().locateTable(Table_DFP)
                 .addRecord()
-                .fillMasked("DeviceFingerPrint:",DFP)
+                .fillMasked("DeviceFingerPrint:", DFP)
                 .save();
         Table.Formula rows2 = getIC().locateTable(Table_IFV).findRowsBy();
         if (rows2.calcMatchedRows().getTableRowNums().size() > 0) {
@@ -79,7 +79,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
         }
         getIC().locateTable(Table_IMEI)
                 .addRecord()
-                .fillMasked("IMEI:",IMEI)
+                .fillMasked("IMEI:", IMEI)
                 .save();
         Table.Formula rows4 = getIC().locateTable(Table_IMSI).findRowsBy();
         if (rows4.calcMatchedRows().getTableRowNums().size() > 0) {
@@ -87,7 +87,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
         }
         getIC().locateTable(Table_IMSI)
                 .addRecord()
-                .fillMasked("IMSI:",IMSI)
+                .fillMasked("IMSI:", IMSI)
                 .save();
     }
 

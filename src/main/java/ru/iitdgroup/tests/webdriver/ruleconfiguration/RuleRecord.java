@@ -67,6 +67,57 @@ public class RuleRecord extends AbstractEdit<RuleRecord> implements TabledView<R
         return getSelf();
     }
 
+    public RuleRecord detachWithoutRecording(String group) {
+        driver.findElementByXPath(getGroupElement(group)).findElements(By.xpath("//a[text()='Show All']"))
+                .forEach(WebElement::click);
+        sleep(3);
+        if (driver.findElementsByXPath("//*[text()='No records were found.']").size() > 0) {
+            return getSelf();
+        }
+
+        driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//input[@type='checkbox']")).click();
+        sleep(1);
+        driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Detach']")).click();
+        sleep(1);
+        driver.findElementByXPath("//button[2]/span[text()='Yes']").click();
+        sleep(3);
+        return getSelf();
+    }
+
+    public RuleRecord attachAddingValue(String group, String field, String operator, String value) {
+        driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
+        waitUntil("//*[@title='Refresh']");
+        clearTableFilters();
+        setTableFilter(field, operator, value);
+        refreshTable();
+        sleep(2);
+        for (WebElement webElement : driver.findElementsByXPath("//a[text()='Show All']")) {
+            webElement.click();
+        }
+        sleep(2);
+        driver.executeScript("window.scrollTo(0, 10000)");
+        if (driver.findElementsByXPath("//*[text()='No records were found.']").size() == 0) {
+            driver.findElementByXPath("//*[@class='af_column_header-icon-format']//input[1]").click();
+            driver.findElementByXPath("//a[@title='OK']").click();
+        } else {
+            // отсутствуют записи, создаём новую
+            driver.findElements(By.className("toolbarCell")).get(1).click();
+            sleep(2);
+            WebElement input = getSelf().getDriver()
+                    .findElementByXPath("//span[@class='moduleDetailsText af_inputText']")
+                    .findElements(By.tagName("input"))
+                    .get(0);
+            input.click();
+            input.clear();
+            input.click();
+            input.sendKeys(value);
+            driver.findElementByXPath("//a[@id='btnSave']").click();
+        }
+        waitUntil("//a[@id='btnEdit']");
+
+        return getSelf();
+    }
+
     public RuleRecord attachVESCode46(String group) {
         driver.findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
         waitUntil("//*[@title='Refresh']");

@@ -1,5 +1,6 @@
 package ru.iitdgroup.tests.webdriver.referencetable;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.Select;
@@ -21,7 +22,12 @@ public class TableEdit extends AbstractEdit<TableEdit> implements TabledView {
     }
 
 
-
+    /**
+     * щелкает по значку Select, заходит в таблицу клиентов, выбирает нужного клиента по сортировке по ID
+     * @param fieldName название поля
+     * @param dboId Id клиента
+     * @return
+     */
     public TableEdit fillUser(String fieldName, String dboId) {
         icxpath()
                 .element(fieldName)
@@ -56,6 +62,29 @@ public class TableEdit extends AbstractEdit<TableEdit> implements TabledView {
 
         waitUntil("//a[@id='btnSave']");
 
+        return this;
+    }
+
+    /**
+     *  Заполняет поле, выбирая значение из существующих (нажимает на select, открывается новая страница с таблицей значений, устанавливает фильтр (ищет значение) и выбирает элемент)
+     * @param fieldName поле, для которого выбирается значение (справа от поля будет нажата кнопка select для открытия таблицы значений)
+     * @param field
+     * @param operator
+     * @param value
+     * @return
+     */
+    public TableEdit fillFromExistingValues(String fieldName, String field, String operator, String value) {
+        icxpath()
+                .element(fieldName)
+                .following(ICXPath.WebElements.IMG)
+                .click();
+
+        refreshTab();
+        setTableFilter(field, operator, value);
+        refreshTab();
+        sleep(2);
+        driver.findElementByXPath("//a[text()='Select']").click();
+        waitUntil("//a[@id='btnSave']");
         return this;
     }
 

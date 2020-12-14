@@ -3,6 +3,7 @@ package ru.iitdgroup.tests.cases;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteMessaging;
 import org.apache.ignite.cluster.ClusterGroup;
+import org.junit.Assert;
 import org.openqa.selenium.Dimension;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -23,10 +24,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.junit.Assert.assertThat;
 import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
 
 public abstract class RSHBCaseTest {
 
@@ -232,6 +234,41 @@ public abstract class RSHBCaseTest {
         return result;
     }
 
+    /**
+     * Возвращает поцизию (широта, долгота) клиента
+     * @param DBO_Id dbo-id клиента
+     * @return массив их двух чисел (latitude, longitude)
+     */
+    protected String[] getClientsPosition(String DBO_Id) {
+        try {
+            Thread.sleep(1000);
+            String[][] id = getDatabase()
+                    .select()
+                    .field("id")
+                    .from("Client")
+                    .with("DBO_ID", "=", "'" + DBO_Id + "'")
+                    .sort("id", false)
+                    .limit(1)
+                    .get();
+            String[][] result = getDatabase()
+                    .select()
+                    .field("LATITUDE")
+                    .field("LONGITUDE")
+                    .from("QUARANTINE_LOCATION")
+                    .with("CLIENT_FK", "=", id[0][0])
+                    .sort("id", false)
+                    .limit(1)
+                    .get();
+            String latitude = result[0][0].replace('.', ',');
+            String longitude = result[0][1].replace('.', ',');
+            return new String[] {latitude, longitude};
+
+        } catch (InterruptedException | SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
     protected TestProperties getProps() {
         return props;
     }
@@ -239,7 +276,7 @@ public abstract class RSHBCaseTest {
     protected IC getIC() {
         if (ic == null) {
             ic = new IC(getProps());
-            ic.getDriver().manage().window().setSize(new Dimension(2000, 3000));
+            ic.getDriver().manage().window().setSize(new Dimension(2000, 10000));
         }
         return ic;
     }
@@ -283,6 +320,120 @@ public abstract class RSHBCaseTest {
         String[][] dbResult = getResults(getRuleName());
         assertEquals(ruleResult, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
+    }
+
+    /**
+     * Возвращает информацию о последнем отправленном СМС
+     * @return массив:
+     * [id,
+     * JMS_CORRELATION_ID,
+     * JMS_MESSAGE_ID,
+     * MESSAGE,
+     * MESSAGE_DATE,
+     * MSISDN,
+     * SECRET_KEY_DATE,
+     * SMS_SECRET_KEY_FK]
+     */
+    protected String[] getLastSentSMSInformation() {
+        try {
+             String[][] results = getDatabase()
+                    .select()
+                    .field("id")
+                    .field("JMS_CORRELATION_ID")
+                    .field("JMS_MESSAGE_ID")
+                    .field("MESSAGE")
+                    .field("MESSAGE_DATE")
+                    .field("MSISDN")
+                    .field("SECRET_KEY_DATE")
+                    .field("SMS_SECRET_KEY_FK")
+                    .from("SMS_MESSAGE")
+                    .sort("MESSAGE_DATE", false)
+                    .limit(1)
+                    .get();
+             return results[0];
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected void assertTransactionAdditionalFieldApply(String transactionID, String fieldId, String fieldName, String fieldValue) {
+        try {
+            Thread.sleep(1000);
+            String[][] id = getDatabase()
+                    .select()
+                    .field("id")
+                    .from("PAYMENT_TRANSACTION")
+                    .with("TRANSACTION_ID", "=", "'" + transactionID + "'")
+                    .sort("timestamp", false)
+                    .limit(1)
+                    .get();
+            String[][] result = getDatabase()
+                    .select()
+                    .field("ADDITIONAL_FIELD_ID")
+                    .field("ADDITIONAL_FIELD_NAME")
+                    .field("ADDITIONAL_FIELD_VALUE")
+                    .from("ADDITIONAL_FIELD_TYPE")
+                    .with("transaction_id", "=", id[0][0])
+                    .sort("timestamp", false)
+                    .limit(1)
+                    .get();
+            assertEquals(fieldId, result[0][0]);
+            assertEquals(fieldName, result[0][1]);
+            assertEquals(fieldValue, result[0][2]);
+        } catch (InterruptedException | SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected void assertClientEmailApply(String dboID, String email) {
+        try {
+            Thread.sleep(1000);
+
+            String[][] result = getDatabase()
+                    .select()
+                    .field("id")
+                    .field("AUTH_CHANGE_TIMESTAMP")
+                    .field("NOTIFICATION_EMAIL")
+                    .field("DATE_REGISTRATION")
+                    .from("Client")
+                    .with("DBO_ID", "=", dboID)
+                    .sort("AUTH_CHANGE_TIMESTAMP", false)
+                    .limit(1)
+                    .get();
+            assertNull(result[0][1]);//проверяет, что строка пустая
+            assertEquals(email, result[0][2]);//проверяет на наличе email в строке
+            assertNotNull(result[0][3]);//проверяет на наличе регистрационной даты в строке
+        } catch (InterruptedException | SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected void assertClientEmailChanged(String dboID, String email) {
+        try {
+            Thread.sleep(1000);
+
+            String[][] result = getDatabase()
+                    .select()
+                    .field("id")
+                    .field("AUTH_CHANGE_TIMESTAMP")
+                    .field("NOTIFICATION_EMAIL")
+                    .field("DATE_REGISTRATION")
+                    .from("Client")
+                    .with("DBO_ID", "=", dboID)
+                    .sort("AUTH_CHANGE_TIMESTAMP", false)
+                    .limit(1)
+                    .get();
+            assertNotNull(result[0][1]);//строка не пустая, есть запись даты изменения email
+            assertEquals(email, result[0][2]);//есть запись еmail
+            assertNotNull(result[0][3]);//есть дата регистрации клиента
+            Assert.assertNotEquals(result[0][1], result[0][3]);//даты регистрации и изменения email не равны
+        } catch (InterruptedException | SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
     }
 
     protected void assertPaymentMaxAmount(String clientId, String txType, BigDecimal amount) {
