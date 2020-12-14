@@ -2,6 +2,7 @@ package ru.iitdgroup.tests.webdriver.rabbit;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.properties.TestProperties;
 import ru.iitdgroup.tests.webdriver.ic.AbstractView;
@@ -38,9 +39,20 @@ public class Rabbit implements AutoCloseable {
         this.props = props;
         //TODO: перенести путь в файл настроек - оно системно-специфическое
         System.setProperty("webdriver.chrome.driver", props.getChromeDriverPath());
-        driver = new ChromeDriver();
-        driver.manage().window().setSize(new Dimension(2000, 1600));
-        driver.manage().window().setPosition(new Point(0, 0));
+
+        if (props.getChromeHeadlessMode()) {
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments("--headless");
+            options.addArguments("--disable-gpu");
+            //options.addArguments("--ignore-certificate-errors");
+            options.addArguments("--disable-extensions");
+            driver = new ChromeDriver(options);
+        } else {
+            driver = new ChromeDriver();
+            driver.manage().window().setSize(new Dimension(2000, 1600));
+            driver.manage().window().setPosition(new Point(0, 0));
+        }
+
         driver.manage().timeouts().implicitlyWait(7, TimeUnit.SECONDS);
         try {
             driver.get(props.getRabbitUrl());
@@ -68,22 +80,14 @@ public class Rabbit implements AutoCloseable {
     }
 
     public Rabbit sendMessage(){
-        try {
-            driver.findElementByXPath("//div[starts-with (@class,'section-hidden')][3]/div[@style='display:block;']");
-        } catch (NoSuchElementException e) { // проверяет открытие скролинга (окно Publish message)
-            driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
-        }
-        driver.findElementByXPath("//*[@id='main']/div[4]/div/form/table/tbody/tr[5]/td/textarea").click();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").click();
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").clear();
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").sendKeys(getVesResponse());
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/input[4]").click();
-//        try {
-//            Thread.sleep(500);
-//        } catch (InterruptedException e) {
-//            throw new IllegalStateException(e.getMessage());
-//        }
         driver.findElementByXPath("//span[text()='Close']").click();
-
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").clear();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
         return this;
     }
 

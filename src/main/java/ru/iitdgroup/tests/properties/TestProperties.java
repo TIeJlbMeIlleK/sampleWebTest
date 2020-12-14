@@ -33,6 +33,11 @@ public class TestProperties extends Properties {
         return getProperty("chromedriver.path");
     }
 
+    public boolean getChromeHeadlessMode() {
+        String value = getProperty("chromedriver.headlessMode");
+        return (value.toLowerCase().equals("true"));
+    }
+
     public String getPicturesFolder() {
         return getProperty("pictures.folder");
     }
