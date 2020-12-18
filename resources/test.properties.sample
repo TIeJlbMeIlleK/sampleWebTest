@@ -5,6 +5,7 @@ ic.url=http://192.168.7.151:7780/InvestigationCenter/
 ic.user=user1
 ic.password=user1
 chromedriver.path=c:/webdrivers/chromedriver.exe
+chromedriver.headlessMode=false
 pictures.folder=c:/tmp
 
 

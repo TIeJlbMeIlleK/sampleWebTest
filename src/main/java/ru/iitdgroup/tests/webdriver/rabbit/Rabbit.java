@@ -2,6 +2,7 @@ package ru.iitdgroup.tests.webdriver.rabbit;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.properties.TestProperties;
 import ru.iitdgroup.tests.webdriver.ic.AbstractView;
@@ -38,9 +39,20 @@ public class Rabbit implements AutoCloseable {
         this.props = props;
         //TODO: перенести путь в файл настроек - оно системно-специфическое
         System.setProperty("webdriver.chrome.driver", props.getChromeDriverPath());
-        driver = new ChromeDriver();
-        driver.manage().window().setSize(new Dimension(2000, 1600));
-        driver.manage().window().setPosition(new Point(0, 0));
+
+        if (props.getChromeHeadlessMode()) {
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments("--headless");
+            options.addArguments("--disable-gpu");
+            //options.addArguments("--ignore-certificate-errors");
+            options.addArguments("--disable-extensions");
+            driver = new ChromeDriver(options);
+        } else {
+            driver = new ChromeDriver();
+            driver.manage().window().setSize(new Dimension(2000, 1600));
+            driver.manage().window().setPosition(new Point(0, 0));
+        }
+
         driver.manage().timeouts().implicitlyWait(7, TimeUnit.SECONDS);
         try {
             driver.get(props.getRabbitUrl());
