@@ -154,6 +154,7 @@ public class IC implements AutoCloseable {
 
     public Alerts locateAlerts() {
         locateView(TopMenuItem.ALERTS);
+        view.sleep(5);
         return new Alerts(driver);
     }
 

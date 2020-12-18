@@ -7,6 +7,7 @@ import ru.iitdgroup.intellinx.dbo.client.ContactChannelType;
 import ru.iitdgroup.intellinx.dbo.client.ContactKind;
 import ru.iitdgroup.intellinx.dbo.client.ContactType;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
+import ru.iitdgroup.tests.apidriver.Authentication;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
@@ -165,5 +166,10 @@ public class NoteSetAttentionAUTH extends RSHBCaseTest {
 
     private Transaction getMessage() {
         return getMessage();
+    }
+
+    private Authentication getAuthentication() {
+        Authentication authentication = super.getAuthentication("auth/auth1.xml");
+        return authentication;
     }
 }

@@ -1,0 +1,35 @@
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+	<ns4:ServerInfo>
+		<Ip>localhost</Ip>
+		<Port>3005</Port>
+	</ns4:ServerInfo>
+	<ns4:TransactionData>
+		<ns4:TransactionId>8712688555</ns4:TransactionId>
+		<ns4:ClientIds>
+			<DboId>11163043</DboId>
+			<CifId>A339ADC2-7102-4dbf-B06B-8951D58E390B</CifId>
+			<ExpertSystemId>9a1ab92f03efd0ac220a8fc145795b1bd5348560</ExpertSystemId>
+			<LoginHash>421eec9684de5c5e4ffdbdaa7378e05a33ca5b79</LoginHash>
+		</ns4:ClientIds>
+		<ns4:DocumentSaveTimestamp>2019-03-22T16:38:07.236+03:00</ns4:DocumentSaveTimestamp>
+		<ns4:DocumentNumber>322</ns4:DocumentNumber>
+		<ns4:Regular>false</ns4:Regular>
+		<ns4:Limit>14899</ns4:Limit>
+		<ns4:AdditionalAnswer>
+			<ns4:AdditionalAuthAnswer>Абеляр</ns4:AdditionalAuthAnswer>
+			<ns4:AdditionalAuthCancel>false</ns4:AdditionalAuthCancel>
+		</ns4:AdditionalAnswer>
+		<ns4:InitialSourceAmount>100000000</ns4:InitialSourceAmount>
+		<ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+		<ns4:DocumentConfirmationTimestamp>2019-03-22T16:38:00+03:00</ns4:DocumentConfirmationTimestamp>
+		<ns4:SessionId>Ilylgu4yZ2GgYQXMnpcGoIEiRPgxLL49HelW9oU9KAoFbKh3aCiq!-1804616535!1553260015154</ns4:SessionId>
+		<ns4:Channel>INTERNET_CLIENT</ns4:Channel>
+		<ns4:ClientDevice>
+			<ns3:Platform>PC</ns3:Platform>
+			<ns3:PC>
+				<ns3:IpAddress>213.87.153.217</ns3:IpAddress>
+				<ns3:UserAgent>Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0</ns3:UserAgent>
+			</ns3:PC>
+		</ns4:ClientDevice>
+	</ns4:TransactionData>
+</ns4:SendTransactionDataRequest>

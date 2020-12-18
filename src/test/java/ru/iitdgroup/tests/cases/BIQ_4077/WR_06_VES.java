@@ -1,15 +1,12 @@
-package ru.iitdgroup.tests.cases.BIQ_4091;
+package ru.iitdgroup.tests.cases.BIQ_4077;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
-import ru.iitdgroup.intellinx.dbo.client.IOSDevice;
-import ru.iitdgroup.intellinx.dbo.client.PlatformKind;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -88,7 +85,7 @@ public class WR_06_VES extends RSHBCaseTest {
             dependsOnMethods = "step0"
     )
     public void step1() {
-        Transaction transaction = getTransactionREQUEST_FOR_GOSUSLUGI_PC();
+        Transaction transaction = getTransactionGETTING_CREDIT();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
@@ -124,8 +121,8 @@ public class WR_06_VES extends RSHBCaseTest {
         return RULE_NAME;
     }
 
-    private Transaction getTransactionREQUEST_FOR_GOSUSLUGI_PC() {
-        Transaction transaction = getTransaction("testCases/Templates/REQUEST_FOR_GOSUSLUGI_PC.xml");
+    private Transaction getTransactionGETTING_CREDIT() {
+        Transaction transaction = getTransaction("testCases/Templates/GETTING_CREDIT_PC.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

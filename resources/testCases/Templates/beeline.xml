@@ -1,0 +1,14 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+	<soap:Body>
+		<getSubscriberEventRequest xmlns="urn:on:partners-interface:schema">
+			<login>beeline1</login>
+			<pwd>sdhewecn2</pwd>
+			<event>
+				<requestId>58aae0fe26685a94dd7bb388</requestId>
+				<msisdn>79050102230</msisdn>
+				<date>2020-05-20T15:28:46.163+03:00</date>
+				<reason>8</reason>
+			</event>
+		</getSubscriberEventRequest>
+	</soap:Body>
+</soap:Envelope>

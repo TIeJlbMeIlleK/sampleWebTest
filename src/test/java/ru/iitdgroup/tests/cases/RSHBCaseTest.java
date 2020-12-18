@@ -168,6 +168,7 @@ public abstract class RSHBCaseTest {
     protected static final String NOT_APPLY_SUCH_TRANSACTION_TYPE = "Правило не применяется для данного типа транзакции";
     protected static final String WRONG_TRANSACTION_TYPE = "Не тот тип транзакции";
     protected static final String EXIST_TRUSTED_DEVICE_MSG = "Устройство клиента найдено в списке ранее использовавшихся";
+    protected static final String RESULT_RULE_APPLY_ADAK = "Попытка подбора ответа на АДАК";
 
 
 

@@ -175,6 +175,18 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
+    default S attachVESCode46(String group) {
+        getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
+        getSelf().waitUntil("//*[@title='Refresh']");
+        refreshTable();
+        getSelf().sleep(2);
+        getSelf().getDriver().findElementByXPath("//span[text()='Вход в ДБО']").click();
+        getSelf().getDriver().findElementByXPath("//span[text()='Select']").click();
+        getSelf().getDriver().findElementByXPath("//a[@title='OK']").click();
+        getSelf().waitUntil("//a[@id='btnEdit']");
+        return getSelf();
+    }
+
     default S detachWithoutRecording(String group) {
         getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElements(By.xpath("//a[text()='Show All']"))
                 .forEach(WebElement::click);
