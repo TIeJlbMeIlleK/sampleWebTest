@@ -41,8 +41,8 @@ public class IC implements AutoCloseable {
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--headless");
             options.addArguments("--disable-gpu");
-            //options.addArguments("--ignore-certificate-errors");
-            options.addArguments("--disable-extensions");
+            //options.addArguments("--ignore-certificate-errors");//для быстроты игнорирует сертификаты безопасности
+            options.addArguments("--disable-extensions");//отключает расширения
             driver = new ChromeDriver(options);
         } else {
             driver = new ChromeDriver();
