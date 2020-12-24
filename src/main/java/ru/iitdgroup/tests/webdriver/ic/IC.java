@@ -136,7 +136,11 @@ public class IC implements AutoCloseable {
     }
 
     public Jobs locateJobs() {
-        driver.findElementByClassName("adminMenuButton").click();
+        try {
+            driver.findElementByClassName("adminMenuButton").click();
+        } catch (NoSuchElementException e) {
+            driver.findElementByXPath("//li[@class='dropdown']//span[@class='icon-gear']").click();
+        }
         view.sleep(1);
         driver.findElementByLinkText("Jobs & Services Manager").click();
         view.sleep(1);
@@ -199,7 +203,11 @@ public class IC implements AutoCloseable {
      * @return
      */
     public IC home() {
-        driver.findElementByXPath("//*[@id=\"navigateHomeLinkLogo\"]/img").click();
+        try {
+            driver.findElementByXPath("//*[@id=\"navigateHomeLinkLogo\"]/img").click();
+        } catch (NoSuchElementException e){
+            driver.findElementByClassName("icon-home").click();
+        }
         return this;
     }
 

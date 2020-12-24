@@ -174,9 +174,12 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
         }
 
         /**
-         * Вызывает Assert#fail (чтобы тест упал) для случая, если у таблицы удовлетворяющих формуле строк
+         * Вызывает Assert#fail (чтобы тест упал) для случая, если у таблицы нет удовлетворяющих формуле строк
          */
-        private void failIfNoRows() {
+        public void failIfNoRows() {
+            if (matchedRows == null) {
+                calcMatchedRows();
+            }
             if (matchedRows.rows.size() == 0) {
                 final String formula = expressions.stream()
                         .map(exp -> String.format("%s = %s", exp.colHeading, exp.rowText))
@@ -201,6 +204,21 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
 
         public Table delete() {
             return select().delete();
+        }
+
+        /**
+         * Выбрать все имеющиеся строки в таблице (установить checkbox сразу на всех)
+         *
+         * @return
+         */
+        public Table selectLinesAndDelete() {
+            driver.findElementByXPath("//th[@scope='col']//input[@type='checkbox']").click();
+            sleep(2);
+            driver.findElementByXPath("//span[text()='Actions']").click();
+            driver.findElementByXPath("//div[@class='qtip-content']/a[text()='Delete']").click();
+            driver.findElementByXPath("//button[2]/span[text()='Yes']").click();
+            sleep(1);
+            return Table.this;
         }
 
         /**
