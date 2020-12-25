@@ -8,10 +8,7 @@ import org.openqa.selenium.Dimension;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import ru.iitdgroup.tests.apidriver.Authentication;
-import ru.iitdgroup.tests.apidriver.DBOAntiFraudWS;
-import ru.iitdgroup.tests.apidriver.Template;
-import ru.iitdgroup.tests.apidriver.Transaction;
+import ru.iitdgroup.tests.apidriver.*;
 import ru.iitdgroup.tests.dbdriver.Database;
 import ru.iitdgroup.tests.ignitedriver.SampleIgnite;
 import ru.iitdgroup.tests.properties.TestProperties;
@@ -178,6 +175,7 @@ public abstract class RSHBCaseTest {
 
 
     private DBOAntiFraudWS ws;
+    private ESPP2AntiFraudWS esppWs;
     private TestProperties props;
     private IC ic;
     private Rabbit rabbit;
@@ -219,6 +217,10 @@ public abstract class RSHBCaseTest {
         return ws;
     }
 
+    protected ESPP2AntiFraudWS getWsEspp() {
+        return esppWs;
+    }
+
     protected DBOAntiFraudWS send(Template template) {
         try {
             return getWS().send(template);
@@ -227,8 +229,24 @@ public abstract class RSHBCaseTest {
         }
     }
 
+    protected ESPP2AntiFraudWS sendESPP(Template template) {
+        try {
+            return getWsEspp().send(template);
+        } catch (SOAPException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     protected DBOAntiFraudWS sendAndAssert(Template template) {
         DBOAntiFraudWS result = send(template);
+        assertTrue(
+                String.format("Ошибка на стороне AntiFraudWS: %s", result.getResponse().getErrorMessage()),
+                result.isSuccessResponse());
+        return result;
+    }
+
+    protected ESPP2AntiFraudWS sendAndAssertESPP(Template template) {
+        ESPP2AntiFraudWS result = sendESPP(template);
         assertTrue(
                 String.format("Ошибка на стороне AntiFraudWS: %s", result.getResponse().getErrorMessage()),
                 result.isSuccessResponse());
@@ -486,6 +504,20 @@ public abstract class RSHBCaseTest {
                     .withTransactionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
                     .withSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
                     .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
+            return transaction;
+        } catch (JAXBException | IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected Transaction getTransactionESPP(String filePath) {
+        try {
+            //FIXME Добавить проверку на существование клиента в базе
+            Transaction transaction = new Transaction(filePath);
+//            transaction.getData()
+//                    .getTransactionData()
+//                    .withTransactionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
+//                    .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
             return transaction;
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions
+	xmlns:espp-st-req="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionDataRequest"
+	xmlns:espp-st-res="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionDataResponse"
+	xmlns:espp-ar-req="http://www.iitdgroup.ru/Intellinx/DBO/AskForResolutionRequest"
+	xmlns:espp-ar-res="http://www.iitdgroup.ru/Intellinx/DBO/AskForResolutionResponse"
+	xmlns:espp-str-req="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionResolutionRequest"
+	xmlns:espp-str-res="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionResolutionResponse"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="ESPP"
+	xmlns="http://www.iitdgroup.ru/Intellinx/DBO/" targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/">
+
+	<wsdl:types>
+		<xsd:schema>
+			<xsd:import
+				namespace="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionDataRequest"
+				schemaLocation="SendSubsTransactionDataRequest.xsd" />
+		</xsd:schema>
+		<xsd:schema>
+			<xsd:import
+				namespace="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionDataResponse"
+				schemaLocation="SendSubsTransactionDataResponse.xsd" />
+		</xsd:schema>
+		<xsd:schema>
+			<xsd:import
+				namespace="http://www.iitdgroup.ru/Intellinx/DBO/AskForResolutionRequest"
+				schemaLocation="AskForResolutionRequest.xsd" />
+		</xsd:schema>
+		<xsd:schema>
+			<xsd:import
+				namespace="http://www.iitdgroup.ru/Intellinx/DBO/AskForResolutionResponse"
+				schemaLocation="AskForResolutionResponse.xsd" />
+		</xsd:schema>
+		<xsd:schema>
+			<xsd:import
+				namespace="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionResolutionRequest"
+				schemaLocation="SendSubsTransactionResolutionRequest.xsd" />
+		</xsd:schema>
+		<xsd:schema>
+			<xsd:import
+				namespace="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionResolutionResponse"
+				schemaLocation="SendSubsTransactionResolutionResponse.xsd" />
+		</xsd:schema>
+	</wsdl:types>
+
+	<wsdl:message name="SendSubsTransactionDataRequest">
+		<wsdl:part name="part" element="espp-st-req:SendSubsTransactionDataRequest" />
+	</wsdl:message>
+	<wsdl:message name="SendSubsTransactionDataResponse">
+		<wsdl:part name="part" element="espp-st-res:SendSubsTransactionDataResponse" />
+	</wsdl:message>
+	<wsdl:message name="SendSubsTransactionResolutionRequest">
+		<wsdl:part name="part" element="espp-str-req:SendSubsTransactionResolutionRequest" />
+	</wsdl:message>
+	<wsdl:message name="SendSubsTransactionResolutionResponse">
+		<wsdl:part name="part" element="espp-str-res:SendSubsTransactionResolutionResponse" />
+	</wsdl:message>
+	<wsdl:message name="AskForResolutionRequest">
+		<wsdl:part name="part" element="espp-ar-req:AskForResolutionRequest" />
+	</wsdl:message>
+	<wsdl:message name="AskForResolutionResponse">
+		<wsdl:part name="part" element="espp-ar-res:AskForResolutionResponse" />
+	</wsdl:message>
+
+
+	<wsdl:portType name="EsppAntiFraud">
+		<wsdl:operation name="sendEsppTransactionData">
+			<wsdl:input message="SendSubsTransactionDataRequest" />
+			<wsdl:output message="SendSubsTransactionDataResponse" />
+		</wsdl:operation>
+		<wsdl:operation name="SendSubsTransactionResolutionRequest">
+			<wsdl:input
+			wsam:Action="http://***.ru/SendSubsTransactionResolutionRequest" 
+			message="SendSubsTransactionDataRequest" />
+			<wsdl:output 
+			wsam:Action="http://***.ru/SendSubsTransactionResolutionResponse"
+			message="SendSubsTransactionDataResponse" />
+		</wsdl:operation>
+		
+	</wsdl:portType>
+	<wsdl:binding name="EsppAntiFraudHttpBinding" type="EsppAntiFraud">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="sendEsppTransactionData">
+			<soap:operation style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="EsppAntiFraudService">
+		<wsdl:port name="EsppAntiFraudServiceSoap" binding="EsppAntiFraudHttpBinding">
+			<soap:address location="http://localhost/services/saf" />
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 	xmlns="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionResolutionResponse"
+			xmlns:espp-str-res="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionResolutionResponse"
+			targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionResolutionResponse"
+			attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="SendSubsTransactionResolutionResponse" type="espp-str-res:SendSubsTransactionResolutionResponseType"/>
+  <xs:complexType name="SendSubsTransactionResolutionResponseType">
+    <xs:sequence>
+      <xs:element type="xs:boolean" name="success" minOccurs="1"/>
+      <xs:element type="xs:integer" name="errorCode" minOccurs="0"/>
+      <xs:element type="xs:string" name="errorMessage" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

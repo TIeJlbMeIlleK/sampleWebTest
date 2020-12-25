@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="TranAntiFraudCheckResponse" type="TranAntiFraudCheckResponseType"/>
+	<xs:complexType name="TranAntiFraudCheckResponseType">
+		<xs:sequence>
+			<xs:element name="Success" type="xs:boolean" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Успешность / неуспешность обработки запроса.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Resolution" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Резолюция САФ: SuspendProlongation | Continue | Reject. Обязателен, если Success = True.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PauseTimeout" type="xs:int" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Тайм-аут по резолюции SuspendProlongation. Обязателен, если Resolution = "SuspendProlongation".</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ErrorCode" type="xs:int" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Код ошибки: 1, 9. Обязателен, если Success = False.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ErrorMessage" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+            Текст ошибки:
+            1 – Клиент с идентификатором {EksId} личного кабинета в ЕСПП не найден
+            9 - Техническая ошибка
+            Обязателен, если Success = False
+          </xs:documentation>
+        </xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

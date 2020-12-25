@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions xmlns:espp-afc-req="http://www.iitdgroup.ru/Intellinx/CrossChannel/TranAntiFraudCheckRequest" xmlns:espp-afc-res="http://www.iitdgroup.ru/Intellinx/CrossChannel/TranAntiFraudCheckResponse" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.iitdgroup.ru/Intellinx/CrossChannel" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" name="ESPP" targetNamespace="http://www.iitdgroup.ru/Intellinx/CrossChannel">
+	<wsdl:types>
+		<xsd:schema targetNamespace="http://www.iitdgroup.ru/Intellinx/CrossChannel/TranAntiFraudCheckRequest">
+			<xsd:include schemaLocation="TranAntiFraudCheckRequest.xsd"/>
+		</xsd:schema>
+		<xsd:schema targetNamespace="http://www.iitdgroup.ru/Intellinx/CrossChannel/TranAntiFraudCheckResponse">
+			<xsd:include schemaLocation="TranAntiFraudCheckResponse.xsd"/>
+		</xsd:schema>
+	</wsdl:types>
+	<wsdl:message name="TranAntiFraudCheckRequest">
+		<wsdl:part name="part" element="espp-afc-req:TranAntiFraudCheckRequest"/>
+	</wsdl:message>
+	<wsdl:message name="TranAntiFraudCheckResponse">
+		<wsdl:part name="part" element="espp-afc-res:TranAntiFraudCheckResponse"/>
+	</wsdl:message>
+	<wsdl:portType name="EsppCrossChannelAntiFraud">
+		<wsdl:operation name="sendEsppPaymentDataForAntiFraudCheck">
+			<wsdl:input message="TranAntiFraudCheckRequest"/>
+			<wsdl:output message="TranAntiFraudCheckResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="EsppCrossChannelAntiFraudHttpBinding" type="EsppCrossChannelAntiFraud">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="sendEsppPaymentDataForAntiFraudCheck">
+			<soap:operation soapAction="sendEsppPaymentDataForAntiFraudCheck" style="document"/>
+			<wsdl:input>
+				<soap:body parts="part" use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body parts="part" use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="EsppCrossChannelAntiFraudService">
+		<wsdl:port name="EsppCrossChannelAntiFraudServiceSoap" binding="EsppCrossChannelAntiFraudHttpBinding">
+			<soap:address location="http://localhost/services/saf"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

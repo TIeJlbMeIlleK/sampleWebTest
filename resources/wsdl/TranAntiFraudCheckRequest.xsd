@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.iitdgroup.ru/Intellinx/CrossChannel/TranAntiFraudCheckRequest" targetNamespace="http://www.iitdgroup.ru/Intellinx/CrossChannel/TranAntiFraudCheckRequest" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="TranAntiFraudCheckRequest" type="TranAntiFraudCheckType"/>
+	<xs:complexType name="TranAntiFraudCheckType">
+		<xs:sequence>
+			<xs:element name="TransactionId" type="xs:string" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Идентификатор финансовой транзакции</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EksId" type="xs:string" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Идентификатор клиента в ЕСПП</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BranchId" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Идентификатор отделения в БИСквит</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ClientId" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Идентификатор клиента в БИСквит</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RequestType" type="xs:string" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+            Тип запроса: 
+            «2» - уведомление о новом автоплатеже по подписке, созданной в ЛК УС
+            «3» - уведомление о платеже через АРМ
+            «4» - уведомление о платеже через ATM
+            «5» - уведомление о платеже через ИПТ
+          </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PointId" type="xs:int">
+				<xs:annotation>
+					<xs:documentation>Идентификатор точки обслуживания в ЕСПП. Point.Serial</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PointExternalId" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Внешний идентификатор точки обслуживания.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DocumentNumber" type="xs:string" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Номер документа.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DocumentTimestamp" type="xs:dateTime" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Дата и время проведения транзакции в часовом поясе сервера ЕСПП.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ServicePayment" type="ServicePaymentType" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Данные платежа\автоплатежа.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SubscriptionID" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Идентификатор подписки. Обязательно при RequestType = «2»</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ServicePaymentType">
+		<xs:sequence>
+			<xs:element name="ServiceKind" type="xs:int" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Код сервиса. Service.ServiceType.Id</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ProviderName" type="xs:string" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Получатель платежа.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ServiceName" type="xs:string" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Наименование услуги.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CardId" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Идентификатор карты источника средств.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AccountNo" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Номер счета источника средств.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SourceCurrencyIsoCode" type="xs:string" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Валюта списания.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AmountInSourceCurrency" type="xs:decimal" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Сумма платежа.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PaymentParameters" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Динамический список параметров платежа. Обязательно наличие одного параметра с Name="PayeeAccount"</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Parameter" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:attribute name="Name" type="xs:string"/>
+								<xs:attribute name="Value" type="xs:string"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

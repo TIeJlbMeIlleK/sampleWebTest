@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 	xmlns="http://www.iitdgroup.ru/Intellinx/DBO/AskForResolutionResponse"
+			targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/AskForResolutionResponse"
+			attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="AskForResolutionResponse" type="AskForResolutionResponseType"/>
+  <xs:complexType name="AskForResolutionResponseType">
+    <xs:sequence>
+      <xs:element type="xs:boolean" name="success" minOccurs="1"/>
+      <xs:element type="xs:string" name="Command" minOccurs="1"/>
+      <xs:element type="xs:integer" name="Timeout" minOccurs="0"/>
+      <xs:element type="xs:integer" name="errorCode" minOccurs="0"/>
+      <xs:element type="xs:string" name="errorMessage" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

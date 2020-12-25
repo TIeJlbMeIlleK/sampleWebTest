@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+	xmlns="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionDataResponse"
+	xmlns:espp-st-res="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionDataResponse"
+	targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionDataResponse"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:element name="SendSubsTransactionDataResponse" type="espp-st-res:SendSubsTransactionDataResponseType" />
+	
+	<xs:complexType name="SendSubsTransactionDataResponseType">
+		<xs:sequence>
+			<xs:element type="xs:boolean" name="success" minOccurs="1" />
+			<xs:element type="xs:integer" name="PauseTimeout" minOccurs="0" />
+			<xs:element type="xs:integer" name="errorCode" minOccurs="0" />
+			<xs:element type="xs:string" name="errorMessage" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

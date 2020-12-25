@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 	xmlns="http://www.iitdgroup.ru/Intellinx/DBO/AskForResolutionRequest"
+			targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/AskForResolutionRequest"
+			attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="AskForResolutionRequest" type="AskForResolutionRequestType"/>
+  <xs:complexType name="AskForResolutionRequestType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="TransactionId" minOccurs="1"/>
+      <xs:element type="xs:string" name="RequestType" minOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+	xmlns="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionDataRequest"
+	xmlns:espp-st-req="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionDataRequest"
+	targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionDataRequest"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:element name="SendSubsTransactionDataRequest" type="espp-st-req:SendSubsTransactionDataRequestType" />
+	<xs:complexType name="SendSubsTransactionDataRequestType">
+		<xs:sequence>
+			<xs:element type="xs:string" name="TransactionId"
+				minOccurs="1" />
+			<xs:element type="xs:string" name="EksId" minOccurs="1" />
+			<xs:element type="xs:string" name="RequestType" minOccurs="1" />
+			<xs:element type="xs:string" name="DocumentNumber"
+				minOccurs="1" />
+			<xs:element type="xs:dateTime" name="DocumentTimestamp"
+				minOccurs="1" />
+			<xs:element type="xs:boolean" name="AutoPayment"
+				minOccurs="1" />
+			<xs:element type="espp-st-req:ServicePaymentType" name="ServicePayment"
+				minOccurs="1" />
+			<xs:element type="xs:string" name="SubscriptionID"
+				minOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ServicePaymentType">
+		<xs:sequence>
+			<xs:element type="xs:integer" name="ServiceKind"
+				minOccurs="1" />
+			<xs:element type="xs:string" name="ProviderName"
+				minOccurs="1" />
+			<xs:element type="xs:string" name="ServiceName" minOccurs="1" />
+			<xs:element type="xs:string" name="SourceCardNumber"
+				minOccurs="1" />
+			<xs:element type="xs:string" name="SourceCurrencyIsoCode"
+				minOccurs="1" />
+			<xs:element type="xs:decimal" name="AmountInSourceCurrency"
+				minOccurs="1" />
+			<xs:element type="xs:string" name="PayeeAccount"
+				minOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>

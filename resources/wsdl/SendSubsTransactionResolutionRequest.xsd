@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 	xmlns="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionResolutionRequest"
+			targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/SendSubsTransactionResolutionRequest"
+			attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="SendSubsTransactionResolutionRequest" type="SendSubsTransactionResolutionRequestType"/>
+  <xs:complexType name="SendSubsTransactionResolutionRequestType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="TransactionId" minOccurs="1"/>
+      <xs:element type="xs:string" name="Resolution" minOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
