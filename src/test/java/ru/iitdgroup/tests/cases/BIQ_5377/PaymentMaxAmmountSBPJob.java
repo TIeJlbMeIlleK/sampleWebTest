@@ -1,7 +1,7 @@
 package ru.iitdgroup.tests.cases.BIQ_5377;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import org.testng.Assert;
+import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -13,6 +13,8 @@ import ru.iitdgroup.tests.webdriver.referencetable.Table;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -22,21 +24,16 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
 
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.DECEMBER, 24, 14, 10, 0);
-    private final GregorianCalendar time1 = new GregorianCalendar(2020, Calendar.DECEMBER, 24, 14, 20, 0);
-    private final GregorianCalendar time2 = new GregorianCalendar(2020, Calendar.DECEMBER, 24, 14, 25, 0);
-    private final GregorianCalendar time3 = new GregorianCalendar(2020, Calendar.DECEMBER, 22, 12, 00, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
+    private GregorianCalendar time2;
+    private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     private final List<String> clientIds = new ArrayList<>();
     private Client client = null;
 
     private static final String RULE_NAME = "R01_GR_51_AnomalTransfer_TSP";
     private static final String REFERENCE_ITEM = "(Rule_tables)Максимальная сумма транзакции СБП по типам ТСП";
-    private static final String TYPE_TSP = "Пупкин";
-    private static final String DATE_TIME = "24.12.2020 14:10:00";
-    private static final String DATE_TIME1 = "24.12.2020 14:20:00";
-    private static final String DATE_TIME2 = "24.12.2020 14:25:00";
-    private static final String DATE_TIME3 = "22.12.2020 12:00:00";
+    private static final String TYPE_TSP = new RandomString(8).nextString();
 
 
     @Test(
@@ -142,6 +139,7 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
         String name = client.getData().getClientData().getClient().getLastName() + ' ' +
                 client.getData().getClientData().getClient().getFirstName() + ' ' +
                 client.getData().getClientData().getClient().getMiddleName();
+
         getIC().locateTable(REFERENCE_ITEM)
                 .setTableFilter("Тип ТСП", "Equals", TYPE_TSP)
                 .refreshTable()
@@ -149,7 +147,7 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
                 .match("client", name)
                 .match("Тип ТСП", TYPE_TSP)
                 .match("Максимальная сумма", "10,00")
-                .match("Дата транзакции с максимальной суммой", DATE_TIME)
+                .match("Дата транзакции с максимальной суммой", format.format(time.getTime()))
                 .failIfNoRows(); //проверка справочника на наличие записи после отработки JOB
     }
 
@@ -159,10 +157,11 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
     )
 
     public void step2() {
+        time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time1))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time1))
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -182,10 +181,11 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
     )
 
     public void step3() {
+        time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time1))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time1))
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -212,10 +212,11 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
     )
 
     public void step4() {
+        time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time1))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time1))
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -242,10 +243,12 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
     )
 
     public void step5() {
+        time.add(Calendar.MINUTE, 1);
+        time2 = (GregorianCalendar) time.clone();
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time1))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time1))
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -272,10 +275,11 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
     )
 
     public void step6() {
+        time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -324,7 +328,7 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
                 .match("client", name)
                 .match("Тип ТСП", TYPE_TSP)
                 .match("Максимальная сумма", "16,00")
-                .match("Дата транзакции с максимальной суммой", DATE_TIME2)
+                .match("Дата транзакции с максимальной суммой", format.format(time.getTime()))
                 .failIfNoRows(); //проверка справочника на наличие записи после отработки JOB
 
         getIC().locateAlerts().refreshTable();
@@ -361,7 +365,7 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
                 .refreshTable()
                 .findRowsBy()
                 .match("client", name)
-                .match("Дата транзакции с максимальной суммой", DATE_TIME1)
+                .match("Дата транзакции с максимальной суммой", format.format(time2.getTime()))
                 .match("Максимальная сумма", "15,00")
                 .match("Тип ТСП", TYPE_TSP)
                 .failIfNoRows(); //проверка справочника на наличие записи после отработки JOB

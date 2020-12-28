@@ -189,6 +189,22 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
             }
         }
 
+        /**
+         * Вызывает Assert#fail (чтобы тест упал) для случая, если в таблице находятся удовлетворяющие формуле строки
+         */
+        public void failIfRowsExists() {
+            if (matchedRows == null) {
+                calcMatchedRows();
+            }
+            if (matchedRows.rows.size() > 0) {
+                final String formula = expressions.stream()
+                        .map(exp -> String.format("%s = %s", exp.colHeading, exp.rowText))
+                        .collect(Collectors.joining(", "));
+
+                fail(String.format("По формуле %s нашлись строки в таблице (должны были отсутствовать)", formula));
+            }
+        }
+
         public Table select() {
             calcMatchedRows();
             failIfNoRows();
@@ -207,7 +223,7 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
         }
 
         /**
-         * Выбрать все имеющиеся строки в таблице (установить checkbox сразу на всех)
+         * Выбрать все имеющиеся строки в таблице (установить checkbox сразу на всех) и удалить
          *
          * @return
          */

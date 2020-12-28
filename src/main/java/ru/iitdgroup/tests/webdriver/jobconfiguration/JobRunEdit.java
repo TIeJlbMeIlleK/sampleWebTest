@@ -73,6 +73,12 @@ public class JobRunEdit extends AbstractEdit<JobRunEdit> {
         return getSelf();
     }
 
+    public JobRunEdit refresh() {
+        driver.findElementByXPath("//div[@title='Refresh']//span[@class='icon-refresh']").click();
+        sleep(3);
+        return getSelf();
+    }
+
     /**
      * Задать описание
      * @param description описание
