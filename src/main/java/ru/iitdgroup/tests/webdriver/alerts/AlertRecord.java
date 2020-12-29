@@ -26,6 +26,69 @@ public class AlertRecord extends AbstractEdit<AlertRecord> {
         return getSelf();
     }
 
+    /**
+     * В РДАК "Не мой платеж"
+     */
+    public AlertRecord notMyPayment() {
+        driver.findElementByXPath("//button[@id='_ic_rdak_btn_cancel']").click();
+        sleep(2);
+        return getSelf();
+    }
+
+    /**
+     * В РДАК "Клиент не подтвержден"
+     */
+    public AlertRecord clientNotConfirmed() {
+        driver.findElementByXPath("//button[@id='_ic_rdak_notActualPhone']").click();
+        sleep(2);
+        return getSelf();
+    }
+
+    /**
+     * В РДАК "Клиент перезвонит сам"
+     */
+    public AlertRecord theClientWillCallHimself() {
+        driver.findElementByXPath("//button[@id='_ic_rdak_btn_client_call']").click();
+        sleep(2);
+        return getSelf();
+    }
+
+    /**
+     * В РДАК "Перезвонить позже"
+     */
+    public AlertRecord callBackLater() {
+        driver.findElementByXPath("//button[@id='_ic_rdak_btn_call_later']").click();
+        sleep(2);
+        return getSelf();
+    }
+
+    /**
+     * В РДАК "Не известно"
+     */
+    public AlertRecord NotKnown() {
+        driver.findElementByXPath("//button[@id='_ic_rdak_btn_unknown']").click();
+        sleep(2);
+        return getSelf();
+    }
+
+    /**
+     * В РДАК "Мой платеж"
+     */
+    public AlertRecord MyPayment() {
+        driver.findElementByXPath("//button[@id='_ic_rdak_btn_ok']").click();
+        sleep(2);
+        return getSelf();
+    }
+
+    /**
+     * В РДАК "Не дозвонился"
+     */
+    public AlertRecord unSuccessfulCall() {
+        driver.findElementByXPath("//button[@id='_ic_rdak_unSuccessfulCall']").click();
+        sleep(2);
+        return getSelf();
+    }
+
     @Override
     public AlertRecord getSelf() {
         return this;

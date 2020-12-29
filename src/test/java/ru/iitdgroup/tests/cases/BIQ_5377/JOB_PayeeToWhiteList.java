@@ -72,17 +72,9 @@ public class JOB_PayeeToWhiteList extends RSHBCaseTest {
             dependsOnMethods = "addClient"
     )
     public void enableRules() {
-        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM1).findRowsBy();
+        getIC().locateTable(REFERENCE_ITEM1).deleteAll();
 
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {//очищает карантин
-            rows.selectLinesAndDelete();
-        }
-
-        Table.Formula rows1 = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
-
-        if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {//очищает доверенных
-            rows1.selectLinesAndDelete();
-        }
+        getIC().locateTable(REFERENCE_ITEM2).deleteAll();
 
         getIC().locateTable(REFERENCE_ITEM)
                 .findRowsBy().match("код значения", "CLAIM_PERIOD").click()

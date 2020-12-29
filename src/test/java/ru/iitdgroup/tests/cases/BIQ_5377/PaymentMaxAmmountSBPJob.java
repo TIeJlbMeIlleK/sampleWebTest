@@ -87,11 +87,7 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
     )
 
     public void addMaxAmount() {
-        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM).findRowsBy();
-
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.selectLinesAndDelete();
-        }
+        getIC().locateTable(REFERENCE_ITEM).deleteAll();
     }
 
     @Test(

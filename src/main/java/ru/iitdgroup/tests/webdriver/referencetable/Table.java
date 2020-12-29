@@ -1,5 +1,6 @@
 package ru.iitdgroup.tests.webdriver.referencetable;
 
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.webdriver.TabledView;
@@ -151,6 +152,22 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
     }
 
     /**
+     * Удалить все имеющиеся строки в таблице (установить checkbox сразу на всех и удалить)
+     */
+    public Table deleteAll() {
+        try {
+            driver.findElementByXPath("//th[@scope='col']//input[@type='checkbox']").click();
+            sleep(2);
+            driver.findElementByXPath("//span[text()='Actions']").click();
+            driver.findElementByXPath("//div[@class='qtip-content']/a[text()='Delete']").click();
+            driver.findElementByXPath("//button[2]/span[text()='Yes']").click();
+            sleep(1);
+        } catch (NoSuchElementException e) { // таблица пустая
+        }
+        return this;
+    }
+
+    /**
      * Класс для формулы - набора выражений, т.е. фильтра, накладывемого на таблицу для отбора строк
      * (желательно - только одной, потому что клик будет сделан на первой подходящей
      */
@@ -220,21 +237,6 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
 
         public Table delete() {
             return select().delete();
-        }
-
-        /**
-         * Выбрать все имеющиеся строки в таблице (установить checkbox сразу на всех) и удалить
-         *
-         * @return
-         */
-        public Table selectLinesAndDelete() {
-            driver.findElementByXPath("//th[@scope='col']//input[@type='checkbox']").click();
-            sleep(2);
-            driver.findElementByXPath("//span[text()='Actions']").click();
-            driver.findElementByXPath("//div[@class='qtip-content']/a[text()='Delete']").click();
-            driver.findElementByXPath("//button[2]/span[text()='Yes']").click();
-            sleep(1);
-            return Table.this;
         }
 
         /**
