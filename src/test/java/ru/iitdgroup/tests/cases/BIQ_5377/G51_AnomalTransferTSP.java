@@ -18,11 +18,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import java.util.*;
-import java.text.*;
-
-import static org.testng.Assert.fail;
-
 
 public class G51_AnomalTransferTSP extends RSHBCaseTest {
 

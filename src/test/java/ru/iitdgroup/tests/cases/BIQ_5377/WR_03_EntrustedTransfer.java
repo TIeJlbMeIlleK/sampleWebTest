@@ -111,7 +111,7 @@ public class WR_03_EntrustedTransfer extends RSHBCaseTest {
                 .fillInputText("Период серии в минутах:", "10")
                 .fillInputText("Статистический параметр Обнуления (0.95):", "0,95")
                 .save()
-                .sleep(10);
+                .sleep(25);
     }
 
     @Test(

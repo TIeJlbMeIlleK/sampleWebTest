@@ -1,18 +1,17 @@
 package ru.iitdgroup.tests.cases.BIQ_5377;
 
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.tests.apidriver.Client;
-import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.webdriver.jobconfiguration.JobRunEdit;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -20,14 +19,12 @@ import java.util.concurrent.ThreadLocalRandom;
 public class JOB_PayeeWhiteListClear extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
-    private GregorianCalendar time2;
-    private GregorianCalendar time3;
     private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-    private final DateFormat format2 = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    private Instant transactionTime1 = null;
+    private Instant transactionTime2 = null;
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Яна", "Янова", "Марковна"}, {"Соня", "Хрюкова", "Михайловна"}};
-
+    private String[][] names = {{"Инна", "Пашкина", "Марковна"}, {"Николай", "Хрюков", "Михайлович"}};
 
     private static final String RULE_NAME = "";
     private static final String REFERENCE_ITEM = "(Policy_parameters) Параметры обработки справочников и флагов";
@@ -70,28 +67,33 @@ public class JOB_PayeeWhiteListClear extends RSHBCaseTest {
             dependsOnMethods = "addClient"
     )
     public void makeChangesToTheDirectory() {
-        Table.Formula rows1 = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
+        getIC().locateTable(REFERENCE_ITEM2)
+                .deleteAll();
 
-        if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {//очищает доверенных
-            rows1.selectLinesAndDelete();
-        }
-        time.add(Calendar.HOUR, -28);
-        time2 = (GregorianCalendar) time.clone();
         getIC().locateTable(REFERENCE_ITEM2)
                 .addRecord()
                 .fillUser("ФИО Клиента:", clientIds.get(0))
                 .fillInputText("Имя получателя:", TYPE_TSP1)
-                .fillInputText("Дата занесения:", format2.format(time2.getTime()))
                 .save();
+        //меняем в БД дату занесения и дату последней транзакции у 1го клиента более 1 дня назад(-28 часов)
+        transactionTime1 = Instant.now().minus(28, ChronoUnit.HOURS);
+        HashMap<String,Object> map = new HashMap<>();
+        map.put("TIME_STAMP", transactionTime1.toString());
+        map.put("LAST_TRANSACTION", transactionTime1.toString());
+        getDatabase().updateWhere("WHITE_LIST", map, "WHERE [id] = (SELECT MAX([id]) FROM [WHITE_LIST])");
 
-        time.add(Calendar.HOUR, -15);
-        time3 = (GregorianCalendar) time.clone();
+
         getIC().locateTable(REFERENCE_ITEM2)
                 .addRecord()
                 .fillUser("ФИО Клиента:", clientIds.get(1))
                 .fillInputText("Имя получателя:", TYPE_TSP2)
-                .fillInputText("Дата занесения:", format2.format(time3.getTime()))
-                .save();
+                .save().sleep(3);
+        //меняем в БД дату занесения и дату последней транзакции у 2го клиента менее 1 дня назад(-15 часов)
+        transactionTime2 = Instant.now().minus(15, ChronoUnit.HOURS);
+        map = new HashMap<>();
+        map.put("TIME_STAMP", transactionTime2.toString());
+        map.put("LAST_TRANSACTION", transactionTime2.toString());
+        getDatabase().updateWhere("WHITE_LIST", map, "WHERE [id] = (SELECT MAX([id]) FROM [WHITE_LIST])");
 
         getIC().locateTable(REFERENCE_ITEM)
                 .findRowsBy().match("код значения", "REMOVAL_DATE").click()
@@ -118,25 +120,22 @@ public class JOB_PayeeWhiteListClear extends RSHBCaseTest {
     )
 
     public void checkingReferenceBooks() {
-        String name1 = names[0][0] + ' ' + names[0][1] + ' ' + names[0][2];
-        String name2 = names[1][0] + ' ' + names[1][1] + ' ' + names[1][2];
-
-        getIC().locateTable(REFERENCE_ITEM2)//проверка удаления записи из доверенных после отработки JOB
-                .refreshTable()
-                .findRowsBy()
-                .match("Имя получателя", TYPE_TSP1)
-                .match("Дата занесения", format.format(time2.getTime()))
-                .match("ФИО Клиента", name1)
-                .failIfRowsExists(); //проверка справочника на отсутствие записи
-
+        String name1 = names[0][1] + ' ' + names[0][0] + ' ' + names[0][2];
+        String name2 = names[1][1] + ' ' + names[1][0] + ' ' + names[1][2];
 
         getIC().locateTable(REFERENCE_ITEM2)//проверка наличия записи в доверенных
                 .refreshTable()
                 .findRowsBy()
                 .match("Имя получателя", TYPE_TSP2)
-                .match("Дата занесения", format.format(time3.getTime()))
                 .match("ФИО Клиента", name2)
                 .failIfNoRows(); //проверка справочника на наличие записи
+
+        getIC().locateTable(REFERENCE_ITEM2)//проверка удаления записи из доверенных после отработки JOB
+                .refreshTable()
+                .findRowsBy()
+                .match("Имя получателя", TYPE_TSP1)
+                .match("ФИО Клиента", name1)
+                .failIfRowsExists(); //проверка справочника на отсутствие записи
 
         getIC().close();
     }
@@ -144,13 +143,5 @@ public class JOB_PayeeWhiteListClear extends RSHBCaseTest {
     @Override
     protected String getRuleName() {
         return RULE_NAME;
-    }
-
-    private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
     }
 }
