@@ -99,6 +99,7 @@ public class R01_GR_52_RiskyTSP extends RSHBCaseTest {
                 .fillCheckBox("Active:", true)
                 .save()
                 .sleep(15);
+        getIC().close();
     }
 
     @Test(
