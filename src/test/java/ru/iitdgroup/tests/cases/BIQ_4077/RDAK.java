@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Performances_RDAK extends RSHBCaseTest {
+public class RDAK extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
     private static final String RDAK = "(Policy_parameters) Перечень статусов для которых применять РДАК";
