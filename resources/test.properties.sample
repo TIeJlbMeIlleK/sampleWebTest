@@ -1,5 +1,5 @@
 #Подключение к интерфейсу IC
-ic.url=http://192.168.7.151:7780/InvestigationCenter/
+ic.url=http://192.168.7.151:7780/IntigationCenter/
 #ic.user=ic_admin
 #ic.password=ic_admin
 ic.user=user1

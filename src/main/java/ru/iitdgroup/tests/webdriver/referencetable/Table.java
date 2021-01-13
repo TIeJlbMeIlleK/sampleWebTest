@@ -72,7 +72,7 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
     }
 
     /**
-     * Добавить запись
+     * Добавляет запись
      *
      * @return
      */
@@ -251,6 +251,13 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
 
         public List<Integer> getTableRowNums() {
             return matchedRows.rows;
+        }
+
+        public int countMatchedRows() {
+            if (matchedRows == null) {
+                calcMatchedRows();
+            }
+            return matchedRows.rows.size();
         }
     }
 
