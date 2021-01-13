@@ -27,15 +27,18 @@ public class Rabbit implements AutoCloseable {
     private static final String DEFAULT_VES_PATH = "/ves/ves-data.json";
     private static final String DEFAULT_KAF_ALERT_PATH = "/caf/caf_alert.json";
     private static final String DEFAULT_KAF_NOT_TRANS_PATH = "/caf/caf_notFinance.json";
+    private static final String DEFAULT_KAF_CLIENT = "/caf/clientFromCaf.json";
     private String vesResponse;
     private String cafAlertResponse;
     private String cafNonFinanceResponse;
+    private String cafClient;
 
 
     public Rabbit(TestProperties props) {
         withVesResponse(DEFAULT_VES_PATH);
         withCafAlertResponse(DEFAULT_KAF_ALERT_PATH);
         withCafNotFinanceResponse(DEFAULT_KAF_NOT_TRANS_PATH);
+        withClientCafResponse(DEFAULT_KAF_CLIENT);
         this.props = props;
         //TODO: перенести путь в файл настроек - оно системно-специфическое
         System.setProperty("webdriver.chrome.driver", props.getChromeDriverPath());
@@ -91,6 +94,30 @@ public class Rabbit implements AutoCloseable {
         return this;
     }
 
+    public Rabbit sendClientCafMessage(){
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").click();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").clear();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").sendKeys(getClientResponse());
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/input[4]").click();
+        driver.findElementByXPath("//span[text()='Close']").click();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").clear();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
+        return this;
+    }
+
+    public Rabbit sendNonFinTransMessage(){
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").click();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").clear();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").sendKeys(getNonFinTransResponse());
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/input[4]").click();
+        driver.findElementByXPath("//span[text()='Close']").click();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").clear();
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
+        return this;
+    }
+
     public Rabbit closePublishMessage(){
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
         return this;
@@ -129,6 +156,17 @@ public class Rabbit implements AutoCloseable {
         return this;
     }
 
+    public Rabbit withClientCafResponse(String ClientCafFile) {
+        try {
+            this.cafClient = Files
+                    .lines(Paths.get(RESOURCES.toAbsolutePath() + "/" + ClientCafFile), StandardCharsets.UTF_8)
+                    .collect(Collectors.joining(System.lineSeparator()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
+
 
     public void close() {
         try {
@@ -146,6 +184,33 @@ public class Rabbit implements AutoCloseable {
     public String setVesResponse(String vesResponse) {
         this.vesResponse = vesResponse;
         return vesResponse;
+    }
+
+    public String getClientResponse() {
+        return cafClient;
+    }
+
+    public String setClientResponse(String cafClient) {
+        this.cafClient = cafClient;
+        return cafClient;
+    }
+
+    public String getNonFinTransResponse() {
+        return cafNonFinanceResponse;
+    }
+
+    public String setNonFinTransResponse(String cafNonFinanceResponse) {
+        this.cafNonFinanceResponse = cafNonFinanceResponse;
+        return cafNonFinanceResponse;
+    }
+
+    public String getAlertCafResponse() {
+        return cafAlertResponse;
+    }
+
+    public String setAlertCafResponse(String cafAlertResponse) {
+        this.cafAlertResponse = cafAlertResponse;
+        return cafAlertResponse;
     }
 
     @Override

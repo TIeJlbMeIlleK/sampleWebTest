@@ -156,6 +156,15 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
+    default S detachAll(String group) {
+        getSelf().getDriver().findElementByXPath("//*[@id=\"layoutListTablePanel:j_id2488\"]/table[2]/tbody/tr[1]/th[1]/div/input").click();
+        getSelf().getDriver().findElementByXPath("//*[@id=\"j_id2356:1:j_id2401\"]").click();
+        getSelf().sleep(1);
+        getSelf().getDriver().findElementByXPath("/html/body/div[16]/div[3]/div/button[2]/span").click();
+        getSelf().sleep(1);
+        return getSelf();
+    }
+
     default S attach(String group, String field, String operator, String value) {
         getSelf().getDriver().findElementByXPath(String.format("%s/../../../..//img[@title='Attach']", getGroupElement(group))).click();
         getSelf().waitUntil("//*[@title='Refresh']");
@@ -184,6 +193,17 @@ public interface TabledView<S extends AbstractView> {
         getSelf().getDriver().findElementByXPath("//span[text()='Select']").click();
         getSelf().getDriver().findElementByXPath("//a[@title='OK']").click();
         getSelf().waitUntil("//a[@id='btnEdit']");
+        return getSelf();
+    }
+
+    default S attachTransaction(String group,String tranType, String summ) {
+        getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//*[@id=\"j_id2356:0:j_id2401\"]")).click();
+        getSelf().getDriver().findElementByXPath("//*[@id=\"j_id169:0:j_id172:2:btnSelect_field_col1\"]").click();
+        getSelf().getDriver().findElementByXPath("//span[text()='"+tranType+"']").click();
+        getSelf().getDriver().findElementByXPath("//*[@id=\"btnSelectLookup\"]/span").click();
+        getSelf().sleep(2);
+        getSelf().getDriver().findElementByXPath("//*[@id=\"j_id142:0:j_id145:2:field_col0\"]").sendKeys(summ);
+        getSelf().getDriver().findElementByXPath("//*[@id=\"btnSave\"]").click();
         return getSelf();
     }
 

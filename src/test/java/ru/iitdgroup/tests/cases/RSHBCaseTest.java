@@ -166,7 +166,8 @@ public abstract class RSHBCaseTest {
     protected static final String WRONG_TRANSACTION_TYPE = "Не тот тип транзакции";
     protected static final String EXIST_TRUSTED_DEVICE_MSG = "Устройство клиента найдено в списке ранее использовавшихся";
     protected static final String RESULT_RULE_APPLY_ADAK = "Попытка подбора ответа на АДАК";
-
+    protected static final String ANOMAL_GEO_CHANGE = "Аномальная смена геопозиции Клиентом";
+    protected static final String RULE_TRIGGERED = "Сценарий сработал";
 
 
 
