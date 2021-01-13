@@ -1,5 +1,6 @@
 package ru.iitdgroup.tests.webdriver.referencetable;
 
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.iitdgroup.tests.webdriver.TabledView;
@@ -151,6 +152,22 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
     }
 
     /**
+     * Удалить все имеющиеся строки в таблице (установить checkbox сразу на всех и удалить)
+     */
+    public Table deleteAll() {
+        try {
+            driver.findElementByXPath("//th[@scope='col']//input[@type='checkbox']").click();
+            sleep(2);
+            driver.findElementByXPath("//span[text()='Actions']").click();
+            driver.findElementByXPath("//div[@class='qtip-content']/a[text()='Delete']").click();
+            driver.findElementByXPath("//button[2]/span[text()='Yes']").click();
+            sleep(1);
+        } catch (NoSuchElementException e) { // таблица пустая
+        }
+        return this;
+    }
+
+    /**
      * Класс для формулы - набора выражений, т.е. фильтра, накладывемого на таблицу для отбора строк
      * (желательно - только одной, потому что клик будет сделан на первой подходящей
      */
@@ -174,15 +191,34 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
         }
 
         /**
-         * Вызывает Assert#fail (чтобы тест упал) для случая, если у таблицы удовлетворяющих формуле строк
+         * Вызывает Assert#fail (чтобы тест упал) для случая, если у таблицы нет удовлетворяющих формуле строк
          */
-        private void failIfNoRows() {
+        public void failIfNoRows() {
+            if (matchedRows == null) {
+                calcMatchedRows();
+            }
             if (matchedRows.rows.size() == 0) {
                 final String formula = expressions.stream()
                         .map(exp -> String.format("%s = %s", exp.colHeading, exp.rowText))
                         .collect(Collectors.joining(", "));
 
                 fail(String.format("По формуле %s не удалось выбрать ни одной строки из таблицы", formula));
+            }
+        }
+
+        /**
+         * Вызывает Assert#fail (чтобы тест упал) для случая, если в таблице находятся удовлетворяющие формуле строки
+         */
+        public void failIfRowsExists() {
+            if (matchedRows == null) {
+                calcMatchedRows();
+            }
+            if (matchedRows.rows.size() > 0) {
+                final String formula = expressions.stream()
+                        .map(exp -> String.format("%s = %s", exp.colHeading, exp.rowText))
+                        .collect(Collectors.joining(", "));
+
+                fail(String.format("По формуле %s нашлись строки в таблице (должны были отсутствовать)", formula));
             }
         }
 

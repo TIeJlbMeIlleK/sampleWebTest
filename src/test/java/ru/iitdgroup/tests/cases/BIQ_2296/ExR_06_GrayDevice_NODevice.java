@@ -38,7 +38,7 @@ public class ExR_06_GrayDevice_NODevice extends RSHBCaseTest {
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
                 .save()
-                .sleep(5);
+                .sleep(10);
 
     }
     @Test(
@@ -49,7 +49,7 @@ public class ExR_06_GrayDevice_NODevice extends RSHBCaseTest {
 
         getIC().locateTable("(System_parameters) Интеграционные параметры")
                 .findRowsBy()
-                .match("Description", "Время ожидания актуальных данных от ВЭС")
+                .match("Описание", "Время ожидания актуальных данных от ВЭС")
                 .click()
                 .edit()
                 .fillInputText("Значение:", "1").save();

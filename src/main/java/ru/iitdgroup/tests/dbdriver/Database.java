@@ -73,6 +73,44 @@ public class Database implements AutoCloseable {
         }
     }
 
+    public void deleteWhere(String table, String whereString) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("DELETE FROM ").append(table);
+        sql.append(" ").append(whereString).append("\n");
+        try {
+            Connection conn = getConn();
+            Statement statement = conn.createStatement();
+            System.out.println(statement.executeUpdate(sql.toString().replaceAll(",$", "")));
+            conn.commit();
+            statement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Вставляет строки в таблицу table.
+     * Пример использования:
+     * getDatabase().insertRows("TABLE", new String[]{"'rdak_underfire', 'RDAK_Done'", "'Wait_RDAK', 'RDAK_Done'"});
+     */
+    public void insertRows(String table, String[] values) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("INSERT INTO ").append(table).append(" VALUES ");
+        for (String v : values) {
+            sql.append("(").append(v).append("), ");
+        }
+        sql.replace(sql.length()-2, sql.length(), "\n");
+        try {
+            Connection conn = getConn();
+            Statement statement = conn.createStatement();
+            System.out.println(statement.executeUpdate(sql.toString().replaceAll(",$", "")));
+            conn.commit();
+            statement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void appendUpdate(String table, Map<String, Object> values, StringBuilder sql) {
         sql.append(String.format("UPDATE %s SET ", table));
         for (Map.Entry<String, Object> entry : values.entrySet()) {

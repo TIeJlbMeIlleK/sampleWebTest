@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.webdriver;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import ru.iitdgroup.tests.webdriver.ic.AbstractView;
@@ -40,9 +41,11 @@ public interface TabledView<S extends AbstractView> {
 
         getSelf().sleep(3);
 
-//        getSelf().icxpath().element("Value").following(ICXPath.WebElements.INPUT).type(value);
-        getSelf().getDriver().findElementByXPath("//*[@id=\"custom_tableReportFilters:0:custom_cmbValue\"]").sendKeys(value);
-
+        try {
+            getSelf().icxpath().element("Value").following(ICXPath.WebElements.INPUT).type(value);
+        } catch (NoSuchElementException e) {
+            getSelf().getDriver().findElementByXPath("//*[@id=\"custom_tableReportFilters:0:custom_cmbValue\"]").sendKeys(value);
+        }
         return getSelf();
     }
 

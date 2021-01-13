@@ -57,17 +57,17 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
             dependsOnMethods = "enableRules"
     )
     public void editReferenceTable() {
-        getIC().locateTable(TABLE)
-                .findRowsBy()
-                .match("Description", "Время ожидания между получением Аутентификации клиента и вызовом ВЭС, секунд")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "5")
-                .save();
+//        getIC().locateTable(TABLE)
+//                .findRowsBy()
+//                .match("Описание", "Время ожидания между получением Аутентификации клиента и вызовом ВЭС, секунд")
+//                .click()
+//                .edit()
+//                .fillInputText("Значение:", "5")
+//                .save();
 
         getIC().locateTable(TABLE)
                 .findRowsBy()
-                .match("Description", "Период за который наполняется кэш для данных от ВЭС")
+                .match("Описание", "Период за который наполняется кэш для данных от ВЭС")
                 .click()
                 .edit()
                 .fillInputText("Значение:", "1440")
@@ -75,14 +75,14 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
 
         getIC().locateTable(TABLE)
                 .findRowsBy()
-                .match("Description", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
+                .match("Описание", "Интеграция с ВЭС по необработанным данным . Если параметр включен – интеграция производится.")
                 .click()
                 .edit()
                 .fillInputText("Значение:", "1")
                 .save();
         getIC().locateTable(TABLE)
                 .findRowsBy()
-                .match("Description", "Время ожидания актуальных данных от ВЭС")
+                .match("Описание", "Время ожидания актуальных данных от ВЭС")
                 .click()
                 .edit()
                 .fillInputText("Значение:", "300")

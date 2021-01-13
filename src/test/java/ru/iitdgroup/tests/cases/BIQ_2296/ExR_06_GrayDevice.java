@@ -56,7 +56,7 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         }
         getIC().locateTable(TABLE_IMSI)
                 .addRecord()
-                .fillMasked("IMSI:", "250015038779300")
+                .fillInputText("imsi:", "250015038779300")
                 .save();
     }
     @Test(
@@ -70,7 +70,7 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         }
         getIC().locateTable(TABLE_IMEI)
                 .addRecord()
-                .fillMasked("IMEI:", "863313032529520")
+                .fillInputText("imei:","863313032529520")
                 .save();
     }
     @Test(
