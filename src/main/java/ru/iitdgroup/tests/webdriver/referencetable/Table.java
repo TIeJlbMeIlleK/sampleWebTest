@@ -72,7 +72,7 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
     }
 
     /**
-     * Добавить запись
+     * Добавляет запись
      *
      * @return
      */
