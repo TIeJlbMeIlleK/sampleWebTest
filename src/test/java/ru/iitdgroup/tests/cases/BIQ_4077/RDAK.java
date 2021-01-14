@@ -18,7 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class RDAK extends RSHBCaseTest {
 
-    private static final String RULE_NAME = "R01_GR_20_NewPayee";
+    private static final String RULE_NAME = "R01_GR_15_NonTypicalGeoPosition";
     private static final String RDAK = "(Policy_parameters) Перечень статусов для которых применять РДАК";
     private static final String REFERENCE_ITEM = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
     private static final String REFERENCE_ITEM1 = "(Policy_parameters) Параметры обработки событий";
@@ -55,14 +55,14 @@ public class RDAK extends RSHBCaseTest {
         getIC().locateTable(REFERENCE_ITEM)
                 .deleteAll()
                 .addRecord()
-                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Платеж по QR-коду через СБП")
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
                 .select("Наименование канала:", "Мобильный банк")
                 .save();
         getIC().locateTable(REFERENCE_ITEM1)
                 .deleteAll()
                 .addRecord()
-                .fillFromExistingValues("Наименование группы клиентов:", "Имя группы", "Equals", "По умолчанию")
-                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Платеж по QR-коду через СБП")
+                .fillFromExistingValues("Наименование группы клиентов:", "Имя группы", "Equals", "Группа по умолчанию")
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
                 .fillCheckBox("Требуется выполнение АДАК:", true)
                 .fillCheckBox("Требуется выполнение РДАК:", true)
                 .select("Наименование канала ДБО:", "Мобильный банк")
@@ -96,8 +96,7 @@ public class RDAK extends RSHBCaseTest {
                 .openRecord("Alert Workflow")
                 .openAction("Взять в работу для выполнения РДАК")
                 .clearAllStates()
-                .addFromState("На разбор")
-                .addFromState("Ожидаю выполнения РДАК")
+                .addFromState("Any State")
                 .addToState("На выполнении РДАК")
                 .save();
 
@@ -160,9 +159,16 @@ public class RDAK extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .getPaymentC2B()
+                .getGettingCredit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(100));
+        transactionData.getClientDevice().getAndroid().setIpAddress("178.219.186.12");
         sendAndAssert(transaction);
+
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         getIC().locateAlerts()
                 .openFirst()
@@ -174,7 +180,7 @@ public class RDAK extends RSHBCaseTest {
         assertTableField("Идентификатор клиента:", clientIds.get(0));
         assertTableField("Status:", "РДАК выполнен");
         assertTableField("Статус РДАК:", "WRONG");
-        assertTableField("status:", "Подозрительная");
+        assertTableField("status:", "Fishily");
     }
 
     @Test(
@@ -193,9 +199,16 @@ public class RDAK extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .getPaymentC2B()
+                .getGettingCredit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(100));
+        transactionData.getClientDevice().getAndroid().setIpAddress("178.219.186.12");
         sendAndAssert(transaction);
+
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         getIC().locateAlerts()
                 .openFirst()
@@ -206,7 +219,7 @@ public class RDAK extends RSHBCaseTest {
         assertTableField("Идентификатор клиента:", clientIds.get(0));
         assertTableField("Status:", "РДАК выполнен");
         assertTableField("Статус РДАК:", "NOT_CONFIRMED_CLIENT");
-        assertTableField("status:", "Подозрительная");
+        assertTableField("status:", "Fishily");
     }
 
     @Test(
@@ -225,9 +238,16 @@ public class RDAK extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .getPaymentC2B()
+                .getGettingCredit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(100));
+        transactionData.getClientDevice().getAndroid().setIpAddress("178.219.186.12");
         sendAndAssert(transaction);
+
+        try {
+            Thread.sleep(2_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         getIC().locateAlerts()
                 .openFirst()
@@ -238,7 +258,7 @@ public class RDAK extends RSHBCaseTest {
         assertTableField("Идентификатор клиента:", clientIds.get(0));
         assertTableField("Status:", "На выполнении РДАК");
         assertTableField("Статус РДАК:", "CLIENT_CALL");
-        assertTableField("status:", "Подозрительная");
+        assertTableField("status:", "Fishily");
 
         getIC().locateAlerts()
                 .openFirst()
@@ -249,7 +269,7 @@ public class RDAK extends RSHBCaseTest {
         assertTableField("Идентификатор клиента:", clientIds.get(0));
         assertTableField("Status:", "РДАК выполнен");
         assertTableField("Статус РДАК:", "UNKNOWN");
-        assertTableField("status:", "Подозрительная");
+        assertTableField("status:", "Fishily");
     }
 
     @Override
@@ -258,7 +278,7 @@ public class RDAK extends RSHBCaseTest {
     }
 
     private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE.xml");
+        Transaction transaction = getTransaction("testCases/Templates/GETTING_CREDIT_Android.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
