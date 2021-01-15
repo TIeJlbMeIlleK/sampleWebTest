@@ -24,60 +24,60 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
 
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Борис", "Кудрявцев", "Викторович"}, {"Илья", "Пупкин", "Олегович"}, {"Ольга", "Типова", "Ивановна"},
-            {"Федор", "Тяпов", "Михайлович"}, {"Иван", "Сидоров", "Петрович"}};
+            {"Федор", "Тяпов", "Михайлович"}};
 
     private static final String RULE_NAME = "R01_ExR_10_AuthenticationFromSuspiciousDevice";
-    private static final String TABLE = "(System_parameters) Интеграционные параметры";
     private static final String REFERENCE_ITEM1 = "(Rule_tables) Подозрительные устройства IdentifierForVendor";
     private static final String REFERENCE_ITEM2 = "(Rule_tables) Подозрительные устройства IMSI";
     private static final String REFERENCE_ITEM3 = "(Rule_tables) Подозрительные устройства IMEI";
-    private static final String REFERENCE_ITEM4 = "(Rule_tables) Подозрительные устройства DeviceFingerPrint";
 
     private static final String TSP_TYPE = new RandomString(7).nextString();// создает рандомное значение Типа ТСП
     private static final String IFV = new RandomString(15).nextString();
     private static final String IFV1 = new RandomString(15).nextString();
-    private static final String IMSI = "121212121212121";
-    private static final String IMEI = "323232323232323";
-    private static final String DFP = new RandomString(15).nextString();
-    private static final String login1 = new RandomString(5).nextString();
-    private static final String login2 = new RandomString(5).nextString();
-    private static final String login3 = new RandomString(5).nextString();
-    private static final String login4 = new RandomString(5).nextString();
-    private static final String login5 = new RandomString(5).nextString();
+    private static final String IMSI = ThreadLocalRandom.current().nextLong(0, 15) + "";
+    private static final String IMEI = ThreadLocalRandom.current().nextLong(0, 15) + "";
 
+    private static final String LOGIN_1 = new RandomString(5).nextString();
+    private static final String LOGIN_2 = new RandomString(5).nextString();
+    private static final String LOGIN_3 = new RandomString(5).nextString();
+    private static final String LOGIN_4 = new RandomString(5).nextString();
 
     @Test(
             description = "Создаем клиента"
     )
     public void addClient() {
         try {
-            for (int i = 0; i < 5; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+            for (int i = 0; i < 4; i++) {
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0,12);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 if (i == 0) {
                     client.getData().getClientData().getClient()
-                            .withLogin(login1);
+                            .withLogin(LOGIN_1);
                 } else if (i == 1) {
                     client.getData().getClientData().getClient()
-                            .withLogin(login2);
+                            .withLogin(LOGIN_2);
                 } else if (i == 2) {
                     client.getData().getClientData().getClient()
-                            .withLogin(login3);
-                } else if (i == 3) {
-                    client.getData().getClientData().getClient()
-                            .withLogin(login4);
+                            .withLogin(LOGIN_3);
                 } else {
                     client.getData().getClientData().getClient()
-                            .withLogin(login5);
+                            .withLogin(LOGIN_4);
                 }
-
-                client.getData().getClientData().getClient()
+                client.getData()
+                        .getClientData()
+                        .getClient()
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withDboId(dboId)
+                        .withLoginHash(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
 
                 sendAndAssert(client);
                 clientIds.add(dboId);
@@ -106,8 +106,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     @Test(
             description = "Занести IFV в справочник подозрительных" +
                     "Занести IMSI в справочник подозрительных" +
-                    "Занести IMEI в справочник подозрителтьных" +
-                    "Занести DFP в справочник подозрительных",
+                    "Занести IMEI в справочник подозрителтьных",
             dependsOnMethods = "enableRules"
     )
 
@@ -138,30 +137,6 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .addRecord()
                 .fillInputText("imei:", IMEI)
                 .save();
-
-        Table.Formula dfp = getIC().locateTable(REFERENCE_ITEM4).findRowsBy();
-        if (dfp.calcMatchedRows().getTableRowNums().size() > 0) {
-            dfp.delete();
-        }
-        getIC().locateTable(REFERENCE_ITEM4)
-                .addRecord()
-                .fillInputText("DeviceFingerPrint:", DFP)
-                .save();
-    }
-
-    @Test(
-            description = "Включить IntegrVES2",
-            dependsOnMethods = "addRecipients"
-    )
-    public void enableVES() {
-
-        getIC().locateTable(TABLE)
-                .findRowsBy()
-                .match("Код значения", "IntegrVES2")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "1").save();
-
     }
 
     @Test(
@@ -176,7 +151,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .getData().getClientAuthentication()
                 .getClientIds().setDboId(clientIds.get(0));
         authentication
-                .getData().getClientAuthentication().withLogin(login1)
+                .getData().getClientAuthentication().withLogin(LOGIN_1)
                 .getClientDevice().getIOS()
                 .setIdentifierForVendor(IFV);
         sendAndAssert(authentication);
@@ -185,7 +160,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .locateReports()
                 .openFolder("Бизнес-сущности")
                 .openRecord("Список клиентов")
-                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds.get(0))
+                .setTableFilterWithActive("Идентификатор клиента", "Equals", clientIds.get(0))
                 .runReport()
                 .openFirst();
         assertTableField("Подозрительное устройство:", "Yes");
@@ -222,7 +197,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .getClientIds().setDboId(clientIds.get(1));
         authentication
                 .getData().getClientAuthentication()
-                .withLogin(login2)
+                .withLogin(LOGIN_2)
                 .getClientDevice().getAndroid()
                 .withIMSI(IMSI);
         sendAndAssert(authentication);
@@ -231,7 +206,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .locateReports()
                 .openFolder("Бизнес-сущности")
                 .openRecord("Список клиентов")
-                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds.get(1))
+                .setTableFilterWithActive("Идентификатор клиента", "Equals", clientIds.get(1))
                 .runReport()
                 .openFirst();
         assertTableField("Подозрительное устройство:", "Yes");
@@ -270,7 +245,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .setDboId(clientIds.get(2));
         authentication
                 .getData().getClientAuthentication()
-                .withLogin(login3)
+                .withLogin(LOGIN_3)
                 .getClientDevice()
                 .getAndroid()
                 .withIMEI(IMEI);
@@ -280,7 +255,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .locateReports()
                 .openFolder("Бизнес-сущности")
                 .openRecord("Список клиентов")
-                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds.get(2))
+                .setTableFilterWithActive("Идентификатор клиента", "Equals", clientIds.get(2))
                 .runReport()
                 .openFirst();
         assertTableField("Подозрительное устройство:", "Yes");
@@ -317,7 +292,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .getData().getClientAuthentication()
                 .getClientIds().setDboId(clientIds.get(3));
         authentication
-                .getData().getClientAuthentication().withLogin(login4)
+                .getData().getClientAuthentication().withLogin(LOGIN_4)
                 .getClientDevice().getIOS()
                 .setIdentifierForVendor(IFV1);
         sendAndAssert(authentication);
@@ -326,7 +301,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .locateReports()
                 .openFolder("Бизнес-сущности")
                 .openRecord("Список клиентов")
-                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds.get(3))
+                .setTableFilterWithActive("Идентификатор клиента", "Equals", clientIds.get(3))
                 .runReport()
                 .openFirst();
         assertTableField("Подозрительное устройство:", "No");
@@ -350,7 +325,6 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
     }
 
-
     @Override
     protected String getRuleName() {
         return RULE_NAME;
@@ -363,11 +337,6 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
 
     private Authentication getAuthenticationIOS() {
         Authentication authentication = super.getAuthentication("testCases/Templates/Autentification_IOS.xml");
-        return authentication;
-    }
-
-    private Authentication getAuthenticationPC() {
-        Authentication authentication = super.getAuthentication("testCases/Templates/Autentification_PC.xml");
         return authentication;
     }
 
@@ -386,13 +355,4 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
     }
-
-    private Transaction getTransactionPC() {
-        Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_PC.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
-    }
-
 }

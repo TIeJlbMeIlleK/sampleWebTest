@@ -93,16 +93,13 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
     )
     public void enableRules() {
         getIC().locateRules()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Использовать информацию из ВЭС:", true)
-                .fillCheckBox("Использовать информацию из САФ:", true)
-                .save();
-        getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .selectRule(RULE_NAME)
-                .activate()
-                .sleep(15);
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillCheckBox("Использовать информацию из ВЭС:", true)
+                .fillCheckBox("Использовать информацию из САФ:", true)
+                .save().sleep(15);
     }
 
 
