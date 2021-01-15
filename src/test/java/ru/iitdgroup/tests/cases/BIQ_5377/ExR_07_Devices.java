@@ -14,7 +14,10 @@ import ru.iitdgroup.tests.webdriver.referencetable.Table;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -22,6 +25,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ExR_07_Devices extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
+    private GregorianCalendar time2;
+    private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Борис", "Кудрявцев", "Викторович"}, {"Илья", "Пупкин", "Олегович"}, {"Ольга", "Петушкова", "Ильинична"}};
@@ -136,9 +141,12 @@ public class ExR_07_Devices extends RSHBCaseTest {
     )
 
     public void step1() {
-
+        time.add(Calendar.HOUR, -2);
+        time2 = (GregorianCalendar) time.clone();
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -154,7 +162,8 @@ public class ExR_07_Devices extends RSHBCaseTest {
                 .withIMEI(IMEI)
                 .withIMSI(IMSI);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Существует доверенное устройство с таким IMSI. Существует доверенное устройство с таким IMEI.");
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Существует доверенное устройство с таким IMSI.\n" +
+                "Существует доверенное устройство с таким IMEI.\n");
     }
 
     @Test(
@@ -166,6 +175,8 @@ public class ExR_07_Devices extends RSHBCaseTest {
 
         Transaction transaction = getTransactionIOS();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -220,6 +231,8 @@ public class ExR_07_Devices extends RSHBCaseTest {
 
         Transaction transaction = getTransactionIOS();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -235,7 +248,7 @@ public class ExR_07_Devices extends RSHBCaseTest {
                 .getIOS()
                 .withIdentifierForVendor(IFV);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет транзакций с таким же IFV");
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет транзакций с таким же IFV.");
     }
 
     @Test(
@@ -247,6 +260,8 @@ public class ExR_07_Devices extends RSHBCaseTest {
 
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -262,7 +277,8 @@ public class ExR_07_Devices extends RSHBCaseTest {
                 .withIMEI(IMEI1)
                 .withIMSI(IMSI1);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет транзакций с таким же IMSI, выполненных другим клиентом. Нет транзакций с таким же IMEI, выполненных другим клиентом.");
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет транзакций с таким же IMSI, выполненных другим клиентом.\n" +
+                "Нет транзакций с таким же IMEI, выполненных другим клиентом.\n");
     }
 
     @Override
