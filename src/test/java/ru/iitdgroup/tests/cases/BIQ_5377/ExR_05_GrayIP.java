@@ -39,7 +39,42 @@ public class ExR_05_GrayIP extends RSHBCaseTest {
 
 
     @Test(
-            description = "Создаем клиента"
+            description = "Включить правило R01_ExR_05_GrayIP"
+    )
+
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .save()
+                .sleep(10);
+    }
+
+    @Test(
+            description = "IP-адрес занесен в справочник \"Подозрительные IP адреса\"" +
+                    "Маска подсети (10.0.0.0/24)",
+            dependsOnMethods = "enableRules"
+    )
+
+    public void addRecipients() {
+
+        Table.Formula ref = getIC().locateTable(REFERENCE_ITEM).findRowsBy();
+        if (ref.calcMatchedRows().getTableRowNums().size() > 0) {
+            ref.delete();
+        }
+        getIC().locateTable(REFERENCE_ITEM)
+                .addRecord()
+                .fillInputText("IP устройства:", IP_ADRES1)
+                .fillInputText("Маска подсети устройства:", MASKA_IP)
+                .save();
+        getIC().close();
+    }
+
+    @Test(
+            description = "Создаем клиента",
+            dependsOnMethods = "addRecipients"
     )
     public void addClient() {
         try {
@@ -70,41 +105,6 @@ public class ExR_05_GrayIP extends RSHBCaseTest {
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    @Test(
-            description = "Включить правило R01_ExR_05_GrayIP",
-            dependsOnMethods = "addClient"
-    )
-
-    public void enableRules() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true)
-                .save()
-                .sleep(10);
-    }
-
-    @Test(
-            description = "IP-адрес занесен в справочник \"Подозрительные IP адреса\"" +
-                    "Маска подсети (10.0.0.0/24)",
-            dependsOnMethods = "enableRules"
-    )
-
-    public void addRecipients() {
-
-        Table.Formula ifv = getIC().locateTable(REFERENCE_ITEM).findRowsBy();
-        if (ifv.calcMatchedRows().getTableRowNums().size() > 0) {
-            ifv.delete();
-        }
-        getIC().locateTable(REFERENCE_ITEM)
-                .addRecord()
-                .fillInputText("IP устройства:", IP_ADRES1)
-                .fillInputText("Маска подсети устройства:", MASKA_IP)
-                .save();
-        getIC().close();
     }
 
     @Test(

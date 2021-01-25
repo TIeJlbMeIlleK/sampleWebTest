@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.cases.BIQ_6046;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -25,14 +26,14 @@ public class ExR_09_UseNewMobileDevice_IOS extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_ExR_09_UseNewMobileDevice";
     private static final String REFERENCE_ITEM1 = "(System_parameters) Интеграционные параметры";
     private static final String REFERENCE_ITEM2 = "(Rule_tables) Доверенные устройства для клиента";
-    private static final String IFV1 = "545454545454545454";
-    private static final String DFP1 = "545454545454545454";
-    private static final String IFV2 = "656565656565656565";
-    private static final String DFP2 = "656565656565656565";
-    private static final String IFV3 = "656565656565656565";
-    private static final String DFP3 = "656565656565656565";
-    private static final String LOGIN_HASH = "555";
-    private static final String LOGIN = "kuzma888";
+    private static final String IFV1 = new RandomString(15).nextString();
+    private static final String DFP1 = new RandomString(15).nextString();
+    private static final String IFV2 = new RandomString(15).nextString();
+    private static final String DFP2 = new RandomString(15).nextString();
+    private static final String IFV3 = new RandomString(15).nextString();
+    private static final String DFP3 = new RandomString(15).nextString();
+    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private static final String LOGIN = new RandomString(5).nextString();
 
 
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);

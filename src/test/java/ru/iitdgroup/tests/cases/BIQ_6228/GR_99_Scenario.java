@@ -95,7 +95,7 @@ public class GR_99_Scenario extends RSHBCaseTest {
 
         getIC().locateTable(TABLE_NAME)
                 .findRowsBy()
-                .match("ID","00003")
+                .match("Transaction Type","Перевод другому лицу")
                 .click()
                 .edit()
                 .fillInputText("Минимальное количество транзакций в серии:","1")
@@ -107,7 +107,7 @@ public class GR_99_Scenario extends RSHBCaseTest {
                 .save();
         getIC().locateTable(TABLE_NAME)
                 .findRowsBy()
-                .match("ID","00004")
+                .match("Transaction Type","Платеж по QR-коду через СБП")
                 .click()
                 .edit()
                 .fillInputText("Минимальное количество транзакций в серии:","1")

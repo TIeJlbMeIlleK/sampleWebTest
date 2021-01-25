@@ -136,10 +136,6 @@ public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
                 .action("SEND_SMS")
                 .sleep(2);
 
-        getIC().locateReports()
-                .openFolder("Системные отчеты")
-                .openFolder("Логированные сообщения");//визуально увидеть отправку СМС
-
         getIC().close();
 
         String[] lastSMS = getLastSentSMSInformation(); //в переменной информация о последней переданной СМС
