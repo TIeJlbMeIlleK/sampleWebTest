@@ -27,15 +27,19 @@ public class Rabbit implements AutoCloseable {
     private static final String DEFAULT_VES_PATH = "/ves/ves-data.json";
     private static final String DEFAULT_KAF_ALERT_PATH = "/caf/caf_alert.json";
     private static final String DEFAULT_KAF_NOT_TRANS_PATH = "/caf/caf_notFinance.json";
+    private static final String DEFAULT_KAF_CLIENT_PATH = "/caf/client.json";
+
     private String vesResponse;
     private String cafAlertResponse;
     private String cafNonFinanceResponse;
+    private String cafClientResponse;
 
 
     public Rabbit(TestProperties props) {
         withVesResponse(DEFAULT_VES_PATH);
         withCafAlertResponse(DEFAULT_KAF_ALERT_PATH);
         withCafNotFinanceResponse(DEFAULT_KAF_NOT_TRANS_PATH);
+        withCafClientResponse(DEFAULT_KAF_CLIENT_PATH);
         this.props = props;
         //TODO: перенести путь в файл настроек - оно системно-специфическое
         System.setProperty("webdriver.chrome.driver", props.getChromeDriverPath());
@@ -129,6 +133,17 @@ public class Rabbit implements AutoCloseable {
         return this;
     }
 
+    public Rabbit withCafClientResponse(String cafClientFile) {
+        try {
+            this.cafClientResponse = Files
+                    .lines(Paths.get(RESOURCES.toAbsolutePath() + "/" + cafClientFile), StandardCharsets.UTF_8)
+                    .collect(Collectors.joining(System.lineSeparator()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
+
 
     public void close() {
         try {
@@ -143,9 +158,36 @@ public class Rabbit implements AutoCloseable {
         return vesResponse;
     }
 
+    public String getCafClientResponse() {
+        return cafClientResponse;
+    }
+
+    public String getCafAlertResponse() {
+        return cafAlertResponse;
+    }
+
+    public String getCafNotFinanceResponse() {
+        return cafNonFinanceResponse;
+    }
+
     public String setVesResponse(String vesResponse) {
         this.vesResponse = vesResponse;
         return vesResponse;
+    }
+
+    public String setCafClientResponse(String cafClientResponse) {
+        this.cafClientResponse = cafClientResponse;
+        return cafClientResponse;
+    }
+
+    public String setCafAlertResponse(String cafAlertResponse) {
+        this.cafAlertResponse = cafAlertResponse;
+        return cafAlertResponse;
+    }
+
+    public String setCafNotFinanceResponse(String cafNonFinanceResponse) {
+        this.cafNonFinanceResponse = cafNonFinanceResponse;
+        return cafNonFinanceResponse;
     }
 
     @Override

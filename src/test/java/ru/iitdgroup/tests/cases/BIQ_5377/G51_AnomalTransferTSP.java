@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.cases.BIQ_5377;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -23,11 +24,18 @@ public class G51_AnomalTransferTSP extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.DECEMBER, 23, 14, 10, 0);
     private final List<String> clientIds = new ArrayList<>();
+    private String[][] names = {{"Борис", "Кудрявцев", "Викторович"}, {"Илья", "Пупкин", "Олегович"}, {"Ольга", "Петушкова", "Ильинична"}};
 
     private static final String RULE_NAME = "R01_GR_51_AnomalTransfer_TSP";
     private static final String REFERENCE_ITEM = "(Rule_tables)Максимальная сумма транзакции СБП по типам ТСП";
-    private static final String TYPE_TSP = "Рандом";
+    private static final String TYPE_TSP = new RandomString(5).nextString();
     private static final String DATE_TRANSACTION = "21.12.2020 15:10";
+    private static final String LOGIN_1 = new RandomString(5).nextString();
+    private static final String LOGIN_2 = new RandomString(5).nextString();
+    private static final String LOGIN_3 = new RandomString(5).nextString();
+    private static final String LOGIN_HASH1 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private static final String LOGIN_HASH2 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private static final String LOGIN_HASH3 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
 
 
     @Test(
@@ -36,31 +44,37 @@ public class G51_AnomalTransferTSP extends RSHBCaseTest {
     public void addClient() {
         try {
             for (int i = 0; i < 3; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
                 Client client = new Client("testCases/Templates/client.xml");
+                if (i == 0) {
+                    client.getData().getClientData().getClient().withLogin(LOGIN_1);
+                } else if (i == 1){
+                    client.getData().getClientData().getClient().withLogin(LOGIN_2);
+                }else {
+                    client.getData().getClientData().getClient().withLogin(LOGIN_3);
+                }
 
                 if (i == 0) {
-                    client.getData().getClientData().getClient()
-                            .withFirstName("Ульяна")
-                            .withLastName("Пономарева")
-                            .withMiddleName("Игоревна")
-                            .getClientIds()
-                            .withDboId(dboId);
+                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH1);
                 } else if (i == 1){
-                    client.getData().getClientData().getClient()
-                            .withFirstName("Ирина")
-                            .withLastName("Кукушкина")
-                            .withMiddleName("Вячеславовна")
-                            .getClientIds()
-                            .withDboId(dboId);
-                } else {
-                    client.getData().getClientData().getClient()
-                            .withFirstName("Маргарита")
-                            .withLastName("Зыкина")
-                            .withMiddleName("Михайловна")
-                            .getClientIds()
-                            .withDboId(dboId);
+                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH2);
+                }else {
+                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH3);
                 }
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
+                        .getClientIds()
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -71,9 +85,9 @@ public class G51_AnomalTransferTSP extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Добавить в справочник «Максимальная сумма транзакции СБП по типам ТСП» клиента №2\n" +
-                    "-- Тип ТСП = ТСП№3\n" +
-                    "-- Максимальная сумма = 20\n" +
+            description = "Добавить в справочник «Максимальная сумма транзакции СБП по типам ТСП» клиента №2" +
+                    "-- Тип ТСП = ТСП№3" +
+                    "-- Максимальная сумма = 20" +
                     "-- Дата транзакции с максимальной суммой = Текущее время - 2 дней",
             dependsOnMethods = "addClient"
     )
@@ -99,8 +113,8 @@ public class G51_AnomalTransferTSP extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Включить правило \n" +
-                    "-- Количество дней, за которые осуществляется набор статистических данных = 1\n" +
+            description = "Включить правило" +
+                    "-- Количество дней, за которые осуществляется набор статистических данных = 1" +
                     "-- Значение в сотых долях- допустимый порог 0.2",
             dependsOnMethods = "addMaxAmount"
     )
@@ -152,9 +166,7 @@ public class G51_AnomalTransferTSP extends RSHBCaseTest {
                     .waitSeconds(10)
                     .waitStatus(JobRunEdit.JobStatus.SUCCESS)
                     .run().sleep(5);
-
             getIC().close();
-
     }
 
     @Test(
