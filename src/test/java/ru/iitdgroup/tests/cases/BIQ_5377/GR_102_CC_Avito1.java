@@ -14,10 +14,7 @@ import ru.iitdgroup.tests.webdriver.rabbit.Rabbit;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -26,12 +23,8 @@ public class GR_102_CC_Avito1 extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_102_CC_Avito1";
     private static String TABLE_NAME = "(Policy_parameters) Блоки сценариев";
-    private final GregorianCalendar time = new GregorianCalendar();
-    private final GregorianCalendar time1 = new GregorianCalendar(2021, Calendar.JANUARY, 20, 11, 52, 0);
-    private final GregorianCalendar time2 = new GregorianCalendar(2021, Calendar.JANUARY, 20, 11, 56, 0);
-    private final GregorianCalendar time3 = new GregorianCalendar(2021, Calendar.JANUARY, 20, 11, 58, 0);
-    private final GregorianCalendar time4 = new GregorianCalendar(2021, Calendar.JANUARY, 20, 12, 01, 0);
 
+    private final GregorianCalendar time = new GregorianCalendar(2021, Calendar.JANUARY, 20, 11, 52, 0);
 
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Эльмира", "Пирожкова", "Викторовна"}, {"Олег", "Муркин", "Петрович"}};
@@ -100,7 +93,10 @@ public class GR_102_CC_Avito1 extends RSHBCaseTest {
     )
     public void addClientCAF() {
         try {
-            String cafClientResponse = getRabbit().getCafClientResponse();
+            String cafClientResponse = getRabbit()
+                    .getAllQueues()
+                    .getQueue(getProps().getRabbitCafClientQueueName())
+                    .getCafClientResponse();
             JSONObject json = new JSONObject(cafClientResponse);
             json.put("clientId", clientIds.get(0));
             json.put("cardId", CARD_ID);
@@ -108,9 +104,12 @@ public class GR_102_CC_Avito1 extends RSHBCaseTest {
             json.put("account", PAN_ACCOUNT);
             String newStr = json.toString();
             getRabbit().setCafClientResponse(newStr);
-            getRabbit().sendMessage();
+            getRabbit().sendMessage(Rabbit.ResponseType.CAF_CLIENT_RESPONSE);
 
-            String cafNonFinanceResponse = getRabbit().getCafNotFinanceResponse();
+            String cafNonFinanceResponse = getRabbit()
+                    .getAllQueues()
+                    .getQueue(getProps().getRabbitCafFactsQueueName())
+                    .getCafNotFinanceResponse();
             JSONObject js = new JSONObject(cafNonFinanceResponse);
             js.put("dateTime", DATA_TIME);
             js.put("cardholderId", clientIds.get(0));
@@ -119,7 +118,7 @@ public class GR_102_CC_Avito1 extends RSHBCaseTest {
             js.put("account", PAN_ACCOUNT);
             String newStr1 = js.toString();
             getRabbit().setCafNotFinanceResponse(newStr1);
-            getRabbit().sendMessage();
+            getRabbit().sendMessage(Rabbit.ResponseType.CAF_NOT_FINANCE_RESPONSE);
             getRabbit().close();
 
         } catch (JSONException e) {
@@ -132,7 +131,7 @@ public class GR_102_CC_Avito1 extends RSHBCaseTest {
             dependsOnMethods = "addClients"
     )
 
-    public void step1() {
+    public void transaction1() {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -146,6 +145,26 @@ public class GR_102_CC_Avito1 extends RSHBCaseTest {
         assertLastTransactionRuleApply(TRIGGERED, "Подозрение на развод на Авито");
     }
 
+    @Test(
+            description = "Более чем через 5 минут провести транзакцию №2 от клиента №1 \"Запрос на выдачу кредита\" на сумму 3001 руб",
+            dependsOnMethods = "transaction1"
+    )
+
+    public void transaction2() {
+        time.add(Calendar.MINUTE, 5);
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getGettingCredit()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(3001));
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Транзакция не подозрительная");
+    }
+
     @Override
     protected String getRuleName() {
         return RULE_NAME;
@@ -154,8 +173,8 @@ public class GR_102_CC_Avito1 extends RSHBCaseTest {
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/GETTING_CREDIT_IOC.xml");
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time1))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time1));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
     }
 }

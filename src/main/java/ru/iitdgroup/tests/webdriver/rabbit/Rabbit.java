@@ -29,6 +29,13 @@ public class Rabbit implements AutoCloseable {
     private static final String DEFAULT_KAF_NOT_TRANS_PATH = "/caf/caf_notFinance.json";
     private static final String DEFAULT_KAF_CLIENT_PATH = "/caf/client.json";
 
+    public enum ResponseType {
+        VES_RESPONSE,
+        CAF_CLIENT_RESPONSE,
+        CAF_NOT_FINANCE_RESPONSE,
+        CAF_ALERT_RESPONSE
+    }
+
     private String vesResponse;
     private String cafAlertResponse;
     private String cafNonFinanceResponse;
@@ -79,21 +86,43 @@ public class Rabbit implements AutoCloseable {
     }
 
     public Rabbit getQueue(String fieldname){
+
         driver.findElementByXPath("//a[text()='"+fieldname+"']").click();
         return this;
     }
 
     public Rabbit sendMessage(){
+        sendMessage(ResponseType.VES_RESPONSE);
+        return this;
+    }
+
+    public Rabbit sendMessage(ResponseType responseType){
+        String input;
+        switch (responseType) {
+            case CAF_CLIENT_RESPONSE:
+                input = getCafClientResponse();
+                break;
+            case CAF_NOT_FINANCE_RESPONSE:
+                input = getCafNotFinanceResponse();
+                break;
+            case CAF_ALERT_RESPONSE:
+                input = getCafAlertResponse();
+                break;
+            default:
+                input = getVesResponse();
+                break;
+        }
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").click();
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").clear();
-        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").sendKeys(getVesResponse());
+        driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").sendKeys(input);
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/input[4]").click();
         driver.findElementByXPath("//span[text()='Close']").click();
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/div/form/table/tbody/tr[5]/td/textarea").clear();
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
         return this;
     }
+
 
     public Rabbit closePublishMessage(){
         driver.findElementByXPath("//*[@id=\"main\"]/div[4]/h2").click();
