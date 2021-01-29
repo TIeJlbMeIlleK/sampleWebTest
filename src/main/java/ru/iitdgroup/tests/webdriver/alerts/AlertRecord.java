@@ -98,4 +98,8 @@ public class AlertRecord extends AbstractEdit<AlertRecord> {
         driver.findElementByXPath("//div[@id='_panel_0_0_:content']//table[@class='DetailsLayoutPanel ']/tbody/tr[3]/td[2]//a").click();
         return getSelf();
     }
+
+    public String getLastDate() {
+        return driver.findElementByXPath("//tbody[@id='j_id226:0:j_id229:tbody_element']/tr[1]/td[4]/table/tbody/tr/td/table/tbody/tr/td[2]").getText();
+    }
 }

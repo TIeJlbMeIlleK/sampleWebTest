@@ -41,12 +41,12 @@ public class AddingEmailDate extends RSHBCaseTest {
                         .withMiddleName("Васильевна")
                         .getClientIds()
                         .withDboId(dboId)
-                        .withEksId("1155")
-                        .withCifId("1155")
-                        .withExpertSystemId("1155")
-                        .withLoginHash("1155")
+                        .withEksId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withLoginHash(dboId)
                         .getAlfaIds()
-                        .withAlfaId("1155");
+                        .withAlfaId(dboId);
 
                 updateEmail(client, EMAIL1);
                 sendAndAssert(client);
@@ -57,7 +57,6 @@ public class AddingEmailDate extends RSHBCaseTest {
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
-
     }
 
     @Test(
@@ -68,7 +67,11 @@ public class AddingEmailDate extends RSHBCaseTest {
         for (Client client : this.clients) {
             updateEmail(client, EMAIL2);
             sendAndAssert(client);
-            String dboId = client.getData().getClientData().getClient().getClientIds().getDboId();
+            String dboId = client.getData()
+                    .getClientData()
+                    .getClient()
+                    .getClientIds()
+                    .getDboId();
             assertClientEmailChanged(dboId, EMAIL2);
         }
     }
@@ -79,7 +82,10 @@ public class AddingEmailDate extends RSHBCaseTest {
     }
 
     private void updateEmail(Client client, String email) {
-        List<ContactType> contacts = client.getData().getClientData().getContactInfo().getContact();
+        List<ContactType> contacts = client.getData()
+                .getClientData()
+                .getContactInfo()
+                .getContact();
         boolean exists = false;
         for (ContactType f : contacts) {
             if (f.getContactChannel() == ContactChannelType.EMAIL) {
@@ -93,9 +99,7 @@ public class AddingEmailDate extends RSHBCaseTest {
             contacts.add(new ContactType()
                     .withContactChannel(ContactChannelType.EMAIL)
                     .withContactKind(ContactKind.NOTIFICATION)
-                    .withValue(email)
-            );
+                    .withValue(email));
         }
-
     }
 }

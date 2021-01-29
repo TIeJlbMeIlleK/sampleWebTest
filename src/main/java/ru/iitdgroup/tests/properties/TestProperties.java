@@ -21,6 +21,18 @@ public class TestProperties extends Properties {
         return getProperty("rabbit.user");
     }
 
+    public String getRabbitCafClientQueueName() {
+        return getProperty("rabbit.cafClientQueueName");
+    }
+
+    public String getRabbitCafAlertQueueName() {
+        return getProperty("rabbit.cafAlertQueueName");
+    }
+
+    public String getRabbitCafFactsQueueName() {
+        return getProperty("rabbit.cafFactsQueueName");
+    }
+
     public String getICUser() {
         return getProperty("ic.user");
     }
@@ -69,7 +81,6 @@ public class TestProperties extends Properties {
     public String getDbPassword() {
         return getProperty("db.password");
     }
-
 
 
 }
