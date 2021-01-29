@@ -168,6 +168,7 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_RULE_APPLY_ADAK = "Попытка подбора ответа на АДАК";
     protected static final String ANOMAL_GEO_CHANGE = "Аномальная смена геопозиции Клиентом";
     protected static final String RULE_TRIGGERED = "Сценарий сработал";
+    protected static final String RESULT_RULE_APPLY = "Найдены необработаные события для этого клиента";
 
 
 

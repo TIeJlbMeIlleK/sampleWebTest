@@ -36,7 +36,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
 
 
 
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar(2021, Calendar.JANUARY, 7, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
 
     @Test(
