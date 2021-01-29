@@ -23,13 +23,10 @@ public class GR_99_Scenario extends RSHBCaseTest {
 
 //TODO перед  запуском теста должно быть вставлено поле в правило "Промежуток времени с момента восстановления доступа к ДБО"
 
-
     private static final String RULE_NAME = "R01_GR_99_Scenario";
     private static String TABLE_NAME = "(Policy_parameters) Блоки сценариев";
-    //TODO Логическое выражение в правиле должно совпадать с ID Блоками сценария
-    private static String TABLE_NAME1 = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
 
-    private final GregorianCalendar time = new GregorianCalendar();
+    private final GregorianCalendar time = new GregorianCalendar(2021, Calendar.JANUARY, 25, 0, 0, 0);
 
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
@@ -39,42 +36,71 @@ public class GR_99_Scenario extends RSHBCaseTest {
     @Test(
             description = "Включаем правило R01_GR_99_Scenario и выполняем преднастройки"
     )
-
-    public void step0() {
+//TODO Логическое выражение в правиле должно совпадать с ID Блоками сценария
+    public void enableRules() {
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
-                .fillInputText("Период серии в минутах:", "5")
+                .fillInputText("Период серии в минутах:", "10")
                 .fillInputText("Промежуток времени с момента восстановления доступа к ДБО:", "20")
-                .fillInputText("Логическое выражение:", "5&&6")
+                .fillInputText("Логическое выражение:", "9&&10")
                 .save()
                 .sleep(10);
 
-        getIC().locateTable(TABLE_NAME)
+        Table table = getIC().locateTable(TABLE_NAME);
+        int count = table
                 .findRowsBy()
-                .match("Transaction Type","Перевод другому лицу")
-                .click().edit()
-                .fillInputText("Минимальное количество транзакций в серии:", "1")
-                .fillInputText("Минимальная сумма всех транзакций серии:", "1000")
-                .fillInputText("Минимальная сумма транзакции:", "1000")
-                .fillFromExistingValues("Transaction Type:", "Наименование типа транзакции", "Equals", "Перевод другому лицу")
-                .save();
-        getIC().locateTable(TABLE_NAME)
+                .match("Transaction Type", "Перевод другому лицу")
+                .countMatchedRows();
+
+        if (count == 0) {//если записи отсутствуют, заносим новые
+            table.addRecord()
+                    .fillInputText("Минимальное количество транзакций в серии:", "1")
+                    .fillInputText("Минимальная сумма всех транзакций серии:", "1000")
+                    .fillInputText("Минимальная сумма транзакции:", "1000")
+                    .fillFromExistingValues("Transaction Type:", "Наименование типа транзакции", "Equals", "Перевод другому лицу")
+                    .save();
+        } else {
+            getIC().locateTable(TABLE_NAME)
+                    .findRowsBy()
+                    .match("Transaction Type", "Перевод другому лицу")
+                    .click().edit()
+                    .fillInputText("Минимальное количество транзакций в серии:", "1")
+                    .fillInputText("Минимальная сумма всех транзакций серии:", "1000")
+                    .fillInputText("Минимальная сумма транзакции:", "1000")
+                    .fillFromExistingValues("Transaction Type:", "Наименование типа транзакции", "Equals", "Перевод другому лицу")
+                    .save();
+        }
+        int count1 = table
                 .findRowsBy()
-                .match("Transaction Type","Платеж по QR-коду через СБП")
-                .click().edit()
-                .fillInputText("Минимальное количество транзакций в серии:", "1")
-                .fillInputText("Минимальная сумма всех транзакций серии:", "1000")
-                .fillInputText("Минимальная сумма транзакции:", "1000")
-                .fillFromExistingValues("Transaction Type:", "Наименование типа транзакции", "Equals", "Платеж по QR-коду через СБП")
-                .save();
+                .match("Transaction Type", "Платеж по QR-коду через СБП")
+                .countMatchedRows();
+
+        if (count1 == 0) {//если записи отсутствуют, заносим новые
+            table.addRecord()
+                    .fillInputText("Минимальное количество транзакций в серии:", "1")
+                    .fillInputText("Минимальная сумма всех транзакций серии:", "1000")
+                    .fillInputText("Минимальная сумма транзакции:", "1000")
+                    .fillFromExistingValues("Transaction Type:", "Наименование типа транзакции", "Equals", "Платеж по QR-коду через СБП")
+                    .save();
+        } else {
+            getIC().locateTable(TABLE_NAME)
+                    .findRowsBy()
+                    .match("Transaction Type", "Платеж по QR-коду через СБП")
+                    .click().edit()
+                    .fillInputText("Минимальное количество транзакций в серии:", "1")
+                    .fillInputText("Минимальная сумма всех транзакций серии:", "1000")
+                    .fillInputText("Минимальная сумма транзакции:", "1000")
+                    .fillFromExistingValues("Transaction Type:", "Наименование типа транзакции", "Equals", "Платеж по QR-коду через СБП")
+                    .save();
+        }
     }
 
     @Test(
             description = "Создание клиентов",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "enableRules"
     )
     public void createClients() {
         try {
@@ -110,10 +136,11 @@ public class GR_99_Scenario extends RSHBCaseTest {
 
     @Test(
             description = "Провести транзакцию №1 от клиента - \"Перевод другому лицу\", сумма 1001",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "createClients"
     )
 
     public void step1() {
+        time.add(Calendar.MINUTE, 15);
         Transaction transaction = getTransactionOuterTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -132,7 +159,6 @@ public class GR_99_Scenario extends RSHBCaseTest {
             dependsOnMethods = "step1"
     )
     public void step2() {
-        time.add(Calendar.MINUTE,5);
         Transaction transaction2 = getTransactionPAYMENTC2B_QRCODE();
         TransactionDataType transactionData2 = transaction2.getData().getTransactionData()
                 .withRegular(false);

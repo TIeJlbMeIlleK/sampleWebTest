@@ -27,55 +27,61 @@ public class GR_102_CC_Avito1 extends RSHBCaseTest {
     private final GregorianCalendar time = new GregorianCalendar(2021, Calendar.JANUARY, 20, 11, 52, 0);
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Эльмира", "Пирожкова", "Викторовна"}, {"Олег", "Муркин", "Петрович"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Эльмира", "Пирожкова", "Викторовна"}};
+    private static String[] login = {new RandomString(5).nextString(), new RandomString(5).nextString()};
+    private static String[] loginHash = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5),
+            (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
+
     private static final String PAN_ACCOUNT = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 13);
     private static final String CARD_ID = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 4);
     private static final String DATA_TIME = "1611132600";//не менять! сравнивает с time1
 
-//    @Test(
-//            description = "Включаем правило"
-//    )
-//
-//    public void enableRules() {
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .editRule(RULE_NAME)
-//                .fillCheckBox("Active:", true)
-//                .fillInputText("Период времени сценария:", "5")
-//                .fillInputText("Сумма транзакции:", "3000")
-//                .save()
-//                .sleep(10);
-//    }
+    @Test(
+            description = "Включаем правило"
+    )
+
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillInputText("Период времени сценария:", "5")
+                .fillInputText("Сумма транзакции:", "3000")
+                .save()
+                .sleep(10);
+    }
 
     @Test(
-            description = "Создание клиентов"
-            //dependsOnMethods = "enableRules"
+            description = "Создание клиентов",
+            dependsOnMethods = "enableRules"
     )
     public void addClients() {
         try {
-            for (int i = 0; i < 1; i++) {
+            for (int i = 0; i < 2; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9);
                 Client client = new Client("testCases/Templates/client.xml");
 
+                if (i == 0) {
+                    client.getData().getClientData().getClient().getClientIds().getAlfaIds()
+                            .withAlfaId(dboId);
+                } else {
+                    client.getData().getClientData().getClient().getClientIds().withAlfaIds(null);
+                }
                 client.getData()
                         .getClientData()
                         .getClient()
                         .withPasswordRecoveryDateTime(time)
-                        .withLogin(LOGIN)
+                        .withLogin(login[i])
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(loginHash[i])
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
-                        .withEksId(dboId)
-                        .getAlfaIds()
-                        .withAlfaId(dboId);
+                        .withEksId(dboId);
 
                 sendAndAssert(client);
                 clientIds.add(dboId);
@@ -163,6 +169,68 @@ public class GR_102_CC_Avito1 extends RSHBCaseTest {
                 .withAmountInSourceCurrency(BigDecimal.valueOf(3001));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Транзакция не подозрительная");
+    }
+
+    @Test(
+            description = "Менее чем через 5 минут провести транзакцию №3 от клиента №1 \"запрос на выдачу кредита\" на сумму 1000 руб",
+            dependsOnMethods = "transaction2"
+    )
+
+    public void transaction3() {
+        time.add(Calendar.MINUTE, 2);
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getGettingCredit()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Сумма транзакции ниже или равна установленной правилом: 1000");
+    }
+
+    @Test(
+            description = "Более чем через 5 минут провести транзакцию №4 от клиента №1 \"Запрос на выдачу кредита\" на сумму 1000 руб",
+            dependsOnMethods = "transaction3"
+    )
+
+    public void transaction4() {
+        time.add(Calendar.MINUTE, 6);
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getGettingCredit()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Сумма транзакции ниже или равна установленной правилом: 1000");
+    }
+
+    @Test(
+            description = "Передать из ДБО данные Клиента №2 , не содержащие ссылки на AlfaID" +
+                    "Провести транзакцию №5 от клиента №3 \"Запрос на выдачу кредита\" насумму 3001 руб",
+            dependsOnMethods = "transaction4"
+    )
+
+    public void transaction5() {
+
+        time.add(Calendar.MINUTE, 1);
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(1));
+        transactionData
+                .getGettingCredit()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(3001));
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "У клиента отсутствуют alfaId");
     }
 
     @Override
