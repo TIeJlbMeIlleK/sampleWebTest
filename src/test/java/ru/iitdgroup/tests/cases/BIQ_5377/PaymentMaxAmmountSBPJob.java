@@ -46,8 +46,8 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData().getClientData().getClient()
-                        .withFirstName("Арина")
-                        .withLastName("Афанасьева")
+                        .withFirstName("Эльмира")
+                        .withLastName("Табачникова")
                         .withMiddleName("Андреевна")
                         .getClientIds()
                         .withDboId(dboId);

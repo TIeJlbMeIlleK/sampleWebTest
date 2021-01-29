@@ -93,16 +93,13 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
     )
     public void enableRules() {
         getIC().locateRules()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Использовать информацию из ВЭС:", true)
-                .fillCheckBox("Использовать информацию из САФ:", true)
-                .save();
-        getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .selectRule(RULE_NAME)
-                .activate()
-                .sleep(15);
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillCheckBox("Использовать информацию из ВЭС:", true)
+                .fillCheckBox("Использовать информацию из САФ:", true)
+                .save().sleep(15);
     }
 
 
@@ -249,17 +246,21 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
 
     public void step0() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
+        TransactionDataType transactionData = transaction.getData()
+                .getTransactionData()
+                .withSessionId(DEVICE_FINGER_PRINT1)
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.withSessionId(DEVICE_FINGER_PRINT1);
-        transactionData.getClientDevice().getAndroid().setIMEI(IMEI1);
-        transactionData.getClientDevice().getAndroid().setIMSI(IMSI1);
-        transactionData.getClientDevice().getAndroid().setDeviceID(DEVICE_NUMBER1);
-        transactionData.getClientDevice().getAndroid().setSimSerial(SIM_NUMBER1);
-        transactionData.getClientDevice().getAndroid().setSerial(DEVICE_NUMBER1);
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .withIMEI(IMEI1)
+                .withIMSI(IMSI1)
+                .withDeviceID(DEVICE_NUMBER1)
+                .withSimSerial(SIM_NUMBER1)
+                .withSerial(DEVICE_NUMBER1);
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Устройство клиента найдено в списке ранее использовавшихся");

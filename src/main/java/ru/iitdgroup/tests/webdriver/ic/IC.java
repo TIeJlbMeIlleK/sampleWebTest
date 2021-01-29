@@ -80,7 +80,7 @@ public class IC implements AutoCloseable {
 
         String pictureName;
         if (name != null) {
-            pictureName = name.replaceAll("\\P{L}","_");
+            pictureName = name.replaceAll("\\P{L}", "_");
         } else {
             pictureName = "IC";
         }
@@ -135,6 +135,12 @@ public class IC implements AutoCloseable {
         return new Rules(driver);
     }
 
+    public Rules GoToTheListRule() {
+        driver.findElementByXPath("//*[@id=\"j_id107:0:breadcrumb\"]")
+                .click();
+        return new Rules(driver);
+    }
+
     public Jobs locateJobs() {
         try {
             driver.findElementByClassName("adminMenuButton").click();
@@ -162,7 +168,7 @@ public class IC implements AutoCloseable {
         return new Workflows(driver);
     }
 
-    public Workflows goToBack(){
+    public Workflows goToBack() {
         driver.findElementByXPath("//div[@id='app-navigation'][1]//following::*[@class='icon-gear']").click();
         driver.findElementByLinkText("Administration").click();
         return new Workflows(driver);
@@ -170,7 +176,8 @@ public class IC implements AutoCloseable {
 
     public Alerts locateAlerts() {
         locateView(TopMenuItem.ALERTS);
-        view.sleep(5);
+        driver.findElementByXPath("//img[@alt='Refresh']").click();
+        view.sleep(3);
         return new Alerts(driver);
     }
 
@@ -205,7 +212,7 @@ public class IC implements AutoCloseable {
     public IC home() {
         try {
             driver.findElementByXPath("//*[@id=\"navigateHomeLinkLogo\"]/img").click();
-        } catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             driver.findElementByClassName("icon-home").click();
         }
         return this;

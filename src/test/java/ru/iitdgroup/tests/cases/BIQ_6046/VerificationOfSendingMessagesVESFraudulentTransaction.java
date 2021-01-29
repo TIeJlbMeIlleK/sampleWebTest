@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.cases.BIQ_6046;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import net.bytebuddy.utility.RandomString;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
@@ -29,13 +30,14 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
 
     private static final String RULE_NAME = "R01_ExR_07_Devices";
     private static final String REFERENCE_ITEM1 = "(System_parameters) Интеграционные параметры";
-    private static final String LOGIN_HASH = "345";
-    private static final String LOGIN = "popopo345";
+    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private static final String LOGIN = new RandomString(5).nextString();
     private static final String SESSION_ID = "555krl345";
     private static final String UNIQUENAME = "SEND_FROM_VES1";
 
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
+    private String[][] names = {{"Лариса", "Каримова", "Игоревна"}, {"Ольга", "Петрова", "Ивановна"}};
     private String workflowRecordUniqueName;
     private String lastVESFeedbackIdBeforeTest;
 
@@ -82,31 +84,25 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
     public void addClient() {
         try {
             for (int i = 0; i < 2; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9);
                 Client client = new Client("testCases/Templates/client.xml");
-                if (i == 0) {
-                    client.getData().getClientData().getClient()
-                            .getClientIds()
-                            .withLoginHash(LOGIN_HASH);
-                    client.getData().getClientData().getClient()
-                            .withFirstName("Ирина")
-                            .withLastName("Любимова")
-                            .withMiddleName("Марковна")
-                            .withLogin(LOGIN)
-                            .getClientIds()
-                            .withDboId(dboId);
-                } else {
-                    client.getData().getClientData().getClient()
-                            .getClientIds()
-                            .withLoginHash(LOGIN_HASH + "1");
-                    client.getData().getClientData().getClient()
-                            .withFirstName("Ольга")
-                            .withLastName("Любимкина")
-                            .withMiddleName("Марковна")
-                            .withLogin(LOGIN + "1")
-                            .getClientIds()
-                            .withDboId(dboId);
-                }
+
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(LOGIN)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
+                        .getClientIds()
+                        .withLoginHash(LOGIN_HASH)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);

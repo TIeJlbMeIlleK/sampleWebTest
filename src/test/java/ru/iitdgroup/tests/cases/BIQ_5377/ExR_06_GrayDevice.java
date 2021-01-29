@@ -5,10 +5,7 @@ import net.bytebuddy.utility.RandomString;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
-import ru.iitdgroup.intellinx.dbo.client.IOSDevice;
-import ru.iitdgroup.intellinx.dbo.client.PlatformKind;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
-import ru.iitdgroup.tests.apidriver.Authentication;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
@@ -17,34 +14,35 @@ import ru.iitdgroup.tests.webdriver.referencetable.Table;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
+public class ExR_06_GrayDevice extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Борис", "Кудрявцев", "Викторович"}, {"Илья", "Пупкин", "Олегович"}};
+    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
 
-    private static final String RULE_NAME = "R01_ExR_09_UseNewMobileDevice";
     private static final String TABLE = "(System_parameters) Интеграционные параметры";
-    private static final String REFERENCE_ITEM1 = "(Rule_tables) Доверенные устройства для клиента";
+    private static final String RULE_NAME = "R01_ExR_06_GrayDevice";
+    private static final String REFERENCE_ITEM_IFV = "(Rule_tables) Подозрительные устройства IdentifierForVendor";
+    private static final String REFERENCE_ITEM_IMEI = "(Rule_tables) Подозрительные устройства IMEI";
+    private static final String REFERENCE_ITEM_IMSI = "(Rule_tables) Подозрительные устройства IMSI";
+    private static final String REFERENCE_ITEM_DFP = "(Rule_tables) Подозрительные устройства DeviceFingerPrint";
 
     private static final String TSP_TYPE = new RandomString(7).nextString();// создает рандомное значение Типа ТСП
     private static final String IFV = new RandomString(15).nextString();
-    private static final String IFV2 = new RandomString(15).nextString();
     private static final String IMSI = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 15);
     private static final String IMEI = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 15);
     private static final String DFP = new RandomString(15).nextString();
-    private static final String DFP2 = new RandomString(15).nextString();
-    private static final String LOGIN_1 = new RandomString(5).nextString();
-    private static final String LOGIN_2 = new RandomString(5).nextString();
-    private static final String LOGIN_HASH1 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-    private static final String LOGIN_HASH2 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private static final String LOGIN = new RandomString(5).nextString();
+    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
 
 
     @Test(
@@ -52,27 +50,19 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
     )
     public void addClient() {
         try {
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
                 Client client = new Client("testCases/Templates/client.xml");
-                if (i == 0) {
-                    client.getData().getClientData().getClient().withLogin(LOGIN_1);
-                } else {
-                    client.getData().getClientData().getClient().withLogin(LOGIN_2);
-                }
 
-                if (i == 0) {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH1);
-                } else {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH2);
-                }
                 client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(LOGIN)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
+                        .withLoginHash(LOGIN_HASH)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -90,7 +80,7 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Включить правило R01_ExR_09_UseNewMobileDevice",
+            description = "Включить правило R01_ExR_06_GrayDevice",
             dependsOnMethods = "addClient"
     )
 
@@ -100,40 +90,53 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .deactivate()
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
-                .fillCheckBox("Использовать информацию из ВЭС:", true)
-                .fillCheckBox("Использовать информацию из САФ:", true)
                 .save()
                 .sleep(5);
     }
 
     @Test(
-            description = "Занести в доверенные устройства № 1 Android для клиента № 1 и" +
-                    "Занести в доверенные устройства № 2 IOC для клиента № 1",
+            description = "Наполнить справочники подозрительных устройств: IMEI, IMSI, IFV, DFP",
             dependsOnMethods = "enableRules"
     )
 
     public void addRecipients() {
 
-        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM1).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
+        Table.Formula ifv = getIC().locateTable(REFERENCE_ITEM_IFV).findRowsBy();
+        if (ifv.calcMatchedRows().getTableRowNums().size() > 0) {
+            ifv.delete();
         }
-        getIC().locateTable(REFERENCE_ITEM1)
+        getIC().locateTable(REFERENCE_ITEM_IFV)
+                .addRecord()
+                .fillInputText("Identifier for vendor:", IFV)
+                .save();
+
+        Table.Formula imsi = getIC().locateTable(REFERENCE_ITEM_IMSI).findRowsBy();
+        if (imsi.calcMatchedRows().getTableRowNums().size() > 0) {
+            imsi.delete();
+        }
+        getIC().locateTable(REFERENCE_ITEM_IMSI)
+                .addRecord()
+                .fillInputText("imsi:", IMSI)
+                .save();
+
+        Table.Formula imei = getIC().locateTable(REFERENCE_ITEM_IMEI).findRowsBy();
+        if (imei.calcMatchedRows().getTableRowNums().size() > 0) {
+            imei.delete();
+        }
+        getIC().locateTable(REFERENCE_ITEM_IMEI)
+                .addRecord()
+                .fillInputText("imei:", IMEI)
+                .save();
+
+        Table.Formula dfp = getIC().locateTable(REFERENCE_ITEM_DFP).findRowsBy();
+        if (dfp.calcMatchedRows().getTableRowNums().size() > 0) {
+            dfp.delete();
+        }
+        getIC().locateTable(REFERENCE_ITEM_DFP)
                 .addRecord()
                 .fillInputText("DeviceFingerPrint:", DFP)
-                .fillInputText("IMEI:", IMEI)
-                .fillInputText("IdentifierForVendor:", IFV)
-                .fillInputText("IMSI:", IMSI)
-                .fillCheckBox("Доверенный:", true)
-                .fillUser("Клиент:", clientIds.get(0))
                 .save();
-    }
 
-    @Test(
-            description = "Включить IntegrVES2",
-            dependsOnMethods = "addRecipients"
-    )
-    public void enableVES() {
         getIC().locateTable(TABLE)
                 .findRowsBy()
                 .match("Код значения", "IntegrVES2")
@@ -146,8 +149,8 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
         try {
             String vesResponse = getRabbit().getVesResponse();
             JSONObject json = new JSONObject(vesResponse);
-            json.put("login", LOGIN_1);
-            json.put("login_hash", LOGIN_HASH1);
+            json.put("login", LOGIN);
+            json.put("login_hash", LOGIN_HASH);
             json.put("session_id", DFP);
             json.put("device_hash", DFP);
             String newStr = json.toString();
@@ -160,15 +163,16 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию № 1 с устройства № 1 от клиента № 1",
-            dependsOnMethods = "enableVES"
+            description = "Выполнить регулярную транзакцию № 1 с подозрительного устройства (IMEI/IMSI/IFV)",
+            dependsOnMethods = "addRecipients"
     )
 
     public void step1() {
-
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(true);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
@@ -183,18 +187,19 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .withIMEI(IMEI)
                 .withIMSI(IMSI);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_DEVICE_MSG);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, REGULAR_TRANSACTION);
     }
 
     @Test(
-            description = "Провести транзакцию № 2 с устройства № 2 от клиента № 1",
+            description = "Выполнить транзакцию № 2 с подозрительного устройства IMEI",
             dependsOnMethods = "step1"
     )
 
     public void step2() {
-
-        Transaction transaction = getTransactionIOS();
+        Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -205,23 +210,24 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .withTSPName(TSP_TYPE)
                 .withTSPType(TSP_TYPE);
         transactionData
-                .withSessionId(DFP)
                 .getClientDevice()
-                .getIOS()
-                .withIdentifierForVendor(IFV);
+                .getAndroid()
+                .withIMEI(IMEI)
+                .withIMSI(null);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_DEVICE_MSG);
+        assertLastTransactionRuleApply(TRIGGERED, "IMEI найден в сером списке");
     }
 
     @Test(
-            description = "Провести транзакцию № 3 с устройства № 3 от клиента № 1",
+            description = "Выполнить транзакцию № 3 с подозрительного устройства IMSI",
             dependsOnMethods = "step2"
     )
 
     public void step3() {
-
-        Transaction transaction = getTransactionIOS();
+        Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -232,27 +238,28 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .withTSPName(TSP_TYPE)
                 .withTSPType(TSP_TYPE);
         transactionData
-                .withSessionId(DFP2)
                 .getClientDevice()
-                .getIOS()
-                .withIdentifierForVendor(IFV2);
+                .getAndroid()
+                .withIMEI(null)
+                .withIMSI(IMSI);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, NEW_DEVICE);
+        assertLastTransactionRuleApply(TRIGGERED, "IMSI найден в сером списке");
     }
 
     @Test(
-            description = "Провести транзакцию № 3 с устройства № 3 от клиента № 1",
+            description = "Выполнить транзакцию № 4 с подозрительного устройства DFP",
             dependsOnMethods = "step3"
     )
 
     public void step4() {
-
-        Transaction transaction = getTransactionIOS();
+        Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(false);
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(1));
+                .withDboId(clientIds.get(0));
         transactionData
                 .getPaymentC2B()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(300))
@@ -261,10 +268,38 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
         transactionData
                 .withSessionId(DFP)
                 .getClientDevice()
-                .getIOS()
-                .withIdentifierForVendor(IFV2);
+                .getAndroid()
+                .withIMEI(null)
+                .withIMSI(null);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(FEW_DATA, DEVICE_NOT_EXIST);
+        assertLastTransactionRuleApply(TRIGGERED, "DFP найден в сером списке");
+    }
+
+    @Test(
+            description = "Выполнить транзакцию № 5 с подозрительного устройства IFV",
+            dependsOnMethods = "step4"
+    )
+
+    public void step5() {
+        Transaction transaction = getTransactionIOS();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
+                .withTSPName(TSP_TYPE)
+                .withTSPType(TSP_TYPE);
+        transactionData
+                .getClientDevice()
+                .getIOS()
+                .withIdentifierForVendor(IFV);
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, "IFV найден в сером списке");
     }
 
     @Override
