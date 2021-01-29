@@ -9,6 +9,7 @@ import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
+import ru.iitdgroup.tests.webdriver.rabbit.Rabbit;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -74,18 +75,18 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
     public void clientCaf() {
         commandServiceMock.run();
         try {
-            String clientResponse = getRabbit().getClientResponse();
+            String clientResponse = getRabbit().getCafClientResponse();
             JSONObject json = new JSONObject(clientResponse);
             json.put("clientId", clientIds.get(0));
             json.put("cardId", clientIds.get(0));
             json.put("pan", clientIds.get(0));
             json.put("account", clientIds.get(0));
             String newStr = json.toString();
-            getRabbit().setClientResponse(newStr);
+            getRabbit().setCafClientResponse(newStr);
             getRabbit()
                     .getAllQueues()
                     .getQueue("ClientsFromCAF_VE")
-                    .sendClientCafMessage();
+                    .sendMessage(Rabbit.ResponseType.CAF_CLIENT_RESPONSE);
         } catch (JSONException e) {
             throw new IllegalStateException();
         }
@@ -97,18 +98,18 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
     )
     public void nonFinTransCAF() {
         try {
-            String nonFinTransResponse = getRabbit().getNonFinTransResponse();
+            String nonFinTransResponse = getRabbit().getCafNotFinanceResponse();
             JSONObject json = new JSONObject(nonFinTransResponse);
             json.put("cardholderId", clientIds.get(0));
             json.put("account", clientIds.get(0));
             json.put("pan", clientIds.get(0));
             json.put("dateTime", System.currentTimeMillis() / 1000L);
             String newStr = json.toString();
-            getRabbit().setNonFinTransResponse(newStr);
+            getRabbit().setCafNotFinanceResponse(newStr);
             getRabbit()
                     .getAllQueues()
                     .getQueue("FactsFromCAF_VE")
-                    .sendNonFinTransMessage();
+                    .sendMessage(Rabbit.ResponseType.CAF_NOT_FINANCE_RESPONSE);
         } catch (JSONException e) {
             throw new IllegalStateException();
         }

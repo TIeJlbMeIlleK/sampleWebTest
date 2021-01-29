@@ -10,6 +10,7 @@ import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
+import ru.iitdgroup.tests.webdriver.rabbit.Rabbit;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -70,7 +71,7 @@ public class GR_101_CC_Fake_Passport extends RSHBCaseTest {
     public void clientCaf() {
         commandServiceMock.run();
         try {
-            String clientResponse = getRabbit().getClientResponse();
+            String clientResponse = getRabbit().getCafClientResponse();
             JSONObject json = new JSONObject(clientResponse);
             json.put("clientId", dboId_1);
             json.put("cardId", dboId_1);
@@ -79,11 +80,11 @@ public class GR_101_CC_Fake_Passport extends RSHBCaseTest {
             json.put("productName", "5555");
             json.put("cardIssueDate", System.currentTimeMillis() / 1000L);
             String newStr = json.toString();
-            getRabbit().setClientResponse(newStr);
+            getRabbit().setCafClientResponse(newStr);
             getRabbit()
                     .getAllQueues()
                     .getQueue("ClientsFromCAF_VE")
-                    .sendClientCafMessage();
+                    .sendMessage(Rabbit.ResponseType.CAF_CLIENT_RESPONSE);
         } catch (JSONException e) {
             throw new IllegalStateException();
         }
@@ -172,7 +173,7 @@ public class GR_101_CC_Fake_Passport extends RSHBCaseTest {
         }
 
         try {
-            String clientResponse = getRabbit().getClientResponse();
+            String clientResponse = getRabbit().getCafClientResponse();
             JSONObject json = new JSONObject(clientResponse);
             json.put("clientId", dboId_2);
             json.put("cardId", dboId_2);
@@ -181,11 +182,11 @@ public class GR_101_CC_Fake_Passport extends RSHBCaseTest {
             json.put("productName", "5555");
             json.put("cardIssueDate", System.currentTimeMillis() / 1000L);
             String newStr = json.toString();
-            getRabbit().setClientResponse(newStr);
+            getRabbit().setCafClientResponse(newStr);
             getRabbit()
                     .getAllQueues()
                     .getQueue("ClientsFromCAF_VE")
-                    .sendClientCafMessage();
+                    .sendMessage(Rabbit.ResponseType.CAF_CLIENT_RESPONSE);
         } catch (JSONException e) {
             throw new IllegalStateException();
         }
