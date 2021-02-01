@@ -25,6 +25,12 @@ public class ReportRecord extends AbstractView<ReportRecord> implements TabledVi
         return new ReportDetail(driver);
     }
 
+    public ReportDetail openFirstID() {
+        driver.findElementByXPath("//*[@id='j_id355']/table[2]/tbody/tr[2]/td[5]/div[2]/span")
+                .click();
+        return new ReportDetail(driver);
+    }
+
 
     public ReportRecord changeAllFiltersCheckboxes() {
         List<WebElement> elements = driver.findElementsByXPath("//input[starts-with(@id, 'custom_tableReportFilters:')]");

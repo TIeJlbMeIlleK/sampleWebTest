@@ -21,26 +21,32 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.time.Instant;
 
-public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
+
+public class GR_105_CC_UnprocessedCafEventSender extends RSHBCaseTest {
 
 
-    private static final String RULE_NAME = "R01_GR_100_CC_Anomal_GEO_Change";
-    private static final String TABLE = "(System_parameters) Интеграционные параметры";
-    private static final long UNIT_TIME = Instant.now().getEpochSecond();
-    private static final String CARD_HOLDER_NAME = "Место работы";
+    private static final String RULE_NAME = "R01_GR_105_CC_UnprocessedCafEventSender";
+
+    private static final long UNIT_TIME = Instant.now().getEpochSecond();//конвертирует текущее время в UNIT TIME
+
     private final GregorianCalendar time = new GregorianCalendar();
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Эльмира", "Пирожкова", "Викторовна"}, {"Олег", "Муркин", "Петрович"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Эльмира", "Пирожкова", "Викторовна"}};
+    private static String[] login = {new RandomString(5).nextString(), new RandomString(5).nextString()};
+    private static String[] loginHash = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5),
+            (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
+    private static String[] dboId = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5),
+            (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
     private static final String PAN_ACCOUNT = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 13);
     private static final String CARD_ID = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 4);
+    private static final String CARD_HOLDER_NAME = "Место работы";
+
 
 
     @Test(
-            description = "Включаем правило и настраиваем справочники"
-                )
+            description = "Включаем правило"
+    )
 
     public void enableRules() {
         getIC().locateRules()
@@ -48,47 +54,38 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(10);
-
-        getIC().locateTable(TABLE)
-                .findRowsBy()
-                .match("Код значения", "GisSystem_GIS")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "1")
-                .save();
+                .sleep(15);
     }
 
     @Test(
             description = "Создание клиентов",
             dependsOnMethods = "enableRules"
     )
-    public void createClients() {
+    public void addClients() {
         try {
-            for (int i = 0; i < 1; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9);
+            for (int i = 0; i < 2; i++) {
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
                         .withPasswordRecoveryDateTime(time)
-                        .withLogin(LOGIN)
+                        .withLogin(login[i])
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
-                        .withDboId(dboId)
-                        .withCifId(dboId)
-                        .withExpertSystemId(dboId)
-                        .withEksId(dboId)
+                        .withLoginHash(loginHash[i])
+                        .withDboId(dboId[i])
+                        .withCifId(dboId[i])
+                        .withExpertSystemId(dboId[i])
+                        .withEksId(dboId[i])
                         .getAlfaIds()
-                        .withAlfaId(dboId);
+                        .withAlfaId(dboId[i]);
 
                 sendAndAssert(client);
-                clientIds.add(dboId);
-                System.out.println(dboId);
+                clientIds.add(dboId[i]);
+                System.out.println(dboId[i]);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
@@ -96,9 +93,8 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
     }
 
     @Test(
-            description = "1.Передать с КАФ новую карточку клиента №1" +
-                    "2. Передать из КАФ нефинансовое событие",
-            dependsOnMethods = "createClients"
+            description = "1.Передать из КАФ Событие КАФ для Клиента № 1. Статус События \"Не обработано\".",
+            dependsOnMethods = "addClients"
     )
     public void addClientCAF() {
         try {
@@ -108,6 +104,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
                     .getCafClientResponse();
             JSONObject json = new JSONObject(cafClientResponse);
             json.put("clientId", clientIds.get(0));
+            json.put("cardholderName", CARD_HOLDER_NAME);
             json.put("cardId", CARD_ID);
             json.put("pan", PAN_ACCOUNT);
             json.put("account", PAN_ACCOUNT);
@@ -143,14 +140,11 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию № 1 для клиента № 1 \"Запрос на выдачу кредита\", " +
-                    "такую что расстояние между  координатами События КАФ и транзакции менее 200 км " +
-                    "и скорость больше аномальной (150 км/ч) (ip-адрес Владимир (91.225.151.25)) через 1 секунду.",
+            description = "Провести транзакцию № 1 Клиента № 1 \"Платеж по QR-коду через СБП\"",
             dependsOnMethods = "addClientCAF"
     )
 
     public void transaction1() {
-        time.add(Calendar.SECOND, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -158,51 +152,50 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .getGettingCredit()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .getClientDevice()
-                .getIOS()
-                .withIpAddress("91.225.151.25");
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, "Аномальная смена геопозиции Клиентом");
+        assertLastTransactionRuleApply(TRIGGERED, "Существует Событие из КАФ у Клиента");
     }
 
     @Test(
-            description = "Провести транзакцию № 2 для клиента № 1 \"Запрос на выдачу кредита\"," +
-                    "такую что расстояние между координатами События КАФ и транзакции более 201 км, " +
-                    "но менее 500 км и скорость больше аномальной (400 км/ч) (ip-адрес Нижнего Новгорода (82.208.124.120)) через 1 секунду.",
+            description = "Провести транзакцию № 1 Клиента № 1 \"Платеж по QR-коду через СБП\"",
             dependsOnMethods = "transaction1"
     )
 
     public void transaction2() {
-        time.add(Calendar.SECOND, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withDboId(clientIds.get(1));
         transactionData
-                .getGettingCredit()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .getClientDevice()
-                .getIOS()
-                .withIpAddress("82.208.124.120");
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, "Аномальная смена геопозиции Клиентом");
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не сработало");
     }
 
     @Test(
-            description = "Провести транзакцию № 3 от клиента № 1 \"Запрос на выдачу кредита\", " +
-                    "такую что расстояние между координатами События КАФ и транзакции более 501 км " +
-                    "и скорость больше аномальной (800 км/ч) (ip-адрес Новосибирска (5.128.16.120)) через 1 секунду.",
-            dependsOnMethods = "transaction1"
+            description = "Перевести Событие КАФ в статус \"Обработано\"" +
+                    "И Провести транзакцию № 3 Клиента № 1 \"Платеж по QR-коду через СБП\"",
+            dependsOnMethods = "transaction2"
     )
 
     public void transaction3() {
-        time.add(Calendar.SECOND, 1);
+        getIC()
+                .locateReports()
+                .openCreateReport("Событие КАФ")
+                .setTableFilterWithActive("Карта клиента Альфа", "Equals", PAN_ACCOUNT)
+                .runReport()
+                .openFirstID()
+                .getActions()
+                .doAction("Обработано")
+                .approved();
+        getIC().close();
+
+
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -210,14 +203,29 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .getGettingCredit()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .getClientDevice()
-                .getIOS()
-                .withIpAddress("5.128.16.120");
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, "Аномальная смена геопозиции Клиентом");
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не сработало");
+    }
+
+    @Test(
+            description = "Провести транзакцию № 4 Клиента № 2 \"Платеж по QR-коду через СБП\"",
+            dependsOnMethods = "transaction3"
+    )
+
+    public void transaction4() {
+        Transaction transaction = getTransaction();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(1));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не сработало");
     }
 
     @Override
@@ -226,7 +234,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
     }
 
     private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/GETTING_CREDIT_IOC.xml");
+        Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_IOS.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

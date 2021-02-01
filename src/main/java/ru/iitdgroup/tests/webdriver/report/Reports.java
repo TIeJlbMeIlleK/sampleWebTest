@@ -21,6 +21,16 @@ public class Reports extends AbstractView<Reports> {
         return new ReportRecord(driver);
     }
 
+    public ReportRecord openCreateReport(String folderName) {
+        driver.findElementByXPath("//*[text()='Create Report']").click();
+        sleep(1);
+        String using = "//a[text()='" + folderName + "']";
+        driver.findElementByXPath(using).click();
+        driver.findElementByXPath("//*[@id='btnRunNewReport']").click();
+        waitUntil("//*[@title='Save']");
+        return new ReportRecord(driver);
+    }
+
     @Override
     public Reports getSelf() {
         return this;
