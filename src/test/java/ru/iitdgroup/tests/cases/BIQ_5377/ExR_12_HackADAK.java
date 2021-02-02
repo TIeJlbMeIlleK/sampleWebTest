@@ -53,7 +53,7 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
                 .editRule(RULE_NAME1)
                 .fillCheckBox("Active:", true)
                 .save()
-                .sleep(10);
+                .sleep(15);
 
         getIC().locateTable(REFERENCE_ITEM1)
                 .findRowsBy()
@@ -293,11 +293,10 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
                 .sleep(1);
 
         time.add(Calendar.SECOND, 1);
-        time2 = (GregorianCalendar) time.clone();
         Transaction adak = getAdak();
         TransactionDataType tranAdak = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         tranAdak
                 .getClientIds()
                 .withDboId(clientIds.get(0));
