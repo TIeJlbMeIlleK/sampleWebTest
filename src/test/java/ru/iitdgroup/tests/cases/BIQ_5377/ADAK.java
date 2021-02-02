@@ -36,59 +36,59 @@ public class ADAK extends RSHBCaseTest {
 
 //TODO для прохождения теста в Alert должны быть внесены поля:Идентификатор клиента, Status (Алерта), Статус РДАК, status(транзакции)
 
-//    @Test(
-//            description = "Заполнить \"Вопросы для проведения ДАК\": codePhrase, birthDay, birthYear с установленными флагами \"Включено\" и \"Учавствует в РДАК\"" +
-//                    "В справочник \"Параметры обработки событий\" внести транзакцию с клиентами по умолчанию, учавствуют РДАК и АДАК." +
-//                    "в справочник Проверяемые Типы транзакции и Каналы ДБО внести тип транзакции" +
-//                    "2. Заполнить \"Вопросы для проведения ДАК\": firstname с установленными флагами \"Включено\" и \"Учавствует в РДАК\". Ограничить количество символов 15"
-//    )
-//    public void enableRules() {
-//
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .editRule(RULE_NAME)
-//                .fillCheckBox("Active:", true)
-//                .save()
-//                .sleep(10);
-//
-//        getIC().locateTable(REFERENCE_ITEM)
-//                .deleteAll()
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_ITEM1)
-//                .deleteAll()
-//                .addRecord()
-//                .fillFromExistingValues("Наименование группы клиентов:", "Имя группы", "Equals", "По умолчанию")
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
-//                .fillCheckBox("Требуется выполнение АДАК:", true)
-//                .fillCheckBox("Требуется выполнение РДАК:", true)
-//                .select("Наименование канала ДБО:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_ITEM2)
-//                .setTableFilter("Текст вопроса клиенту", "Equals", "Ваше имя")
-//                .refreshTable()
-//                .click(2)
-//                .edit()
-//                .fillCheckBox("Включено:", true)
-//                .fillCheckBox("Участвует в АДАК:", true)
-//                .fillCheckBox("Участвует в РДАК:", true).save()
-//                .sleep(2);
-//
-//        getIC().locateTable(REFERENCE_ITEM3)
-//                .findRowsBy()
-//                .match("Код значения", "AUTHORISATION_QUESTION_CODE")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "20000")
-//                .save();
-//    }
+    @Test(
+            description = "Заполнить \"Вопросы для проведения ДАК\": codePhrase, birthDay, birthYear с установленными флагами \"Включено\" и \"Учавствует в РДАК\"" +
+                    "В справочник \"Параметры обработки событий\" внести транзакцию с клиентами по умолчанию, учавствуют РДАК и АДАК." +
+                    "в справочник Проверяемые Типы транзакции и Каналы ДБО внести тип транзакции" +
+                    "2. Заполнить \"Вопросы для проведения ДАК\": firstname с установленными флагами \"Включено\" и \"Учавствует в РДАК\". Ограничить количество символов 15"
+    )
+    public void enableRules() {
+
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .save()
+                .sleep(10);
+
+        getIC().locateTable(REFERENCE_ITEM)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_ITEM1)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Наименование группы клиентов:", "Имя группы", "Equals", "По умолчанию")
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
+                .fillCheckBox("Требуется выполнение АДАК:", true)
+                .fillCheckBox("Требуется выполнение РДАК:", true)
+                .select("Наименование канала ДБО:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_ITEM2)
+                .setTableFilter("Текст вопроса клиенту", "Equals", "Ваше имя")
+                .refreshTable()
+                .click(2)
+                .edit()
+                .fillCheckBox("Включено:", true)
+                .fillCheckBox("Участвует в АДАК:", true)
+                .fillCheckBox("Участвует в РДАК:", true).save()
+                .sleep(2);
+
+        getIC().locateTable(REFERENCE_ITEM3)
+                .findRowsBy()
+                .match("Код значения", "AUTHORISATION_QUESTION_CODE")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "10000")
+                .save();
+    }
 
     @Test(
-            description = "В САФ завести клиента № 1"
-            //  dependsOnMethods = "enableRules"
+            description = "В САФ завести клиента № 1",
+            dependsOnMethods = "enableRules"
     )
 
     public void addClient() {

@@ -31,7 +31,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
     private final GregorianCalendar time = new GregorianCalendar();
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Эльмира", "Пирожкова", "Викторовна"}, {"Олег", "Муркин", "Петрович"}};
+    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
     private static final String LOGIN = new RandomString(5).nextString();
     private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
     private static final String PAN_ACCOUNT = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 13);
