@@ -76,23 +76,6 @@ public class ExR_03_UseNewDevice extends RSHBCaseTest {
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
-        try {
-            String vesResponse = getRabbit().getVesResponse();
-            JSONObject json = new JSONObject(vesResponse);
-            json.put("customer_id", clientIds.get(0));
-            json.put("type_id", "46");
-            json.put("login", LOGIN);
-            json.put("login_hash", LOGIN_HASH);
-            json.put("time", "2021-02-02T08:20:35+03:00");
-            json.put("session_id", SESSION_ID);
-            json.put("device_hash", SESSION_ID);
-            String newStr = json.toString();
-            getRabbit().setVesResponse(newStr);
-            getRabbit().sendMessage();
-            getRabbit().close();
-        } catch (JSONException e) {
-            throw new IllegalStateException();
-        }
     }
 
     @Test(
@@ -183,6 +166,23 @@ public class ExR_03_UseNewDevice extends RSHBCaseTest {
             dependsOnMethods = "transaction2"
     )
     public void transaction3() {
+        try {
+            String vesResponse = getRabbit().getVesResponse();
+            JSONObject json = new JSONObject(vesResponse);
+            json.put("customer_id", clientIds.get(0));
+            json.put("type_id", "46");
+            json.put("login", LOGIN);
+            json.put("login_hash", LOGIN_HASH);
+            json.put("time", "2021-02-02T08:20:35+03:00");
+            json.put("session_id", SESSION_ID);
+            json.put("device_hash", SESSION_ID);
+            String newStr = json.toString();
+            getRabbit().setVesResponse(newStr);
+            getRabbit().sendMessage();
+
+        } catch (JSONException e) {
+            throw new IllegalStateException();
+        }
 
         Transaction transaction = getTransactionIOS();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
@@ -193,6 +193,7 @@ public class ExR_03_UseNewDevice extends RSHBCaseTest {
         transactionData
                 .withSessionId(SESSION_ID);
         sendAndAssert(transaction);
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -200,6 +201,7 @@ public class ExR_03_UseNewDevice extends RSHBCaseTest {
         }
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ALERTS);
     }
+
 
     @Test(
             description = "Провести транзакцию № 4 \"Платеж по QR-коду через СБП\", в мобильном-банке",
@@ -218,40 +220,44 @@ public class ExR_03_UseNewDevice extends RSHBCaseTest {
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ALERTS);
     }
 
-//    @Test(
-//            description = "Провести транзакцию № 5 не содержащую в ответе код 46 (например, несуществующий sessionid)",
-//            dependsOnMethods = "transaction4"
-//    )
-//    public void transaction5() {
-//        try {
-//            String vesResponse1 = getProps().getRabbitUrl();
-//            JSONObject js = new JSONObject(vesResponse1);
-//            js.put("customer_id", clientIds.get(1));
-//            js.put("type_id", "22");
-//            js.put("login", LOGIN1);
-//            js.put("login_hash", LOGIN_HASH1);
-//            js.put("time", "2021-02-02T08:20:35+03:00");
-//            js.put("session_id", SESSION_ID1);
-//            js.put("device_hash", SESSION_ID1);
-//            String newStr1 = js.toString();
-//            getRabbit().setVesResponse(newStr1);
-//            getRabbit().sendMessage();
-//            getRabbit().close();
-//        } catch (JSONException e) {
-//            throw new IllegalStateException();
-//        }
-//
-//        Transaction transaction = getTransactionIOS();
-//        TransactionDataType transactionData = transaction.getData().getTransactionData()
-//                .withRegular(false);
-//        transactionData
-//                .getClientIds()
-//                .withDboId(clientIds.get(1));
-//        transactionData
-//                .withSessionId(SESSION_ID1);
-//        sendAndAssert(transaction);
-//        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
-//    }
+    @Test(
+            description = "Провести транзакцию № 5 не содержащую в ответе код 46 (например, несуществующий sessionid)",
+            dependsOnMethods = "transaction4"
+    )
+    public void transaction5() {
+        Transaction transaction = getTransactionIOS();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(1));
+        transactionData
+                .withSessionId(SESSION_ID1);
+        try {
+            JSONObject js = new JSONObject(getRabbit().getVesResponse());
+            js.put("customer_id", clientIds.get(1));
+            js.put("type_id", "22");
+            js.put("login", LOGIN1);
+            js.put("login_hash", LOGIN_HASH1);
+            js.put("time", "2021-02-02T08:20:35+03:00");
+            js.put("session_id", SESSION_ID1);
+            js.put("device_hash", SESSION_ID1);
+            String vesMessage = js.toString();
+            getRabbit().setVesResponse(vesMessage);
+            getRabbit().sendMessage();
+            getRabbit().close();
+        } catch (JSONException e) {
+            throw new IllegalStateException();
+        }
+        sendAndAssert(transaction);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
+    }
 
     @Override
     protected String getRuleName() {
