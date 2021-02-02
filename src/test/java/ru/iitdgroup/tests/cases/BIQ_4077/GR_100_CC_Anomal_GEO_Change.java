@@ -85,7 +85,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
             getRabbit().setCafClientResponse(newStr);
             getRabbit()
                     .getAllQueues()
-                    .getQueue("ClientsFromCAF_VE")
+                    .getQueue(getProps().getRabbitCafClientQueueName())
                     .sendMessage(Rabbit.ResponseType.CAF_CLIENT_RESPONSE);
         } catch (JSONException e) {
             throw new IllegalStateException();
@@ -108,7 +108,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
             getRabbit().setCafNotFinanceResponse(newStr);
             getRabbit()
                     .getAllQueues()
-                    .getQueue("FactsFromCAF_VE")
+                    .getQueue(getProps().getRabbitCafClientQueueName())
                     .sendMessage(Rabbit.ResponseType.CAF_NOT_FINANCE_RESPONSE);
         } catch (JSONException e) {
             throw new IllegalStateException();
@@ -117,7 +117,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести  транзакцию № 1 для клиента № 1  \"Запрос на выдачу кредита\", такую что расстояние между  координатами События КАФ и транзакции менее 200 км и скорость больше аномальной (150 км/ч) (ip-адрес Владимир (91.225.151.25)) через 1 секунду .",
+            description = "Провести транзакцию № 1 для клиента № 1 \"Запрос на выдачу кредита\", такую что расстояние между  координатами События КАФ и транзакции менее 200 км и скорость больше аномальной (150 км/ч) (ip-адрес Владимир (91.225.151.25)) через 1 секунду .",
             dependsOnMethods = "nonFinTransCAF"
     )
     public void sendTransaction() {
@@ -135,7 +135,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести  транзакцию № 2 для клиента № 1  \"Запрос на выдачу кредита\", такую что расстояние между координатами События КАФ и транзакции более 201 км, но менее 500 км и скорость больше аномальной (400 км/ч) (ip-адрес Нижнего Новгорода (82.208.124.120)) через 1 секунду.",
+            description = "Провести транзакцию № 2 для клиента № 1 \"Запрос на выдачу кредита\", такую что расстояние между координатами События КАФ и транзакции более 201 км, но менее 500 км и скорость больше аномальной (400 км/ч) (ip-адрес Нижнего Новгорода (82.208.124.120)) через 1 секунду.",
             dependsOnMethods = "sendTransaction"
     )
     public void sendTransaction2() {
@@ -154,7 +154,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию  № 3 от клиента № 1 \"Запрос на выдачу кредита\", такую что расстояние между координатами События КАФ и транзакции более 501 км и скорость больше аномальной (800 км/ч) (ip-адрес Новосибирска (5.128.16.120)) через 1 секунду.",
+            description = "Провести транзакцию № 3 от клиента № 1 \"Запрос на выдачу кредита\", такую что расстояние между координатами События КАФ и транзакции более 501 км и скорость больше аномальной (800 км/ч) (ip-адрес Новосибирска (5.128.16.120)) через 1 секунду.",
             dependsOnMethods = "sendTransaction2"
     )
     public void sendTransaction3() {
