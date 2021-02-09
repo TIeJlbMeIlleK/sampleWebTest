@@ -115,6 +115,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
             getRabbit().setCafClientResponse(newStr);
             getRabbit().sendMessage(Rabbit.ResponseType.CAF_CLIENT_RESPONSE);
 
+//TODO отправляется Алерт, т.к. правило с нефинансового события не считывает координаты Москвы
             String cafAlertResponse = getRabbit()
                     .getAllQueues()
                     .getQueue(getProps().getRabbitCafAlertQueueName())
@@ -125,7 +126,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
             js.put("alfaId", clientIds.get(0));
             js.put("cardId", CARD_ID);
             js.put("pan", PAN_ACCOUNT);
-            json.put("cardholderName", CARD_HOLDER_NAME);
+            js.put("cardholderName", CARD_HOLDER_NAME);
             js.put("date", UNIT_TIME);
             js.put("localdate", UNIT_TIME);
             js.remove("ipVereq");
