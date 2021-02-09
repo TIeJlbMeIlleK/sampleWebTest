@@ -74,8 +74,7 @@ public class GR_20_NewPayee extends RSHBCaseTest {
                 .addRecord()
                 .fillInputText("Имя получателя:", QUARANTINE_RECIPIENT)
                 .fillUser("ФИО Клиента:", clientIds.get(0))
-                .save()
-                .sleep(5);
+                .save();
 
         Table.Formula rows1 = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
 
@@ -87,8 +86,7 @@ public class GR_20_NewPayee extends RSHBCaseTest {
                 .addRecord()
                 .fillUser("ФИО Клиента:", clientIds.get(0))
                 .fillInputText("Имя получателя:", TRUSTED_RECIPIENT)
-                .save()
-                .sleep(5);
+                .save();
     }
 
     @Test(

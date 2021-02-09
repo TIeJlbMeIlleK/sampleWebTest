@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.cases.BIQ_6046;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import net.bytebuddy.utility.RandomString;
 import org.junit.Assert;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.client.ContactChannelType;
@@ -23,6 +24,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
+//TODO перед запуском теста должен быть установлен SECRET KEY
 
 public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
 
@@ -37,27 +39,34 @@ public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
+    private String[][] names = {{"Павел", "Петушков", "Павлович"}};
+    private static String[] login = {new RandomString(5).nextString()};
+    private static String[] loginHash = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
+    private static String[] dboId = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
 
     @Test(
             description = " Создать в справочнике \"Шаблоны СМС\" шаблон для отправки СМС, " +
                     "Привязать шаблон к статусу Complete, резолюции CONTINUE и  включить LOG_SMS = 1"
-
     )
 
     public void editReferenceData() {
         Table.Formula rows = getIC().locateTable(REFERENCE_ITEM).findRowsBy();
 
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
+            rows.click().edit()
+                    .fillInputText("AlertStatus:", "Complete")
+                    .fillInputText("AlertResolution:", "CONTINUE")
+                    .fillInputText("Template:", SMS_TEMPLATE)
+                    .save();
+        } else {
+
+            getIC().locateTable(REFERENCE_ITEM)
+                    .addRecord()
+                    .fillInputText("AlertStatus:", "Complete")
+                    .fillInputText("AlertResolution:", "CONTINUE")
+                    .fillInputText("Template:", SMS_TEMPLATE)
+                    .save();
         }
-
-        getIC().locateTable(REFERENCE_ITEM)
-                .addRecord()
-                .fillInputText("AlertStatus:", "Complete")
-                .fillInputText("AlertResolution:", "CONTINUE")
-                .fillInputText("Template:", SMS_TEMPLATE)
-                .save();
-
         getIC().locateTable(REFERENCE_ITEM2)
                 .findRowsBy()
                 .match("Описание", "Логирование сообщений SMS шлюза (in/out)")
@@ -74,14 +83,13 @@ public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
         getIC().locateRules()
                 .selectVisible()
                 .activate()
-                .sleep(5);
+                .sleep(15);
         getIC().locateScoringModels()
                 .openRecord("Подозрительная транзакция")
                 .edit()
                 .fillInputText("Cutting score:", "1")
                 .save();
     }
-
 
     @Test(
             description = "Создаем клиента и меняем телефон для уведомления" +
@@ -91,28 +99,32 @@ public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
     public void step0() {
         try {
             for (int i = 0; i < 1; i++) {
-                //FIXME Добавить проверку на существование клиента в базе
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
                 Client client = new Client("testCases/Templates/client.xml");
+
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withFirstName("Ольга")
-                        .withLastName("Кузина")
-                        .withMiddleName("Васильевна")
+                        .withLogin(login[i])
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(loginHash[i])
+                        .withDboId(dboId[i])
+                        .withCifId(dboId[i])
+                        .withExpertSystemId(dboId[i])
+                        .withEksId(dboId[i])
+                        .getAlfaIds()
+                        .withAlfaId(dboId[i]);
 
-                updatePhones(client);
                 sendAndAssert(client);
-                clientIds.add(dboId);
-                System.out.println(dboId);
+                clientIds.add(dboId[i]);
+                System.out.println(dboId[i]);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
     }
-
 
     @Test(
             description = "Отправить транзакцю. Открыть алерт и выполнить созданный Action (отправить СМС)",
