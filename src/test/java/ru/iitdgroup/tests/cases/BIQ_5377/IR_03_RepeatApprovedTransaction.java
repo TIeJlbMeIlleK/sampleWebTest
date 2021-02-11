@@ -41,21 +41,22 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .editRule(RULE_NAME)
+                .selectRule(RULE_NAME1)
+                .activate();
+        getIC().locateRules()
+                .openRecord(RULE_NAME)
+                .edit()
                 .fillCheckBox("Active:", true)
                 .fillCheckBox("АДАК выполнен:", false)
                 .fillCheckBox("РДАК выполнен:", false)
                 .fillCheckBox("Требовать совпадения остатка на счете:", false)
                 .fillInputText("Длина серии:", "3")
                 .fillInputText("Период серии в минутах:", "10")
-                .select("Тип транзакции:", "PAYMENT_C2B")
-                .save().sleep(5);
-        getIC().GoToTheListRule()
-                .selectVisible()
-                .editRule(RULE_NAME1)
-                .fillCheckBox("Active:", true)
+                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
                 .save()
-                .sleep(5);
+                .detachWithoutRecording("Типы транзакций")
+                .attachTransactionIR03("Типы транзакций", "Платеж по QR-коду через СБП")
+                .sleep(10);
     }
 
     @Test(
@@ -112,7 +113,7 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
         TRANSACTION_ID = transactionData.getTransactionId();
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Платеж по QR-коду через СБП» условия правила не выполнены");
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Платеж по QR-коду через СБП», условия правила не выполнены");
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
         assertTableField("Resolution:","Правомочно");
@@ -138,7 +139,7 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
                 .getPaymentC2B()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная транзакция с совпадающими реквизитами");
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Платеж по QR-коду через СБП» транзакция с совпадающими реквизитами");
     }
 
 

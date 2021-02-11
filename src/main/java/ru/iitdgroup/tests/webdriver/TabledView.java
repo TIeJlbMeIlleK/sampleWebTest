@@ -187,6 +187,23 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
+    default S attachTransactionIR03(String group, String typeTransaction) {
+        getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
+        getSelf().waitUntil("//*[@title='Refresh']");
+        refreshTable();
+        getSelf().sleep(2);
+        if (typeTransaction == "Платеж по QR-коду через СБП") {
+            getSelf().getDriver().findElementByXPath("//span[text()='Платеж по QR-коду через СБП']").click();
+        } else if (typeTransaction == "Перевод по номеру телефона") {
+            getSelf().getDriver().findElementByXPath("//span[text()='Перевод по номеру телефона']").click();
+        } else {
+            getSelf().getDriver().findElementByXPath("//span[text()='Перевод на карту другому лицу']").click();
+        }
+        getSelf().getDriver().findElementByXPath("//span[text()='Select']").click();
+        getSelf().getDriver().findElementByXPath("//a[@title='OK']").click();
+        return getSelf();
+    }
+
     default S attachVESCode46(String group) {
         getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
         getSelf().waitUntil("//*[@title='Refresh']");
@@ -199,10 +216,10 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
-    default S attachTransaction(String group,String tranType, String summ) {
+    default S attachTransaction(String group, String tranType, String summ) {
         getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//*[@id=\"j_id2356:0:j_id2401\"]")).click();
         getSelf().getDriver().findElementByXPath("//*[@id=\"j_id169:0:j_id172:2:btnSelect_field_col1\"]").click();
-        getSelf().getDriver().findElementByXPath("//span[text()='"+tranType+"']").click();
+        getSelf().getDriver().findElementByXPath("//span[text()='" + tranType + "']").click();
         getSelf().getDriver().findElementByXPath("//*[@id=\"btnSelectLookup\"]/span").click();
         getSelf().sleep(2);
         getSelf().getDriver().findElementByXPath("//*[@id=\"j_id142:0:j_id145:2:field_col0\"]").sendKeys(summ);
