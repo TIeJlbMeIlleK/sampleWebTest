@@ -61,7 +61,7 @@ public class ADAK extends RSHBCaseTest {
         getIC().locateTable(REFERENCE_ITEM1)
                 .deleteAll()
                 .addRecord()
-                .fillFromExistingValues("Наименование группы клиентов:", "Имя группы", "Equals", "По умолчанию")
+                .fillFromExistingValues("Наименование группы клиентов:", "Имя группы", "Equals", "Группа по умолчанию")
                 .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
                 .fillCheckBox("Требуется выполнение АДАК:", true)
                 .fillCheckBox("Требуется выполнение РДАК:", true)

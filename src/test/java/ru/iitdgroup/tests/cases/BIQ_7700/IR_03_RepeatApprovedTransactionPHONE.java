@@ -59,24 +59,22 @@ public class IR_03_RepeatApprovedTransactionPHONE extends RSHBCaseTest {
                 .attachTransactionIR03("Типы транзакций", "Перевод по номеру телефона")
                 .sleep(15);
 
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .deleteAll()
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Платеж по QR-коду через СБП")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .deleteAll()
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .deleteAll()
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод по номеру телефона")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Платеж по QR-коду через СБП")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод по номеру телефона")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
     }
 
     @Test(
@@ -177,7 +175,7 @@ public class IR_03_RepeatApprovedTransactionPHONE extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(1000))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         sendAndAssert(transaction);
@@ -225,7 +223,7 @@ public class IR_03_RepeatApprovedTransactionPHONE extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(1000))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         sendAndAssert(transaction);
@@ -267,7 +265,7 @@ public class IR_03_RepeatApprovedTransactionPHONE extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(1000))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(744.5));
         sendAndAssert(transaction);
@@ -311,7 +309,7 @@ public class IR_03_RepeatApprovedTransactionPHONE extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(1000))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         sendAndAssert(transaction);

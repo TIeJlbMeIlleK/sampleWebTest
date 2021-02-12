@@ -67,13 +67,11 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
                 .select("Наименование канала:", "Мобильный банк")
                 .save();
         getIC().locateTable(REFERENCE_TABLE)
-                .deleteAll()
                 .addRecord()
                 .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
                 .select("Наименование канала:", "Мобильный банк")
                 .save();
         getIC().locateTable(REFERENCE_TABLE)
-                .deleteAll()
                 .addRecord()
                 .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод по номеру телефона")
                 .select("Наименование канала:", "Мобильный банк")
