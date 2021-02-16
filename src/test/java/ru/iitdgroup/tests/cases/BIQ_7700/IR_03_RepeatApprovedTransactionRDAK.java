@@ -121,15 +121,15 @@ public class IR_03_RepeatApprovedTransactionRDAK extends RSHBCaseTest {
                 .tapToSelect()
                 .save().sleep(3);
 
-//        getIC().locateTable(REFERENCE_TABLE2)
-//                .findRowsBy()
-//                .match("Текст вопроса клиенту", "Ваше имя")
-//                .click()
-//                .edit()
-//                .fillCheckBox("Включено:", true)
-//                .fillCheckBox("Участвует в АДАК:", true)
-//                .fillCheckBox("Участвует в РДАК:", true)
-//                .save();
+        getIC().locateTable(REFERENCE_TABLE2)
+                .findRowsBy()
+                .match("Текст вопроса клиенту", "Ваше имя")
+                .click()
+                .edit()
+                .fillCheckBox("Включено:", true)
+                .fillCheckBox("Участвует в АДАК:", true)
+                .fillCheckBox("Участвует в РДАК:", true)
+                .save();
     }
 
     @Test(
