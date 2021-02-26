@@ -7,16 +7,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Side;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
+import javax.swing.text.View;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,7 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
-public class TestsRunnerJFXApp extends Application {
+public class Main extends Application {
     public static final String DEFAULT_TESTS_PATH = "src/test/java/ru/iitdgroup/tests/cases";
     @FXML private TextField testsPath;
     @FXML private ListView<String> testsList;
@@ -33,6 +32,7 @@ public class TestsRunnerJFXApp extends Application {
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
     private Stage primaryStage;
     private TestsRunner testsRunner;
+
 
     public static void main(String[] args) {
         launch(args);
@@ -50,13 +50,21 @@ public class TestsRunnerJFXApp extends Application {
     }
 
 
+    /**
+     * Инициализация полей, ui элементов. Гарантируется, что в initialize все FXML поля связаны с элементами из .fxml файла
+     */
     @FXML
     public void initialize() {
         testsRunner = new TestsRunner(outputView.getItems());
         testsList.setItems(testsListItems);
+        testsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         reloadTestsPackages(DEFAULT_TESTS_PATH);
     }
 
+    /**
+     * загружает список папок в testsList
+     * @param testsPath корневая папка, относительно которой происходит загрузка подпапок
+     */
     private void reloadTestsPackages(String testsPath) {
         Path path = Paths.get(testsPath);
         testsList.getItems().clear();
@@ -72,6 +80,11 @@ public class TestsRunnerJFXApp extends Application {
         }
     }
 
+    /**
+     * Показывает окно с ошибкой
+     * @param text текст ошибки
+     * @param anchor элемент под которым появляется окно
+     */
     private void showErrorMessage(String text, Node anchor) {
         ContextMenu errorMessage = new ContextMenu();
         errorMessage.getItems().add(new MenuItem(text));
@@ -96,18 +109,25 @@ public class TestsRunnerJFXApp extends Application {
 
     @FXML
     private void runTestsBtnClick(ActionEvent event) {
-        String s = testsList.getSelectionModel().getSelectedItem();
+        ObservableList s = testsList.getSelectionModel().getSelectedItems();
+        System.out.println(s);
         if (s == null) {
             event.consume();
             return;
         }
 
         try {
-            testsRunner.testPackage(s);
+            testsRunner.testPackages(s);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        event.consume();
+    }
+
+    @FXML
+    private void clearResult(ActionEvent event) {
+        outputView.getItems().clear();
         event.consume();
     }
 }

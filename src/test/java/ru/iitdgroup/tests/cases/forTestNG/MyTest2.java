@@ -11,4 +11,13 @@ public class MyTest2 {
         Assert.assertEquals(0, 1);
 
     }
+
+    @Test(
+            description = "Создаем клиента",
+            dependsOnMethods = "someTest1"
+    )
+    public void someTest2() {
+        Assert.assertEquals(0, 1);
+
+    }
 }

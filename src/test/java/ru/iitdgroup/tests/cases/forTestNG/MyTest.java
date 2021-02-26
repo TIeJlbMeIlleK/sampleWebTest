@@ -9,4 +9,12 @@ public class MyTest {
     public void someTest1() {
 
     }
+
+    @Test(
+            description = "222",
+            dependsOnMethods = "someTest1"
+    )
+    public void someTest2() {
+
+    }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.chart.*?>
 <?import java.lang.*?>
@@ -9,7 +10,7 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="599.0" prefWidth="802.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.iitdgroup.tests.testsrunner.TestsRunnerJFXApp">
+<VBox prefHeight="599.0" prefWidth="802.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.iitdgroup.tests.testsrunner.Main">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -66,18 +67,41 @@
             <ListView fx:id="outputView" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowSpan="2" />
             <SplitPane dividerPositions="0.5, 0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" GridPane.columnSpan="2" GridPane.halignment="LEFT" GridPane.rowSpan="3">
               <items>
-                  <Label text="Find tests packages in:" />
+                  <Label text="Открыть пакеты с тестами:" textFill="#3812d0">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font></Label>
                   <SplitPane dividerPositions="0.5, 0.5" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="385.0">
                     <items>
-                        <TextField fx:id="testsPath" onAction="#findBtnClick" text="src/test/java/ru/iitdgroup/tests/cases" />
-                        <Button mnemonicParsing="false" onAction="#browseTestsFolder" text="Browse" />
-                        <Button mnemonicParsing="false" onAction="#findBtnClick" text="Find" />
+                        <TextField fx:id="testsPath" onAction="#findBtnClick" text="src/test/java/ru/iitdgroup/tests/cases">
+                           <font>
+                              <Font size="14.0" />
+                           </font></TextField>
+                        <Button mnemonicParsing="false" onAction="#browseTestsFolder" text="Browse">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font></Button>
+                        <Button mnemonicParsing="false" onAction="#findBtnClick" text="Find">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font></Button>
                     </items>
                   </SplitPane>
                   <ListView fx:id="testsList" prefHeight="442.0" prefWidth="385.0" />
               </items>
             </SplitPane>
-            <Button mnemonicParsing="false" onAction="#runTestsBtnClick" text="Run selected tests" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="BOTTOM" />
+            <Button contentDisplay="RIGHT" mnemonicParsing="false" onAction="#runTestsBtnClick" text="Run selected tests" textAlignment="CENTER" textFill="#24b514" textOverrun="CLIP" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+               <GridPane.margin>
+                  <Insets />
+               </GridPane.margin></Button>
+            <Button contentDisplay="RIGHT" mnemonicParsing="false" onAction="#clearResult" text="Очистить результат" textAlignment="CENTER" textFill="#1c10bf" translateX="130.0" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Button>
          </children>
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
