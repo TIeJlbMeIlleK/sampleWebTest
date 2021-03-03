@@ -128,7 +128,7 @@ public class TestsRunner {
         testng.run();
     }
 
-    static class ClassListener implements IClassListener {
+    private static class ClassListener implements IClassListener {
         ObservableList<String> output;
 
         public ClassListener(ObservableList<String> output) {
@@ -147,7 +147,7 @@ public class TestsRunner {
         }
     }
 
-    static class SuiteListener implements ISuiteListener {
+    private static class SuiteListener implements ISuiteListener {
         ObservableList<String> output;
 
         public SuiteListener(ObservableList<String> output) {
@@ -171,17 +171,17 @@ public class TestsRunner {
                 int failedtestcases = con.getTestContext().getFailedTests().size();
                 int skippedtestcases = con.getTestContext().getSkippedTests().size();
                 int percentage = (passtestcases * 100) / totaltestcases;
-                output.add("Всего авто-тестов : " + totaltestcases);
-                output.add("Пройденных авто-тестов : " + passtestcases);
-                output.add("Проваленных авто-тестов : " + failedtestcases);
-                output.add("Пропущенных авто-тестов : " + skippedtestcases);
+                output.add("Всего тестов : " + totaltestcases);
+                output.add("Пройденных тестов : " + passtestcases);
+                output.add("Проваленных тестов : " + failedtestcases);
+                output.add("Пропущенных тестов : " + skippedtestcases);
                 output.add("Процент успешных : " + percentage + "%");
             }
         }
 
     }
 
-    public static class TestListener extends TestListenerAdapter {
+    private static class TestListener extends TestListenerAdapter {
         private int m_count = 0;
         ObservableList<String> output;
 

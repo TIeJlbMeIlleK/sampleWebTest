@@ -49,7 +49,6 @@ public class Main extends Application {
         stage.show();
     }
 
-
     /**
      * Инициализация полей, ui элементов. Гарантируется, что в initialize все FXML поля связаны с элементами из .fxml файла
      */
@@ -57,7 +56,7 @@ public class Main extends Application {
     public void initialize() {
         testsRunner = new TestsRunner(outputView.getItems());
         testsList.setItems(testsListItems);
-        testsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        testsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);//выбор нескольких папок с нажатием CTRL
         reloadTestsPackages(DEFAULT_TESTS_PATH);
     }
 
