@@ -3,6 +3,7 @@ package ru.iitdgroup.tests.testsrunner;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -115,14 +116,16 @@ public class Main extends Application {
             return;
         }
 
-        try {
-            testsRunner.testPackages(s);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        outputView.getItems().clear();
+//            testsRunner.testPackages(s);
+        testsRunner.startTestProcess(s);
+
 
         event.consume();
     }
+
+
 
     @FXML
     private void clearResult(ActionEvent event) {

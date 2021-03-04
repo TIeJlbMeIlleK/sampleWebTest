@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.testsrunner;
 
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import org.apache.commons.io.FileUtils;
 import org.testng.*;
 import org.testng.annotations.Test;
@@ -26,7 +27,50 @@ public class TestsRunner {
 
     public TestsRunner(ObservableList<String> items) {
         testng = new TestNG();
+        MyListener listener = new MyListener(items);
+        testng.addListener((ITestNGListener) listener);
         output = items;
+    }
+
+    public void startTestProcess(List<String> s) {
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+
+                // Set the total number of steps in our process
+//                int steps = 1000;
+//
+//                // Simulate a long running task
+//                for (int i = 0; i < steps; i++) {
+//
+//                    Thread.sleep(10); // Pause briefly
+//
+//                    // Update our progress and message properties
+//                    updateProgress(i, steps);
+//                    updateMessage(String.valueOf(i));
+//                }
+                testPackages(s);
+                return null;
+            }
+        };
+
+        // This method allows us to handle any Exceptions thrown by the task
+        task.setOnFailed(wse -> {
+            wse.getSource().getException().printStackTrace();
+        });
+
+        // If the task completed successfully, perform other updates here
+        task.setOnSucceeded(wse -> {
+            output.add("Окончание тестирования!");
+            System.out.println("Окончание тестирования!");
+        });
+
+        // Before starting our task, we need to bind our UI values to the properties on the task
+//        progressBar.progressProperty().bind(task.progressProperty());
+//        lblProgress.textProperty().bind(task.messageProperty());
+
+        // Now, start the task on a background thread
+        new Thread(task).start();
     }
 
     /**
@@ -36,7 +80,6 @@ public class TestsRunner {
      * @throws IOException
      */
     public void testPackage(String packagePath) throws IOException {
-        testng = new TestNG();
         String packageName = fetchPackageName(packagePath);
 
         List<XmlSuite> suites = new ArrayList<XmlSuite>();
@@ -59,9 +102,6 @@ public class TestsRunner {
         eachSuite.setTests(tests);
         suites.add(eachSuite);
 
-        testng.addListener(new TestListener(output));
-        testng.addListener(new SuiteListener(output));
-        testng.addListener(new ClassListener(output));
         testng.setXmlSuites(suites);
         testng.run();
     }
@@ -97,7 +137,6 @@ public class TestsRunner {
     }
 
     public void testPackages(List<String> s) throws IOException {
-        testng = new TestNG();
         List<XmlSuite> suites = new ArrayList<XmlSuite>();
         XmlSuite eachSuite = new XmlSuite();
         eachSuite.setName("My Suite");
@@ -121,47 +160,58 @@ public class TestsRunner {
         eachSuite.setTests(tests);
         suites.add(eachSuite);
 
-        testng.addListener(new TestListener(output));
-        testng.addListener(new SuiteListener(output));
-        testng.addListener(new ClassListener(output));
         testng.setXmlSuites(suites);
         testng.run();
     }
 
-    private static class ClassListener implements IClassListener {
+    private static class MyListener implements IClassListener, ISuiteListener, ITestListener {
         ObservableList<String> output;
+        ArrayList<ITestResult> classResult;
 
-        public ClassListener(ObservableList<String> output) {
+        public MyListener(ObservableList<String> output) {
             this.output = output;
         }
 
-
         @Override
         public void onBeforeClass(ITestClass testClass) {
-            output.add("=== " + testClass.getName() + " ===");
+            output.add("=== Авто-тест:  " + testClass.getRealClass().getSimpleName() + ": ");
+            classResult = new ArrayList<>();
         }
 
         @Override
         public void onAfterClass(ITestClass testClass) {
-            //output.add("Class " + testClass.getName() + " конец тестирования");
-        }
-    }
-
-    private static class SuiteListener implements ISuiteListener {
-        ObservableList<String> output;
-
-        public SuiteListener(ObservableList<String> output) {
-            this.output = output;
+            int success = 0;
+            int failed = 0;
+            ArrayList<ITestResult> failedTests = new ArrayList<>();
+            for (ITestResult r : classResult) {
+                if (r.isSuccess()) {
+                    success++;
+                } else {
+                    failed++;
+                    failedTests.add(r);
+                }
+            }
+            StringBuilder s = new StringBuilder("Успешные шаги:  ");
+            s.append(success).append("\n").append("Проваленые шаги:  ").append(failed);
+            if (failed > 0) {
+                s.append(" :  (");
+                for (ITestResult r : failedTests) {
+                    s.append(r.getName()).append(", ");
+                }
+                s.append(")");
+            }
+            output.add(s.toString());
         }
 
         @Override
         public void onStart(ISuite suite) {
-            output.add("Тестирование запущено");
+            output.add("Начало тестирования");
+            System.out.println("Начало тестирования");
         }
 
         @Override
         public void onFinish(ISuite suite) {
-            output.add("===================");
+            output.add("=======ИТОГОВЫЙ РЕЗУЛЬТАТ=======");
             Map<String, ISuiteResult> results = suite.getResults();
             for (String key : results.keySet()) {
                 ISuiteResult con = results.get(key);
@@ -171,55 +221,48 @@ public class TestsRunner {
                 int failedtestcases = con.getTestContext().getFailedTests().size();
                 int skippedtestcases = con.getTestContext().getSkippedTests().size();
                 int percentage = (passtestcases * 100) / totaltestcases;
-                output.add("Всего тестов : " + totaltestcases);
-                output.add("Пройденных тестов : " + passtestcases);
-                output.add("Проваленных тестов : " + failedtestcases);
-                output.add("Пропущенных тестов : " + skippedtestcases);
+                output.add("Всего ШАГОВ : " + totaltestcases);
+                output.add("Пройденных ШАГОВ : " + passtestcases);
+                output.add("Проваленных ШАГОВ : " + failedtestcases);
+                output.add("Пропущенных ШАГОВ : " + skippedtestcases);
                 output.add("Процент успешных : " + percentage + "%");
             }
         }
 
+        @Override
+        public void onTestStart(ITestResult result) {
+        }
+
+        @Override
+        public void onTestSuccess(ITestResult result) {
+            classResult.add(result);
+        }
+
+        @Override
+        public void onTestFailure(ITestResult result) {
+            classResult.add(result);
+        }
+
+        @Override
+        public void onTestSkipped(ITestResult result) {
+            classResult.add(result);
+        }
+
+        @Override
+        public void onTestFailedButWithinSuccessPercentage(ITestResult result) {
+
+        }
+
+        @Override
+        public void onStart(ITestContext context) {
+
+        }
+
+        @Override
+        public void onFinish(ITestContext context) {
+        }
     }
 
-    private static class TestListener extends TestListenerAdapter {
-        private int m_count = 0;
-        ObservableList<String> output;
-
-        public TestListener(ObservableList<String> output) {
-            this.output = output;
-        }
-
-        @Override
-        public void onTestFailure(ITestResult tr) {
-            output.add(getTestName(tr).append("\nпровален").toString());
-        }
-
-        @Override
-        public void onTestSkipped(ITestResult tr) {
-            output.add(getTestName(tr).append("\nпропущен").toString());
-        }
-
-        @Override
-        public void onTestSuccess(ITestResult tr) {
-            output.add(getTestName(tr).append("\nуспешно пройден").toString());
-        }
-
-        private StringBuilder getTestName(ITestResult tr) {
-            StringBuilder result = new StringBuilder();
-
-            try {
-                ITestNGMethod res = tr.getMethod();
-                result.append(res.toString()).append("\n");
-                Method method = res.getRealClass().getMethod(res.getMethodName());
-                String description = method.getAnnotation(Test.class).description();
-                result.append("(").append(description).append(")");
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-
-            return result;
-        }
-    }
 
 }
 
