@@ -1,6 +1,8 @@
 package ru.iitdgroup.tests.testsrunner;
 
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import org.apache.commons.io.FileUtils;
 import org.testng.*;
@@ -24,6 +26,7 @@ import java.util.stream.Stream;
 public class TestsRunner {
     private TestNG testng;
     private ObservableList<String> output;
+    private Thread threadForAsyncTests;
 
     public TestsRunner(ObservableList<String> items) {
         testng = new TestNG();
@@ -32,7 +35,36 @@ public class TestsRunner {
         output = items;
     }
 
-    public void startTestProcess(List<String> s) {
+//    public void testPackagesAsync(List<String> packages) {
+//        Service service = new Service() {
+//            @Override
+//            protected Task createTask() {
+//                return new Task() {
+//                    @Override
+//                    protected Object call() throws Exception {
+//                        Platform.runLater(() -> {
+//                            try {
+//                                testPackages(packages);
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                        });
+//                        return null;
+//                    }
+//                };
+//            }
+//
+//        };
+//        service.start();
+//        service.
+//    }
+
+    public void testPackagesAsync(List<String> packages) {
+        if (threadForAsyncTests != null && threadForAsyncTests.isAlive()) {
+            output.add("Тестирование уже запущено");
+            return;
+        }
+
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -49,17 +81,21 @@ public class TestsRunner {
 //                    updateProgress(i, steps);
 //                    updateMessage(String.valueOf(i));
 //                }
-                testPackages(s);
+                //Thread.sleep(1000*120);
+                try {
+                    testPackages(packages);
+                } catch (IllegalStateException e) {
+
+                }
+
                 return null;
             }
         };
 
-        // This method allows us to handle any Exceptions thrown by the task
         task.setOnFailed(wse -> {
             wse.getSource().getException().printStackTrace();
         });
 
-        // If the task completed successfully, perform other updates here
         task.setOnSucceeded(wse -> {
             output.add("Окончание тестирования!");
             System.out.println("Окончание тестирования!");
@@ -69,8 +105,15 @@ public class TestsRunner {
 //        progressBar.progressProperty().bind(task.progressProperty());
 //        lblProgress.textProperty().bind(task.messageProperty());
 
-        // Now, start the task on a background thread
-        new Thread(task).start();
+        threadForAsyncTests = new Thread(task);
+        threadForAsyncTests.start();
+    }
+
+    public void stopAsyncTests() {
+        if (threadForAsyncTests != null) {
+            threadForAsyncTests.stop();
+        }
+        threadForAsyncTests = null;
     }
 
     /**

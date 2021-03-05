@@ -3,12 +3,10 @@ package ru.iitdgroup.tests.testsrunner;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Side;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -16,7 +14,6 @@ import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
-import javax.swing.text.View;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,6 +26,7 @@ public class Main extends Application {
     @FXML private TextField testsPath;
     @FXML private ListView<String> testsList;
     @FXML private ListView<String> outputView;
+    @FXML private Button runTestsBtn;
     private final ObservableList<String> testsListItems = FXCollections.observableArrayList();
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
     private Stage primaryStage;
@@ -43,7 +41,7 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
         Path path = Paths.get("resources/testsRunner/TestsRunner_ui.fxml");
         Parent root = FXMLLoader.load(path.toUri().toURL());
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 1200, 600);
         primaryStage = stage;
         stage.setTitle("Tests Runner");
         stage.setScene(scene);
@@ -111,15 +109,15 @@ public class Main extends Application {
     private void runTestsBtnClick(ActionEvent event) {
         ObservableList s = testsList.getSelectionModel().getSelectedItems();
         System.out.println(s);
-        if (s == null) {
+        if (s == null || s.size() == 0) {
             event.consume();
             return;
         }
 
 
-        outputView.getItems().clear();
+        //outputView.getItems().clear();
 //            testsRunner.testPackages(s);
-        testsRunner.startTestProcess(s);
+        testsRunner.testPackagesAsync(s);
 
 
         event.consume();
@@ -130,6 +128,12 @@ public class Main extends Application {
     @FXML
     private void clearResult(ActionEvent event) {
         outputView.getItems().clear();
+        event.consume();
+    }
+
+    @FXML
+    private void testStop(ActionEvent event) {
+        testsRunner.stopAsyncTests();
         event.consume();
     }
 }
