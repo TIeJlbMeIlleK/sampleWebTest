@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.testsrunner;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -14,8 +15,7 @@ import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,10 +27,13 @@ public class Main extends Application {
     @FXML private ListView<String> testsList;
     @FXML private ListView<String> outputView;
     @FXML private Button runTestsBtn;
+    @FXML private TextArea console;
     private final ObservableList<String> testsListItems = FXCollections.observableArrayList();
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
     private Stage primaryStage;
     private TestsRunner testsRunner;
+
+    private boolean DEBUG_THREADS = false;
 
 
     public static void main(String[] args) {
@@ -53,9 +56,10 @@ public class Main extends Application {
      */
     @FXML
     public void initialize() {
-        testsRunner = new TestsRunner(outputView.getItems());
+        testsRunner = new TestsRunner(this::outputMessage);
         testsList.setItems(testsListItems);
         testsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);//выбор нескольких папок с нажатием CTRL
+        System.setOut(new PrintStream(new PrintToTextArea(console)));
         reloadTestsPackages(DEFAULT_TESTS_PATH);
     }
 
@@ -123,6 +127,21 @@ public class Main extends Application {
         event.consume();
     }
 
+    public void outputMessage(String message) {
+        if (DEBUG_THREADS) {
+            try {
+                outputView.getItems().add(Thread.currentThread().getName() + "\t" + message);
+            } catch (IllegalStateException e) {
+
+            }
+        } else {
+            Platform.runLater(() -> {
+                outputView.getItems().add(message);
+            });
+        }
+
+
+    }
 
 
     @FXML
@@ -133,7 +152,21 @@ public class Main extends Application {
 
     @FXML
     private void testStop(ActionEvent event) {
+        outputView.getItems().add("Принудительная остановка");
         testsRunner.stopAsyncTests();
         event.consume();
+    }
+
+    private class PrintToTextArea extends OutputStream {
+        private TextArea textarea;
+
+        public PrintToTextArea(TextArea console) {
+            textarea = console;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            textarea.appendText(String.valueOf((char)b));
+        }
     }
 }

@@ -19,20 +19,23 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class TestsRunner {
     private TestNG testng;
-    private ObservableList<String> output;
     private Thread threadForAsyncTests;
+    private Consumer<String> output;
 
-    public TestsRunner(ObservableList<String> items) {
+    public TestsRunner(Consumer<String> outputMessage) {
         testng = new TestNG();
-        MyListener listener = new MyListener(items);
+        output = outputMessage;
+        MyListener listener = new MyListener(output);
         testng.addListener((ITestNGListener) listener);
-        output = items;
     }
 
 //    public void testPackagesAsync(List<String> packages) {
@@ -61,7 +64,7 @@ public class TestsRunner {
 
     public void testPackagesAsync(List<String> packages) {
         if (threadForAsyncTests != null && threadForAsyncTests.isAlive()) {
-            output.add("Тестирование уже запущено");
+            output.accept("Тестирование уже запущено");
             return;
         }
 
@@ -97,7 +100,7 @@ public class TestsRunner {
         });
 
         task.setOnSucceeded(wse -> {
-            output.add("Окончание тестирования!");
+            output.accept("Окончание тестирования!");
             System.out.println("Окончание тестирования!");
         });
 
@@ -208,16 +211,16 @@ public class TestsRunner {
     }
 
     private static class MyListener implements IClassListener, ISuiteListener, ITestListener {
-        ObservableList<String> output;
+        Consumer<String> output;
         ArrayList<ITestResult> classResult;
 
-        public MyListener(ObservableList<String> output) {
-            this.output = output;
+        public MyListener(Consumer<String> outputMessage) {
+            this.output = outputMessage;
         }
 
         @Override
         public void onBeforeClass(ITestClass testClass) {
-            output.add("=== Авто-тест:  " + testClass.getRealClass().getSimpleName() + ": ");
+            output.accept("=== Авто-тест:  " + testClass.getRealClass().getSimpleName() + ": ");
             classResult = new ArrayList<>();
         }
 
@@ -243,18 +246,18 @@ public class TestsRunner {
                 }
                 s.append(")");
             }
-            output.add(s.toString());
+            output.accept(s.toString());
         }
 
         @Override
         public void onStart(ISuite suite) {
-            output.add("Начало тестирования");
+            output.accept("Начало тестирования");
             System.out.println("Начало тестирования");
         }
 
         @Override
         public void onFinish(ISuite suite) {
-            output.add("=======ИТОГОВЫЙ РЕЗУЛЬТАТ=======");
+            output.accept("=======ИТОГОВЫЙ РЕЗУЛЬТАТ=======");
             Map<String, ISuiteResult> results = suite.getResults();
             for (String key : results.keySet()) {
                 ISuiteResult con = results.get(key);
@@ -264,11 +267,11 @@ public class TestsRunner {
                 int failedtestcases = con.getTestContext().getFailedTests().size();
                 int skippedtestcases = con.getTestContext().getSkippedTests().size();
                 int percentage = (passtestcases * 100) / totaltestcases;
-                output.add("Всего ШАГОВ : " + totaltestcases);
-                output.add("Пройденных ШАГОВ : " + passtestcases);
-                output.add("Проваленных ШАГОВ : " + failedtestcases);
-                output.add("Пропущенных ШАГОВ : " + skippedtestcases);
-                output.add("Процент успешных : " + percentage + "%");
+                output.accept("Всего ШАГОВ : " + totaltestcases);
+                output.accept("Пройденных ШАГОВ : " + passtestcases);
+                output.accept("Проваленных ШАГОВ : " + failedtestcases);
+                output.accept("Пропущенных ШАГОВ : " + skippedtestcases);
+                output.accept("Процент успешных : " + percentage + "%");
             }
         }
 
