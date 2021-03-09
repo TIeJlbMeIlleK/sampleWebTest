@@ -5,6 +5,7 @@ import org.apache.ignite.IgniteMessaging;
 import org.apache.ignite.cluster.ClusterGroup;
 import org.junit.Assert;
 import org.openqa.selenium.Dimension;
+import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -314,7 +315,7 @@ public abstract class RSHBCaseTest {
         return new Database(getProps());
     }
 
-    protected String[][] getResults(String ruleName) {
+    protected String[][] getIncidentWrapByRule(String ruleName) {
         try {
             return getDatabase()
                     .select()
@@ -338,7 +339,7 @@ public abstract class RSHBCaseTest {
             e.printStackTrace();
             throw new IllegalStateException(e);
         }
-        String[][] dbResult = getResults(getRuleName());
+        String[][] dbResult = getIncidentWrapByRule(getRuleName());
         assertEquals(ruleResult, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
     }
@@ -407,6 +408,31 @@ public abstract class RSHBCaseTest {
             throw new IllegalStateException(e);
         }
     }
+
+    /**
+     * Возвращает значение поля fieldName из таблицы tableName с последним (максимальным) id
+     * @param tableName название таблицы
+     * @param fieldName название поля
+     * @return пара (value,id), где value - значение поля fieldName, id - последний id в таблице, которому соответствует value
+     */
+    protected String[] getFieldWithLastId(String tableName, String fieldName){
+        try {
+            String[][] result = getDatabase()
+                    .select()
+                    .field(fieldName)
+                    .field("id")
+                    .from(tableName)
+                    .sort("id", false)
+                    .limit(1)
+                    .get();
+            return result[0];
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
+
 
     protected void assertClientEmailApply(String dboID, String email) {
         try {
