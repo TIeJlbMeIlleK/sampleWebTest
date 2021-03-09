@@ -24,7 +24,7 @@ public class AddNewFieldVersion extends RSHBCaseTest {
     private static final String RULE_NAME = "";
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Игорь", "Любушкин", "Иванович"}};
+    private static final String[][] names = {{"Игорь", "Любушкин", "Иванович"}};
     private static final String LOGIN = new RandomString(5).nextString();
     private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
     private static String transactionID;
