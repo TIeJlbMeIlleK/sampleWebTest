@@ -113,10 +113,8 @@ public class TestsRunner {
     }
 
     public void stopAsyncTests() {
-        if (threadForAsyncTests != null) {
-            threadForAsyncTests.stop();
-        }
-        threadForAsyncTests = null;
+        threadForAsyncTests.stop();
+
     }
 
     /**
@@ -207,6 +205,8 @@ public class TestsRunner {
         suites.add(eachSuite);
 
         testng.setXmlSuites(suites);
+        testng.setThreadCount(1);
+
         testng.run();
     }
 

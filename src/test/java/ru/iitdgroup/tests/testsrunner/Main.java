@@ -23,11 +23,16 @@ import java.util.stream.Stream;
 
 public class Main extends Application {
     public static final String DEFAULT_TESTS_PATH = "src/test/java/ru/iitdgroup/tests/cases";
-    @FXML private TextField testsPath;
-    @FXML private ListView<String> testsList;
-    @FXML private ListView<String> outputView;
-    @FXML private Button runTestsBtn;
-    @FXML private TextArea console;
+    @FXML
+    private TextField testsPath;
+    @FXML
+    private ListView<String> testsList;
+    @FXML
+    private ListView<String> outputView;
+    @FXML
+    private Button runTestsBtn;
+    @FXML
+    private TextArea console;
     private final ObservableList<String> testsListItems = FXCollections.observableArrayList();
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
     private Stage primaryStage;
@@ -59,12 +64,16 @@ public class Main extends Application {
         testsRunner = new TestsRunner(this::outputMessage);
         testsList.setItems(testsListItems);
         testsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);//выбор нескольких папок с нажатием CTRL
-        System.setOut(new PrintStream(new PrintToTextArea(console)));
+
+        PrintStream ps = new PrintStream(new PrintToTextArea(console), true);
+        System.setOut(ps);
+        System.setErr(ps);
         reloadTestsPackages(DEFAULT_TESTS_PATH);
     }
 
     /**
      * загружает список папок в testsList
+     *
      * @param testsPath корневая папка, относительно которой происходит загрузка подпапок
      */
     private void reloadTestsPackages(String testsPath) {
@@ -84,7 +93,8 @@ public class Main extends Application {
 
     /**
      * Показывает окно с ошибкой
-     * @param text текст ошибки
+     *
+     * @param text   текст ошибки
      * @param anchor элемент под которым появляется окно
      */
     private void showErrorMessage(String text, Node anchor) {
@@ -139,10 +149,7 @@ public class Main extends Application {
                 outputView.getItems().add(message);
             });
         }
-
-
     }
-
 
     @FXML
     private void clearResult(ActionEvent event) {
@@ -166,7 +173,10 @@ public class Main extends Application {
 
         @Override
         public void write(int b) throws IOException {
-            textarea.appendText(String.valueOf((char)b));
+
+            Platform.runLater(() -> {
+                textarea.appendText(String.valueOf((char) b));
+            });
         }
     }
 }
