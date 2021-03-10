@@ -48,9 +48,24 @@ public class ExR_07_Devices extends RSHBCaseTest {
     private static final String LOGIN_HASH2 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
     private static final String LOGIN_HASH3 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
 
+    @Test(
+            description = "Включить правило R01_ExR_07_Devices"
+    )
+
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillInputText("Период контроля смены атрибутов клиента  (пример: 72 часа):", "1")
+                .save()
+                .sleep(10);
+    }
 
     @Test(
-            description = "Создаем клиента"
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
     )
     public void addClient() {
         try {
@@ -96,25 +111,9 @@ public class ExR_07_Devices extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Включить правило R01_ExR_07_Devices",
-            dependsOnMethods = "addClient"
-    )
-
-    public void enableRules() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true)
-                .fillInputText("Период контроля смены атрибутов клиента  (пример: 72 часа):", "1")
-                .save()
-                .sleep(5);
-    }
-
-    @Test(
             description = "Занести в доверенные устройства № 1 Android для клиента № 1 и" +
                     "Занести в доверенные устройства № 2 IOC для клиента № 1",
-            dependsOnMethods = "enableRules"
+            dependsOnMethods = "addClient"
     )
 
     public void addRecipients() {

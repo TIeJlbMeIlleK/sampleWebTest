@@ -46,8 +46,7 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
                 .selectRule(RULE_NAME1)
                 .activate();
         getIC().locateRules()
-                .openRecord(RULE_NAME)
-                .edit()
+                .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
                 .fillCheckBox("АДАК выполнен:", false)
                 .fillCheckBox("РДАК выполнен:", false)
