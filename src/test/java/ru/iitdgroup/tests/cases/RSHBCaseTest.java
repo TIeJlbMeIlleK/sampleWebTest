@@ -169,6 +169,9 @@ public abstract class RSHBCaseTest {
     protected static final String ANOMAL_GEO_CHANGE = "Аномальная смена геопозиции Клиентом";
     protected static final String RULE_TRIGGERED = "Сценарий сработал";
     protected static final String RESULT_RULE_APPLY = "Найдены необработаные события для этого клиента";
+    protected static final String RESULT_YOUNG_MAN = "Заявка на выпуск карты(цифровая , 15 лет)";
+    protected static final String RESULT_OLD_MAN = "Тип транзакции «Заявка на выпуск карты» (тип карты «виртуальная», возраст клиента больше 18)";
+    protected static final  String RESULT_TRIGGERED = "Количество однотипных транзакций больше допустимой длины серии";
 
 
 
