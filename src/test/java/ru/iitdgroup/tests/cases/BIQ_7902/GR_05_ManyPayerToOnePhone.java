@@ -19,11 +19,11 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+//TODO до запуска теста должен быть заполнен справочник (Rule_tables) Системы электронных кошельков
 
 public class GR_05_ManyPayerToOnePhone extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
-    private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Тимур", "Киров", "Семенович"}, {"Зина", "Птушкина", "Ильинична"},
@@ -370,10 +370,16 @@ public class GR_05_ManyPayerToOnePhone extends RSHBCaseTest {
     }
 
     private Transaction getTransaction() {
+        String[] provider = getFieldWithLastId("LIST_EWALLETS", "PAYEE");
+        String[] service = getFieldWithLastId("LIST_EWALLETS", "NAME_OF_THE_SERVICE");
+
         Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT_MB.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData().getServicePayment()
+                .withProviderName(provider[0])
+                .withServiceName(service[0]);
         return transaction;
     }
 }

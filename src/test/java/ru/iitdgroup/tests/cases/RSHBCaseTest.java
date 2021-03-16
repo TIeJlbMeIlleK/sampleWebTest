@@ -38,7 +38,7 @@ public abstract class RSHBCaseTest {
     protected static final String REGULAR_TRANSACTION_1 = "Правило не применяется для регулярных транзакций.";
     protected static final String RESULT_RULE_NOT_APPLY = "Правило не применилось";
     protected static final String RESULT_RULE_NOT_APPLY_EXR_07 = "Правило не применилось.";
-    protected static final String RESULT_RULE_NOT_APPLY_BY_CONF = "Правило не применилось (проверка по настройкам правила)";
+    protected static final String RESULT_RULE_NOT_APPLY_BY_CONF = "Правило не применилось (проверка по настрокам правила)";
     protected static final String RESULT_RULE_NOT_APPLY_EMPTY = "В выборке только анализируемая транзакция";
     protected static final String RESULT_RULE_APPLY_BY_LENGTH = "Количество транзакций больше параметра Длина серии";
     protected static final String RESULT_RULE_APPLY_BY_SUM = "Общая сумма транзакций больше допустимой величины";

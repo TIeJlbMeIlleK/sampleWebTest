@@ -33,27 +33,27 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
     private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
 
 
-//    @Test(
-//            description = "Настройка и включение правила"
-//    )
-//    public void enableRules() {
-//
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .editRule(RULE_NAME)
-//                .fillCheckBox("Active:", true)
-//                .fillInputText("Период серии в минутах:", "60")
-//                .fillInputText("Сумма оплаты услуг:", "2000")
-//                .fillInputText("Сумма серии:", "2000")
-//                .save()
-//                .sleep(10);
-//        getIC().close();
-//    }
+    @Test(
+            description = "Настройка и включение правила"
+    )
+    public void enableRules() {
+
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillInputText("Период серии в минутах:", "60")
+                .fillInputText("Сумма оплаты услуг:", "2000")
+                .fillInputText("Сумма серии:", "2000")
+                .save()
+                .sleep(10);
+        getIC().close();
+    }
 
     @Test(
-            description = "Создаем клиента"
-            //dependsOnMethods = "enableRules"
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
     )
     public void client() {
         try {

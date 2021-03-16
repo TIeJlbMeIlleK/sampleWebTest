@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 
-public class GR_24_SeriesBetweenOwnAccounts extends RSHBCaseTest {
+public class GR_24_SeriesBetweenOwnAccountsSum extends RSHBCaseTest {
 
 
     private static final String RULE_NAME = "R01_GR_24_SeriesBetweenOwnAccounts";
@@ -40,7 +40,7 @@ public class GR_24_SeriesBetweenOwnAccounts extends RSHBCaseTest {
             description = "1. Правило GR_24 включено" +
                     "2. Создан инцидент для правила" +
                     "3. \"Период серии\" 10" +
-                    "4. \"Длина серии\" 3" +
+                    "4. \"Длина серии\" 5" +
                     "5. \"Сумма серии\" 1000" +
                     "6. \"Маска счета\" - 408"
     )
@@ -50,7 +50,7 @@ public class GR_24_SeriesBetweenOwnAccounts extends RSHBCaseTest {
                 .deactivate()
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
-                .fillInputText("Длина серии:", "3")
+                .fillInputText("Длина серии:", "5")
                 .fillInputText("Сумма серии:", "1000")
                 .fillInputText("Период серии в минутах:", "10")
                 .save()
@@ -98,15 +98,15 @@ public class GR_24_SeriesBetweenOwnAccounts extends RSHBCaseTest {
 
 
     @Test(
-            description = "Провести транзакции № 1 \"Перевод между счетами\", " +
-                    "счет списания 408, сумма 10  (Version = 9906, transactionID = 1)",
+            description = "Провести транзакции № 1 \"Перевод между счетами\", счет списания 408, сумма 10  " +
+                    "(Version = 9907, transactionID = 1)",
             dependsOnMethods = "createClients"
     )
 
     public void step1() {
         Transaction transaction = getTransactionTRANSFER_BETWEEN_ACCOUNTS();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(9906L)
+                .withVersion(9907L)
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -122,82 +122,13 @@ public class GR_24_SeriesBetweenOwnAccounts extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакции № 2 \"Перевод между счетами\", " +
-                    "счет списания 408, сумма 10 (Version = 9906, transactionID = 2)",
+            description = " Провести транзакцию № 2 \"Закрытие счета\", сумма 990  " +
+                    "(Version = 9908, transactionID = 1)",
             dependsOnMethods = "step1"
     )
 
     public void step2() {
-        Transaction transaction = getTransactionTRANSFER_BETWEEN_ACCOUNTS();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(9906L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getTransferBetweenAccounts()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(10))
-                .withDestinationProduct(destinationProduct2)
-                .withSourceProduct(sourceProduct);
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не применилось (проверка по настройкам правила)");
-    }
-
-    @Test(
-            description = "Провести транзакции № 3 \"Перевод между счетами\", " +
-                    "счет списания 408, сумма 10 (Version = 9906, transactionID = 3)",
-            dependsOnMethods = "step2"
-    )
-
-    public void step3() {
-        Transaction transaction = getTransactionTRANSFER_BETWEEN_ACCOUNTS();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(9906L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getTransferBetweenAccounts()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(10))
-                .withDestinationProduct(destinationProduct3)
-                .withSourceProduct(sourceProduct);
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, "Количество транзакций больше допустимой длины серии");
-    }
-
-    @Test(
-            description = "Провести транзакцию № 4 \"Закрытие счета\", сумма 10  " +
-                    "(Version = 9907, transactionID = 4)",
-            dependsOnMethods = "step3"
-    )
-
-    public void step4() {
         Transaction transaction = getTransactionCLOSURE_ACCOUNT();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(9907L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getClosureAccount()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(10))
-                .withDestinationProduct(destinationProduct4)
-                .withSourceProduct(sourceProduct);
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, "Количество транзакций больше допустимой длины серии");
-    }
-
-    @Test(
-            description = "Провести транзакцию № 5 \"Закрытие вклада\", сумма 10  " +
-                    "(Version = 9908, transactionID = 1)",
-            dependsOnMethods = "step4"
-    )
-
-    public void step5() {
-        Transaction transaction = getTransactionCLOSURE_DEPOSIT();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionID1)
                 .withVersion(9908L)
@@ -206,12 +137,58 @@ public class GR_24_SeriesBetweenOwnAccounts extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .getClosureDeposit()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(10))
-                .withDestinationProduct(destinationProduct5)
+                .getClosureAccount()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(990))
+                .withDestinationProduct(destinationProduct2)
                 .withSourceProduct(sourceProduct);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, "Количество транзакций больше допустимой длины серии");
+        assertLastTransactionRuleApply(TRIGGERED, "Общая сумма транзакций больше допустимой величины");
+    }
+
+    @Test(
+            description = "Провести транзакцию № 3 \"Закрытие вклада\", сумма 10  " +
+                    "(Version = 9907, transactionID = 2)",
+            dependsOnMethods = "step2"
+    )
+
+    public void step3() {
+        Transaction transaction = getTransactionCLOSURE_DEPOSIT();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(9907L)
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getClosureDeposit()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(10))
+                .withDestinationProduct(destinationProduct3)
+                .withSourceProduct(sourceProduct);
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, "Общая сумма транзакций больше допустимой величины");
+    }
+
+    @Test(
+            description = "Провести транзакцию № 4 \"Перевод между счетами\", " +
+                    "счет списания 408, сумма 10  (Version = 9907, transactionID = 3)",
+            dependsOnMethods = "step3"
+    )
+
+    public void step4() {
+        Transaction transaction = getTransactionTRANSFER_BETWEEN_ACCOUNTS();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(9907L)
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getTransferBetweenAccounts()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(10))
+                .withDestinationProduct(destinationProduct4)
+                .withSourceProduct(sourceProduct);
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, "Общая сумма транзакций больше допустимой величины");
     }
 
     @Override
