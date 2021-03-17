@@ -281,6 +281,16 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
+    default S attachTransactionNew(String group,String tranType) {
+        getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//*[@id=\"j_id2356:0:j_id2401\"]")).click();
+        getSelf().getDriver().findElementByXPath("//*[@id=\"j_id106:0:j_id151\"]").click();
+        getSelf().getDriver().findElementByXPath("//span[text()='"+tranType+"']").click();
+        getSelf().getDriver().findElementByXPath("//*[@id=\"btnSelectLookup\"]/span").click();
+        getSelf().getDriver().findElementByXPath("//*[@id=\"j_id99\"]/div[1]/table/tbody/tr/td/div/table/tbody/tr/td[3]/a").click();
+        getSelf().sleep(2);
+        return getSelf();
+    }
+
     default S detachWithoutRecording(String group) {
         getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElements(By.xpath("//a[text()='Show All']"))
                 .forEach(WebElement::click);

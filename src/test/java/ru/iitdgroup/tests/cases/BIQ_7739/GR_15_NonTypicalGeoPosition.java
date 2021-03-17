@@ -1,4 +1,4 @@
-package ru.iitdgroup.tests.cases.BIQ_4077;
+package ru.iitdgroup.tests.cases.BIQ_7739;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
@@ -21,6 +21,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_15_NonTypicalGeoPosition";
     private static final String Table_Flags = "(Policy_parameters) Параметры обработки справочников и флагов";
+
 
 
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
@@ -87,7 +88,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
     )
     public void transaction1() {
         commandServiceMock.run();
-        Transaction transaction = getTransactionGETTING_CREDIT();
+        Transaction transaction = getTransactionREQUEST_CARD_ISSUE();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
@@ -106,7 +107,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
             dependsOnMethods = "transaction1"
     )
     public void transaction2() {
-        Transaction transaction = getTransactionGETTING_CREDIT();
+        Transaction transaction = getTransactionREQUEST_CARD_ISSUE();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
@@ -125,7 +126,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
     )
     public void transaction3() {
         time.add(Calendar.HOUR,49);
-        Transaction transaction = getTransactionGETTING_CREDIT();
+        Transaction transaction = getTransactionREQUEST_CARD_ISSUE();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
@@ -144,8 +145,8 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
         return RULE_NAME;
     }
 
-    private Transaction getTransactionGETTING_CREDIT() {
-        Transaction transaction = getTransaction("testCases/Templates/GETTING_CREDIT_PC.xml");
+    private Transaction getTransactionREQUEST_CARD_ISSUE() {
+        Transaction transaction = getTransaction("testCases/Templates/REQUEST_CARD_ISSUE_PC.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

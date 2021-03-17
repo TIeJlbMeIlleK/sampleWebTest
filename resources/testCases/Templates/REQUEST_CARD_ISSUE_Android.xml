@@ -34,13 +34,40 @@
 				</ns4:RequestCardIssue>
 				<ns4:InitialSourceAmount>100</ns4:InitialSourceAmount>
 				<ns4:SessionId>sdgdfhnfjmg,jk.22222</ns4:SessionId>
-				<ns4:Channel>INTERNET_CLIENT</ns4:Channel>
+				<ns4:Channel>MOBILE_BANK</ns4:Channel>
 				<ns4:ClientDevice>
-					<ns3:Platform>PC</ns3:Platform>
-					<ns3:PC>
-						<ns3:IpAddress>45.120.45.255</ns3:IpAddress>
-						<ns3:UserAgent>Mozilla/10.1 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36</ns3:UserAgent>
-					</ns3:PC>
+					<ns3:Platform>Android</ns3:Platform>
+					<ns3:Android>
+						<ns3:IpAddress>44.87.156.36</ns3:IpAddress>
+						<ns3:IMSI>165418198491</ns3:IMSI>
+						<ns3:IMEI>211639236526248</ns3:IMEI>
+						<ns3:IMEISV>777</ns3:IMEISV>
+						<ns3:MSISDN/>
+						<ns3:SPN>MTS RUS</ns3:SPN>
+						<ns3:OSVersion>9.0.0</ns3:OSVersion>
+						<ns3:AuthByFingerprint>true</ns3:AuthByFingerprint>
+						<ns3:Manufacturer>123</ns3:Manufacturer>
+						<ns3:Model>5</ns3:Model>
+						<ns3:DeviceID>01561981050</ns3:DeviceID>
+						<ns3:Simulator>0</ns3:Simulator>
+						<ns3:Locale>5</ns3:Locale>
+						<ns3:DefaultBrowser>55</ns3:DefaultBrowser>
+						<ns3:Root>0</ns3:Root>
+						<ns3:NetworkOperatorName>5</ns3:NetworkOperatorName>
+						<ns3:SimOperatorName>5</ns3:SimOperatorName>
+						<ns3:SimCount>2</ns3:SimCount>
+						<ns3:LocalIp>5</ns3:LocalIp>
+						<ns3:SSID>123374556186120005055</ns3:SSID>
+						<ns3:UserAgent>2</ns3:UserAgent>
+						<ns3:Serial>452524883</ns3:Serial>
+						<ns3:Bootloader>2</ns3:Bootloader>
+						<ns3:SimSerial>48840483</ns3:SimSerial>
+						<ns3:MacAddress>16355056605065410</ns3:MacAddress>
+						<ns3:TimeZone>3</ns3:TimeZone>
+						<ns3:Latitude>3</ns3:Latitude>
+						<ns3:Longitude>5</ns3:Longitude>
+						<ns3:EventID>5</ns3:EventID>
+					</ns3:Android>
 				</ns4:ClientDevice>
 			</ns4:TransactionData>
 		</ns4:SendTransactionDataRequest>

@@ -34,13 +34,33 @@
 				</ns4:RequestCardIssue>
 				<ns4:InitialSourceAmount>100</ns4:InitialSourceAmount>
 				<ns4:SessionId>sdgdfhnfjmg,jk.22222</ns4:SessionId>
-				<ns4:Channel>INTERNET_CLIENT</ns4:Channel>
+				<ns4:Channel>MOBILE_BANK</ns4:Channel>
 				<ns4:ClientDevice>
-					<ns3:Platform>PC</ns3:Platform>
-					<ns3:PC>
-						<ns3:IpAddress>45.120.45.255</ns3:IpAddress>
-						<ns3:UserAgent>Mozilla/10.1 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36</ns3:UserAgent>
-					</ns3:PC>
+					<ns3:Platform>IOS</ns3:Platform>
+					<ns3:IOS>
+						<ns3:IpAddress>192.160.1.1</ns3:IpAddress>
+						<ns3:IdentifierForVendor>156dg67dg1fgsdf</ns3:IdentifierForVendor>
+						<ns3:OSVersion>5</ns3:OSVersion>
+						<ns3:Model>5</ns3:Model>
+						<ns3:AuthByFingerprint>false</ns3:AuthByFingerprint>
+						<ns3:Manufacturer>Apple</ns3:Manufacturer>
+						<ns3:DeviceID>452888946</ns3:DeviceID>
+						<ns3:Simulator>1</ns3:Simulator>
+						<ns3:Locale>1</ns3:Locale>
+						<ns3:DefaultBrowser>4567867</ns3:DefaultBrowser>
+						<ns3:Root>0</ns3:Root>
+						<ns3:NetworkOperatorName>1</ns3:NetworkOperatorName>
+						<ns3:SimOperatorName>Beeline</ns3:SimOperatorName>
+						<ns3:SimCount>2</ns3:SimCount>
+						<ns3:LocalIp>192.160.1.1</ns3:LocalIp>
+						<ns3:SSID>65761561650006545652</ns3:SSID>
+						<ns3:UserAgent>2</ns3:UserAgent>
+						<ns3:Product>3</ns3:Product>
+						<ns3:TimeZone>3</ns3:TimeZone>
+						<ns3:Latitude>3</ns3:Latitude>
+						<ns3:Longitude>3</ns3:Longitude>
+						<ns3:EventID>5617456165050</ns3:EventID>
+					</ns3:IOS>
 				</ns4:ClientDevice>
 			</ns4:TransactionData>
 		</ns4:SendTransactionDataRequest>
