@@ -27,9 +27,6 @@ public class ExR_01_AuthenticationContactChanged extends RSHBCaseTest {
     private String[][] names = {{"Ирина", "Дьякова", "Витальевна"}};
     private static final String LOGIN = new RandomString(5).nextString();
     private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-    //private String[] loginHashes = new String[0];
-   // private String[] logins = new String[0];
-
 
     @Test(
             description = "Настройка и включение правила R01_ExR_01_AuthenticationContactChanged"
@@ -48,8 +45,6 @@ public class ExR_01_AuthenticationContactChanged extends RSHBCaseTest {
             dependsOnMethods = "enableRules"
     )
     public void client() {
-        //Arrays.setAll(loginHashes, p -> (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5));
-        //Arrays.setAll(logins, p -> new RandomString(5).nextString());
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9);

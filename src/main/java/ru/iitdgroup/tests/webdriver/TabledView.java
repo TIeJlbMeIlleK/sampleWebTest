@@ -76,7 +76,7 @@ public interface TabledView<S extends AbstractView> {
     default S setNewTableFilterForTransactions(String field, String operator, String value) {
         getSelf().getDriver().findElementByXPath("//*[@id=\"custom_tableReportFilters:custom_btnReportAddFilter\"]").click();
         getSelf().getDriver().findElementByXPath("//*[@id=\"custom_tableReportFilters:1:cmdMoveUp\"]/img").click();
-        getSelf().sleep(2);
+        getSelf().sleep(1);
 
         Select columnField = new Select(getSelf().getDriver()
                 .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
@@ -97,25 +97,49 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
+    default S setTabFilter(String field, String operator, String value) {
+        clearTableFilters();
+        getSelf().getDriver().findElementByXPath("//*[text()='Add Filter']").click();
+        getSelf().sleep(1);
+        Select columnField = new Select(getSelf().getDriver()
+                .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
+                .findElements(By.className("af_selectOneChoice_content"))
+                .get(0));
+        columnField.selectByVisibleText(field);
+        getSelf().sleep(1);
+        Select operatorField = new Select(getSelf().getDriver()
+                .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
+                .findElements(By.className("af_selectOneChoice_content"))
+                .get(1));
+        operatorField.selectByVisibleText(operator);
+        getSelf().sleep(1);
+        Select operatorValue = new Select(getSelf().getDriver()
+                .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
+                .findElements(By.className("af_selectOneChoice_content"))
+                .get(2));
+        operatorValue.selectByVisibleText(value);
+        getSelf().sleep(1);
+        return getSelf();
+    }
+
     //FIXME поправить в случае поля Active (пример Список клиентов)
     default S setTableFilterWithActive(String field, String operator, String value) {
         clearTableFilters();
         getSelf().getDriver().findElementByXPath("//*[text()='Add Filter']").click();
-        getSelf().sleep(2);
+        getSelf().sleep(1);
 
         Select columnField = new Select(getSelf().getDriver()
                 .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
                 .findElements(By.className("af_selectOneChoice_content"))
                 .get(0));
         columnField.selectByVisibleText(field);
-        getSelf().sleep(2);
+        getSelf().sleep(1);
         Select operatorField = new Select(getSelf().getDriver()
                 .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
                 .findElements(By.className("af_selectOneChoice_content"))
                 .get(1));
         operatorField.selectByVisibleText(operator);
-
-        getSelf().sleep(3);
+        getSelf().sleep(1);
 
         WebElement valueInput = getSelf().getDriver().findElementByXPath("//*[@id='custom_tableReportFilters']//following::input[2]");
         valueInput.click();
@@ -203,7 +227,6 @@ public interface TabledView<S extends AbstractView> {
         getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
         getSelf().waitUntil("//*[@title='Refresh']");
         refreshTable();
-        getSelf().sleep(2);
         if (typeTransaction == "Платеж по QR-коду через СБП") {
             getSelf().getDriver().findElementByXPath("//span[text()='Платеж по QR-коду через СБП']").click();
         } else if (typeTransaction == "Перевод по номеру телефона") {
@@ -241,23 +264,6 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
-    default S attachAddTransactionType(String type, String field) {
-        getSelf().getDriver().findElementByXPath("//img[@title='Attach']").click();
-        getSelf().waitUntil("//*[@title='Refresh']");
-        refreshTable();
-        setTableFilter(field, "Equals", type).refreshTab();
-        if (getSelf().getDriver().findElementsByXPath("//*[text()='No records were found.']").size() > 0) {
-            getSelf().getDriver().findElementByXPath("//img[@id='j_id106:1:j_id151']").click();
-            getSelf().getDriver().findElementByXPath("//*[@id=\"j_id169:0:j_id172:1:field_col0\"]").sendKeys(type);
-            getSelf().getDriver().findElementByXPath("//a[@id='btnSave']").click();
-        } else {
-            getSelf().getDriver().findElementByXPath("//*[@class='af_tableSelectMany_cell-icon-format OraTableBorder1111']").click();
-            getSelf().getDriver().findElementByXPath("//a[@title='OK']").click();
-            getSelf().waitUntil("//a[@id='btnEdit']");
-        }
-        return getSelf();
-    }
-
     default S attachVESCode46(String group) {
         getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
         getSelf().waitUntil("//*[@title='Refresh']");
@@ -281,13 +287,21 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
-    default S attachTransactionNew(String group,String tranType) {
-        getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//*[@id=\"j_id2356:0:j_id2401\"]")).click();
-        getSelf().getDriver().findElementByXPath("//*[@id=\"j_id106:0:j_id151\"]").click();
-        getSelf().getDriver().findElementByXPath("//span[text()='"+tranType+"']").click();
-        getSelf().getDriver().findElementByXPath("//*[@id=\"btnSelectLookup\"]/span").click();
-        getSelf().getDriver().findElementByXPath("//*[@id=\"j_id99\"]/div[1]/table/tbody/tr/td/div/table/tbody/tr/td[3]/a").click();
-        getSelf().sleep(2);
+    default S attachTransactionNew(String type) {
+        getSelf().getDriver().findElementByXPath("//img[@title='Attach']").click();
+        getSelf().waitUntil("//*[@title='Refresh']");
+        refreshTable();
+        setTabFilter("transactionType", "Equals", type).refreshTab();
+
+        if (getSelf().getDriver().findElementsByXPath("//*[text()='No records were found.']").size() > 0) {
+            getSelf().getDriver().findElementByXPath("//img[@id='j_id106:1:j_id151']").click();
+            getSelf().getDriver().findElementByXPath("//*[@id='j_id169:0:j_id172:0:field_col1_Required']").sendKeys(type);
+            getSelf().getDriver().findElementByXPath("//a[@id='btnSave']").click();
+        } else {
+            getSelf().getDriver().findElementByXPath("//*[@class='af_tableSelectMany_cell-icon-format OraTableBorder1111']").click();
+            getSelf().getDriver().findElementByXPath("//a[@title='OK']").click();
+            getSelf().waitUntil("//a[@id='btnEdit']");
+        }
         return getSelf();
     }
 
