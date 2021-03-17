@@ -23,7 +23,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_ExR_02_AnomalGeoPosChange";
     private static final String TABLE = "(System_parameters) Интеграционные параметры";
 
-    private final GregorianCalendar time = new GregorianCalendar(2021, Calendar.JANUARY, 22, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Зуля", "Закирова", "Муратовна"}};
     private static final String LOGIN = new RandomString(5).nextString();
@@ -90,6 +90,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
             dependsOnMethods = "addClient"
     )
     public void step1() {
+        time.add(Calendar.HOUR, -49);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
