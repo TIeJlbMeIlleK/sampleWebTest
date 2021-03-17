@@ -217,20 +217,38 @@ public interface TabledView<S extends AbstractView> {
     }
 
 
-    default S attachOpen(String group) {
-        getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
+    default S attachOpen() {
+        getSelf().getDriver().findElementByXPath("//img[@title='Attach']").click();
         getSelf().waitUntil("//*[@title='Refresh']");
         refreshTable();
         return getSelf();
     }
 
     default S addAttachMask(String mask) {
+        getSelf().getDriver().findElementByXPath("//img[@title='Attach']").click();
         getSelf().waitUntil("//*[@title='Refresh']");
         refreshTable();
         setTableFilter("Маска счёта", "Equals", mask).refreshTab();
         if (getSelf().getDriver().findElementsByXPath("//*[text()='No records were found.']").size() > 0) {
             getSelf().getDriver().findElementByXPath("//img[@title='New (Rule_tables) Маски счётов для правила G24']").click();
             getSelf().getDriver().findElementByXPath("//*[@id=\"j_id169:0:j_id172:1:field_col0\"]").sendKeys(mask);
+            getSelf().getDriver().findElementByXPath("//a[@id='btnSave']").click();
+        } else {
+            getSelf().getDriver().findElementByXPath("//*[@class='af_tableSelectMany_cell-icon-format OraTableBorder1111']").click();
+            getSelf().getDriver().findElementByXPath("//a[@title='OK']").click();
+            getSelf().waitUntil("//a[@id='btnEdit']");
+        }
+        return getSelf();
+    }
+
+    default S attachAddTransactionType(String type, String field) {
+        getSelf().getDriver().findElementByXPath("//img[@title='Attach']").click();
+        getSelf().waitUntil("//*[@title='Refresh']");
+        refreshTable();
+        setTableFilter(field, "Equals", type).refreshTab();
+        if (getSelf().getDriver().findElementsByXPath("//*[text()='No records were found.']").size() > 0) {
+            getSelf().getDriver().findElementByXPath("//img[@id='j_id106:1:j_id151']").click();
+            getSelf().getDriver().findElementByXPath("//*[@id=\"j_id169:0:j_id172:1:field_col0\"]").sendKeys(type);
             getSelf().getDriver().findElementByXPath("//a[@id='btnSave']").click();
         } else {
             getSelf().getDriver().findElementByXPath("//*[@class='af_tableSelectMany_cell-icon-format OraTableBorder1111']").click();
@@ -257,7 +275,7 @@ public interface TabledView<S extends AbstractView> {
         getSelf().getDriver().findElementByXPath("//*[@id=\"j_id169:0:j_id172:2:btnSelect_field_col1\"]").click();
         getSelf().getDriver().findElementByXPath("//span[text()='" + tranType + "']").click();
         getSelf().getDriver().findElementByXPath("//*[@id=\"btnSelectLookup\"]/span").click();
-        getSelf().sleep(2);
+        getSelf().sleep(1);
         getSelf().getDriver().findElementByXPath("//*[@id=\"j_id142:0:j_id145:2:field_col0\"]").sendKeys(summ);
         getSelf().getDriver().findElementByXPath("//*[@id=\"btnSave\"]").click();
         return getSelf();
