@@ -83,9 +83,7 @@ public class Main extends Application {
             paths
                     .skip(1)
                     .filter(Files::isDirectory)
-                    .forEach(path1 -> {
-                        testsList.getItems().add(path1.toString());
-                    });
+                    .forEach(path1 -> testsList.getItems().add(path1.toString()));
         } catch (IOException e) {
             showErrorMessage(e.toString(), this.testsPath);
         }
@@ -121,19 +119,13 @@ public class Main extends Application {
 
     @FXML
     private void runTestsBtnClick(ActionEvent event) {
-        ObservableList s = testsList.getSelectionModel().getSelectedItems();
+        ObservableList<String> s = testsList.getSelectionModel().getSelectedItems();
         System.out.println(s);
         if (s == null || s.size() == 0) {
             event.consume();
             return;
         }
-
-
-        //outputView.getItems().clear();
-//            testsRunner.testPackages(s);
         testsRunner.testPackagesAsync(s);
-
-
         event.consume();
     }
 
@@ -145,9 +137,7 @@ public class Main extends Application {
 
             }
         } else {
-            Platform.runLater(() -> {
-                outputView.getItems().add(message);
-            });
+            Platform.runLater(() -> outputView.getItems().add(message));
         }
     }
 
@@ -172,11 +162,8 @@ public class Main extends Application {
         }
 
         @Override
-        public void write(int b) throws IOException {
-
-            Platform.runLater(() -> {
-                textarea.appendText(String.valueOf((char) b));
-            });
+        public void write(int b) {
+            Platform.runLater(() -> textarea.appendText(String.valueOf((char) b)));
         }
     }
 }

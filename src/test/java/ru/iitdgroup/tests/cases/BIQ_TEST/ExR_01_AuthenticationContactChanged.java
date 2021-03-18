@@ -56,87 +56,87 @@ public class ExR_01_AuthenticationContactChanged extends RSHBCaseTest {
         }
     }
 
-    @Test(
-            description = "Включаем правило и взводим флаги по клиентам",
-            dependsOnMethods = "createClients"
-    )
-    public void step0() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:",true)
-                .save()
-                .sleep(15);
-
-        getIC().locateReports()
-                .openFolder("Бизнес-сущности")
-                .openRecord(TABLE)
-                .setTableFilterWithActive("Идентификатор клиента","Equals",clientIds.get(1))
-                .runReport()
-                .openFirst()
-                .getActionsForClient()
-                .doAction("Изменен IMSI аутент_true")
-                .approved();
-
-        getIC().locateReports()
-                .openFolder("Бизнес-сущности")
-                .openRecord(TABLE)
-                .setTableFilterWithActive("Идентификатор клиента","Equals",clientIds.get(2))
-                .runReport()
-                .openFirst()
-                .getActionsForClient()
-                .doAction("Cмена учетных данных_true")
-                .approved();
-        getIC().close();
-
-    }
-
-    @Test(
-            description = "Провести транзакцию № 1 от имени клиента № 1, у которого не взведены флаги \"Смена учетных данных\" и \"Изменен IMSI телефона для аутентификации\"",
-            dependsOnMethods = "step0"
-    )
-
-    public void step1() {
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
-    }
-
-    @Test(
-            description = "Провести транзакцию № 2 от имени клиента № 2, у которого  взведен только флаг \"Смена учетных данных\"",
-            dependsOnMethods = "step1"
-    )
-    public void step2() {
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(2));
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_CHANGE_CONTACT);
-    }
-
-    @Test(
-            description = "Провести транзакцию № 3 от имени клиента № 3, у которого  взведен только флаг \"Изменен IMSI телефона для аутентификации\"",
-            dependsOnMethods = "step2"
-    )
-    public void step3() {
-        Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(1));
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_CHANGE_IMSI);
-    }
+//    @Test(
+//            description = "Включаем правило и взводим флаги по клиентам",
+//            dependsOnMethods = "createClients"
+//    )
+//    public void step0() {
+//        getIC().locateRules()
+//                .selectVisible()
+//                .deactivate()
+//                .editRule(RULE_NAME)
+//                .fillCheckBox("Active:",true)
+//                .save()
+//                .sleep(15);
+//
+//        getIC().locateReports()
+//                .openFolder("Бизнес-сущности")
+//                .openRecord(TABLE)
+//                .setTableFilterWithActive("Идентификатор клиента","Equals",clientIds.get(1))
+//                .runReport()
+//                .openFirst()
+//                .getActionsForClient()
+//                .doAction("Изменен IMSI аутент_true")
+//                .approved();
+//
+//        getIC().locateReports()
+//                .openFolder("Бизнес-сущности")
+//                .openRecord(TABLE)
+//                .setTableFilterWithActive("Идентификатор клиента","Equals",clientIds.get(2))
+//                .runReport()
+//                .openFirst()
+//                .getActionsForClient()
+//                .doAction("Cмена учетных данных_true")
+//                .approved();
+//        getIC().close();
+//
+//    }
+//
+//    @Test(
+//            description = "Провести транзакцию № 1 от имени клиента № 1, у которого не взведены флаги \"Смена учетных данных\" и \"Изменен IMSI телефона для аутентификации\"",
+//            dependsOnMethods = "step0"
+//    )
+//
+//    public void step1() {
+//        Transaction transaction = getTransaction();
+//        TransactionDataType transactionData = transaction.getData().getTransactionData()
+//                .withRegular(false);
+//        transactionData
+//                .getClientIds()
+//                .withDboId(clientIds.get(0));
+//        sendAndAssert(transaction);
+//        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
+//    }
+//
+//    @Test(
+//            description = "Провести транзакцию № 2 от имени клиента № 2, у которого  взведен только флаг \"Смена учетных данных\"",
+//            dependsOnMethods = "step1"
+//    )
+//    public void step2() {
+//        Transaction transaction = getTransaction();
+//        TransactionDataType transactionData = transaction.getData().getTransactionData()
+//                .withRegular(false);
+//        transactionData
+//                .getClientIds()
+//                .withDboId(clientIds.get(2));
+//        sendAndAssert(transaction);
+//        assertLastTransactionRuleApply(TRIGGERED, RESULT_CHANGE_CONTACT);
+//    }
+//
+//    @Test(
+//            description = "Провести транзакцию № 3 от имени клиента № 3, у которого  взведен только флаг \"Изменен IMSI телефона для аутентификации\"",
+//            dependsOnMethods = "step2"
+//    )
+//    public void step3() {
+//        Transaction transaction = getTransaction();
+//        TransactionDataType transactionData = transaction.getData().getTransactionData()
+//                .withRegular(false);
+//        transactionData
+//                .getClientIds()
+//                .withDboId(clientIds.get(1));
+//        sendAndAssert(transaction);
+//        assertLastTransactionRuleApply(TRIGGERED, RESULT_CHANGE_IMSI);
+//    }
 
 
     @Override

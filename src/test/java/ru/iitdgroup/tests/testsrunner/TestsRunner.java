@@ -16,9 +16,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -38,29 +36,6 @@ public class TestsRunner {
         testng.addListener((ITestNGListener) listener);
     }
 
-//    public void testPackagesAsync(List<String> packages) {
-//        Service service = new Service() {
-//            @Override
-//            protected Task createTask() {
-//                return new Task() {
-//                    @Override
-//                    protected Object call() throws Exception {
-//                        Platform.runLater(() -> {
-//                            try {
-//                                testPackages(packages);
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            }
-//                        });
-//                        return null;
-//                    }
-//                };
-//            }
-//
-//        };
-//        service.start();
-//        service.
-//    }
 
     public void testPackagesAsync(List<String> packages) {
         if (threadForAsyncTests != null && threadForAsyncTests.isAlive()) {
@@ -71,33 +46,12 @@ public class TestsRunner {
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-
-                // Set the total number of steps in our process
-//                int steps = 1000;
-//
-//                // Simulate a long running task
-//                for (int i = 0; i < steps; i++) {
-//
-//                    Thread.sleep(10); // Pause briefly
-//
-//                    // Update our progress and message properties
-//                    updateProgress(i, steps);
-//                    updateMessage(String.valueOf(i));
-//                }
-                //Thread.sleep(1000*120);
-                try {
-                    testPackages(packages);
-                } catch (IllegalStateException e) {
-
-                }
-
+                testPackages(packages);
                 return null;
             }
         };
 
-        task.setOnFailed(wse -> {
-            wse.getSource().getException().printStackTrace();
-        });
+        task.setOnFailed(wse -> wse.getSource().getException().printStackTrace());
 
         task.setOnSucceeded(wse -> {
             output.accept("Окончание тестирования!");
@@ -114,7 +68,6 @@ public class TestsRunner {
 
     public void stopAsyncTests() {
         threadForAsyncTests.stop();
-
     }
 
     /**
@@ -124,29 +77,28 @@ public class TestsRunner {
      * @throws IOException
      */
     public void testPackage(String packagePath) throws IOException {
-        String packageName = fetchPackageName(packagePath);
-
-        List<XmlSuite> suites = new ArrayList<XmlSuite>();
-        XmlSuite eachSuite = new XmlSuite();
-        eachSuite.setName("My Suite");
-        List<XmlTest> tests = new ArrayList<XmlTest>();
-        XmlTest eachTest = new XmlTest();
-        tests.add(eachTest);
-        eachTest.setName("My test");
-        eachTest.setParallel(XmlSuite.ParallelMode.NONE);
-        eachTest.setThreadCount(1);
-
-        List<XmlPackage> allPackages = new ArrayList<XmlPackage>();
-        XmlPackage eachPackage = new XmlPackage();
-        eachPackage.setName(packageName);
-        allPackages.add(eachPackage);
-        eachTest.setPackages(allPackages);
-
-        eachTest.setSuite(eachSuite);
-        eachSuite.setTests(tests);
-        suites.add(eachSuite);
+        testng = new TestNG();
+        testng.addListener((ITestNGListener) listener);
+        listener.reset();
+        List<XmlSuite> suites = generateXmlSuite(Collections.singletonList(fetchPackageName(packagePath)));
 
         testng.setXmlSuites(suites);
+        testng.setThreadCount(1);
+        testng.run();
+    }
+
+    public void testPackages(List<String> packages) throws IOException {
+        testng = new TestNG();
+        testng.addListener((ITestNGListener) listener);
+        listener.reset();
+        ArrayList<String> packageNames = new ArrayList<>();
+        for (String dir : packages) {
+            packageNames.add(fetchPackageName(dir));
+        }
+        List<XmlSuite> suites = generateXmlSuite(packageNames);
+
+        testng.setXmlSuites(suites);
+        testng.setThreadCount(1);
         testng.run();
     }
 
@@ -156,7 +108,7 @@ public class TestsRunner {
             throw new IllegalArgumentException("Coudn't find any .java files in " + packagePath);
         }
         String content = FileUtils.readFileToString(files.get(0).toFile());
-        List<String> allMatches = new ArrayList<String>();
+        List<String> allMatches = new ArrayList<>();
         Matcher m = Pattern.compile("package [\\w.]*;")
                 .matcher(content);
         if (!m.find()) {
@@ -173,28 +125,26 @@ public class TestsRunner {
                     //.skip(1)
                     .filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".java"))
-                    .forEach(file -> {
-                        files.add(file);
-                    });
+                    .forEach(files::add);
         }
         return files;
     }
 
-    public void testPackages(List<String> s) throws IOException {
-        List<XmlSuite> suites = new ArrayList<XmlSuite>();
+    @NotNull
+    private List<XmlSuite> generateXmlSuite(List<String> packages) {
+        List<XmlSuite> suites = new ArrayList<>();
         XmlSuite eachSuite = new XmlSuite();
         eachSuite.setName("My Suite");
-        List<XmlTest> tests = new ArrayList<XmlTest>();
+        List<XmlTest> tests = new ArrayList<>();
         XmlTest eachTest = new XmlTest();
         tests.add(eachTest);
         eachTest.setName("My test");
         eachTest.setParallel(XmlSuite.ParallelMode.NONE);
         eachTest.setThreadCount(1);
 
-        List<XmlPackage> allPackages = new ArrayList<XmlPackage>();
+        List<XmlPackage> allPackages = new ArrayList<>();
 
-        for (String dir : s) {
-            String packageName = fetchPackageName(dir);
+        for (String packageName : packages) {
             XmlPackage eachPackage = new XmlPackage();
             eachPackage.setName(packageName);
             allPackages.add(eachPackage);
@@ -203,11 +153,7 @@ public class TestsRunner {
         eachTest.setSuite(eachSuite);
         eachSuite.setTests(tests);
         suites.add(eachSuite);
-
-        testng.setXmlSuites(suites);
-        testng.setThreadCount(1);
-
-        testng.run();
+        return suites;
     }
 
     private static class MyListener implements IClassListener, ISuiteListener, ITestListener {
@@ -277,6 +223,9 @@ public class TestsRunner {
 
         @Override
         public void onTestStart(ITestResult result) {
+            if (shouldStop) {
+                throw new SkipException("Skipping Test: " + result.getMethod().getDescription());
+            }
         }
 
         @Override
