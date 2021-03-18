@@ -5,13 +5,16 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 import org.testng.*;
+import org.testng.annotations.ITestAnnotation;
 import org.testng.annotations.Test;
 import org.testng.xml.XmlPackage;
 import org.testng.xml.XmlSuite;
 import org.testng.xml.XmlTest;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,12 +31,12 @@ public class TestsRunner {
     private TestNG testng;
     private Thread threadForAsyncTests;
     private Consumer<String> output;
+    private Boolean stopTests = false;
+    private MyListener listener;
 
     public TestsRunner(Consumer<String> outputMessage) {
-        testng = new TestNG();
         output = outputMessage;
-        MyListener listener = new MyListener(output);
-        testng.addListener((ITestNGListener) listener);
+        listener = new MyListener(output);
     }
 
 
@@ -67,6 +70,7 @@ public class TestsRunner {
     }
 
     public void stopAsyncTests() {
+        listener.stopTests();
         threadForAsyncTests.stop();
     }
 
@@ -156,12 +160,30 @@ public class TestsRunner {
         return suites;
     }
 
-    private static class MyListener implements IClassListener, ISuiteListener, ITestListener {
-        Consumer<String> output;
-        ArrayList<ITestResult> classResult;
+
+    private static class MyListener implements IClassListener, ISuiteListener, ITestListener, IAnnotationTransformer {
+        private boolean shouldStop = false;
+        private Consumer<String> output;
+        private ArrayList<ITestResult> classResult;
 
         public MyListener(Consumer<String> outputMessage) {
             this.output = outputMessage;
+        }
+
+        public void reset() {
+            shouldStop = false;
+        }
+
+        public void stopTests() {
+            shouldStop = true;
+        }
+
+        @Override
+        public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
+//            System.out.println(shouldStop);
+//            if (shouldStop) {
+//                annotation.setEnabled(false);
+//            }
         }
 
         @Override
@@ -212,7 +234,7 @@ public class TestsRunner {
                 int passtestcases = con.getTestContext().getPassedTests().size();
                 int failedtestcases = con.getTestContext().getFailedTests().size();
                 int skippedtestcases = con.getTestContext().getSkippedTests().size();
-                int percentage = (passtestcases * 100) / totaltestcases;
+                int percentage = (passtestcases * 100) / ((totaltestcases > 0) ? totaltestcases : 1);
                 output.accept("Всего ШАГОВ : " + totaltestcases);
                 output.accept("Пройденных ШАГОВ : " + passtestcases);
                 output.accept("Проваленных ШАГОВ : " + failedtestcases);
