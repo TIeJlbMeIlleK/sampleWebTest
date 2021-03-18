@@ -1,12 +1,10 @@
-package ru.iitdgroup.tests.cases.BIQ_TEST;
+package ru.iitdgroup.tests.cases.forTestsRunnerTestPackage2;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
-import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
