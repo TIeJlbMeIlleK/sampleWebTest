@@ -24,30 +24,18 @@ public class IR_03_RepeatApprovedTransaction_CardTr_InitialSourceAmount extends 
 
 
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
-    private static final String PAYEE_1 = "4378723741117777";
-    private final GregorianCalendar time = new GregorianCalendar(2021, Calendar.MARCH, 1, 0, 0, 0);
+    private static final String PAYEE_1 = "43787" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 11);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
     private static String TRANSACTION_ID;
     private String[][] names = {{"Леонид", "Жуков", "Игоревич"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
 
     @Test(
             description = "Включаем правило и выполняем преднастройки"
     )
 
     public void enableRules() {
-
-        Table.Formula rows = getIC().locateTable(REFERENCE_TABLE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
-        getIC().locateTable(REFERENCE_TABLE)
-                .addRecord()
-                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
-                .select("Наименование канала:", "Мобильный банк")
-                .save();
 
         getIC().locateRules()
                 .selectVisible()
@@ -64,6 +52,16 @@ public class IR_03_RepeatApprovedTransaction_CardTr_InitialSourceAmount extends 
                 .detachWithoutRecording("Типы транзакций")
                 .attachTransactionIR03("Типы транзакций", "Перевод на карту другому лицу")
                 .sleep(10);
+
+        Table.Formula rows = getIC().locateTable(REFERENCE_TABLE).findRowsBy();
+        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
+            rows.delete();
+        }
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
     }
 
     @Test(
@@ -74,17 +72,19 @@ public class IR_03_RepeatApprovedTransaction_CardTr_InitialSourceAmount extends 
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
+                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(LOGIN)
+                        .withLogin(login)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(loginHash)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -107,15 +107,17 @@ public class IR_03_RepeatApprovedTransaction_CardTr_InitialSourceAmount extends 
     )
 
     public void step1() {
+        time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false)
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withDestinationCardNumber(PAYEE_1)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -132,13 +134,14 @@ public class IR_03_RepeatApprovedTransaction_CardTr_InitialSourceAmount extends 
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false)
+                .withInitialSourceAmount(BigDecimal.valueOf(9500));
+        transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(9500))
                 .getCardTransfer()
                 .withDestinationCardNumber(PAYEE_1)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -155,20 +158,20 @@ public class IR_03_RepeatApprovedTransaction_CardTr_InitialSourceAmount extends 
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false)
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withDestinationCardNumber(PAYEE_1)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод на карту другому лицу» транзакция с совпадающими реквизитами");
     }
-
 
     @Override
     protected String getRuleName() {

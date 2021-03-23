@@ -64,8 +64,8 @@ public class GR_04_OnePayeeToManyPhones extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Создаем клиента"
-            //dependsOnMethods = "enableRules"
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
     )
     public void addClient() {
         try {

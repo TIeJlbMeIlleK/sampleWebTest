@@ -30,9 +30,11 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
     private static final String PAYEE_5 = (ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 16);
     private static final String PAYEE_6 = (ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 16);
 
-    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
+    private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
+    private String[][] names = {{"Леонид", "Жуков", "Игоревич"}, {"Ксения", "Новикова", "Сергеевна"}, {"Илья", "Птичкин", "Олегович"},
+            {"Евгений", "Крымов", "Александрович"}, {"Иван", "Сырков", "Витальевич"}, {"Петр", "Серебряков", "Иванович"}};
 
 //  TODO  Перед выполнением ТК, требуется создать Action: 6. Создан ручной Action WF в транзакции SetResolutionContinue, на изменение:
 //TODO-- Status = Complete и
@@ -49,21 +51,64 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
 //TODO-- Статус АДАК = Success
 //TODO-- ExternalApi -- Update Transaction In Cache.
 
-
+    //    @Test(
+//            description = "Включаем правило и выполняем преднастройки"
+//    )
+//    public void enableRule() {
+//        getIC().locateRules()
+//                .selectVisible()
+//                .deactivate()
+//                .editRule(RULE_NAME)
+//                .fillCheckBox("Active:", true)
+//                .fillCheckBox("АДАК выполнен:", true)
+//                .fillCheckBox("РДАК выполнен:", false)
+//                .fillCheckBox("Требовать совпадения остатка на счете:", false)
+//                .fillInputText("Длина серии:", "3")
+//                .fillInputText("Период серии в минутах:", "10")
+//                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
+//                .save()
+//                .detachWithoutRecording("Типы транзакций")
+//                .attachTransactionIR03("Типы транзакций", "Перевод на карту другому лицу")
+//                .sleep(10);
+//
+//        Table.Formula rows = getIC().locateTable(REFERENCE_TABLE).findRowsBy();
+//        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
+//            rows.delete();
+//        }
+//        getIC().locateTable(REFERENCE_TABLE)
+//                .addRecord()
+//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
+//                .select("Наименование канала:", "Мобильный банк")
+//                .save();
+//    }
     @Test(
             description = "Создание клиентов"
+            // dependsOnMethods = "enableRule"
     )
     public void createClients() {
         try {
             for (int i = 0; i < 6; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
+                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+
+                client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(login)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(loginHash)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -74,30 +119,8 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
     }
 
     @Test(
-            description = "Включаем правило и выполняем преднастройки",
-            dependsOnMethods = "createClients"
-    )
-    public void step0() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillInputText("Длина серии:","3")
-                .fillInputText("Период серии в минутах:","10")
-                .fillCheckBox("РДАК выполнен:",false)
-                .fillCheckBox("АДАК выполнен:",true)
-                .fillCheckBox("Требовать совпадения остатка на счете:",false)
-                .select("Тип транзакции:","CARD_TRANSFER")
-                .fillCheckBox("Active:",true)
-                .save()
-                .sleep(30);
-
-        commandServiceMock.run();
-    }
-
-    @Test(
             description = "Отправить Транзакцию №1 в обработку -- Получатель №1, сумма 500, остаток 10000",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "createClients"
     )
 
     public void step1() {
@@ -119,7 +142,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         String tranID = transactionData.getTransactionId();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RULE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод на карту другому лицу», условия правила не выполнены");
 
         getIC()
                 .locateReports()
@@ -129,10 +152,8 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .runReport()
                 .openFirst()
                 .getActions()
-                .doAction("ContinueADAKDone")
+                .doAction("adak_success")
                 .approved();
-
-
     }
 
     @Test(
@@ -157,18 +178,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
         transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, TRIGGERED_TRUE);
-
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("РДАК выполнен:",true)
-                .fillCheckBox("АДАК выполнен:",false)
-                .select("Тип транзакции:","CARD_TRANSFER")
-                .fillCheckBox("Active:",true)
-                .save()
-                .sleep(30);
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод на карту другому лицу» транзакция с совпадающими реквизитами");
     }
 
     @Test(
@@ -178,6 +188,15 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
     )
 
     public void step3() {
+
+        getIC().locateRules()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillCheckBox("РДАК выполнен:", true)
+                .fillCheckBox("АДАК выполнен:", false)
+                .save().sleep(20);
+
+
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -196,7 +215,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         String tranID = transactionData.getTransactionId();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RULE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод на карту другому лицу», условия правила не выполнены");
 
         getIC()
                 .locateReports()
@@ -206,7 +225,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .runReport()
                 .openFirst()
                 .getActions()
-                .doAction("ContinueRDAKDone")
+                .doAction("rdak_success")
                 .approved();
     }
 
@@ -233,18 +252,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
         transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, TRIGGERED_TRUE);
-
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("РДАК выполнен:",true)
-                .fillCheckBox("АДАК выполнен:",true)
-                .select("Тип транзакции:","CARD_TRANSFER")
-                .fillCheckBox("Active:",true)
-                .save()
-                .sleep(30);
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод на карту другому лицу» транзакция с совпадающими реквизитами");
     }
 
     @Test(
@@ -253,6 +261,14 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
     )
 
     public void step5() {
+
+        getIC().locateRules()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillCheckBox("РДАК выполнен:", true)
+                .fillCheckBox("АДАК выполнен:", true)
+                .save().sleep(20);
+
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -271,7 +287,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         String tranID = transactionData.getTransactionId();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RULE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод на карту другому лицу», условия правила не выполнены");
 
         getIC()
                 .locateReports()
@@ -281,7 +297,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .runReport()
                 .openFirst()
                 .getActions()
-                .doAction("ContinueRDAKDone")
+                .doAction("rdak_success")
                 .approved();
 
         getIC()
@@ -292,7 +308,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .runReport()
                 .openFirst()
                 .getActions()
-                .doAction("ContinueADAKDone")
+                .doAction("adak_success")
                 .approved();
     }
 
@@ -319,7 +335,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
         transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, TRIGGERED_TRUE);
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод на карту другому лицу» транзакция с совпадающими реквизитами");
     }
 
     @Test(
@@ -346,7 +362,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         String tranID = transactionData.getTransactionId();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RULE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод на карту другому лицу», условия правила не выполнены");
 
         getIC()
                 .locateReports()
@@ -356,7 +372,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .runReport()
                 .openFirst()
                 .getActions()
-                .doAction("ContinueRDAKDone")
+                .doAction("rdak_success")
                 .approved();
 
         getIC()
@@ -367,7 +383,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .runReport()
                 .openFirst()
                 .getActions()
-                .doAction("ContinueADAKDone")
+                .doAction("adak_success")
                 .approved();
 
         getIC()
@@ -377,7 +393,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .setTableFilterForTransactions("ID транзакции", "Equals", tranID)
                 .runReport()
                 .openFirst().getActions()
-                .doAction("Fraud")
+                .doAction("Резолюция мошенничество")
                 .approved();
     }
 
@@ -404,7 +420,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
         transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RULE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод на карту другому лицу» условия правила не выполнены");
     }
 
     @Test(
@@ -431,7 +447,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         String tranID = transactionData.getTransactionId();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RULE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод на карту другому лицу», условия правила не выполнены");
 
         getIC()
                 .locateReports()
@@ -441,7 +457,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .runReport()
                 .openFirst()
                 .getActions()
-                .doAction("ContinueRDAKDone")
+                .doAction("rdak_success")
                 .approved();
     }
 
@@ -468,7 +484,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
         transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, TRIGGERED_TRUE);
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод на карту другому лицу» транзакция с совпадающими реквизитами");
     }
 
     @Test(
@@ -495,7 +511,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         String tranID = transactionData.getTransactionId();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RULE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод на карту другому лицу», условия правила не выполнены");
 
         getIC()
                 .locateReports()
@@ -505,7 +521,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .runReport()
                 .openFirst()
                 .getActions()
-                .doAction("ContinueADAKDone")
+                .doAction("adak_success")
                 .approved();
     }
 
@@ -533,17 +549,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         String tranID = transactionData.getTransactionId();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, TRIGGERED_TRUE);
-    }
-
-    @Test(
-            description = "Выключить мок ДБО",
-            dependsOnMethods = "step12"
-    )
-
-    public void disableCommandServiceMock() {
-        commandServiceMock.stop();
-        getIC().close();
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод на карту другому лицу» транзакция с совпадающими реквизитами");
     }
 
     @Override

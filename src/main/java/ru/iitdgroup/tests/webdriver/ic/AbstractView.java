@@ -116,7 +116,7 @@ public abstract class AbstractView<S> {
         getDriver()
                 .findElementByXPath("/html/body/div[16]/div[3]/div/button[2]/span")
                 .click();
-        sleep(5);
+        sleep(2);
         return this;
     }
 

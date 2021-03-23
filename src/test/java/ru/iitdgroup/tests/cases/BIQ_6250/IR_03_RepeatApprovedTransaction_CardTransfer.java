@@ -28,55 +28,61 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String PAYEE_WHITE_LIST = "(Rule_tables) Доверенные получатели";
     private static final String PAYEE_QUARANTINE_LIST = "(Rule_tables) Карантин получателей";
-    private static final String PAYEE_1 = "4378723741117777";
-    private static final String PAYEE_2 = "4378723741115555";
+    private static final String PAYEE_1 = "43787" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 11);
+    private static final String PAYEE_2 = "43787" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 11);
 
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-    private static String TRANSACTION_ID;
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Борис", "Кудрявцев", "Викторович"}, {"Илья", "Пупкин", "Олегович"}, {"Ольга", "Петушкова", "Ильинична"}};
-    private static final String LOGIN_1 = new RandomString(5).nextString();
-    private static final String LOGIN_2 = new RandomString(5).nextString();
-    private static final String LOGIN_3 = new RandomString(5).nextString();
-    private static final String LOGIN_HASH1 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-    private static final String LOGIN_HASH2 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-    private static final String LOGIN_HASH3 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
 
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.MARCH, 1, 0, 0, 0);
-    private final GregorianCalendar time_new = new GregorianCalendar(2020, Calendar.MARCH, 1, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
+    private final GregorianCalendar time2 = new GregorianCalendar();
+    private GregorianCalendar cloneTime;
+    private GregorianCalendar cloneTime2;
     private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
+    @Test(
+            description = "Включаем правило"
+    )
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillCheckBox("АДАК выполнен:", false)
+                .fillCheckBox("РДАК выполнен:", false)
+                .fillCheckBox("Требовать совпадения остатка на счете:", false)
+                .fillInputText("Длина серии:", "5")
+                .fillInputText("Период серии в минутах:", "10")
+                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
+                .save()
+                .detachWithoutRecording("Типы транзакций")
+                .attachTransactionIR03("Типы транзакций", "Перевод на карту другому лицу")
+                .sleep(10);
+    }
 
     @Test(
-            description = "Создание клиентов"
+            description = "Создание клиентов и настраиваем справочники",
+            dependsOnMethods = "enableRules"
     )
     public void addClient() {
         try {
             for (int i = 0; i < 3; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
+                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
-                if (i == 0) {
-                    client.getData().getClientData().getClient().withLogin(LOGIN_1);
-                } else if (i == 1) {
-                    client.getData().getClientData().getClient().withLogin(LOGIN_2);
-                } else {
-                    client.getData().getClientData().getClient().withLogin(LOGIN_3);
-                }
 
-                if (i == 0) {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH1);
-                } else if (i == 1) {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH2);
-                } else {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH3);
-                }
                 client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(login)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
+                        .withLoginHash(loginHash)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -91,51 +97,29 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
-    }
 
-    @Test(
-            description = "Включаем правило и выполняем преднастройки",
-            dependsOnMethods = "addClient"
+        Table.Formula rows = getIC().locateTable(REFERENCE_TABLE).findRowsBy();
+        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
+            rows.delete();
+        }
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
 
-    )
-    public void enableRules() {
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .editRule(RULE_NAME)
-//                .fillCheckBox("Active:", true)
-//                .fillCheckBox("АДАК выполнен:", false)
-//                .fillCheckBox("РДАК выполнен:", false)
-//                .fillCheckBox("Требовать совпадения остатка на счете:", false)
-//                .fillInputText("Длина серии:", "3")
-//                .fillInputText("Период серии в минутах:", "10")
-//                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
-//                .save()
-//                .detachWithoutRecording("Типы транзакций")
-//                .attachTransactionIR03("Типы транзакций", "Перевод на карту другому лицу")
-//                .sleep(10);
-//
-//        Table.Formula rows = getIC().locateTable(REFERENCE_TABLE).findRowsBy();
-//        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-//            rows.delete();
-//        }
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-
+        time2.add(Calendar.MINUTE, -30);
+        cloneTime2 = (GregorianCalendar)time2.clone();
         Table.Formula rows1 = getIC().locateTable(PAYEE_WHITE_LIST).findRowsBy();
         if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {
             rows1.delete();
         }
         getIC().locateTable(PAYEE_WHITE_LIST)
                 .addRecord()
-                .fillInputText("Дата занесения:", format.format(time.getTime()))
+                .fillInputText("Дата занесения:", format.format(cloneTime2.getTime()))
                 .fillUser("ФИО Клиента:", clientIds.get(0))
                 .fillInputText("Номер карты получателя:", PAYEE_1)
                 .save();
-
 
         Table.Formula rows2 = getIC().locateTable(PAYEE_QUARANTINE_LIST).findRowsBy();
         if (rows2.calcMatchedRows().getTableRowNums().size() > 0) {
@@ -143,27 +127,32 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
         }
         getIC().locateTable(PAYEE_QUARANTINE_LIST)
                 .addRecord()
-                .fillInputText("Дата занесения:", format.format(time.getTime()))
+                .fillInputText("Дата занесения:", format.format(cloneTime2.getTime()))
                 .fillUser("ФИО Клиента:", clientIds.get(1))
                 .fillInputText("Номер Карты получателя:", PAYEE_2)
                 .save();
+        getIC().close();
     }
+
 
     @Test(
             description = "Отправить Транзакцию №1 в обработку -- Получатель №1, сумма 500, остаток 10000",
-            dependsOnMethods = "enableRules"
+            dependsOnMethods = "addClient"
     )
 
     public void step1() {
+        time.add(Calendar.MINUTE, -20);
+        cloneTime = (GregorianCalendar)time.clone();
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(cloneTime))
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(cloneTime))
+                .withRegular(false)
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
         transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withDestinationCardNumber(PAYEE_1)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -176,14 +165,17 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
             dependsOnMethods = "step1"
     )
     public void step2() {
+
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(cloneTime))
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(cloneTime))
+                .withRegular(false)
+                .withInitialSourceAmount(BigDecimal.valueOf(9000));
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(9000))
                 .getCardTransfer()
                 .withDestinationCardNumber(PAYEE_1)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -197,14 +189,17 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
     )
 
     public void step3() {
+
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(cloneTime))
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(cloneTime))
+                .withRegular(false)
+                .withInitialSourceAmount(BigDecimal.valueOf(9000));
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(9000))
                 .getCardTransfer()
                 .withDestinationCardNumber(PAYEE_1)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(650));
@@ -218,8 +213,11 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
     )
 
     public void step4() {
+
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(cloneTime))
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(cloneTime))
                 .withRegular(false)
                 .withInitialSourceAmount(BigDecimal.valueOf(10000));
         transactionData
@@ -229,7 +227,6 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
                 .getCardTransfer()
                 .withDestinationCardNumber("4378723741115555")
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод на карту другому лицу» условия правила не выполнены");
     }
@@ -240,14 +237,17 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
     )
 
     public void step5() {
+
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(cloneTime))
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(cloneTime))
+                .withRegular(false)
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(2));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withDestinationCardNumber(PAYEE_1)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -261,16 +261,17 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
     )
 
     public void step6() {
-        time.add(Calendar.MINUTE, 1);
+
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(cloneTime2))
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(cloneTime2))
+                .withRegular(false)
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
         transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withDestinationCardNumber(PAYEE_1)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -279,21 +280,22 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить Транзакцию №7 от прежнего Клиента №1 в обработку -- Получатель №1, сумма 500, спустя 11 минут после транзакции №7",
+            description = "Отправить Транзакцию №7 от прежнего Клиента №1 в обработку -- Получатель №1, сумма 500, спустя 11 минут после транзакции №6",
             dependsOnMethods = "step6"
     )
 
     public void step7() {
-        time.add(Calendar.MINUTE, 11);
+        time.add(Calendar.MINUTE, 12);
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false)
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withDestinationCardNumber(PAYEE_1)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -307,15 +309,17 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
     )
 
     public void step8() {
+        time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false)
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withDestinationCardNumber(PAYEE_2)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -329,16 +333,17 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
     )
 
     public void step9() {
-        time_new.add(Calendar.MINUTE, 1);
+        time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false)
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withDestinationCardNumber(PAYEE_2)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
