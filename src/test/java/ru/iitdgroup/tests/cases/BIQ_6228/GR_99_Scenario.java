@@ -7,6 +7,7 @@ import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
+import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -23,110 +24,100 @@ public class GR_99_Scenario extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_99_Scenario";
     private static String TABLE_NAME = "(Policy_parameters) Блоки сценариев";
-    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
     private final GregorianCalendar time_1 = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
     private final GregorianCalendar time_2 = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 31, 0);
-
-
-
     private final List<String> clientIds = new ArrayList<>();
+    private String[][] names = {{"Леонид", "Жуков", "Игоревич"}, {"Ксения", "Новикова", "Сергеевна"}, {"Илья", "Птичкин", "Олегович"}};
 
 
     @Test(
-            description = "Создание клиентов"
+            description = "Включаем правило и выполняем преднастройки"
     )
-    public void createClients() {
-        try {
-            for (int i = 0; i < 2; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-                Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
-                        .getClientData()
-                        .getClient()
-                        .getClientIds()
-                        .withDboId(dboId);
-                client
-                        .getData()
-                        .getClientData()
-                        .getClient()
-                        .setPasswordRecoveryDateTime(time_1);
-                sendAndAssert(client);
-                clientIds.add(dboId);
-                System.out.println(dboId);
-            }
-        } catch (JAXBException | IOException e) {
-            throw new IllegalStateException(e);
-        }
-        try {
-            for (int i = 0; i < 1; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-                Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
-                        .getClientData()
-                        .getClient()
-                        .getClientIds()
-                        .withDboId(dboId);
-                sendAndAssert(client);
-                clientIds.add(dboId);
-                System.out.println(dboId);
-            }
-        } catch (JAXBException | IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
+    public void enableRules() {
 
-    @Test(
-            description = "Включаем правило и выполняем преднастройки",
-            dependsOnMethods = "createClients"
-    )
-    public void step0() {
+        getIC().locateTable(TABLE_NAME)
+                .findRowsBy()
+                .match("ID","00001")
+                .click()
+                .edit()
+                .fillInputText("Минимальное количество транзакций в серии:", "1")
+                .fillInputText("Минимальная сумма всех транзакций серии:", "1000")
+                .fillInputText("Минимальная сумма транзакции:", "1000")
+                .fillFromExistingValues("Transaction Type:", "Наименование типа транзакции", "Equals", "Перевод другому лицу")
+                .save();
+
+        getIC().locateTable(TABLE_NAME)
+                .findRowsBy()
+                .match("ID","00002")
+                .click()
+                .edit()
+                .fillInputText("Минимальное количество транзакций в серии:", "1")
+                .fillInputText("Минимальная сумма всех транзакций серии:", "1000")
+                .fillInputText("Минимальная сумма транзакции:", "1000")
+                .fillFromExistingValues("Transaction Type:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
+                .save();
+
+        String[] ids = getScenarioBlock();
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
                 .editRule(RULE_NAME)
-                .fillInputText("Период серии в минутах:","5")
-                .fillInputText("Промежуток времени с момента восстановления доступа к ДБО:","30")
-                .fillInputText("Логическое выражение:","3&&4")
-                .fillCheckBox("Active:",true)
+                .fillCheckBox("Active:", true)
+                .fillInputText("Период серии в минутах:", "10")
+                .fillInputText("Промежуток времени с момента восстановления доступа к ДБО:", "20")
+                .fillInputText("Логическое выражение:", ids[1] + "&&" + ids[0])
                 .save()
-                .sleep(30);
-
-        getIC().locateTable(TABLE_NAME)
-                .findRowsBy()
-                .match("Transaction Type","Перевод другому лицу")
-                .click()
-                .edit()
-                .fillInputText("Минимальное количество транзакций в серии:","1")
-                .fillInputText("Минимальная сумма всех транзакций серии:","1000")
-                .fillInputText("Минимальная сумма транзакции:","1000")
-                .getElement("Transaction Type:")
-                .getSelect("Перевод другому лицу")
-                .tapToSelect()
-                .save();
-        getIC().locateTable(TABLE_NAME)
-                .findRowsBy()
-                .match("Transaction Type","Платеж по QR-коду через СБП")
-                .click()
-                .edit()
-                .fillInputText("Минимальное количество транзакций в серии:","1")
-                .fillInputText("Минимальная сумма всех транзакций серии:","1000")
-                .fillInputText("Минимальная сумма транзакции:","1000")
-                .getElement("Transaction Type:")
-                .getSelect("Перевод на карту другому лицу")
-                .tapToSelect()
-                .save();
-
-        commandServiceMock.run();
+                .sleep(20);
     }
 
     @Test(
-            description = "Клиент №1\n" +
-                    "1. Провести транзакцию №1 \"Перевод другому лицу\", сумма 1001\n" +
-                    "2. Провести транзакцию №2 \"Перевод на карту\", сумма 1001\n" +
+            description = "Создание клиентов",
+            dependsOnMethods = "enableRules"
+    )
+    public void createClients() {
+        try {
+            for (int i = 0; i < 3; i++) {
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
+                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
+                Client client = new Client("testCases/Templates/client.xml");
+
+                if (i == 0 || i == 1) {
+                    client.getData()
+                            .getClientData().getClient().withPasswordRecoveryDateTime(time_1);
+                }
+
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(login)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
+                        .getClientIds()
+                        .withLoginHash(loginHash)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+
+                sendAndAssert(client);
+                clientIds.add(dboId);
+                System.out.println(dboId);
+            }
+        } catch (JAXBException | IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Test(
+            description = "Клиент №1" +
+                    "1. Провести транзакцию №1 \"Перевод другому лицу\", сумма 1001" +
+                    "2. Провести транзакцию №2 \"Перевод на карту\", сумма 1001" +
                     "3. Провести транзакцию № 3 Перевод с платежной карты, DocumentSaveTimeStamp больше на 5 минут с момента транзакции № 2, сумма 1001",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "createClients"
     )
 
     public void step1() {
@@ -154,7 +145,7 @@ public class GR_99_Scenario extends RSHBCaseTest {
         sendAndAssert(transaction2);
         assertLastTransactionRuleApply(TRIGGERED, SCENARIO_BLOCK_TRUE);
 
-        time_1.add(Calendar.MINUTE,6);
+        time_1.add(Calendar.MINUTE, 6);
         Transaction transaction3 = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData3 = transaction3.getData().getTransactionData()
                 .withRegular(false);
@@ -169,13 +160,13 @@ public class GR_99_Scenario extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Клиент №2\n" +
-                    "1. Провести транзакцию №1 \"Перевод другому лицу\", сумма 1001\n" +
+            description = "Клиент №2" +
+                    "1. Провести транзакцию №1 \"Перевод другому лицу\", сумма 1001" +
                     "2. Провести транзакцию №2 \"Перевод на карту\", сумма 1001",
             dependsOnMethods = "step1"
     )
     public void step2() {
-        time_2.add(Calendar.MINUTE,35);
+        time_2.add(Calendar.MINUTE, 35);
         Transaction transaction = getTransactionOuterTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -206,8 +197,8 @@ public class GR_99_Scenario extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Клиент №3\n" +
-                    "1. Провести транзакцию №1 \"Перевод другому лицу\" \n" +
+            description = "Клиент №3" +
+                    "1. Провести транзакцию №1 \"Перевод другому лицу\"" +
                     "2. Провести транзакцию №2 \"Перевод на карту\"",
             dependsOnMethods = "step2"
     )
@@ -239,15 +230,6 @@ public class GR_99_Scenario extends RSHBCaseTest {
 //        TODO требуется перепроверить после исправления дефекта с правилом GR_99
     }
 
-
-    @Test(
-            description = "Выключить мок ДБО",
-            dependsOnMethods = "step3"
-    )
-
-    public void disableCommandServiceMock() {
-        commandServiceMock.stop();
-    }
 
     @Override
     protected String getRuleName() {

@@ -25,13 +25,56 @@ public class GR_99_ScenarioIgnoreParameterRecovery extends RSHBCaseTest {
     private static String TABLE_NAME = "(Policy_parameters) Блоки сценариев";
     public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
     private final GregorianCalendar time_1 = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
-
-
     private final List<String> clientIds = new ArrayList<>();
 
+    @Test(
+            description = "Включаем правило и выполняем преднастройки"
+    )
+    public void enablerules() {
+
+        getIC().locateTable(TABLE_NAME)
+                .findRowsBy()
+                .match("ID","00001")
+                .click()
+                .edit()
+                .fillInputText("Минимальное количество транзакций в серии:","1")
+                .fillInputText("Минимальная сумма всех транзакций серии:","1000")
+                .fillInputText("Минимальная сумма транзакции:","1000")
+                .getElement("Transaction Type:")
+                .getSelect("Перевод другому лицу")
+                .tapToSelect()
+                .save();
+        getIC().locateTable(TABLE_NAME)
+                .findRowsBy()
+                .match("ID","00002")
+                .click()
+                .edit()
+                .fillInputText("Минимальное количество транзакций в серии:","1")
+                .fillInputText("Минимальная сумма всех транзакций серии:","1000")
+                .fillInputText("Минимальная сумма транзакции:","1000")
+                .getElement("Transaction Type:")
+                .getSelect("Перевод на карту другому лицу")
+                .tapToSelect()
+                .save();
+
+        String[] ids = getScenarioBlock();
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillInputText("Период серии в минутах:","5")
+                .fillInputText("Промежуток времени с момента восстановления доступа к ДБО:","")
+                .fillInputText("Логическое выражение:",ids[1] + "&&" + ids[0])
+                .fillCheckBox("Active:",true)
+                .save()
+                .sleep(20);
+
+        commandServiceMock.run();
+    }
 
     @Test(
-            description = "Создание клиентов"
+            description = "Создание клиентов",
+            dependsOnMethods = "enablerules"
     )
     public void createClients() {
         try {
@@ -59,55 +102,12 @@ public class GR_99_ScenarioIgnoreParameterRecovery extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Включаем правило и выполняем преднастройки",
-            dependsOnMethods = "createClients"
-    )
-    public void step0() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillInputText("Период серии в минутах:","5")
-                .fillInputText("Промежуток времени с момента восстановления доступа к ДБО:","")
-                .fillInputText("Логическое выражение:","3&&4")
-                .fillCheckBox("Active:",true)
-                .save()
-                .sleep(30);
-
-        getIC().locateTable(TABLE_NAME)
-                .findRowsBy()
-                .match("ID","00003")
-                .click()
-                .edit()
-                .fillInputText("Минимальное количество транзакций в серии:","1")
-                .fillInputText("Минимальная сумма всех транзакций серии:","1000")
-                .fillInputText("Минимальная сумма транзакции:","1000")
-                .getElement("Transaction Type:")
-                .getSelect("Перевод другому лицу")
-                .tapToSelect()
-                .save();
-        getIC().locateTable(TABLE_NAME)
-                .findRowsBy()
-                .match("ID","00004")
-                .click()
-                .edit()
-                .fillInputText("Минимальное количество транзакций в серии:","1")
-                .fillInputText("Минимальная сумма всех транзакций серии:","1000")
-                .fillInputText("Минимальная сумма транзакции:","1000")
-                .getElement("Transaction Type:")
-                .getSelect("Перевод на карту другому лицу")
-                .tapToSelect()
-                .save();
-
-        commandServiceMock.run();
-    }
-
-    @Test(
-            description = "Завести клиента: \n" +
-                    "1. №1, У которого  с момента восстановления доступа к ДБО до первой транзакции прошло не более 30 минут, остальные даты не указаны или превышают параметр\n" +
-                    "1. Провести транзакцию №1 \"Перевод другому лицу\", сумма 1001\n" +
+            description = "Завести клиента:" +
+                    "1. №1, У которого  с момента восстановления доступа к ДБО " +
+                    "до первой транзакции прошло не более 30 минут, остальные даты не указаны или превышают параметр" +
+                    "1. Провести транзакцию №1 \"Перевод другому лицу\", сумма 1001" +
                     "2. Провести транзакцию №2 \"Перевод с платежной карты стороннего банка на платежную карту РСХБ\", сумма 1001",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "createClients"
     )
 
     public void step1() {

@@ -259,6 +259,23 @@ public abstract class RSHBCaseTest {
         return result;
     }
 
+    protected String[] getScenarioBlock() {
+        try {
+            String[][] id = getDatabase()
+                    .select()
+                    .field("id")
+                    .from("SCENARIO_BLOCK")
+                    .sort("id", false)
+                    .limit(2)
+                    .get();
+            return new String[] {id[0][0], id[1][0]};
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
     /**
      * Возвращает поцизию (широта, долгота) клиента
      * @param DBO_Id dbo-id клиента

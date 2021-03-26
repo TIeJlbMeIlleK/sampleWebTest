@@ -17,17 +17,17 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Exr_04_InfectedDevice extends RSHBCaseTest {
+public class ExR_04_InfectedDevice extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_ExR_04_InfectedDevice";
     private static final String TABLE = "(System_parameters) Интеграционные параметры";
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Олеся", "Зимина", "Петровна"}};
 
-    private static String LOGIN = new RandomString(5).nextString();
-    private static String LOGIN1 = new RandomString(5).nextString();
-    private static String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-    private static String LOGIN_HASH1 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private static String LOGIN;
+    private static String LOGIN1;
+    private static String LOGIN_HASH;
+    private static String LOGIN_HASH1;
     private static final String SESSION_ID = new RandomString(10).nextString();
     private static final String SESSION_ID1 = new RandomString(10).nextString();
 
@@ -70,39 +70,36 @@ public class Exr_04_InfectedDevice extends RSHBCaseTest {
     public void addClient() {
         try {
             for (int i = 0; i < 2; i++) {
-                String[] dboId = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9),
-                        (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9)};
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
+                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
                 if (i == 0) {
-                    client.getData().getClientData().getClient().withLogin(LOGIN);
+                    LOGIN = login;
+                    LOGIN_HASH = loginHash;
                 } else {
-                    client.getData().getClientData().getClient().withLogin(LOGIN1);
+                    LOGIN1 = login;
+                    LOGIN_HASH1 = loginHash;
                 }
-
-                if (i == 0) {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH);
-                } else {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH1);
-                }
-
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withPasswordRecoveryDateTime(time)
+                        .withLogin(login)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId[i])
-                        .withCifId(dboId[i])
-                        .withExpertSystemId(dboId[i])
-                        .withEksId(dboId[i])
+                        .withLoginHash(loginHash)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
                         .getAlfaIds()
-                        .withAlfaId(dboId[i]);
+                        .withAlfaId(dboId);
 
                 sendAndAssert(client);
-                clientIds.add(dboId[i]);
-                System.out.println(dboId[i]);
+                clientIds.add(dboId);
+                System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
