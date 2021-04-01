@@ -227,13 +227,7 @@ public interface TabledView<S extends AbstractView> {
         getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Attach']")).click();
         getSelf().waitUntil("//*[@title='Refresh']");
         refreshTable();
-        if (typeTransaction == "Платеж по QR-коду через СБП") {
-            getSelf().getDriver().findElementByXPath("//span[text()='Платеж по QR-коду через СБП']").click();
-        } else if (typeTransaction == "Перевод по номеру телефона") {
-            getSelf().getDriver().findElementByXPath("//span[text()='Перевод по номеру телефона']").click();
-        } else {
-            getSelf().getDriver().findElementByXPath("//span[text()='Перевод на карту другому лицу']").click();
-        }
+        getSelf().getDriver().findElementByXPath("//span[text()='" + typeTransaction + "']").click();
         getSelf().getDriver().findElementByXPath("//span[text()='Select']").click();
         getSelf().getDriver().findElementByXPath("//a[@title='OK']").click();
         return getSelf();
