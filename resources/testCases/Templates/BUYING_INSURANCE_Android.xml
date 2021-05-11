@@ -1,0 +1,85 @@
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+    <ns4:ServerInfo>
+        <Ip>localhost</Ip>
+        <Port>8050</Port>
+    </ns4:ServerInfo>
+    <ns4:TransactionData>
+        <ns4:TransactionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns4:TransactionId>
+        <ns4:Version>1</ns4:Version>
+        <ns4:ClientIds>
+            <DboId>1</DboId>
+            <CifId>1</CifId>
+            <EksId>1</EksId>
+            <AlfaIds>
+                <AlfaId>1</AlfaId>
+            </AlfaIds>
+            <ExpertSystemId>1</ExpertSystemId>
+            <LoginHash>1</LoginHash>
+        </ns4:ClientIds>
+        <ns4:DocumentSaveTimestamp>2021-01-25T13:00:00+03:00</ns4:DocumentSaveTimestamp>
+        <ns4:DocumentNumber>4271</ns4:DocumentNumber>
+        <ns4:Type>BUYING_INSURANCE</ns4:Type>
+        <ns4:Regular>false</ns4:Regular>
+        <ns4:SessionTimeout>1800000</ns4:SessionTimeout>
+        <ns4:Limit>299998.99</ns4:Limit>
+        <ns4:ByuingInsurance>
+            <ns4:InsuredPerson>
+                <ns4:FullName>Акимова Ольга Михайловна</ns4:FullName>
+                <ns4:DateOfBirth>1970-09-29+03:00</ns4:DateOfBirth>
+                <ns4:RegAddress>обл Владимирская, г Владимир, ул 3-я Кольцевая, дом 25А, кв 10</ns4:RegAddress>
+            </ns4:InsuredPerson>
+            <ns4:ProductCode>РСХБ-4К</ns4:ProductCode>
+            <ns4:Product>4 - Несч. случаи и болезни КК с доп. покрытием</ns4:Product>
+            <ns4:InsuranceCompany>АО "СК "РСХБ-Страхование"</ns4:InsuranceCompany>
+            <ns4:InsuranceTerritory>Весь мир</ns4:InsuranceTerritory>
+            <ns4:AgreementStartDate>2019-03-25+03:00</ns4:AgreementStartDate>
+            <ns4:AgreementEndDate>2020-05-31+03:00</ns4:AgreementEndDate>
+            <ns4:AgreementCurrency>810</ns4:AgreementCurrency>
+            <ns4:InsuranceCoverType/>
+            <ns4:InsuranceAmount>500.00</ns4:InsuranceAmount>
+            <ns4:ExtendedCoverage>false</ns4:ExtendedCoverage>
+            <ns4:InsuranceSum>50000.00</ns4:InsuranceSum>
+            <ns4:SourceProduct>40817810041000016562</ns4:SourceProduct>
+            <ns4:SourceCurrencyIsoCode>810</ns4:SourceCurrencyIsoCode>
+        </ns4:ByuingInsurance>
+        <ns4:InitialSourceAmount>10000.00</ns4:InitialSourceAmount>
+        <ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
+        <ns4:DocumentConfirmationTimestamp>${=new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new java.util.Date())}.000+03:00</ns4:DocumentConfirmationTimestamp>
+        <ns4:SessionId>FcS0WEvHiLOTEXwN0Hhjp80!1553508879303</ns4:SessionId>
+        <ns4:Channel>MOBILE_BANK</ns4:Channel>
+        <ns4:ClientDevice>
+            <ns3:Platform>Android</ns3:Platform>
+            <ns3:Android>
+                <ns3:IpAddress>10.28.45.183</ns3:IpAddress>
+                <ns3:IMSI>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns3:IMSI>
+                <ns3:IMEI>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns3:IMEI>
+                <ns3:IMEISV>777</ns3:IMEISV>
+                <ns3:MSISDN/>
+                <ns3:SPN>MTS RUS</ns3:SPN>
+                <ns3:OSVersion>9.0.0</ns3:OSVersion>
+                <ns3:AuthByFingerprint>true</ns3:AuthByFingerprint>
+                <ns3:Manufacturer>123</ns3:Manufacturer>
+                <ns3:Model>5</ns3:Model>
+                <ns3:DeviceID>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns3:DeviceID>
+                <ns3:Simulator>0</ns3:Simulator>
+                <ns3:Locale>5</ns3:Locale>
+                <ns3:DefaultBrowser>55</ns3:DefaultBrowser>
+                <ns3:Root>0</ns3:Root>
+                <ns3:NetworkOperatorName>5</ns3:NetworkOperatorName>
+                <ns3:SimOperatorName>5</ns3:SimOperatorName>
+                <ns3:SimCount>2</ns3:SimCount>
+                <ns3:LocalIp>5</ns3:LocalIp>
+                <ns3:SSID>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns3:SSID>
+                <ns3:UserAgent>2</ns3:UserAgent>
+                <ns3:Serial>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns3:Serial>
+                <ns3:Bootloader>2</ns3:Bootloader>
+                <ns3:SimSerial>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns3:SimSerial>
+                <ns3:MacAddress>16355056605065410</ns3:MacAddress>
+                <ns3:TimeZone>3</ns3:TimeZone>
+                <ns3:Latitude>3</ns3:Latitude>
+                <ns3:Longitude>5</ns3:Longitude>
+                <ns3:EventID>5</ns3:EventID>
+            </ns3:Android>
+        </ns4:ClientDevice>
+    </ns4:TransactionData>
+</ns4:SendTransactionDataRequest>

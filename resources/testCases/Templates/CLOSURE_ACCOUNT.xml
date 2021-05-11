@@ -26,6 +26,7 @@
 			<ns4:OrderType>5</ns4:OrderType>
 			<ns4:SourceProduct>40801010101010101010</ns4:SourceProduct>
 			<ns4:ProductName>Текущий счёт</ns4:ProductName>
+			<ns4:DestinationProduct>40801010101020202020</ns4:DestinationProduct>
 			<ns4:SourceCurrencyIsoCode>810</ns4:SourceCurrencyIsoCode>
 			<ns4:AmountInSourceCurrency>10</ns4:AmountInSourceCurrency>
 		</ns4:ClosureAccount>

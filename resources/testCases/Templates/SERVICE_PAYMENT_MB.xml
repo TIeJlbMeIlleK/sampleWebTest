@@ -5,43 +5,71 @@
     </ns4:ServerInfo>
     <ns4:TransactionData>
         <ns4:TransactionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(5)}</ns4:TransactionId>
+        <ns4:Version>1</ns4:Version>
         <ns4:ClientIds>
-            <ns2:DboId>1</ns2:DboId>
-            <ns2:CifId>1</ns2:CifId>
-            <ns2:ExpertSystemId>1</ns2:ExpertSystemId>
-            <ns2:LoginHash>1</ns2:LoginHash>
+            <ns2:DboId>89</ns2:DboId>
+            <ns2:EksId>89</ns2:EksId>
+            <ns2:CifId>89</ns2:CifId>
+            <ns2:ExpertSystemId>89</ns2:ExpertSystemId>
+            <ns2:LoginHash>89</ns2:LoginHash>
         </ns4:ClientIds>
-        <ns4:DocumentSaveTimestamp>${=new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new java.util.Date())}.000+03:00</ns4:DocumentSaveTimestamp>
-        <ns4:DocumentNumber>63</ns4:DocumentNumber>
+        <ns4:DocumentSaveTimestamp>2021-04-26T13:00:00.000+03:00</ns4:DocumentSaveTimestamp>
+        <ns4:DocumentNumber>44747</ns4:DocumentNumber>
         <ns4:Type>SERVICE_PAYMENT</ns4:Type>
         <ns4:Regular>false</ns4:Regular>
         <ns4:SessionTimeout>1800000</ns4:SessionTimeout>
         <ns4:Limit>14999</ns4:Limit>
         <ns4:ServicePayment>
             <ns4:ServiceKind>1</ns4:ServiceKind>
-            <ns4:ProviderName>Сотовый - ОАО"МТС" - ОАО "Мобильные ТелеСистемы"</ns4:ProviderName>
-            <ns4:ServiceName>Сотовый - ОАО"МТС"</ns4:ServiceName>
-            <ns4:SourceCardNumber>418384******6213</ns4:SourceCardNumber>
-            <ns4:AmountInSourceCurrency>10.00</ns4:AmountInSourceCurrency>
-            <ns4:CommissionAmount>2.50</ns4:CommissionAmount>
+            <ns4:ProviderName>Мегафон</ns4:ProviderName>
+            <ns4:ServiceName>Мегафон по номеру телефона</ns4:ServiceName>
+            <ns4:SourceCardNumber>1898989898989</ns4:SourceCardNumber>
+            <ns4:AmountInSourceCurrency>1500.00</ns4:AmountInSourceCurrency>
+            <ns4:CommissionAmount>1.50</ns4:CommissionAmount>
             <ns4:AdditionalField>
                 <ns4:Id>ACCOUNT</ns4:Id>
-                <ns4:Name>vetka</ns4:Name>
-                <ns4:Value>0</ns4:Value>
+                <ns4:Name>номер телефона</ns4:Name>
+                <ns4:Value>79250957588</ns4:Value>
             </ns4:AdditionalField>
         </ns4:ServicePayment>
-        <ns4:InitialSourceAmount>99995955.23</ns4:InitialSourceAmount>
+        <ns4:InitialSourceAmount>10000.00</ns4:InitialSourceAmount>
         <ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
-        <ns4:DocumentConfirmationTimestamp>2019-04-15T14:46:00+03:00</ns4:DocumentConfirmationTimestamp>
-        <ns4:SessionId>385A32B4DC20d0000000000d06541065105606</ns4:SessionId>
+        <ns4:DocumentConfirmationTimestamp>2021-03-22T12:00:00+03:00</ns4:DocumentConfirmationTimestamp>
+        <ns4:SessionId>385A32B4DC20d041065105606</ns4:SessionId>
         <ns4:Channel>MOBILE_BANK</ns4:Channel>
         <ns4:ClientDevice>
-            <ns3:Platform>IOS</ns3:Platform>
-            <ns3:IOS>
-                <ns3:IpAddress>192.168.0.1</ns3:IpAddress>
-                <ns3:IdentifierForVendor>sd1f6g54sd5g60fd6g00s6df7dfg7500056162</ns3:IdentifierForVendor>
-                <ns3:OSVersion>6.0</ns3:OSVersion>
-            </ns3:IOS>
+            <ns3:Platform>Android</ns3:Platform>
+            <ns3:Android>
+                <ns3:IpAddress>85.55.40.15</ns3:IpAddress>
+                <ns3:IMSI>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns3:IMSI>
+                <ns3:IMEI>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns3:IMEI>
+                <ns3:IMEISV>777</ns3:IMEISV>
+                <ns3:MSISDN/>
+                <ns3:SPN>MTS RUS</ns3:SPN>
+                <ns3:OSVersion>9.0.0</ns3:OSVersion>
+                <ns3:AuthByFingerprint>true</ns3:AuthByFingerprint>
+                <ns3:Manufacturer>123</ns3:Manufacturer>
+                <ns3:Model>5</ns3:Model>
+                <ns3:DeviceID>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns3:DeviceID>
+                <ns3:Simulator>0</ns3:Simulator>
+                <ns3:Locale>5</ns3:Locale>
+                <ns3:DefaultBrowser>55</ns3:DefaultBrowser>
+                <ns3:Root>0</ns3:Root>
+                <ns3:NetworkOperatorName>5</ns3:NetworkOperatorName>
+                <ns3:SimOperatorName>5</ns3:SimOperatorName>
+                <ns3:SimCount>2</ns3:SimCount>
+                <ns3:LocalIp>5</ns3:LocalIp>
+                <ns3:SSID>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns3:SSID>
+                <ns3:UserAgent>2</ns3:UserAgent>
+                <ns3:Serial>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns3:Serial>
+                <ns3:Bootloader>2</ns3:Bootloader>
+                <ns3:SimSerial>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns3:SimSerial>
+                <ns3:MacAddress>16355056605065410</ns3:MacAddress>
+                <ns3:TimeZone>3</ns3:TimeZone>
+                <ns3:Latitude>10</ns3:Latitude>
+                <ns3:Longitude>8</ns3:Longitude>
+                <ns3:EventID>5</ns3:EventID>
+            </ns3:Android>
         </ns4:ClientDevice>
     </ns4:TransactionData>
 </ns4:SendTransactionDataRequest>

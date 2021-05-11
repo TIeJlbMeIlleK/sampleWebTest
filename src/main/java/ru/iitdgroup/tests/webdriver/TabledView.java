@@ -233,6 +233,15 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
+    default S attachIR03SelectAllType() {
+        getSelf().getDriver().findElement(By.xpath("//img[@title='Attach']")).click();
+        getSelf().waitUntil("//*[@title='Refresh']");
+        refreshTable();
+        getSelf().getDriver().findElementByXPath("//*[@id='j_id231']/table[2]/tbody/tr[1]/th[1]/div/input").click();
+        getSelf().getDriver().findElementByXPath("//a[@title='OK']").click();
+        return getSelf();
+    }
+
 
     default S attachOpen() {
         getSelf().getDriver().findElementByXPath("//img[@title='Attach']").click();

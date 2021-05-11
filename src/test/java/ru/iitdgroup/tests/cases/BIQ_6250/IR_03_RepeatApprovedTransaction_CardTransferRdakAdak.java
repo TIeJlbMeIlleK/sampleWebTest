@@ -51,39 +51,40 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
 //TODO-- Статус АДАК = Success
 //TODO-- ExternalApi -- Update Transaction In Cache.
 
-    //    @Test(
-//            description = "Включаем правило и выполняем преднастройки"
-//    )
-//    public void enableRule() {
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .editRule(RULE_NAME)
-//                .fillCheckBox("Active:", true)
-//                .fillCheckBox("АДАК выполнен:", true)
-//                .fillCheckBox("РДАК выполнен:", false)
-//                .fillCheckBox("Требовать совпадения остатка на счете:", false)
-//                .fillInputText("Длина серии:", "3")
-//                .fillInputText("Период серии в минутах:", "10")
-//                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
-//                .save()
-//                .detachWithoutRecording("Типы транзакций")
-//                .attachTransactionIR03("Типы транзакций", "Перевод на карту другому лицу")
-//                .sleep(10);
-//
-//        Table.Formula rows = getIC().locateTable(REFERENCE_TABLE).findRowsBy();
-//        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-//            rows.delete();
-//        }
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//    }
     @Test(
-            description = "Создание клиентов"
-            // dependsOnMethods = "enableRule"
+            description = "Включаем правило и выполняем преднастройки"
+    )
+    public void enableRule() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillCheckBox("АДАК выполнен:", true)
+                .fillCheckBox("РДАК выполнен:", false)
+                .fillCheckBox("Требовать совпадения остатка на счете:", false)
+                .fillInputText("Длина серии:", "3")
+                .fillInputText("Период серии в минутах:", "10")
+                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
+                .save()
+                .detachWithoutRecording("Типы транзакций")
+                .attachTransactionIR03("Типы транзакций", "Перевод на карту другому лицу")
+                .sleep(15);
+
+        Table.Formula rows = getIC().locateTable(REFERENCE_TABLE).findRowsBy();
+        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
+            rows.delete();
+        }
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+    }
+
+    @Test(
+            description = "Создание клиентов",
+            dependsOnMethods = "enableRule"
     )
     public void createClients() {
         try {
@@ -267,7 +268,7 @@ public class IR_03_RepeatApprovedTransaction_CardTransferRdakAdak extends RSHBCa
                 .fillCheckBox("Active:", true)
                 .fillCheckBox("РДАК выполнен:", true)
                 .fillCheckBox("АДАК выполнен:", true)
-                .save().sleep(20);
+                .save().sleep(15);
 
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
