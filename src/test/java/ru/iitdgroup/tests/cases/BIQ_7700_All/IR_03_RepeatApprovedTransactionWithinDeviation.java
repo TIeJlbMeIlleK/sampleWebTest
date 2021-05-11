@@ -24,123 +24,123 @@ public class IR_03_RepeatApprovedTransactionWithinDeviation extends RSHBCaseTest
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Людмила", "Серова", "Семеновна"}};
 
-//    @Test(
-//            description = "Включаем правило"
-//    )
-//
-//    public void enableRules() {
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .editRule(RULE_NAME)
-//                .fillCheckBox("Active:", true)
-//                .fillCheckBox("АДАК выполнен:", false)
-//                .fillCheckBox("РДАК выполнен:", false)
-//                .fillCheckBox("Требовать совпадения остатка на счете:", true)
-//                .fillInputText("Длина серии:", "2")
-//                .fillInputText("Период серии в минутах:", "10")
-//                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
-//                .save()
-//                .detachWithoutRecording("Типы транзакций")
-//                .attachIR03SelectAllType()
-//                .sleep(20);
+    @Test(
+            description = "Включаем правило"
+    )
 
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .deleteAll()
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод между счетами")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод в сторону государства")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Оплата услуг")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на счет другому лицу")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Открытие вклада")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Закрытие вклада")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Открытие счёта (в том числе накопительного)")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Закрытие счёта (в том числе накопительного)")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод с платежной карты стороннего банка на платежную карту РСХБ")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод через систему денежных переводов")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Подписка на сервисы оплаты")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос в госуслуги")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос реквизитов карты")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос CVC/CVV/CVP")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Покупка страховки держателей карт")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Отмена операции")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Изменение перевода, отправленного через систему денежных переводов")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-    //   }
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillCheckBox("АДАК выполнен:", false)
+                .fillCheckBox("РДАК выполнен:", false)
+                .fillCheckBox("Требовать совпадения остатка на счете:", true)
+                .fillInputText("Длина серии:", "2")
+                .fillInputText("Период серии в минутах:", "10")
+                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
+                .save()
+                .detachWithoutRecording("Типы транзакций")
+                .attachIR03SelectAllType()
+                .sleep(20);
+
+        getIC().locateTable(REFERENCE_TABLE)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод между счетами")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод в сторону государства")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Оплата услуг")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на счет другому лицу")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Открытие вклада")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Закрытие вклада")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Открытие счёта (в том числе накопительного)")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Закрытие счёта (в том числе накопительного)")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод с платежной карты стороннего банка на платежную карту РСХБ")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод через систему денежных переводов")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Подписка на сервисы оплаты")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос в госуслуги")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос реквизитов карты")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос CVC/CVV/CVP")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Покупка страховки держателей карт")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Отмена операции")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Изменение перевода, отправленного через систему денежных переводов")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+       }
 
     @Test(
-            description = "Создание клиентов"
-            //dependsOnMethods = "enableRules"
+            description = "Создание клиентов",
+            dependsOnMethods = "enableRules"
     )
     public void addClients() {
         try {
