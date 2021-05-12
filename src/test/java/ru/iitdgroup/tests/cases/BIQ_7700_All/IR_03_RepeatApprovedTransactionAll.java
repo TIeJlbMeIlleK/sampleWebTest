@@ -16,7 +16,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class IR_03_RepeatApprovedTransactionWithinDeviation extends RSHBCaseTest {
+public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
 
@@ -146,19 +146,17 @@ public class IR_03_RepeatApprovedTransactionWithinDeviation extends RSHBCaseTest
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 10);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
