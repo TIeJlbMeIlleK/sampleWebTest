@@ -16,16 +16,23 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest {
+public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
+    private static final String RULE_NAME_ALERT = "R01_GR_20_NewPayee";
+    private static final String REFERENCE_TABLE_RDAK = "(Policy_parameters) Параметры обработки событий";
+    private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
+    private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
+
     private final String serviceName = "Мегафон по номеру телефона";
     private final String providerName = "Мегафон";
     private final String serviceKind = "222";
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Елена", "Тырина", "Андреевна"}};
+    private String[][] names = {{"Кристина", "Ольгина", "Андреевна"}, {"Кира", "Хешина", "Григорьевна"}};
+    private String transaction_id;
+    private Long version;
 
     @Test(
             description = "Включаем правило"
@@ -35,10 +42,14 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .editRule(RULE_NAME)
+                .selectRule(RULE_NAME_ALERT)
+                .activate();
+        getIC().locateRules()
+                .openRecord(RULE_NAME)
+                .edit()
                 .fillCheckBox("Active:", true)
-                .fillCheckBox("АДАК выполнен:", false)
-                .fillCheckBox("РДАК выполнен:", false)
+                .fillCheckBox("АДАК выполнен:", true)
+                .fillCheckBox("РДАК выполнен:", true)
                 .fillCheckBox("Требовать совпадения остатка на счете:", true)
                 .fillInputText("Длина серии:", "2")
                 .fillInputText("Период серии в минутах:", "10")
@@ -46,7 +57,7 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
                 .save()
                 .detachWithoutRecording("Типы транзакций")
                 .attachIR03SelectAllType()
-                .sleep(20);
+                .sleep(15);
 
         getIC().locateTable(REFERENCE_TABLE)
                 .deleteAll()
@@ -54,29 +65,56 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
                 .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Оплата услуг")
                 .select("Наименование канала:", "Мобильный банк")
                 .save();
-   }
+
+        getIC().locateTable(REFERENCE_TABLE_RDAK)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Наименование группы клиентов:", "Имя группы", "Equals", "Группа по умолчанию")
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Оплата услуг")
+                .fillCheckBox("Требуется выполнение АДАК:", true)
+                .fillCheckBox("Требуется выполнение РДАК:", true)
+                .fillCheckBox("Учитывать маску правила:", false)
+                .select("Наименование канала ДБО:", "Мобильный банк")
+                .save();
+
+        getIC().locateTable(REFERENCE_TABLE3)
+                .findRowsBy()
+                .match("Код значения", "AUTHORISATION_QUESTION_CODE")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "200000")
+                .save();
+        getIC().locateTable(REFERENCE_TABLE2)
+                .findRowsBy()
+                .match("Текст вопроса клиенту", "Ваше имя")
+                .click()
+                .edit()
+                .fillCheckBox("Включено:", true)
+                .fillCheckBox("Участвует в АДАК:", true)
+                .fillCheckBox("Участвует в РДАК:", true)
+                .save();
+    }
 
     @Test(
             description = "Создание клиентов",
             dependsOnMethods = "enableRules"
     )
+
     public void addClients() {
         try {
-            for (int i = 0; i < 1; i++) {
+            for (int i = 0; i < 2; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -95,28 +133,46 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
 
     @Test(
             description = "1. Провести транзакции для клиента №1, тип транзакции:" +
-                    "Оплата услуг, проверить на отклонение суммы," +
+                    "Оплата услуг, проверить на RDAK отклонение суммы," +
                     "на совпадение остатка по счету, на длину серии, account, providerName, serviceName",
             dependsOnMethods = "addClients"
     )
 
     public void transServis() {
-        time.add(Calendar.HOUR, -20);
+        time.add(Calendar.MINUTE, -5);
         Transaction transService = getServicePayment();
         TransactionDataType transactionDataService = transService.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transService);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Оплата услуг», условия правила не выполнены");
 
+        getIC().locateAlerts()
+                .openFirst()
+                .action("Подтвердить")
+                .sleep(2);
+
         time.add(Calendar.SECOND, 20);
         Transaction transServiceOutside = getServicePayment();
         TransactionDataType transactionDataServiceOutside = transServiceOutside.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionDataServiceOutside
-                .getServicePayment()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transServiceOutside);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Оплата услуг» условия правила не выполнены");
+
+        getIC().locateAlerts()
+                .openFirst()
+                .action("Взять в работу для выполнения РДАК")
+                .sleep(2)
+                .rdak()
+                .fillCheckBox("Верный ответ", true)
+                .MyPayment()
+                .action("Подтвердить")
+                .sleep(1);
+
+        assertTableField("Идентификатор клиента:", clientIds.get(0));
+        assertTableField("Status:", "Обработано");
+        assertTableField("Статус РДАК:", "SUCCESS");
+        assertTableField("status:", "Обработано");
+        assertTableField("Resolution:", "Правомочно");
 
         time.add(Calendar.SECOND, 20);
         Transaction transServiceAccountBalance = getServicePayment();
@@ -156,20 +212,83 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transServisDeviation);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Оплата услуг» транзакция с совпадающими реквизитами");
+    }
+
+    @Test(
+            description = "Отправить транзакцию №1 от клиента №1 спустя 5 мин от транзакции №1, " +
+                    "тип транзакции Перевод между счетами, сумма 500, остаток на счету 10000р, реквизиты совпадают с транзакцией №1." +
+                    "Перейти  в АЛЕРТ по транзакции №1:" +
+                    "- Подтвердить правомочно по АДАК  - выполнив Action \"выполнить АДАК\", и ответив на АДАК верно." +
+                    "После выполнения АДАК, статус АДАК = SUCCESS." +
+                    "- выполнить Action  - \"Подтвердить\" для перехода Алерта и Транзакции в статус Обработано, резолюция Правомочно",
+            dependsOnMethods = "transServis"
+    )
+
+    public void transBetweenADAK() {
+        Transaction transService = getServicePayment();
+        TransactionDataType transactionDataService = transService.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionDataService
+                .getClientIds()
+                .withDboId(clientIds.get(1));
+        transaction_id = transactionDataService.getTransactionId();
+        version = transactionDataService.getVersion();
+        sendAndAssert(transService);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Оплата услуг», условия правила не выполнены");
+
+        getIC().locateAlerts().openFirst().action("Выполнить АДАК").sleep(1);
+        assertTableField("Status:", "Ожидаю выполнения АДАК");
+
+        Transaction adak = getAdak();
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK
+                .withTransactionId(transaction_id)
+                .withVersion(version);
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer("Кира");
+        sendAndAssert(adak);
+
+        getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
+
+        assertTableField("Resolution:", "Правомочно");
+        assertTableField("Status:", "Обработано");
+        assertTableField("Идентификатор клиента:", clientIds.get(1));
+        assertTableField("Транзакция:", transaction_id);
+        assertTableField("Статус АДАК:", "SUCCESS");
 
         time.add(Calendar.SECOND, 20);
-        Transaction transServisLength = getServicePayment();
-        TransactionDataType transactionDataServisLength = transServisLength.getData().getTransactionData()
+        Transaction transServiceName = getServicePayment();
+        TransactionDataType transactionDataServiceName = transServiceName.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        sendAndAssert(transServisLength);
+        transactionDataServiceName
+                .getServicePayment()
+                .withServiceName("МТС по телефону");
+        transactionDataServiceName
+                .getClientIds()
+                .withDboId(clientIds.get(1));
+        sendAndAssert(transServiceName);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Оплата услуг» условия правила не выполнены");
 
-        time.add(Calendar.MINUTE, 10);
-        Transaction transServisPeriod = getServicePayment();
-        TransactionDataType transactionDataServisPeriod = transServisPeriod.getData().getTransactionData()
+        time.add(Calendar.SECOND, 20);
+        Transaction transServisDeviation = getServicePayment();
+        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        sendAndAssert(transServisPeriod);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Оплата услуг», условия правила не выполнены");
+        transactionDataServisDeviation
+                .getServicePayment()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
+        transactionDataServisDeviation
+                .getClientIds()
+                .withDboId(clientIds.get(1));
+        sendAndAssert(transServisDeviation);
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Оплата услуг» транзакция с совпадающими реквизитами");
     }
 
     @Override
@@ -196,4 +315,16 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
                 .withServiceName(serviceName);
         return transaction;
     }
+
+    private Transaction getAdak() {
+        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
+        transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        return transaction;
+    }
 }
+

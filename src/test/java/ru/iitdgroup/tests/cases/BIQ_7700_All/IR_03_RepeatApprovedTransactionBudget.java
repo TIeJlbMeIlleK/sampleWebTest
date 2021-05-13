@@ -24,38 +24,38 @@ public class IR_03_RepeatApprovedTransactionBudget extends RSHBCaseTest {
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Екатерина", "Мыркина", "Игоревна"}};
 
-//    @Test(
-//            description = "Включаем правило"
-//    )
-//
-//    public void enableRules() {
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .editRule(RULE_NAME)
-//                .fillCheckBox("Active:", true)
-//                .fillCheckBox("АДАК выполнен:", false)
-//                .fillCheckBox("РДАК выполнен:", false)
-//                .fillCheckBox("Требовать совпадения остатка на счете:", true)
-//                .fillInputText("Длина серии:", "2")
-//                .fillInputText("Период серии в минутах:", "10")
-//                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
-//                .save()
-//                .detachWithoutRecording("Типы транзакций")
-//                .attachIR03SelectAllType()
-//                .sleep(20);
+    @Test(
+            description = "Включаем правило"
+    )
 
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .deleteAll()
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод в сторону государства")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//   }
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillCheckBox("АДАК выполнен:", false)
+                .fillCheckBox("РДАК выполнен:", false)
+                .fillCheckBox("Требовать совпадения остатка на счете:", true)
+                .fillInputText("Длина серии:", "2")
+                .fillInputText("Период серии в минутах:", "10")
+                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
+                .save()
+                .detachWithoutRecording("Типы транзакций")
+                .attachIR03SelectAllType()
+                .sleep(20);
+
+        getIC().locateTable(REFERENCE_TABLE)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод в сторону государства")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+   }
 
     @Test(
-            description = "Создание клиентов"
-            //dependsOnMethods = "enableRules"
+            description = "Создание клиентов",
+            dependsOnMethods = "enableRules"
     )
     public void addClients() {
         try {
