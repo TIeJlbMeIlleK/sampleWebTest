@@ -27,7 +27,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
     private static final String REFERENCE_ITEM4 = "(Rule_tables) Карантин месторасположения";
 
     private static final String IP_ADDRESS1 = "95.73.149.81";
-    private static final String NON_EXISTENT_IP_ADDRESS = "1.1.1.1";
+    private static final String NON_EXISTENT_IP_ADDRESS = "0.0.0.0";
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final GregorianCalendar time1 = new GregorianCalendar();
@@ -82,28 +82,29 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
     public void addClient() {
         try {
             for (int i = 0; i < 2; i++) {
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 10);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
                         .withPasswordRecoveryDateTime(time)
-                        .withLogin(login[i])
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash[i])
-                        .withDboId(dboId[i])
-                        .withCifId(dboId[i])
-                        .withExpertSystemId(dboId[i])
-                        .withEksId(dboId[i])
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
                         .getAlfaIds()
-                        .withAlfaId(dboId[i]);
+                        .withAlfaId(dboId);
 
                 sendAndAssert(client);
-                clientIds.add(dboId[i]);
-                System.out.println(dboId[i]);
+                clientIds.add(dboId);
+                System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
@@ -127,7 +128,6 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
                 .getClientDevice()
                 .getIOS()
                 .withIpAddress(IP_ADDRESS1);
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, DISABLED_GIS_SETTING);
 
@@ -406,7 +406,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
     }
 
     private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT_MB.xml");
+        Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT_IOS.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

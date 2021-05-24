@@ -37,45 +37,11 @@ public class GR_15_NonTypicalGeoPositionPayControl extends RSHBCaseTest {
     private static String[] loginHash = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
     private static String[] dboId = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
 
-    //TODO создан тикет. Правило не работает с координатами. Проверить тест после исправления
-
-    @Test(
-            description = "Создаем клиента"
-    )
-    public void addClient() {
-        try {
-            for (int i = 0; i < 1; i++) {
-                Client client = new Client("testCases/Templates/client.xml");
-
-                client.getData()
-                        .getClientData()
-                        .getClient()
-                        .withLogin(login[i])
-                        .withFirstName(names[i][0])
-                        .withLastName(names[i][1])
-                        .withMiddleName(names[i][2])
-                        .getClientIds()
-                        .withLoginHash(loginHash[i])
-                        .withDboId(dboId[i])
-                        .withCifId(dboId[i])
-                        .withExpertSystemId(dboId[i])
-                        .withEksId(dboId[i])
-                        .getAlfaIds()
-                        .withAlfaId(dboId[i]);
-
-                sendAndAssert(client);
-                clientIds.add(dboId[i]);
-                System.out.println(dboId[i]);
-            }
-        } catch (JAXBException | IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
+    //TODO создан тикет. Правило не работает с координатами. Проверить тест после исправления https://yt.iitdgroup.ru/issue/BIQ6046-105
 
     @Test(
             description = "Включаем и настраиваем правило и справочники" +
-                    "Установить TIME_AFTER_ADDING_TO_QUARANTINE = 2",
-            dependsOnMethods = "addClient"
+                    "Установить TIME_AFTER_ADDING_TO_QUARANTINE = 2"
     )
     public void enableRules() {
         getIC().locateRules()
@@ -95,6 +61,41 @@ public class GR_15_NonTypicalGeoPositionPayControl extends RSHBCaseTest {
                 .edit()
                 .fillInputText("Значение:", "2")
                 .save();
+    }
+
+    @Test(
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
+    )
+    public void addClient() {
+        try {
+            for (int i = 0; i < 1; i++) {
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 10);
+                Client client = new Client("testCases/Templates/client.xml");
+
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
+                        .getClientIds()
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+
+                sendAndAssert(client);
+                clientIds.add(dboId);
+                System.out.println(dboId);
+            }
+        } catch (JAXBException | IOException e) {
+            throw new IllegalStateException(e);
+        }
 
         Table.Formula rows = getIC().locateTable(REFERENCE_ITEM3).findRowsBy();
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
@@ -137,7 +138,7 @@ public class GR_15_NonTypicalGeoPositionPayControl extends RSHBCaseTest {
 
     @Test(
             description = "Отправить транзакцию №1 от клиента №1 Значения от PayControl: Широта: 55.1 Долгота: 40.8",
-            dependsOnMethods = "enableRules"
+            dependsOnMethods = "addClient"
     )
 
     public void transaction1() {
@@ -254,7 +255,7 @@ public class GR_15_NonTypicalGeoPositionPayControl extends RSHBCaseTest {
     }
 
     private Transaction getTransaction() {
-        Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT_MB.xml");
+        Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT_IOS.xml");
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));

@@ -28,8 +28,6 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Зуля", "Закирова", "Муратовна"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
 
     @Test(
             description = "Настройка интеграционных параметров и включение правила R01_ExR_02_AnomalGeoPosChange"
@@ -65,12 +63,12 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)

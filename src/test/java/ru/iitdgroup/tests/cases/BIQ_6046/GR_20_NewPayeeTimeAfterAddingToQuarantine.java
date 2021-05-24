@@ -34,7 +34,7 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
     private String[][] names = {{"Семен", "Скирин", "Федорович"}};
     private static String[] login = {new RandomString(5).nextString(), new RandomString(5).nextString()};
     private static String[] loginHash = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
-    private static String[] dboId = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
+
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
     private static final String REFERENCE_ITEM1 = "(Rule_tables) Карантин получателей";
     private static final String REFERENCE_ITEM2 = "(Rule_tables) Доверенные получатели";
@@ -53,47 +53,11 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
     private static final String ACCOUNT2 = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
     private static final String ACCOUNT_TRUSTED = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
 
-
-    @Test(
-            description = "Создаем клиента"
-    )
-    public void addClient() {
-        try {
-            for (int i = 0; i < 1; i++) {
-                Client client = new Client("testCases/Templates/client.xml");
-
-                client.getData()
-                        .getClientData()
-                        .getClient()
-                        .withPasswordRecoveryDateTime(time)
-                        .withLogin(login[i])
-                        .withFirstName(names[i][0])
-                        .withLastName(names[i][1])
-                        .withMiddleName(names[i][2])
-                        .getClientIds()
-                        .withLoginHash(loginHash[i])
-                        .withDboId(dboId[i])
-                        .withCifId(dboId[i])
-                        .withExpertSystemId(dboId[i])
-                        .withEksId(dboId[i])
-                        .getAlfaIds()
-                        .withAlfaId(dboId[i]);
-
-                sendAndAssert(client);
-                clientIds.add(dboId[i]);
-                System.out.println(dboId[i]);
-            }
-        } catch (JAXBException | IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     @Test(
             description = "Включить правило GR_20_NewPayee." +
                     "Занести получателя №1 в карантин для клиента № 1 (Дата занесения меньше TIME_AFTER_ADDING_TO_QUARANTINE)" +
                     "Занести получателя №2 в карантин для клиента № 1 (Дата занесения больше TIME_AFTER_ADDING_TO_QUARANTINE)" +
-                    "Занести получателя №3 в доверенные для клиента №1",
-            dependsOnMethods = "addClient"
+                    "Занести получателя №3 в доверенные для клиента №1"
     )
 
     public void enableRules() {
@@ -111,17 +75,49 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
                 .edit()
                 .fillInputText("Значение:", "1")
                 .save();
+    }
+
+    @Test(
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
+    )
+    public void addClient() {
+        try {
+            for (int i = 0; i < 1; i++) {
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
+                Client client = new Client("testCases/Templates/client.xml");
+
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withPasswordRecoveryDateTime(time)
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
+                        .getClientIds()
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+
+                sendAndAssert(client);
+                clientIds.add(dboId);
+                System.out.println(dboId);
+            }
+        } catch (JAXBException | IOException e) {
+            throw new IllegalStateException(e);
+        }
 
 //TODO перед запуском в справочнике Карантин получателей должны быть поля "Дата занесения"
 
-        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM1).findRowsBy();
-
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
-
         time1.add(Calendar.HOUR, -10);
-        getIC().locateTable(REFERENCE_ITEM1)
+        getIC().
+                locateTable(REFERENCE_ITEM1)
+                .deleteAll()
                 .addRecord()
                 .fillInputText("Имя получателя:", QUARANTINE_RECIPIENT)
                 .fillInputText("Дата занесения:", format.format(time1.getTime()))
@@ -130,7 +126,9 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
                 .fillInputText("ИНН получателя:", INN1)
                 .fillUser("ФИО Клиента:", clientIds.get(0))
                 .save();
+
         time2.add(Calendar.HOUR, -28);
+
         getIC().locateTable(REFERENCE_ITEM1)
                 .addRecord()
                 .fillInputText("Дата занесения:", format.format(time2.getTime()))
@@ -141,13 +139,8 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
                 .fillUser("ФИО Клиента:", clientIds.get(0))
                 .save();
 
-        Table.Formula rows1 = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
-
-        if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows1.delete();
-        }
-
         getIC().locateTable(REFERENCE_ITEM2)
+                .deleteAll()
                 .addRecord()
                 .fillInputText("Дата занесения:", format.format(time.getTime()))
                 .fillUser("ФИО Клиента:", clientIds.get(0))
@@ -160,7 +153,7 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
 
     @Test(
             description = "Провести транзакцию № 1 \"Перевод на счет другому лицу\" от имени клиента № 1 в пользу получателя №1, находящегося в карантине (БИК+СЧЕТ)",
-            dependsOnMethods = "enableRules"
+            dependsOnMethods = "addClient"
     )
 
     public void transaction1() {

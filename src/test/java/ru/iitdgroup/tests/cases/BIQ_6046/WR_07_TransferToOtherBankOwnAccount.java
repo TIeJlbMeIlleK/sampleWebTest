@@ -16,13 +16,11 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class WR_07_TransferToOtherBankOwnAccount extends RSHBCaseTest {
 
-
     private static final String RULE_NAME = "R01_WR_07_TransferToOtherBankOwnAccount";
-
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
+    private String[][] names = {{"Ольга", "Румянцева", "Григорьевна"}};
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
 
 
@@ -35,26 +33,35 @@ public class WR_07_TransferToOtherBankOwnAccount extends RSHBCaseTest {
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(15);
+                .sleep(25);
     }
 
     @Test(
             description = "Создаем клиента",
             dependsOnMethods = "enableRules"
     )
-    public void step0() {
+    public void addClients() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+
+                client.getData()
                         .getClientData()
-                        .getClient().withFirstName("Иван")
-                        .withLastName("Иванов")
-                        .withMiddleName("Иванович")
+                        .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -66,7 +73,7 @@ public class WR_07_TransferToOtherBankOwnAccount extends RSHBCaseTest {
 
     @Test(
             description = " Отправить транзакцию №1 Перевод на счет другому лицу с  PayeeName = \"Иванов Иван Иванович\"",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "addClients"
     )
 
     public void step1() {
@@ -77,7 +84,9 @@ public class WR_07_TransferToOtherBankOwnAccount extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .getOuterTransfer().getPayeeProps().setPayeeName("Иванов Иван Иванович");
+                .getOuterTransfer()
+                .getPayeeProps()
+                .withPayeeName("Румянцева Ольга Григорьевна");
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, EXISTS_MATCHES);
     }
@@ -131,6 +140,7 @@ public class WR_07_TransferToOtherBankOwnAccount extends RSHBCaseTest {
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
     }
+
     private Transaction getTransactionPHONE_NUMBER_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
         transaction.getData().getTransactionData()

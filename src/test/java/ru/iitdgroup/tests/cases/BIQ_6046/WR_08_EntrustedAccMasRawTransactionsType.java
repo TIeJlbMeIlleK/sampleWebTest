@@ -16,15 +16,12 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
-    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
     private static final String RULE_NAME = "R01_WR_08_EntrustedAccMask";
-
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 11, 0, 0, 0);
+    private String[][] names = {{"Игорь", "Сыров", "Семенович"}};
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-
 
     @Test(
             description = "Настройка и включение правила"
@@ -37,27 +34,34 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
                 .selectRule(RULE_NAME)
                 .activate()
                 .sleep(30);
-
-        commandServiceMock.run();
-
     }
 
     @Test(
             description = "Создаем клиента",
             dependsOnMethods = "enableRules"
     )
-    public void step0() {
+    public void addClients() {
         try {
             for (int i = 0; i < 1; i++) {
-                //FIXME Добавить проверку на существование клиента в базе
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+
+                client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -69,7 +73,7 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
     @Test(
             description = "Отправить транзакцию №1 Перевод другому лицу",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "addClients"
     )
 
     public void step1() {
@@ -79,7 +83,6 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
@@ -95,7 +98,6 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
@@ -111,7 +113,6 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
@@ -127,7 +128,6 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
@@ -143,7 +143,6 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
@@ -159,7 +158,6 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
@@ -175,7 +173,6 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
@@ -191,7 +188,6 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
@@ -207,10 +203,8 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
-        commandServiceMock.stop();
     }
 
     @Override
@@ -218,9 +212,11 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
         return RULE_NAME;
     }
 
-
     private Transaction getTransferToAnotherPerson() {
         Transaction transaction = getTransaction("testCases/Templates/TRANSlATION_TO_ANOTHER_PERSON.xml");
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -229,6 +225,9 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
     private Transaction getTransferToCard() {
         Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_MOBILE.xml");
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -237,6 +236,9 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
     private Transaction getTransferToBudget() {
         Transaction transaction = getTransaction("testCases/Templates/BUDGET_TRANSFER_MOBILE.xml");
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -245,6 +247,9 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
     private Transaction getPaymentServices() {
         Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT_MB.xml");
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -253,6 +258,9 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
     private Transaction getSDP() {
         Transaction transaction = getTransaction("testCases/Templates/SDP.xml");
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -261,6 +269,9 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
     private Transaction getSDPRefactor() {
         Transaction transaction = getTransaction("testCases/Templates/SDP_Refactor.xml");
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -269,6 +280,9 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
     private Transaction getBuyingInsurance() {
         Transaction transaction = getTransaction("testCases/Templates/BUYING_INSURANCE.xml");
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -277,6 +291,9 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
     private Transaction getPhoneNumber() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -285,6 +302,9 @@ public class WR_08_EntrustedAccMasRawTransactionsType extends RSHBCaseTest {
 
     private Transaction getRequestGosuslugi() {
         Transaction transaction = getTransaction("testCases/Templates/REQUEST_FOR_GOSUSLUGI_PC.xml");
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
