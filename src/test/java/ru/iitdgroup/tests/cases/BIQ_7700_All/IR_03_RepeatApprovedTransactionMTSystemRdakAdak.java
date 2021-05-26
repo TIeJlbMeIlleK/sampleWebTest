@@ -1,45 +1,34 @@
 package ru.iitdgroup.tests.cases.BIQ_7700_All;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.bytebuddy.utility.RandomString;
-import org.apache.ignite.internal.util.typedef.internal.S;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.dbdriver.With;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import java.sql.*;
-
-public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTest {
+public class IR_03_RepeatApprovedTransactionMTSystemRdakAdak extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-    private static final String RULE_NAME_ALERT = "R01_GR_26_DocumentHashInGrayList";
+    private static final String RULE_NAME_ALERT = "R01_GR_20_NewPayee";
     private static final String REFERENCE_TABLE_RDAK = "(Policy_parameters) Параметры обработки событий";
-    private static final String REFERENCE_TABLE_ALERT = "(Rule_tables) Подозрительные документы клиентов";
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
 
-    private String documentHash1;
-    private String documentHash2;
-    private final static String firstNameAdak = "Спиридон";
-    private String transaction_id;
-    private Long version;
-
+    private final static String receiverCountry = "Российская Федерация";
+    private final static String firstNameAdak = "Сергей";
     private final GregorianCalendar time = new GregorianCalendar();
-    private final GregorianCalendar time2 = new GregorianCalendar();
-    private final GregorianCalendar time3 = new GregorianCalendar();
-
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Илья", "Кузнецов", "Андреевич"}, {firstNameAdak, "Павлов", "Олегович"}};
+    private final String[][] names = {{"Эльмира", "Давидова", "Замировна"}, {firstNameAdak, "Кудрявцев", "Вадимович"}};
 
     @Test(
             description = "Включаем правило"
@@ -69,19 +58,21 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
         getIC().locateTable(REFERENCE_TABLE)
                 .deleteAll()
                 .addRecord()
-                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод с платежной карты стороннего банка на платежную карту РСХБ")
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод через систему денежных переводов")
                 .select("Наименование канала:", "Мобильный банк")
                 .save();
+
         getIC().locateTable(REFERENCE_TABLE_RDAK)
                 .deleteAll()
                 .addRecord()
                 .fillFromExistingValues("Наименование группы клиентов:", "Имя группы", "Equals", "Группа по умолчанию")
-                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод с платежной карты стороннего банка на платежную карту РСХБ")
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод через систему денежных переводов")
                 .fillCheckBox("Требуется выполнение АДАК:", true)
                 .fillCheckBox("Требуется выполнение РДАК:", true)
                 .fillCheckBox("Учитывать маску правила:", false)
                 .select("Наименование канала ДБО:", "Мобильный банк")
                 .save();
+
         getIC().locateTable(REFERENCE_TABLE3)
                 .findRowsBy()
                 .match("Код значения", "AUTHORISATION_QUESTION_CODE")
@@ -104,15 +95,12 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
             description = "Создание клиентов",
             dependsOnMethods = "enableRules"
     )
+
     public void addClients() {
         try {
             for (int i = 0; i < 2; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 8);
-                String numberPassword = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
-                String organization = "МВД "+ new RandomString(10).nextString();
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
-                time2.add(Calendar.YEAR, -12);
-                time2.add(Calendar.YEAR, -48);
 
                 client.getData()
                         .getClientData()
@@ -121,8 +109,6 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
-                        .withBirthDate(new XMLGregorianCalendarImpl(time3))
-                        .withPasswordRecoveryDateTime(time2)
                         .getClientIds()
                         .withLoginHash(dboId)
                         .withDboId(dboId)
@@ -131,15 +117,7 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
                         .withEksId(dboId)
                         .getAlfaIds()
                         .withAlfaId(dboId);
-                client.getData()// для получения уникального Hash документа, нужно внести изменения у клиента в этом блоке
-                        .getClientData()
-                        .getClientDocument()
-                        .get(0)
-                        .withDocType("21")
-                        .withSeries("46 25")
-                        .withNumber(numberPassword)
-                        .withIssueDate(new XMLGregorianCalendarImpl(time2))
-                        .withOrganization(organization);
+
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -147,51 +125,22 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
-
-        try {
-            String[][] hash = getDatabase()//сохраняем в переменную Hash действующего документа из карточки клиента
-                    .select()
-                    .field("ACTIVE_DOCUMENT_HASH")
-                    .from("Client")
-                    .sort("id", false)
-                    .limit(2)
-                    .get();
-            documentHash1 = hash[0][0];
-            System.out.println(documentHash1);
-            documentHash2 = hash[1][0];
-            System.out.println(documentHash2);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new IllegalStateException(e);
-        }
-
-        getIC().locateTable(REFERENCE_TABLE_ALERT)
-                .deleteAll()
-                .addRecord()
-                .fillInputText("Hash документа:", documentHash1)
-                .select("Причина занесения:", "Внешняя система")
-                .save();
-        getIC().locateTable(REFERENCE_TABLE_ALERT)
-                .addRecord()
-                .fillInputText("Hash документа:", documentHash2)
-                .select("Причина занесения:", "Внешняя система")
-                .save();
     }
 
     @Test(
             description = "1. Провести транзакции для клиента №1, тип транзакции:" +
-                    "Перевод с платежной карты стороннего банка на платежную карту РСХБ, проверить на отклонение суммы в пределах 25,5%," +
-                    "на совпадение остатка по счету",
+                    "Перевод через систему денежных переводов, проверить на RDAK отклонение суммы," +
+                    "на совпадение остатка по счету, на длину серии, account, providerName, serviceName",
             dependsOnMethods = "addClients"
     )
 
-    public void transOuterCard() {
-        time.add(Calendar.MINUTE, -20);
-        Transaction transOuterCard = getOuterCardTransfer();
-        TransactionDataType transactionDataOuterCard = transOuterCard.getData().getTransactionData()
+    public void transServis() {
+        time.add(Calendar.MINUTE, -15);
+        Transaction transService = getMTSystemTransfer();
+        TransactionDataType transactionDataService = transService.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        sendAndAssert(transOuterCard);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод с платежной карты стороннего банка на платежную карту РСХБ», условия правила не выполнены");
+        sendAndAssert(transService);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод через систему денежных переводов», условия правила не выполнены");
 
         getIC().locateAlerts()
                 .openFirst()
@@ -199,21 +148,22 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
                 .sleep(2);
 
         time.add(Calendar.SECOND, 20);
-        Transaction transOuterOutside = getOuterCardTransfer();
-        TransactionDataType transactionDataOuterOutside = transOuterOutside.getData().getTransactionData()
+        Transaction transServiceOutside = getMTSystemTransfer();
+        TransactionDataType transactionDataServiceOutside = transServiceOutside.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        sendAndAssert(transOuterOutside);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод с платежной карты стороннего банка на платежную карту РСХБ» условия правила не выполнены");
+        sendAndAssert(transServiceOutside);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод через систему денежных переводов» условия правила не выполнены");
 
         getIC().locateAlerts()
                 .openFirst()
                 .action("Взять в работу для выполнения РДАК")
-                .sleep(1)
+                .sleep(2)
                 .rdak()
                 .fillCheckBox("Верный ответ", true)
                 .MyPayment()
                 .action("Подтвердить")
                 .sleep(1);
+
         assertTableField("Идентификатор клиента:", clientIds.get(0));
         assertTableField("Status:", "Обработано");
         assertTableField("Статус РДАК:", "SUCCESS");
@@ -221,47 +171,46 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
         assertTableField("Resolution:", "Правомочно");
 
         time.add(Calendar.SECOND, 20);
-        Transaction transOuterAccountBalance = getOuterCardTransfer();
-        TransactionDataType transactionDataOuterAccountBalance = transOuterAccountBalance.getData().getTransactionData()
+        Transaction transServiceAccountBalance = getMTSystemTransfer();
+        TransactionDataType transactionDataServiceAccountBalance = transServiceAccountBalance.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionDataOuterAccountBalance
+        transactionDataServiceAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
-        sendAndAssert(transOuterAccountBalance);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод с платежной карты стороннего банка на платежную карту РСХБ» условия правила не выполнены");
+        sendAndAssert(transServiceAccountBalance);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод через систему денежных переводов» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
-        Transaction transOuterDeviation = getOuterCardTransfer();
-        TransactionDataType transactionDataOuterDeviation = transOuterDeviation.getData().getTransactionData()
+        Transaction transServisDeviation = getMTSystemTransfer();
+        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionDataOuterDeviation
-                .getOuterCardTransfer()
-                .withAmountInDestinationCurrency(BigDecimal.valueOf(372.25));
-        sendAndAssert(transOuterDeviation);
-        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод с платежной карты стороннего банка на платежную карту РСХБ» транзакция с совпадающими реквизитами");
+        transactionDataServisDeviation
+                .getMTSystemTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
+        sendAndAssert(transServisDeviation);
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод через систему денежных переводов» транзакция с совпадающими реквизитами");
     }
 
     @Test(
             description = "Отправить транзакцию №1 от клиента №1 спустя 5 мин от транзакции №1, " +
-                    "тип транзакции Перевод с платежной карты стороннего банка на платежную карту РСХБ, сумма 500, остаток на счету 10000р, реквизиты совпадают с транзакцией №1." +
+                    "тип транзакции Перевод через систему денежных переводов, сумма 500, остаток на счету 10000р, реквизиты совпадают с транзакцией №1." +
                     "Перейти  в АЛЕРТ по транзакции №1:" +
                     "- Подтвердить правомочно по АДАК  - выполнив Action \"выполнить АДАК\", и ответив на АДАК верно." +
                     "После выполнения АДАК, статус АДАК = SUCCESS." +
                     "- выполнить Action  - \"Подтвердить\" для перехода Алерта и Транзакции в статус Обработано, резолюция Правомочно",
-            dependsOnMethods = "transOuterCard"
+            dependsOnMethods = "transServis"
     )
 
-    public void transOuterADAK() {
-
-        Transaction transOuterCard = getOuterCardTransfer();
-        TransactionDataType transactionDataOuterCard = transOuterCard.getData().getTransactionData()
+    public void transBetweenADAK() {
+        Transaction transService = getMTSystemTransfer();
+        TransactionDataType transactionDataService = transService.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionDataOuterCard
+        transactionDataService
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transaction_id = transactionDataOuterCard.getTransactionId();
-        version = transactionDataOuterCard.getVersion();
-        sendAndAssert(transOuterCard);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод с платежной карты стороннего банка на платежную карту РСХБ», условия правила не выполнены");
+        String transaction_id = transactionDataService.getTransactionId();
+        Long version = transactionDataService.getVersion();
+        sendAndAssert(transService);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод через систему денежных переводов», условия правила не выполнены");
 
         getIC().locateAlerts().openFirst().action("Выполнить АДАК").sleep(1);
         assertTableField("Status:", "Ожидаю выполнения АДАК");
@@ -284,6 +233,7 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
+
         assertTableField("Resolution:", "Правомочно");
         assertTableField("Status:", "Обработано");
         assertTableField("Идентификатор клиента:", clientIds.get(1));
@@ -291,27 +241,31 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
         assertTableField("Статус АДАК:", "SUCCESS");
 
         time.add(Calendar.SECOND, 20);
-        Transaction transOuterAccountBalance = getOuterCardTransfer();
-        TransactionDataType transactionDataOuterAccountBalance = transOuterAccountBalance.getData().getTransactionData()
+        Transaction transMTSystemReceiverCountry = getMTSystemTransfer();
+        TransactionDataType transactionDataMTSystemReceiverCountry = transMTSystemReceiverCountry.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionDataOuterAccountBalance
-                .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
-        transactionDataOuterAccountBalance
-                .getClientIds().withDboId(clientIds.get(1));
-        sendAndAssert(transOuterAccountBalance);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод с платежной карты стороннего банка на платежную карту РСХБ» условия правила не выполнены");
+        transactionDataMTSystemReceiverCountry
+                .getMTSystemTransfer()
+                .withReceiverCountry("Россия");
+        transactionDataMTSystemReceiverCountry
+                .getClientIds()
+                .withDboId(clientIds.get(1));
+        sendAndAssert(transMTSystemReceiverCountry);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод через систему денежных переводов» условия правила не выполнены");
+
 
         time.add(Calendar.SECOND, 20);
-        Transaction transOuterDeviation = getOuterCardTransfer();
-        TransactionDataType transactionDataOuterDeviation = transOuterDeviation.getData().getTransactionData()
+        Transaction transServisDeviation = getMTSystemTransfer();
+        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionDataOuterDeviation
-                .getClientIds().withDboId(clientIds.get(1));
-        transactionDataOuterDeviation
-                .getOuterCardTransfer()
-                .withAmountInDestinationCurrency(BigDecimal.valueOf(372.25));
-        sendAndAssert(transOuterDeviation);
-        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод с платежной карты стороннего банка на платежную карту РСХБ» транзакция с совпадающими реквизитами");
+        transactionDataServisDeviation
+                .getMTSystemTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
+        transactionDataServisDeviation
+                .getClientIds()
+                .withDboId(clientIds.get(1));
+        sendAndAssert(transServisDeviation);
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод через систему денежных переводов» транзакция с совпадающими реквизитами");
     }
 
     @Override
@@ -319,8 +273,8 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
         return RULE_NAME;
     }
 
-    private Transaction getOuterCardTransfer() {
-        Transaction transaction = getTransaction("testCases/Templates/OUTER_CARD_TRANSFER_Android.xml");
+    private Transaction getMTSystemTransfer() {
+        Transaction transaction = getTransaction("testCases/Templates/MT_SYSTEM_TRANSFER_Android.xml");
         transaction.getData()
                 .getServerInfo()
                 .withPort(8050);
@@ -332,8 +286,10 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(false)
                 .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
-                .getOuterCardTransfer()
-                .withAmountInDestinationCurrency(BigDecimal.valueOf(500.00));
+                .getMTSystemTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
+                .withReceiverName("Лохманов Петр Львович")
+                .withReceiverCountry(receiverCountry);
         return transaction;
     }
 
@@ -348,3 +304,4 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
         return transaction;
     }
 }
+
