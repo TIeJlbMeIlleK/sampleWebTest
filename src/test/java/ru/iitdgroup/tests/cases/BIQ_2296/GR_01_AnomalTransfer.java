@@ -25,7 +25,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
     private static final String transactionTypePhoneNumberTransfer = "PaymentMaxAmountPhoneNumberTransfer";
     private static final String RULE_NAME = "R01_GR_01_AnomalTransfer";
     private static final BigDecimal MAX_AMMOUNT = BigDecimal.valueOf(11);
-
+    private final String[][] names = {{"Эльмира", "Давидова", "Замировна"}, {"Станислав", "Кудрявцев", "Вадимович"}};
     private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
     private final List<String> clientIds = new ArrayList<>();
 
@@ -33,20 +33,18 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
     @Test(
             description = "Настройка и включение правила"
     )
+    //        TODO требуется реализовать настройку блока Alert Scoring Model по правилу + Alert Scoring Model общие настройки
     public void enableRules() {
         getIC().locateRules()
-                .editRule(RULE_NAME)
-                .fillInputText("Величина отклонения (пример 0.05):", "0,2")
-                .save();
-
-//        TODO требуется реализовать настройку блока Alert Scoring Model по правилу + Alert Scoring Model общие настройки
-
-        getIC().locateRules()
                 .selectVisible()
-                .deactivate()
-                .selectRule(RULE_NAME)
-                .activate()
-                .sleep(5);
+                .deactivate();
+        getIC().locateRules()
+                .openRecord(RULE_NAME)
+                .edit()
+                .fillCheckBox("Active:", true)
+                .fillInputText("Величина отклонения (пример 0.05):", "0,2")
+                .save()
+                .sleep(25);
         getIC().close();
     }
 
@@ -54,20 +52,31 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
             description = "Создаем клиента",
             dependsOnMethods = "enableRules"
     )
-    public void step0() {
+    public void addClients() {
         try {
             for (int i = 0; i < 2; i++) {
-                //FIXME Добавить проверку на существование клиента в базе
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+
+                client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+
                 sendAndAssert(client);
                 clientIds.add(dboId);
+                System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
@@ -76,7 +85,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
 
     @Test(
             description = "Провести транзакции № 1 Оплата услуг, сумма 10",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "addClients"
     )
     public void step1() {
         Transaction transaction = getTransaction();

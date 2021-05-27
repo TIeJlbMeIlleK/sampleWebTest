@@ -74,7 +74,7 @@ public class RuleTests extends RSHBTests {
     @Test
     public void testChangeTab() {
         ic.locateRules()
-                .openRecord("R01_GR_01_AnomalTransfer")
+                .openRecord("R01_")
                 .tab("Alert Scoring Models");
     }
 

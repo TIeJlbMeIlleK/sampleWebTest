@@ -22,7 +22,7 @@ public class IR_03_RepeatApprovedTransactionRequestPan extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Кирилл", "Суров", "Дмитриевич"}};
+    private final String[][] names = {{"Кирилл", "Суров", "Дмитриевич"}};
 
 
     @Test(

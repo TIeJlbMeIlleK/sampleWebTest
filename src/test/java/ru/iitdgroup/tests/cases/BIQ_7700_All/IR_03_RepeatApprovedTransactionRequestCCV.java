@@ -18,11 +18,11 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IR_03_RepeatApprovedTransactionRequestCCV extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-    private final String sourceCardNumber = "4556344440011115555";
+    private final static String sourceCardNumber = "4556344440011115555";
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Сергей", "Кириллов", "Олегович"}};
+    private final String[][] names = {{"Сергей", "Кириллов", "Олегович"}};
 
 
     @Test(

@@ -98,14 +98,14 @@ public class IR_03_RepeatApprovedTransactionGettingCredit extends RSHBCaseTest {
 
     public void gettingCredit() {
         time.add(Calendar.HOUR, -10);
-        Transaction transCredit = getTransferRequestCCV();
+        Transaction transCredit = getTransferGettingCredit();
         transCredit.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCredit);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос на выдачу кредита», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
-        Transaction transCreditDestinationProduct = getTransferRequestCCV();
+        Transaction transCreditDestinationProduct = getTransferGettingCredit();
         TransactionDataType transactionDataCreditDestinationProduct = transCreditDestinationProduct.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         transactionDataCreditDestinationProduct
@@ -115,7 +115,7 @@ public class IR_03_RepeatApprovedTransactionGettingCredit extends RSHBCaseTest {
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос на выдачу кредита» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
-        Transaction transCreditBalance = getTransferRequestCCV();
+        Transaction transCreditBalance = getTransferGettingCredit();
         transCreditBalance.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
@@ -123,7 +123,7 @@ public class IR_03_RepeatApprovedTransactionGettingCredit extends RSHBCaseTest {
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос на выдачу кредита» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
-        Transaction transCreditSum = getTransferRequestCCV();
+        Transaction transCreditSum = getTransferGettingCredit();
         TransactionDataType transactionDataCreditSUM = transCreditSum.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         transactionDataCreditSUM
@@ -133,7 +133,7 @@ public class IR_03_RepeatApprovedTransactionGettingCredit extends RSHBCaseTest {
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос на выдачу кредита» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
-        Transaction transCreditSumma = getTransferRequestCCV();
+        Transaction transCreditSumma = getTransferGettingCredit();
         TransactionDataType transactionDataCreditSumma = transCreditSumma.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         transactionDataCreditSumma
@@ -143,14 +143,14 @@ public class IR_03_RepeatApprovedTransactionGettingCredit extends RSHBCaseTest {
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос на выдачу кредита» транзакция с совпадающими реквизитами");
 
         time.add(Calendar.SECOND, 20);
-        Transaction transCreditLength = getTransferRequestCCV();
+        Transaction transCreditLength = getTransferGettingCredit();
         transCreditLength.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCreditLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос на выдачу кредита» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
-        Transaction transCreditPeriod = getTransferRequestCCV();
+        Transaction transCreditPeriod = getTransferGettingCredit();
         transCreditPeriod.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCreditPeriod);
@@ -162,7 +162,7 @@ public class IR_03_RepeatApprovedTransactionGettingCredit extends RSHBCaseTest {
         return RULE_NAME;
     }
 
-    private Transaction getTransferRequestCCV() {
+    private Transaction getTransferGettingCredit() {
         Transaction transaction = getTransaction("testCases/Templates/GETTING_CREDIT_Android.xml");
         transaction.getData()
                 .getServerInfo()
