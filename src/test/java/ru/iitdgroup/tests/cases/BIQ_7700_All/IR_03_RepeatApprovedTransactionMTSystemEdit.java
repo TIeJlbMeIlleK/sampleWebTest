@@ -20,13 +20,13 @@ public class IR_03_RepeatApprovedTransactionMTSystemEdit extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
     private final String receiverCountry = "Российская Федерация";
-    private final String editiingTransactionId = "5555";
-    private final String receiverName = "Иванов Иван Иванович";
+    private final String editiingTransactionId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private static final String receiverName = "Иванов Иван Иванович";
 
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Альберт", "Свиридов", "Петрович"}};
+    private final String[][] names = {{"Альберт", "Свиридов", "Петрович"}};
 
     @Test(
             description = "Включаем правило"

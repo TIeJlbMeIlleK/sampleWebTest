@@ -8,21 +8,19 @@ import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.SchemaOutputResolver;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class IR_03_RepeatApprovedTransactionCancellation extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-    private final Long transactionIdToCancel = 25648532145L;
+    private static final Long transactionIdToCancel = ThreadLocalRandom.current().nextLong(100000000000L);
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Иван", "Рогов", "Дмитриевич"}};
+    private final String[][] names = {{"Иван", "Рогов", "Дмитриевич"}};
 
 
     @Test(
@@ -30,6 +28,7 @@ public class IR_03_RepeatApprovedTransactionCancellation extends RSHBCaseTest {
     )
 
     public void enableRules() {
+        System.out.println(transactionIdToCancel);
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()

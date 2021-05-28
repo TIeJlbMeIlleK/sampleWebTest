@@ -19,11 +19,11 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IR_03_RepeatApprovedTransactionOuterCommunal extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-    private final String unifiedAccountNumber = "884488";
+    private static final String unifiedAccountNumber = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);;
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Сергей", "Глызин", "Витальевич"}};
+    private final String[][] names = {{"Сергей", "Глызин", "Витальевич"}};
 
     @Test(
             description = "Включаем правило"
