@@ -21,67 +21,19 @@ public class ExR_03_UseNewDevice extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_ExR_03_UseNewDevice";
     private static final String TABLE = "(System_parameters) Интеграционные параметры";
     private final GregorianCalendar time = new GregorianCalendar();
-    private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Кира", "Брызгина", "Ивановна"}};
 
-    private static String LOGIN = new RandomString(5).nextString();
-    private static String LOGIN1 = new RandomString(5).nextString();
-    private static String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-    private static String LOGIN_HASH1 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private final List<String> clientIds = new ArrayList<>();
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Кира", "Брызгина", "Ивановна"}};
+
     private static final String SESSION_ID = new RandomString(10).nextString();
     private static final String SESSION_ID1 = new RandomString(10).nextString();
 
     //TODO Тест кейс подразумевает уже наполненные справочники ГИС и включенную интеграцию с ГИС
 
     @Test(
-            description = "Создаем клиента"
+            description = "Настройка и включение правила"
     )
-    public void addClient() {
-        try {
-            for (int i = 0; i < 2; i++) {
-                String[] dboId = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9),
-                        (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9)};
-                Client client = new Client("testCases/Templates/client.xml");
-                if (i == 0) {
-                    client.getData().getClientData().getClient().withLogin(LOGIN);
-                } else {
-                    client.getData().getClientData().getClient().withLogin(LOGIN1);
-                }
 
-                if (i == 0) {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH);
-                } else {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH1);
-                }
-
-                client.getData()
-                        .getClientData()
-                        .getClient()
-                        .withPasswordRecoveryDateTime(time)
-                        .withFirstName(names[i][0])
-                        .withLastName(names[i][1])
-                        .withMiddleName(names[i][2])
-                        .getClientIds()
-                        .withDboId(dboId[i])
-                        .withCifId(dboId[i])
-                        .withExpertSystemId(dboId[i])
-                        .withEksId(dboId[i])
-                        .getAlfaIds()
-                        .withAlfaId(dboId[i]);
-
-                sendAndAssert(client);
-                clientIds.add(dboId[i]);
-                System.out.println(dboId[i]);
-            }
-        } catch (JAXBException | IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    @Test(
-            description = "Настройка и включение правила",
-            dependsOnMethods = "addClient"
-    )
     public void enableRules() {
         getIC().locateRules()
                 .selectVisible()
@@ -90,7 +42,7 @@ public class ExR_03_UseNewDevice extends RSHBCaseTest {
                 .fillCheckBox("Active:", true)
                 .save()
                 .detachWithoutRecording("Коды ответов ВЭС")
-                .attachVESCode46("Коды ответов ВЭС")
+                .attach("Коды ответов ВЭС","Идентификатор кода", "Equals", "2")
                 .sleep(10);
 
         getIC().locateTable(TABLE)
@@ -103,9 +55,43 @@ public class ExR_03_UseNewDevice extends RSHBCaseTest {
     }
 
     @Test(
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
+    )
+    public void addClient() {
+        try {
+            for (int i = 0; i < 2; i++) {
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9);
+                Client client = new Client("testCases/Templates/client.xml");
+
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
+                        .getClientIds()
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+                sendAndAssert(client);
+                clientIds.add(dboId);
+                System.out.println(dboId);
+            }
+        } catch (JAXBException | IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Test(
             description = "Провести транзакцию № 1 \"Заявка на выпуск карты\" в интернет-банке с выключенной интеграцией" +
                     "Включить интеграцию с ВЭС и  Установить VES_TIMEOUT в 0 мс",
-            dependsOnMethods = "enableRules"
+            dependsOnMethods = "addClient"
     )
     public void transaction1() {
         Transaction transaction = getTransactionPC();
@@ -167,9 +153,9 @@ public class ExR_03_UseNewDevice extends RSHBCaseTest {
             String vesResponse = getRabbit().getVesResponse();
             JSONObject json = new JSONObject(vesResponse);
             json.put("customer_id", clientIds.get(0));
-            json.put("type_id", "46");
-            json.put("login", LOGIN);
-            json.put("login_hash", LOGIN_HASH);
+            json.put("type_id", "2");
+            json.put("login", clientIds.get(0));
+            json.put("login_hash", clientIds.get(0));
             json.put("time", "2021-02-02T08:20:35+03:00");
             json.put("session_id", SESSION_ID);
             json.put("device_hash", SESSION_ID);
@@ -196,7 +182,7 @@ public class ExR_03_UseNewDevice extends RSHBCaseTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_ALERTS);
+        assertLastTransactionRuleApply(TRIGGERED, "Аномальная смена устройства");
     }
 
 
@@ -214,7 +200,7 @@ public class ExR_03_UseNewDevice extends RSHBCaseTest {
         transactionData
                 .withSessionId(SESSION_ID);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, RESULT_ALERTS);
+        assertLastTransactionRuleApply(TRIGGERED, "Аномальная смена устройства");
     }
 
     @Test(
@@ -234,8 +220,8 @@ public class ExR_03_UseNewDevice extends RSHBCaseTest {
             JSONObject js = new JSONObject(getRabbit().getVesResponse());
             js.put("customer_id", clientIds.get(1));
             js.put("type_id", "22");
-            js.put("login", LOGIN1);
-            js.put("login_hash", LOGIN_HASH1);
+            js.put("login", clientIds.get(1));
+            js.put("login_hash", clientIds.get(1));
             js.put("time", "2021-02-02T08:20:35+03:00");
             js.put("session_id", SESSION_ID1);
             js.put("device_hash", SESSION_ID1);

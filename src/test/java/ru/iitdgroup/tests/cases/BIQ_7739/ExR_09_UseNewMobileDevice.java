@@ -1,6 +1,8 @@
 package ru.iitdgroup.tests.cases.BIQ_7739;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -21,23 +23,46 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_ExR_09_UseNewMobileDevice";
     private static final String TABLE= "(System_parameters) Интеграционные параметры";
-    private static String tableIMEI_IMSI = "(Rule_tables) Доверенные устройства для клиента";
+    private static final String tableIMEI_IMSI = "(Rule_tables) Доверенные устройства для клиента";
 
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.DECEMBER, 7, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String IMEI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-    private String new_IMEI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-    private String IMSI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-    private String new_IMSI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-    private String DFP_FOR_IOC = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-    private String DFP_FOR_ANDROID = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-    private String IFV = "b4ab28f4-448f-4684";
-    private String new_IFV = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
-
+    private final String IMEI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private final String new_IMEI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private final String IMSI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private final String new_IMSI = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private final String DFP_FOR_IOC = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private final String DFP_FOR_ANDROID = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private final String IFV = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private final String new_IFV = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
 
     @Test(
-            description = "Создаем клиента"
+            description = "Настройка и включение правила"
+    )
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate();
+        getIC().locateRules()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillCheckBox("Использовать информацию из ВЭС:",true)
+                .fillCheckBox("Использовать информацию из САФ:", true)
+                .save()
+                .sleep(20);
+
+        getIC().locateTable(TABLE)
+                .findRowsBy()
+                .match("Код значения", "IntegrVES2")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1")
+                .save();
+    }
+
+    @Test(
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
     )
     public void client() {
         try {
@@ -65,51 +90,15 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Настройка и включение правила",
-            dependsOnMethods = "client"
-    )
-    public void enableRules() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .sleep(2);
-
-        getIC().locateRules()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true)
-                .fillCheckBox("Использовать информацию из ВЭС:",true)
-                .fillCheckBox("Использовать информацию из САФ:", true)
-                .save()
-                .sleep(30);
-    }
-
-    @Test(
-            description = "Настройка и включение VES",
-            dependsOnMethods = "enableRules"
-    )
-    public void enableVES() {
-        getIC().locateTable(TABLE)
-                .findRowsBy()
-                .match("Код значения", "IntegrVES2")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "1")
-                .save();
-    }
-
-    @Test(
             description = "Занести в доверенные устройства № 1 IMEI+IMSI и DFP для клиента № 1\n" +
                     "Занести в доверенные устройство № 2 IFV и DFP для клиента № 1",
-            dependsOnMethods = "enableVES"
+            dependsOnMethods = "client"
     )
     public void enableIMEI_IMSI() {
-        Table.Formula rows = getIC().locateTable(tableIMEI_IMSI).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
         getIC().locateTable(tableIMEI_IMSI)
+                .deleteAll()
                 .addRecord()
-                .fillMasked("DeviceFingerPrint:",DFP_FOR_ANDROID)
+                .fillMasked("DeviceFingerPrint:", DFP_FOR_ANDROID)
                 .fillMasked("IMEI:",IMEI)
                 .fillMasked("IMSI:",IMSI)
                 .fillCheckBox("Доверенный:", true)
@@ -118,12 +107,30 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
 
         getIC().locateTable(tableIMEI_IMSI)
                 .addRecord()
-                .fillMasked("DeviceFingerPrint:",DFP_FOR_IOC)
+                .fillMasked("DeviceFingerPrint:", DFP_FOR_IOC)
                 .fillMasked("IdentifierForVendor:",IFV)
                 .fillCheckBox("Доверенный:", true)
                 .fillUser("Клиент:",clientIds.get(0))
                 .save();
         getIC().close();
+
+        try {
+            String vesResponse = getRabbit().getVesResponse();
+            JSONObject json = new JSONObject(vesResponse);
+            json.put("customer_id", clientIds.get(0));
+            json.put("type_id", "46");
+            json.put("login", clientIds.get(0));
+            json.put("login_hash", clientIds.get(0));
+            json.put("time", "2021-05-02T08:20:35+03:00");
+            json.put("session_id", DFP_FOR_ANDROID);
+            json.put("device_hash", DFP_FOR_ANDROID);
+            String newStr = json.toString();
+            getRabbit().setVesResponse(newStr);
+            getRabbit().sendMessage();
+
+        } catch (JSONException e) {
+            throw new IllegalStateException();
+        }
     }
 
     @Test(
@@ -131,8 +138,7 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
             dependsOnMethods = "enableIMEI_IMSI"
     )
     public void transaction1() {
-        //TODO требуется перепроверить работу ТК после исправления включения правила
-        commandServiceMock.run();
+
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE_Android();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -142,26 +148,14 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMEI(IMEI);
+                .withIMEI(IMEI);
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMSI(IMSI);
+                .withIMSI(IMSI);
         transactionData
-                .setSessionId(DFP_FOR_ANDROID);
-        getRabbit().setVesResponse(getRabbit().getVesResponse()
-                .replaceAll("46","46")
-                .replaceAll("ilushka305",clientIds.get(0))
-                .replaceAll("305",clientIds.get(0))
-                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",DFP_FOR_ANDROID));
-        getRabbit()
-                .sendMessage();
+                .withSessionId(DFP_FOR_ANDROID);
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_DEVICE_MSG);
     }
 
@@ -170,6 +164,24 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
             dependsOnMethods = "transaction1"
     )
     public void transaction2() {
+        try {
+            String vesResponse = getRabbit().getVesResponse();
+            JSONObject json = new JSONObject(vesResponse);
+            json.put("customer_id", clientIds.get(0));
+            json.put("type_id", "46");
+            json.put("login", clientIds.get(0));
+            json.put("login_hash", clientIds.get(0));
+            json.put("time", "2021-05-02T08:20:35+03:00");
+            json.put("session_id", DFP_FOR_IOC);
+            json.put("device_hash", DFP_FOR_IOC);
+            String newStr = json.toString();
+            getRabbit().setVesResponse(newStr);
+            getRabbit().sendMessage();
+
+        } catch (JSONException e) {
+            throw new IllegalStateException();
+        }
+
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE_IOC();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
@@ -182,19 +194,7 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .setIdentifierForVendor(IFV);
         transactionData
                 .setSessionId(DFP_FOR_IOC);
-        getRabbit().setVesResponse(getRabbit().getVesResponse()
-                .replaceAll("46","46")
-                .replaceAll("ilushka305",clientIds.get(0))
-                .replaceAll("305",clientIds.get(0))
-                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",DFP_FOR_IOC));
-        getRabbit()
-                .sendMessage();
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, EXIST_TRUSTED_DEVICE_MSG);
     }
     @Test(
@@ -225,11 +225,6 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
         getRabbit()
                 .sendMessage();
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, NEW_DEVICE);
     }
 
@@ -258,13 +253,7 @@ public class ExR_09_UseNewMobileDevice extends RSHBCaseTest {
                 .sendMessage();
         getRabbit().close();
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(3_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, NEW_DEVICE);
-        commandServiceMock.stop();
     }
 
     @Override

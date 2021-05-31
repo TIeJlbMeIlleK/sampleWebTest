@@ -24,7 +24,7 @@ public class ExR_02_AnomalGeoPosChange_Device extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Зуля", "Закирова", "Муратовна"}};
+    private final String[][] names = {{"Зуля", "Закирова", "Муратовна"}};
     private static final String LOGIN = new RandomString(5).nextString();
     private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
 
@@ -37,7 +37,7 @@ public class ExR_02_AnomalGeoPosChange_Device extends RSHBCaseTest {
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(10);
+                .sleep(20);
 
         getIC().locateTable(TABLE)
                 .findRowsBy()

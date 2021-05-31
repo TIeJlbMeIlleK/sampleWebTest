@@ -56,7 +56,7 @@ public class GR_24_SeriesBetweenOwnAccountsSum extends RSHBCaseTest {
                 .save()
                 .detachDelGroup()
                 .addAttachMask(mask)
-                .sleep(10);
+                .sleep(20);
         getIC().close();
     }
 

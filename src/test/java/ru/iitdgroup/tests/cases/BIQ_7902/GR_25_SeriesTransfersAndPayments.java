@@ -47,7 +47,7 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
                 .fillInputText("Сумма оплаты услуг:", "2000")
                 .fillInputText("Сумма серии:", "2000")
                 .save()
-                .sleep(10);
+                .sleep(25);
         getIC().close();
     }
 
@@ -106,7 +106,7 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
                 .getCardTransfer()
                 .withAmountInSourceCurrency(new BigDecimal("1999.00"));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не применилось (проверка по настройкам правила)");
     }
 
     @Test(
@@ -129,7 +129,7 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
                 .withAmountInSourceCurrency(new BigDecimal("1.00"));
         transactionID1 = transactionData.getTransactionId();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не применилось (проверка по настройкам правила)");
     }
 
     @Test(
@@ -152,7 +152,7 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
                 .withAmountInSourceCurrency(new BigDecimal("1998.00"));
         transactionID2 = transactionData.getTransactionId();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не применилось (проверка по настройкам правила)");
     }
 
     @Test(
@@ -176,7 +176,7 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
                 .getServicePayment()
                 .withAmountInSourceCurrency(new BigDecimal("1.00"));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не применилось (проверка по настройкам правила)");
     }
 
     @Test(
@@ -201,7 +201,7 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
                 .getServicePayment()
                 .withAmountInSourceCurrency(new BigDecimal("1.00"));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не применилось (проверка по настройкам правила)");
     }
 
     @Test(

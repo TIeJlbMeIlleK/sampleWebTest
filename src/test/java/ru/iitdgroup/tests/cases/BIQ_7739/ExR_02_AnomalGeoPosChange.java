@@ -38,7 +38,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(10);
+                .sleep(20);
 
         getIC().locateTable(TABLE)
                 .findRowsBy()

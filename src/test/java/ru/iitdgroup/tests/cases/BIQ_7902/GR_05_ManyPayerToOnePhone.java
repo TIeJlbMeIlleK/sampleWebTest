@@ -26,7 +26,7 @@ public class GR_05_ManyPayerToOnePhone extends RSHBCaseTest {
     private final GregorianCalendar time = new GregorianCalendar();
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Тимур", "Киров", "Семенович"}, {"Зина", "Птушкина", "Ильинична"},
+    private final String[][] names = {{"Тимур", "Киров", "Семенович"}, {"Зина", "Птушкина", "Ильинична"},
             {"Федор", "Бондарчук", "Григорьевич"}, {"Илья", "Кисов", "Васильевич"}, {"Тимур", "Киров", "Батырович"},
             {"Семен", "Тиков", "Гаврилович"}, {"Ирина", "Парькина", "Семеновна"}};
 
@@ -56,7 +56,7 @@ public class GR_05_ManyPayerToOnePhone extends RSHBCaseTest {
                 .fillInputText("Сумма серии:", "1000")
                 .fillCheckBox("Проверка регулярных:", true)
                 .save()
-                .sleep(20);
+                .sleep(25);
         getIC().close();
     }
 

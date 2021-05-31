@@ -26,7 +26,7 @@ public class GR_29_RequestCardIssue extends RSHBCaseTest {
     private final GregorianCalendar time = new GregorianCalendar();
     private final GregorianCalendar[] birthdates = new GregorianCalendar[2];
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Вероника", "Жукова", "Игоревна"}, {"Сергей", "Кипитов", "Игоревич"}};
+    private final String[][] names = {{"Вероника", "Жукова", "Игоревна"}, {"Сергей", "Кипитов", "Игоревич"}};
 
     @Test(
             description = "Включаем правило и выполняем преднастройки"
@@ -61,20 +61,18 @@ public class GR_29_RequestCardIssue extends RSHBCaseTest {
             birthdates[1].add(Calendar.YEAR, -15);
             for (int i = 0; i < 2; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
-                String login_hash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
-                String login = new RandomString(5).nextString();
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .withBirthDate(new XMLGregorianCalendarImpl(birthdates[i]))
                         .getClientIds()
-                        .withLoginHash(login_hash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)

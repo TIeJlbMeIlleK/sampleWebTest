@@ -17,19 +17,14 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class BR_02_AbnormalSpeed extends RSHBCaseTest {
-
 
     private static final String RULE_NAME = "R01_BR_02_AbnormalSpeed";
     private static String transactionID1;
 
     private final GregorianCalendar time = new GregorianCalendar();
-
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
 
     @Test(
             description = "Включаем правило"
@@ -42,7 +37,7 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
                 .fillInputText("Интервал между операциями (в секундах, пример 2):", "60")
-                .save().sleep(10);
+                .save().sleep(20);
     }
 
     @Test(
@@ -58,12 +53,12 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)

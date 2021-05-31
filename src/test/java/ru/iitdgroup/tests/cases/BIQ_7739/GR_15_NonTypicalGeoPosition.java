@@ -21,12 +21,13 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_15_NonTypicalGeoPosition";
     private static final String Table_Flags = "(Policy_parameters) Параметры обработки справочников и флагов";
+    private static final String userAgent = "555";
+    private static final String ipAddress = "178.219.186.12";
+    private static final String browserData = "Browser";
 
-
-
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
+
 
     @Test(
             description = "Настройка и включение правила"
@@ -37,7 +38,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(30);
+                .sleep(20);
     }
 
     @Test(
@@ -52,10 +53,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
                 .edit()
                 .fillInputText("Значение:", "2")
                 .save();
-        Table.Formula rows = getIC().locateTable("(Rule_tables) Карантин месторасположения").findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
+        getIC().locateTable("(Rule_tables) Карантин месторасположения").deleteAll();
         getIC().close();
     }
 
@@ -66,7 +64,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
     public void client() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
                 client
                         .getData()
@@ -75,6 +73,7 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
                         .getClientIds()
                         .withDboId(dboId);
                 sendAndAssert(client);
+                System.out.println(dboId);
                 clientIds.add(dboId);
             }
         } catch (JAXBException | IOException e) {
@@ -87,20 +86,19 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
             dependsOnMethods = "client"
     )
     public void transaction1() {
-        commandServiceMock.run();
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getClientDevice().getPC().setUserAgent("555");
-        transactionData.getClientDevice().getPC().setIpAddress("178.219.186.12");
-        transactionData.getClientDevice().getPC().setBrowserData("Browser");
+        transactionData.getClientDevice().getPC()
+                .withUserAgent(userAgent)
+                .withIpAddress(ipAddress)
+                .withBrowserData(browserData);
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ADD_QUARATINE_LOCATION);
     }
-
 
     @Test(
             description = "Провести транзакции № 2 с IP-адреса № 1 для Клиента № 1",
@@ -113,9 +111,10 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getClientDevice().getPC().setUserAgent("555");
-        transactionData.getClientDevice().getPC().setIpAddress("178.219.186.12");
-        transactionData.getClientDevice().getPC().setBrowserData("Browser");
+        transactionData.getClientDevice()
+                .getPC().withUserAgent(userAgent)
+                .withIpAddress(ipAddress)
+                .withBrowserData(browserData);
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, YOUNG_QUARANTINE_LOCATION);
     }
@@ -125,19 +124,19 @@ public class GR_15_NonTypicalGeoPosition extends RSHBCaseTest {
             dependsOnMethods = "transaction2"
     )
     public void transaction3() {
-        time.add(Calendar.HOUR,49);
+        time.add(Calendar.HOUR, 49);
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getClientDevice().getPC().setUserAgent("555");
-        transactionData.getClientDevice().getPC().setIpAddress("178.219.186.12");
-        transactionData.getClientDevice().getPC().setBrowserData("Browser");
+        transactionData.getClientDevice().getPC()
+                .withUserAgent(userAgent)
+                .withIpAddress(ipAddress)
+                .withBrowserData(browserData);
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(FEW_DATA, RESULT_EXIST_QUARANTINE_LOCATION_FOR_IP);
-        commandServiceMock.stop();
     }
 
     @Override

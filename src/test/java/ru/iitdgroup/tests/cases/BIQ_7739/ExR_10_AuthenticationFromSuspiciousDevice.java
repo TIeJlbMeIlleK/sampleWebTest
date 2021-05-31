@@ -1,7 +1,10 @@
 package ru.iitdgroup.tests.cases.BIQ_7739;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import net.bytebuddy.utility.RandomString;
+import org.testng.Assert;
 import org.testng.annotations.Test;
+import ru.iitdgroup.intellinx.dbo.auth.ClientAuthenticationType;
 import ru.iitdgroup.intellinx.dbo.client.IOSDevice;
 import ru.iitdgroup.intellinx.dbo.client.PlatformKind;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
@@ -11,9 +14,10 @@ import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
-
+import static org.testng.Assert.assertEquals;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -23,20 +27,17 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_ExR_10_AuthenticationFromSuspiciousDevice";
-    private static final String TABLE= "(System_parameters) Интеграционные параметры";
+    private static final String TABLE = "(System_parameters) Интеграционные параметры";
     private static final String Table_DFP = "(Rule_tables) Подозрительные устройства DeviceFingerPrint";
     private static final String Table_IFV = "(Rule_tables) Подозрительные устройства IdentifierForVendor";
     private static final String Table_IMEI = "(Rule_tables) Подозрительные устройства IMEI";
     private static final String Table_IMSI = "(Rule_tables) Подозрительные устройства IMSI";
-    private static final String DFP = (ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15);
-    private static final String IFV = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+    private static final String DFP = new RandomString(30).nextString();
+    private static final String IFV = new RandomString(20).nextString();
     private static final String IMEI = (ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15);
     private static final String IMSI = (ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15);
-    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
 
-
-
-    private final GregorianCalendar time = new GregorianCalendar(2021, Calendar.JANUARY, 7, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
 
     @Test(
@@ -48,7 +49,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(30);
+                .sleep(20);
     }
 
     @Test(
@@ -56,45 +57,26 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
             dependsOnMethods = "enableRules"
     )
     public void editReferenceTable() {
-        Table.Formula rows1 = getIC().locateTable(Table_DFP).findRowsBy();
-        if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows1.delete();
-        }
         getIC().locateTable(Table_DFP)
+                .deleteAll()
                 .addRecord()
-                .fillMasked("DeviceFingerPrint:",DFP)
+                .fillMasked("DeviceFingerPrint:", DFP)
                 .save();
-        Table.Formula rows2 = getIC().locateTable(Table_IFV).findRowsBy();
-        if (rows2.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows2.delete();
-        }
         getIC().locateTable(Table_IFV)
+                .deleteAll()
                 .addRecord()
-                .fillMasked("Identifier for vendor:",IFV)
+                .fillMasked("Identifier for vendor:", IFV)
                 .save();
-        Table.Formula rows3 = getIC().locateTable(Table_IMEI).findRowsBy();
-        if (rows3.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows3.delete();
-        }
         getIC().locateTable(Table_IMEI)
+                .deleteAll()
                 .addRecord()
-                .fillMasked("imei:",IMEI)
+                .fillMasked("imei:", IMEI)
                 .save();
-        Table.Formula rows4 = getIC().locateTable(Table_IMSI).findRowsBy();
-        if (rows4.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows4.delete();
-        }
         getIC().locateTable(Table_IMSI)
+                .deleteAll()
                 .addRecord()
-                .fillMasked("imsi:",IMSI)
+                .fillMasked("imsi:", IMSI)
                 .save();
-    }
-
-    @Test(
-            description = "Включить IntegrVES2",
-            dependsOnMethods = "editReferenceTable"
-    )
-    public void enableVES() {
         getIC().locateTable(TABLE)
                 .findRowsBy()
                 .match("Код значения", "IntegrVES2")
@@ -102,22 +84,22 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .edit()
                 .fillInputText("Значение:", "1")
                 .save();
-        getIC().close();
     }
 
     @Test(
             description = "Создаем клиента",
-            dependsOnMethods = "enableVES"
+            dependsOnMethods = "editReferenceTable"
     )
     public void client() {
         try {
             for (int i = 0; i < 5; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
                 client
                         .getData()
                         .getClientData()
-                        .getClient().withLogin(dboId)
+                        .getClient()
+                        .withLogin(dboId)
                         .getClientIds()
                         .withLoginHash(dboId)
                         .withDboId(dboId)
@@ -127,6 +109,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                         .getAlfaIds()
                         .withAlfaId(dboId);
                 sendAndAssert(client);
+                System.out.println(dboId);
                 clientIds.add(dboId);
             }
         } catch (JAXBException | IOException e) {
@@ -139,8 +122,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
             dependsOnMethods = "client"
     )
     public void transaction1() {
-        commandServiceMock.run();
-        Authentication authentication = getAuthentication();
+        Authentication authentication = getAuthenticationIOS();
         authentication
                 .getData()
                 .getClientAuthentication()
@@ -150,19 +132,10 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .getData()
                 .getClientAuthentication()
                 .getClientDevice()
-                .setAndroid(null);
-        authentication.getData().getClientAuthentication().getClientDevice().setPlatform(PlatformKind.IOS);
-        authentication.getData().getClientAuthentication().getClientDevice().setIOS(new IOSDevice());
-        authentication.getData().getClientAuthentication().getClientDevice().getIOS().setOSVersion("8");
-        authentication.getData().getClientAuthentication().getClientDevice().getIOS().setIdentifierForVendor(IFV);
-        authentication.getData().getClientAuthentication().getClientDevice().getIOS().setModel("10");
-        authentication.getData().getClientAuthentication().getClientDevice().getIOS().setIpAddress("192.168.10.1");
-        authentication.getData().getClientAuthentication().getClientDevice().getIOS().setAuthByFingerprint(false);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+                .getIOS()
+                .withIdentifierForVendor(IFV)
+                .withIpAddress("192.168.10.1")
+                .withModel("10");
         sendAndAssert(authentication);
 
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE_IOC();
@@ -173,28 +146,23 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .withDboId(clientIds.get(0));
         transactionData.getClientDevice()
                 .getIOS()
-                .setOSVersion("9");
+                .withOSVersion("9");
+        transactionData
+                .getClientDevice()
+                .getIOS()
+                .withModel("12");
         transactionData.getClientDevice()
                 .getIOS()
-                .setModel("12");
+                .withIdentifierForVendor(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
         transactionData.getClientDevice()
                 .getIOS()
-                .setIdentifierForVendor(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
+                .withIpAddress("192.168.10.1");
         transactionData.getClientDevice()
                 .getIOS()
-                .setIpAddress("192.168.10.1");
-        transactionData.getClientDevice()
-                .getIOS()
-                .setAuthByFingerprint(false);
+                .withAuthByFingerprint(false);
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, SUSPICIOUS_DEVICE);
     }
-
 
     @Test(
             description = "Отправить аутентификацию с сессией № 2 для клиента № 2 с подозрительного IMSI Отправить транзакцию по данному клиенту",
@@ -203,17 +171,11 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     public void transaction2() {
         Authentication authentication = getAuthentication();
         authentication
-                .getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(1));
+                .getData().getClientAuthentication().getClientIds().withDboId(clientIds.get(1));
         authentication.getData().getClientAuthentication().getClientDevice().getAndroid()
-                .setIMSI(IMSI);
-        authentication.getData().getClientAuthentication().getClientDevice().getAndroid()
-                .setIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
+                .withIMSI(IMSI)
+                .withIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
         sendAndAssert(authentication);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE_Android();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
@@ -223,18 +185,14 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .withDboId(clientIds.get(1));
         transactionData.getClientDevice()
                 .getAndroid()
-                .setIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
+                .withIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
         transactionData.getClientDevice()
                 .getAndroid()
-                .setIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
+                .withIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, SUSPICIOUS_DEVICE);
     }
+
     @Test(
             description = "Отправить аутентификацию с сессией № 3 для клиента № 3 с подозрительного IMEI",
             dependsOnMethods = "transaction2"
@@ -243,15 +201,11 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     public void transaction3() {
         Authentication authentication = getAuthentication();
         authentication
-                .getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(2));
-        authentication.getData().getClientAuthentication().getClientDevice().getAndroid().setIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
-        authentication.getData().getClientAuthentication().getClientDevice().getAndroid().setIMEI(IMEI);
+                .getData().getClientAuthentication().getClientIds().withDboId(clientIds.get(2));
+        authentication.getData().getClientAuthentication().getClientDevice().getAndroid()
+                .withIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15))
+                .withIMEI(IMEI);
         sendAndAssert(authentication);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE_Android();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
@@ -261,16 +215,11 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .withDboId(clientIds.get(2));
         transactionData.getClientDevice()
                 .getAndroid()
-                .setIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
+                .withIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
         transactionData.getClientDevice()
                 .getAndroid()
-                .setIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
+                .withIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, SUSPICIOUS_DEVICE);
     }
 
@@ -279,27 +228,23 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
             dependsOnMethods = "transaction3"
     )
     public void transaction4() {
-//        TODO требуется перепроверить после исправления взведения флага при поступлении подозрительного DFP
         Authentication authentication = getAuthentication();
-        authentication.getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(3));
-        authentication.getData().getClientAuthentication().setSessionId(DFP);
-        authentication.getData().getClientAuthentication().setLogin(clientIds.get(3));
-        authentication.getData().getClientAuthentication().getClientIds().setLoginHash(clientIds.get(3));
-        authentication.getData().getClientAuthentication().getClientIds().setCifId(clientIds.get(3));
-        authentication.getData().getClientAuthentication().getClientIds().setEksId(clientIds.get(3));
+        ClientAuthenticationType clientAuthentication = authentication.getData().getClientAuthentication();
+        clientAuthentication
+                .withSessionId(DFP)
+                .withLogin(clientIds.get(3))
+                .getClientIds()
+                .withDboId(clientIds.get(3))
+                .withLoginHash(clientIds.get(3))
+                .withEksId(clientIds.get(3))
+                .withCifId(clientIds.get(3));
         sendAndAssert(authentication);
         getRabbit().setVesResponse(getRabbit().getVesResponse()
-                .replaceAll("46","46")
-                .replaceAll("ilushka305",clientIds.get(3))
-                .replaceAll("305",clientIds.get(3))
-                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",DFP));
-        getRabbit()
-                .sendMessage();
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+                .replaceAll("46", "46")
+                .replaceAll("ilushka305", clientIds.get(3))
+                .replaceAll("305", clientIds.get(3))
+                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf", DFP));
+        getRabbit().sendMessage();
 
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE_Android();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
@@ -309,18 +254,19 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .withDboId(clientIds.get(3));
         transactionData.getClientDevice()
                 .getAndroid()
-                .setIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
+                .withIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
         transactionData.getClientDevice()
                 .getAndroid()
-                .setIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
+                .withIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         assertLastTransactionRuleApply(TRIGGERED, SUSPICIOUS_DEVICE);
+
+        getIC().locateReports()
+                .openFolder("Бизнес-сущности")
+                .openRecord("Список клиентов")
+                .setTableFilterWithActive("Идентификатор клиента","Equals", clientIds.get(3)).runReport()
+                .openFirst();
+        assertTableField("Подозрительное устройство:","Yes");
     }
 
     @Test(
@@ -329,22 +275,17 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     )
     public void transaction5() {
         Authentication authentication = getAuthentication();
-        authentication
-                .getData().getClientAuthentication().getClientIds().setDboId(clientIds.get(4));
-        authentication.getData().getClientAuthentication().getClientDevice().getAndroid()
-                .setIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
-        authentication.getData().getClientAuthentication().getClientDevice().getAndroid()
-                .setIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
-        String IMEI_rep = authentication.getData().getClientAuthentication().getClientDevice()
-                .getAndroid().getIMEI();
-        String IMSI_rep = authentication.getData().getClientAuthentication().getClientDevice()
-                .getAndroid().getIMSI();
+        ClientAuthenticationType clientAuthentication = authentication.getData().getClientAuthentication();
+
+        clientAuthentication
+                .getClientIds()
+                .withDboId(clientIds.get(4));
+        clientAuthentication.getClientDevice().getAndroid()
+                .withIMSI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15))
+                .withIMEI((ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 15));
+        String IMEI_rep = clientAuthentication.getClientDevice().getAndroid().getIMEI();
+        String IMSI_rep = clientAuthentication.getClientDevice().getAndroid().getIMSI();
         sendAndAssert(authentication);
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE_Android();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
@@ -354,27 +295,20 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .withDboId(clientIds.get(4));
         transactionData.getClientDevice()
                 .getAndroid()
-                .setIMSI(IMSI_rep);
+                .withIMSI(IMSI_rep);
         transactionData.getClientDevice()
                 .getAndroid()
-                .setIMEI(IMEI_rep);
+                .withIMEI(IMEI_rep);
         String sessionID = transactionData.getSessionId();
         getRabbit().setVesResponse(getRabbit().getVesResponse()
-                .replaceAll("46","46")
-                .replaceAll("ilushka305",clientIds.get(4))
-                .replaceAll("305",clientIds.get(4))
-                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",sessionID));
-        getRabbit()
-                .sendMessage();
+                .replaceAll("46", "46")
+                .replaceAll("ilushka305", clientIds.get(4))
+                .replaceAll("305", clientIds.get(4))
+                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf", sessionID));
+        getRabbit().sendMessage();
         getRabbit().close();
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
-        commandServiceMock.stop();
     }
 
     @Override
@@ -384,6 +318,11 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
 
     private Authentication getAuthentication() {
         Authentication authentication = super.getAuthentication("auth/auth1.xml");
+        return authentication;
+    }
+
+    private Authentication getAuthenticationIOS() {
+        Authentication authentication = super.getAuthentication("auth/auth_IOS.xml");
         return authentication;
     }
 

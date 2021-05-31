@@ -22,12 +22,8 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
     private static final String TABLE = "(System_parameters) Интеграционные параметры";
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Олеся", "Зимина", "Петровна"}};
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Олеся", "Зимина", "Петровна"}};
 
-    private static String LOGIN;
-    private static String LOGIN1;
-    private static String LOGIN_HASH;
-    private static String LOGIN_HASH1;
     private static final String SESSION_ID = new RandomString(10).nextString();
     private static final String SESSION_ID1 = new RandomString(10).nextString();
 
@@ -71,25 +67,17 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
         try {
             for (int i = 0; i < 2; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
-                if (i == 0) {
-                    LOGIN = login;
-                    LOGIN_HASH = loginHash;
-                } else {
-                    LOGIN1 = login;
-                    LOGIN_HASH1 = loginHash;
-                }
+
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -172,8 +160,8 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
             JSONObject json = new JSONObject(vesResponse);
             json.put("customer_id", clientIds.get(0));
             json.put("type_id", "46");
-            json.put("login", LOGIN);
-            json.put("login_hash", LOGIN_HASH);
+            json.put("login", clientIds.get(0));
+            json.put("login_hash", clientIds.get(0));
             json.put("time", "2021-02-02T08:20:35+03:00");
             json.put("session_id", SESSION_ID);
             json.put("device_hash", SESSION_ID);
@@ -200,7 +188,7 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        assertLastTransactionRuleApply(TRIGGERED, "В ответе от ВЭС присутствуют признаки заражения или удаленного управления устройтвом клиента");
+        assertLastTransactionRuleApply(TRIGGERED, "Вход в ДБО");
     }
 
     @Test(
@@ -217,7 +205,7 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
         transactionData
                 .withSessionId(SESSION_ID);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, "В ответе от ВЭС присутствуют признаки заражения или удаленного управления устройтвом клиента");
+        assertLastTransactionRuleApply(TRIGGERED, "Вход в ДБО");
     }
 
     @Test(
@@ -237,8 +225,8 @@ public class ExR_04_InfectedDevice extends RSHBCaseTest {
             JSONObject js = new JSONObject(getRabbit().getVesResponse());
             js.put("customer_id", clientIds.get(1));
             js.put("type_id", "22");
-            js.put("login", LOGIN1);
-            js.put("login_hash", LOGIN_HASH1);
+            js.put("login", clientIds.get(1));
+            js.put("login_hash", clientIds.get(1));
             js.put("time", "2021-02-02T08:20:35+03:00");
             js.put("session_id", SESSION_ID1);
             js.put("device_hash", SESSION_ID1);

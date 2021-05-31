@@ -25,7 +25,7 @@ public class IR_03_RepeatApprovedTransactionRequestCVVRdakAdak extends RSHBCaseT
     private static final String REFERENCE_TABLE_ALERT = "(Rule_tables) Подозрительные документы клиентов";
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
-    private final static String sourceCardNumber = "4556344440011115555";
+    private final static String sourceCardNumber = "455634" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
 
     private String documentHash1;
     private String documentHash2;

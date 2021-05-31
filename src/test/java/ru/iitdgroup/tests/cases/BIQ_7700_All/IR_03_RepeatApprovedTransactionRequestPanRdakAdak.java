@@ -26,7 +26,7 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
     private static final String REFERENCE_TABLE_ALERT = "(Rule_tables) Подозрительные документы клиентов";
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
-    private final String sourceCardNumber = "4336344440011112222";
+    private final String sourceCardNumber = "4336377" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
 
     private String documentHash1;
     private String documentHash2;
@@ -109,10 +109,14 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
             for (int i = 0; i < 2; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 8);
                 String numberPassword = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
+                int timePssw = (int) (Math.random() * 16 + 5);
+                System.out.println(timePssw);
+                int timeBirthday = (int) (Math.random() * 16 + 38);
+                System.out.println(timeBirthday);
                 String organization = "МВД "+ new RandomString(10).nextString();
                 Client client = new Client("testCases/Templates/client.xml");
-                time2.add(Calendar.YEAR, -12);
-                time2.add(Calendar.YEAR, -48);
+                time2.add(Calendar.YEAR, -timePssw);
+                time3.add(Calendar.YEAR, -timeBirthday);
 
                 client.getData()
                         .getClientData()

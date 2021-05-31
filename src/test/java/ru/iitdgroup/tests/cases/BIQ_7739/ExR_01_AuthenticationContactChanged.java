@@ -18,13 +18,12 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class ExR_01_AuthenticationContactChanged extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_ExR_01_AuthenticationContactChanged";
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ирина", "Дьякова", "Витальевна"}};
+    private final String[][] names = {{"Ирина", "Дьякова", "Витальевна"}};
 
     @Test(
             description = "Настройка и включение правила R01_ExR_01_AuthenticationContactChanged"
