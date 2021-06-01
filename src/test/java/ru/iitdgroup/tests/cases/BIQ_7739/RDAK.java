@@ -20,14 +20,11 @@ public class RDAK extends RSHBCaseTest {
     private static final String REFERENCE_ITEM = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
     private static final String REFERENCE_ITEM1 = "(Policy_parameters) Параметры обработки событий";
     private static final String REFERENCE_ITEM2 = "(Policy_parameters) Вопросы для проведения ДАК";
-
-    private static Random rand = new Random();
+    private static final String IP_ADRESS = "178.219.186.12";
+    private final String[][] names = {{"Наталья", "Сколкина", "Олеговна"}};
 
     private final GregorianCalendar time = new GregorianCalendar();
-    private GregorianCalendar time2;
-
     private final List<String> clientIds = new ArrayList<>();
-    private Client client = null;
 
 //TODO для прохождения теста в Alert должны быть внесены поля:Идентификатор клиента, Status (Алерта), Статус РДАК, status(транзакции)
 
@@ -71,7 +68,8 @@ public class RDAK extends RSHBCaseTest {
                 .edit()
                 .fillCheckBox("Включено:", true)
                 .fillCheckBox("Участвует в АДАК:", true)
-                .fillCheckBox("Участвует в РДАК:", true).save().sleep(2);
+                .fillCheckBox("Участвует в РДАК:", true)
+                .save();
         getIC().locateTable(REFERENCE_ITEM2)
                 .setTableFilter("Текст вопроса клиенту", "Equals", "Дата вашего рождения полностью")
                 .refreshTable()
@@ -79,60 +77,38 @@ public class RDAK extends RSHBCaseTest {
                 .edit()
                 .fillCheckBox("Включено:", true)
                 .fillCheckBox("Участвует в АДАК:", true)
-                .fillCheckBox("Участвует в РДАК:", true).save().sleep(2);
-    }
-
-    @Test(
-            description = "Настроить WF для попадания первой транзакции на РДАК и" +
-                    "Заполнить справочник \"Перечень статусов для которых применять РДАК\" из rdak_underfire в RDAK_Done",
-            dependsOnMethods = "enableRules"
-    )
-    public void refactorWF() {
-
-        getIC().locateWorkflows()
-                .openRecord("Alert Workflow")
-                .openAction("Взять в работу для выполнения РДАК")
-                .clearAllStates()
-                .addFromState("Any State")
-                .addToState("На выполнении РДАК")
+                .fillCheckBox("Участвует в РДАК:", true)
                 .save();
-
-//Заполнение справочника "Перечень статусов для которых применять РДАК" из rdak_underfire в RDAK_Done: 2 варианта
-        //1й вариант через браузер:
-//        Table.Formula rows = getIC().locateTable(RDAK).findRowsBy();
-//        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-//            rows.delete();
-//        }
-//        getIC().locateTable(RDAK).addRecord().fillInputText("Текущий статус:","rdak_underfire")
-//                .fillInputText("Новый статус:","RDAK_Done").save();
-//        getIC().locateTable(RDAK).addRecord().fillInputText("Текущий статус:","Wait_RDAK")
-//                .fillInputText("Новый статус:","RDAK_Done").save();
-
-        //2й вариант через БД:
-        getDatabase().deleteWhere("LIST_APPLY_RDAKSTATUS", "");
-        getDatabase().insertRows("LIST_APPLY_RDAKSTATUS", new String[]{"'rdak_underfire', 'RDAK_Done'", "'Wait_RDAK', 'RDAK_Done'"});
     }
 
     @Test(
             description = "Создаем клиента",
-            dependsOnMethods = "refactorWF"
+            dependsOnMethods = "enableRules"
     )
     public void addClient() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
 
-                client.getData().getClientData().getClient()
-                        .withFirstName("Наталья")
-                        .withLastName("Сколкина")
-                        .withMiddleName("Олеговна")
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
 
                 sendAndAssert(client);
                 clientIds.add(dboId);
-                this.client = client;
                 System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
@@ -146,26 +122,11 @@ public class RDAK extends RSHBCaseTest {
     )
     public void transaction1() {
         time.add(Calendar.MINUTE, 1);
-        time2 = (GregorianCalendar) time.clone();
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getRequestCardIssue()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
-        transactionData.getClientDevice().getAndroid().setIpAddress("178.219.186.12");
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         getIC().locateAlerts()
                 .openFirst()
@@ -177,7 +138,7 @@ public class RDAK extends RSHBCaseTest {
         assertTableField("Идентификатор клиента:", clientIds.get(0));
         assertTableField("Status:", "РДАК выполнен");
         assertTableField("Статус РДАК:", "WRONG");
-        assertTableField("status:", "Fishily");
+        assertTableField("status:", "Подозрительная");
     }
 
     @Test(
@@ -186,26 +147,11 @@ public class RDAK extends RSHBCaseTest {
     )
     public void transaction2() {
         time.add(Calendar.MINUTE, 1);
-        time2 = (GregorianCalendar) time.clone();
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getRequestCardIssue()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
-        transactionData.getClientDevice().getAndroid().setIpAddress("178.219.186.12");
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         getIC().locateAlerts()
                 .openFirst()
@@ -216,7 +162,7 @@ public class RDAK extends RSHBCaseTest {
         assertTableField("Идентификатор клиента:", clientIds.get(0));
         assertTableField("Status:", "РДАК выполнен");
         assertTableField("Статус РДАК:", "NOT_CONFIRMED_CLIENT");
-        assertTableField("status:", "Fishily");
+        assertTableField("status:", "Подозрительная");
     }
 
     @Test(
@@ -225,26 +171,11 @@ public class RDAK extends RSHBCaseTest {
     )
     public void transaction3() {
         time.add(Calendar.MINUTE, 1);
-        time2 = (GregorianCalendar) time.clone();
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getRequestCardIssue()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
-        transactionData.getClientDevice().getAndroid().setIpAddress("178.219.186.12");
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         getIC().locateAlerts()
                 .openFirst()
@@ -255,7 +186,7 @@ public class RDAK extends RSHBCaseTest {
         assertTableField("Идентификатор клиента:", clientIds.get(0));
         assertTableField("Status:", "На выполнении РДАК");
         assertTableField("Статус РДАК:", "CLIENT_CALL");
-        assertTableField("status:", "Fishily");
+        assertTableField("status:", "Подозрительная");
 
         getIC().locateAlerts()
                 .openFirst()
@@ -266,7 +197,7 @@ public class RDAK extends RSHBCaseTest {
         assertTableField("Идентификатор клиента:", clientIds.get(0));
         assertTableField("Status:", "РДАК выполнен");
         assertTableField("Статус РДАК:", "UNKNOWN");
-        assertTableField("status:", "Fishily");
+        assertTableField("status:", "Подозрительная");
     }
 
     @Override
@@ -276,9 +207,23 @@ public class RDAK extends RSHBCaseTest {
 
     private Transaction getTransactionREQUEST_CARD_ISSUE() {
         Transaction transaction = getTransaction("testCases/Templates/REQUEST_CARD_ISSUE_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false)
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getRequestCardIssue()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .setIpAddress(IP_ADRESS);
         return transaction;
     }
 }

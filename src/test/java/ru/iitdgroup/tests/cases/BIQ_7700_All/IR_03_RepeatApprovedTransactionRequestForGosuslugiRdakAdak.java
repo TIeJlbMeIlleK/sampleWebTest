@@ -107,7 +107,7 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
     )
     public void addClients() {
         try {
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
 
@@ -196,77 +196,78 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
         sendAndAssert(transRequestForGosuslugiTrigg);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос в госуслуги» транзакция с совпадающими реквизитами");
     }
+//TODO к Типу транзакции "Запрос в Госуслуги" АДАК не применяется (в случае изменения, добавить нового клиента и запустить проверку ниже)
 
-    @Test(
-            description = "Отправить транзакцию №1 от клиента №1 спустя 5 мин от транзакции №1, " +
-                    "тип транзакции Запрос в госуслуги, сумма 500, остаток на счету 10000р, реквизиты совпадают с транзакцией №1." +
-                    "Перейти  в АЛЕРТ по транзакции №1:" +
-                    "- Подтвердить правомочно по АДАК  - выполнив Action \"выполнить АДАК\", и ответив на АДАК верно." +
-                    "После выполнения АДАК, статус АДАК = SUCCESS." +
-                    "- выполнить Action  - \"Подтвердить\" для перехода Алерта и Транзакции в статус Обработано, резолюция Правомочно",
-            dependsOnMethods = "transOpenDeposit"
-    )
-
-    public void transBetweenADAK() {
-        Transaction transRequestForGosuslugi = getTransferRequestForGosuslugi();
-        TransactionDataType transactionDataRequestForGosuslugi = transRequestForGosuslugi.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionDataRequestForGosuslugi
-                .getClientIds().withDboId(clientIds.get(1));
-        transaction_id = transactionDataRequestForGosuslugi.getTransactionId();
-        version = transactionDataRequestForGosuslugi.getVersion();
-        sendAndAssert(transRequestForGosuslugi);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос в госуслуги», условия правила не выполнены");
-
-        getIC().locateAlerts().openFirst().action("Выполнить АДАК").sleep(1);
-        assertTableField("Status:", "Ожидаю выполнения АДАК");
-
-        Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
-        transactionADAK
-                .withTransactionId(transaction_id)
-                .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer(firstNameAdak);
-        sendAndAssert(adak);
-
-        getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
-        assertTableField("Resolution:", "Правомочно");
-        assertTableField("Status:", "Обработано");
-        assertTableField("Идентификатор клиента:", clientIds.get(1));
-        assertTableField("Транзакция:", transaction_id);
-        assertTableField("Статус АДАК:", "SUCCESS");
-
-        time.add(Calendar.SECOND, 20);
-        Transaction transRequestForGosuslugiType = getTransferRequestForGosuslugi();
-        TransactionDataType transactionDataRequestForGosuslugiType = transRequestForGosuslugiType.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionDataRequestForGosuslugiType
-                .getRequestForGosuslugi()
-                .withGosuslugiRequestType(10);
-        transactionDataRequestForGosuslugiType
-                .getClientIds().withDboId(clientIds.get(1));
-        sendAndAssert(transRequestForGosuslugiType);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос в госуслуги» условия правила не выполнены");
-
-        time.add(Calendar.SECOND, 20);
-        Transaction transRequestForGosuslugiTrigg = getTransferRequestForGosuslugi();
-        TransactionDataType transactionDataRequestForGosuslugiTrigg = transRequestForGosuslugiTrigg.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        sendAndAssert(transRequestForGosuslugiTrigg);
-        transactionDataRequestForGosuslugiTrigg
-                .getClientIds()
-                .withDboId(clientIds.get(1));
-        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос в госуслуги» транзакция с совпадающими реквизитами");
-    }
+//    @Test(
+//            description = "Отправить транзакцию №1 от клиента №1 спустя 5 мин от транзакции №1, " +
+//                    "тип транзакции Запрос в госуслуги, реквизиты совпадают с транзакцией №1." +
+//                    "Перейти  в АЛЕРТ по транзакции №1:" +
+//                    "- Подтвердить правомочно по АДАК  - выполнив Action \"выполнить АДАК\", и ответив на АДАК верно." +
+//                    "После выполнения АДАК, статус АДАК = SUCCESS." +
+//                    "- выполнить Action  - \"Подтвердить\" для перехода Алерта и Транзакции в статус Обработано, резолюция Правомочно",
+//            dependsOnMethods = "transOpenDeposit"
+//    )
+//
+//    public void transBetweenADAK() {
+//        Transaction transRequestForGosuslugi = getTransferRequestForGosuslugi();
+//        TransactionDataType transactionDataRequestForGosuslugi = transRequestForGosuslugi.getData().getTransactionData()
+//                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+//        transactionDataRequestForGosuslugi
+//                .getClientIds().withDboId(clientIds.get(1));
+//        transaction_id = transactionDataRequestForGosuslugi.getTransactionId();
+//        version = transactionDataRequestForGosuslugi.getVersion();
+//        sendAndAssert(transRequestForGosuslugi);
+//        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос в госуслуги», условия правила не выполнены");
+//
+//        getIC().locateAlerts().openFirst().action("Выполнить АДАК").sleep(1);
+//        assertTableField("Status:", "Ожидаю выполнения АДАК");
+//
+//        Transaction adak = getAdak();
+//        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+//                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+//                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+//        transactionADAK
+//                .getClientIds()
+//                .withDboId(clientIds.get(1))
+//                .withLoginHash(clientIds.get(1))
+//                .withCifId(clientIds.get(1))
+//                .withExpertSystemId(clientIds.get(1));
+//        transactionADAK
+//                .withTransactionId(transaction_id)
+//                .withVersion(version);
+//        transactionADAK.getAdditionalAnswer()
+//                .withAdditionalAuthAnswer(firstNameAdak);
+//        sendAndAssert(adak);
+//
+//        getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
+//        assertTableField("Resolution:", "Правомочно");
+//        assertTableField("Status:", "Обработано");
+//        assertTableField("Идентификатор клиента:", clientIds.get(1));
+//        assertTableField("Транзакция:", transaction_id);
+//        assertTableField("Статус АДАК:", "SUCCESS");
+//
+//        time.add(Calendar.SECOND, 20);
+//        Transaction transRequestForGosuslugiType = getTransferRequestForGosuslugi();
+//        TransactionDataType transactionDataRequestForGosuslugiType = transRequestForGosuslugiType.getData().getTransactionData()
+//                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+//        transactionDataRequestForGosuslugiType
+//                .getRequestForGosuslugi()
+//                .withGosuslugiRequestType(10);
+//        transactionDataRequestForGosuslugiType
+//                .getClientIds().withDboId(clientIds.get(1));
+//        sendAndAssert(transRequestForGosuslugiType);
+//        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос в госуслуги» условия правила не выполнены");
+//
+//        time.add(Calendar.SECOND, 20);
+//        Transaction transRequestForGosuslugiTrigg = getTransferRequestForGosuslugi();
+//        TransactionDataType transactionDataRequestForGosuslugiTrigg = transRequestForGosuslugiTrigg.getData().getTransactionData()
+//                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+//        sendAndAssert(transRequestForGosuslugiTrigg);
+//        transactionDataRequestForGosuslugiTrigg
+//                .getClientIds()
+//                .withDboId(clientIds.get(1));
+//        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос в госуслуги» транзакция с совпадающими реквизитами");
+//    }
 
     @Override
     protected String getRuleName() {
