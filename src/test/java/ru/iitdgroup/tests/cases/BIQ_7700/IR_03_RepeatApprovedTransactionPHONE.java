@@ -16,12 +16,10 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class IR_03_RepeatApprovedTransactionPHONE extends RSHBCaseTest {
 
-
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
-    private static final String RULE_NAME1 = "R01_GR_20_NewPayee";
+    private static final String RULE_NAME_ALERT = "R01_GR_20_NewPayee";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
 
     private static String TRANSACTION_ID;
@@ -41,7 +39,7 @@ public class IR_03_RepeatApprovedTransactionPHONE extends RSHBCaseTest {
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .selectRule(RULE_NAME1)
+                .selectRule(RULE_NAME_ALERT)
                 .activate();
         getIC().locateRules()
                 .openRecord(RULE_NAME)

@@ -1,7 +1,6 @@
 package ru.iitdgroup.tests.cases.BIQ_7700;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -12,6 +11,7 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -20,19 +20,18 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IR_03_RepeatApprovedTransactionADAK extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
-    private static final String RULE_NAME1 = "R01_GR_20_NewPayee";
+    private static final String RULE_NAME_ALERT = "R01_GR_20_NewPayee";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
     private static final String REFERENCE_TABLE1 = "(Policy_parameters) Параметры обработки событий";
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
 
-    private static String TRANSACTION_ID;
-
+    private String transaction_id;
+    private Long version;
+    private static final String firstNameAdak = "Светлана";
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Светлана", "Зыкова", "Ильинична"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private final String[][] names = {{firstNameAdak, "Зыкова", "Ильинична"}};
 
     @Test(
             description = "Включаем правило"
@@ -42,7 +41,7 @@ public class IR_03_RepeatApprovedTransactionADAK extends RSHBCaseTest {
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .selectRule(RULE_NAME1)
+                .selectRule(RULE_NAME_ALERT)
                 .activate();
         getIC().locateRules()
                 .openRecord(RULE_NAME)
@@ -127,8 +126,10 @@ public class IR_03_RepeatApprovedTransactionADAK extends RSHBCaseTest {
                 .match("Код значения", "AUTHORISATION_QUESTION_CODE")
                 .click()
                 .edit()
-                .fillInputText("Значение:", "200000")
+                .fillInputText("Значение:", "2000000")
                 .save();
+        //TODO должен быть включен только один выпрос, остальные деактивированы, иначе не сработает АДАК
+
         getIC().locateTable(REFERENCE_TABLE2)
                 .findRowsBy()
                 .match("Текст вопроса клиенту", "Ваше имя")
@@ -153,12 +154,12 @@ public class IR_03_RepeatApprovedTransactionADAK extends RSHBCaseTest {
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -183,28 +184,25 @@ public class IR_03_RepeatApprovedTransactionADAK extends RSHBCaseTest {
     )
 
     public void transactionPHONE1() {
+        time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransactionPHONE();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
-                .getPhoneNumberTransfer()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        TRANSACTION_ID = transactionData.getTransactionId();
+        transaction_id = transactionData.getTransactionId();
+        version = transactionData.getVersion();
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод по номеру телефона», условия правила не выполнены");
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
         assertTableField("Resolution:", "Правомочно");
         assertTableField("Идентификатор клиента:", clientIds.get(0));
-        assertTableField("Транзакция:", TRANSACTION_ID);
+        assertTableField("Транзакция:", transaction_id);
     }
 
     @Test(
-            description = "Отправить транзакцию №2 от клиента №1 спустя 5 мин от транзакции №1, " +
+            description = "Отправить транзакцию №2 от клиента №1 спустя 3 мин от транзакции №1, " +
                     "тип транзакции PHONE_NUMBER_TRANSFER, сумма 500, остаток на счету 10000р, реквизиты совпадают с транзакцией №1." +
                     "Перейти  в АЛЕРТ по транзакции №2:" +
                     "- Подтвердить правомочно по АДАК  - выполнив Action \"выполнить АДАК\", и ответив на АДАК верно." +
@@ -214,66 +212,59 @@ public class IR_03_RepeatApprovedTransactionADAK extends RSHBCaseTest {
     )
 
     public void transactionPHONE2() {
+        time.add(Calendar.MINUTE, 3);
         Transaction transaction = getTransactionPHONE();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
-                .getPhoneNumberTransfer()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        TRANSACTION_ID = transactionData.getTransactionId();
+        transaction_id = transactionData.getTransactionId();
+        version = transactionData.getVersion();
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод по номеру телефона» условия правила не выполнены");
 
-        getIC().locateAlerts().openFirst().action("Выполнить АДАК").sleep(1);
+        getIC().locateAlerts()
+                .openFirst()
+                .action("Выполнить АДАК")
+                .sleep(1);
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
+        time.add(Calendar.SECOND, 10);
         Transaction adak = getAdak();
         TransactionDataType transactionADAK = adak.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionADAK
-                .withTransactionId(TRANSACTION_ID);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Светлана");
+                .withTransactionId(transaction_id)
+                .withVersion(version);
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
         assertTableField("Resolution:", "Правомочно");
         assertTableField("Status:", "Обработано");
         assertTableField("Идентификатор клиента:", clientIds.get(0));
-        assertTableField("Транзакция:", TRANSACTION_ID);
+        assertTableField("Транзакция:", transaction_id);
         assertTableField("Статус АДАК:", "SUCCESS");
     }
 
     @Test(
-            description = "Отправить транзакцию №3 от клиента №1 спустя 5 мин от транзакции №1, " +
+            description = "Отправить транзакцию №3 от клиента №1 спустя 3 мин от транзакции №1, " +
                     "тип транзакции PHONE_NUMBER_TRANSFER, сумма 500р, остаток на счету 9000р, реквизиты совпадают с транзакцией №1 ",
             dependsOnMethods = "transactionPHONE2"
     )
 
     public void transactionPHONE3() {
+        time.add(Calendar.MINUTE, 3);
         Transaction transaction = getTransactionPHONE();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(9000))
-                .getPhoneNumberTransfer()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withInitialSourceAmount(BigDecimal.valueOf(9000));
         sendAndAssert(transaction);
-
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод по номеру телефона» транзакция с совпадающими реквизитами");
     }
-
 
     @Test(
             description = "Отправить транзакцию №4 от клиента №1, " +
@@ -283,28 +274,28 @@ public class IR_03_RepeatApprovedTransactionADAK extends RSHBCaseTest {
     )
 
     public void transactionQR1() {
+        time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransactionQR();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        TRANSACTION_ID = transactionData.getTransactionId();
+        transaction_id = transactionData.getTransactionId();
+        version = transactionData.getVersion();
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Платеж по QR-коду через СБП», условия правила не выполнены");
 
-        getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
+        getIC().locateAlerts()
+                .openFirst()
+                .action("Подтвердить")
+                .sleep(1);
         assertTableField("Resolution:", "Правомочно");
         assertTableField("Идентификатор клиента:", clientIds.get(0));
-        assertTableField("Транзакция:", TRANSACTION_ID);
+        assertTableField("Транзакция:", transaction_id);
     }
 
     @Test(
-            description = "Отправить транзакцию №5 от клиента №1 спустя 5 мин от транзакции №4, " +
+            description = "Отправить транзакцию №5 от клиента №1 спустя 3 мин от транзакции №4, " +
                     "тип транзакции Платеж по QR-коду через СБП, сумма 500, остаток на счету 10000р, реквизиты совпадают с транзакцией №4." +
                     "Перейти  в АЛЕРТ по транзакции №2:" +
                     "- Подтвердить правомочно по АДАК  - выполнив Action \"выполнить АДАК\", и ответив на АДАК верно." +
@@ -314,41 +305,35 @@ public class IR_03_RepeatApprovedTransactionADAK extends RSHBCaseTest {
     )
 
     public void transactionQR2() {
+        time.add(Calendar.MINUTE, 3);
         Transaction transaction = getTransactionQR();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        TRANSACTION_ID = transactionData.getTransactionId();
+        transaction_id = transactionData.getTransactionId();
+        version = transactionData.getVersion();
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Платеж по QR-коду через СБП» условия правила не выполнены");
 
         getIC().locateAlerts().openFirst().action("Выполнить АДАК").sleep(1);
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
+        time.add(Calendar.SECOND, 10);
         Transaction adak = getAdak();
         TransactionDataType transactionADAK = adak.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionADAK
-                .withTransactionId(TRANSACTION_ID);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Светлана");
+                .withTransactionId(transaction_id)
+                .withVersion(version);
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
         assertTableField("Resolution:", "Правомочно");
         assertTableField("Status:", "Обработано");
         assertTableField("Идентификатор клиента:", clientIds.get(0));
-        assertTableField("Транзакция:", TRANSACTION_ID);
+        assertTableField("Транзакция:", transaction_id);
         assertTableField("Статус АДАК:", "SUCCESS");
     }
 
@@ -359,16 +344,14 @@ public class IR_03_RepeatApprovedTransactionADAK extends RSHBCaseTest {
     )
 
     public void transactionQR3() {
+        time.add(Calendar.MINUTE, 3);
         Transaction transaction = getTransactionQR();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(9000))
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withInitialSourceAmount(BigDecimal.valueOf(9000));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Платеж по QR-коду через СБП» транзакция с совпадающими реквизитами");
     }
@@ -381,24 +364,21 @@ public class IR_03_RepeatApprovedTransactionADAK extends RSHBCaseTest {
     )
 
     public void transactionCARD1() {
+        time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransactionCARD();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
-                .getCardTransfer()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        TRANSACTION_ID = transactionData.getTransactionId();
+        transaction_id = transactionData.getTransactionId();
+        version = transactionData.getVersion();
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод на карту другому лицу», условия правила не выполнены");
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
         assertTableField("Resolution:", "Правомочно");
         assertTableField("Идентификатор клиента:", clientIds.get(0));
-        assertTableField("Транзакция:", TRANSACTION_ID);
+        assertTableField("Транзакция:", transaction_id);
     }
 
     @Test(
@@ -412,41 +392,38 @@ public class IR_03_RepeatApprovedTransactionADAK extends RSHBCaseTest {
     )
 
     public void transactionCARD2() {
+        time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransactionCARD();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
-                .getCardTransfer()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        TRANSACTION_ID = transactionData.getTransactionId();
+        transaction_id = transactionData.getTransactionId();
+        version = transactionData.getVersion();
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод на карту другому лицу» условия правила не выполнены");
 
-        getIC().locateAlerts().openFirst().action("Выполнить АДАК").sleep(1);
+        getIC().locateAlerts()
+                .openFirst()
+                .action("Выполнить АДАК")
+                .sleep(1);
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
+        time.add(Calendar.SECOND, 10);
         Transaction adak = getAdak();
         TransactionDataType transactionADAK = adak.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionADAK
-                .withTransactionId(TRANSACTION_ID);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Светлана");
+                .withTransactionId(transaction_id)
+                .withVersion(version);
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
         assertTableField("Resolution:", "Правомочно");
         assertTableField("Status:", "Обработано");
         assertTableField("Идентификатор клиента:", clientIds.get(0));
-        assertTableField("Транзакция:", TRANSACTION_ID);
+        assertTableField("Транзакция:", transaction_id);
         assertTableField("Статус АДАК:", "SUCCESS");
     }
 
@@ -457,51 +434,94 @@ public class IR_03_RepeatApprovedTransactionADAK extends RSHBCaseTest {
     )
 
     public void transactionCARD3() {
+        time.add(Calendar.MINUTE, 5);
         Transaction transaction = getTransactionCARD();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(9000))
-                .getCardTransfer()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withInitialSourceAmount(BigDecimal.valueOf(9000));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод на карту другому лицу» транзакция с совпадающими реквизитами");
     }
 
-        @Override
+    @Override
     protected String getRuleName() {
         return RULE_NAME;
     }
 
     private Transaction getTransactionQR() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_IOS.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .withInitialSourceAmount(BigDecimal.valueOf(10000))
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         return transaction;
     }
 
     private Transaction getTransactionPHONE() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER_IOS.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .withInitialSourceAmount(BigDecimal.valueOf(10000))
+                .getPhoneNumberTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         return transaction;
     }
 
     private Transaction getTransactionCARD() {
         Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_MOBILE.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .withInitialSourceAmount(BigDecimal.valueOf(10000))
+                .getCardTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         return transaction;
     }
 
     private Transaction getAdak() {
         Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
+        adak.getData()
+                .getServerInfo()
+                .withPort(8050);
+        transactionADAK
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(0))
+                .withLoginHash(clientIds.get(0))
+                .withCifId(clientIds.get(0))
+                .withExpertSystemId(clientIds.get(0));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
         return adak;
     }
 }

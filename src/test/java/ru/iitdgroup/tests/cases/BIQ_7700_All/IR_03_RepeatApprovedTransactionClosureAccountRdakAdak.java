@@ -26,14 +26,14 @@ public class IR_03_RepeatApprovedTransactionClosureAccountRdakAdak extends RSHBC
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private final String productName = "Текущий счет";
-    private final String sourceProduct = "40802020202087879898";
-    private final String destinationProduct = "40802020202032323636";
-    private final String ipAddress = "95.73.149.81";
+    private static final String productName = "Текущий счет";
+    private static final String sourceProduct = "40802020202087879898";
+    private static final String destinationProduct = "40802020202032323636";
+    private static final String ipAddress = "95.73.149.81";
     private String transaction_id;
     private Long version;
 
-    private String[][] names = {{"Илья", "Зимин", "Семенович"}, {"Зинаида", "Кудрявцева", "Григорьевна"}};
+    private final String[][] names = {{"Илья", "Зимин", "Семенович"}, {"Зинаида", "Кудрявцева", "Григорьевна"}};
 
     @Test(
             description = "Включаем правило"

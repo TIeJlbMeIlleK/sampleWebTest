@@ -24,13 +24,13 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
 
-    private final String serviceName = "Мегафон по номеру телефона";
-    private final String providerName = "Мегафон";
+    private static final String serviceName = "Мегафон по номеру телефона";
+    private static final String providerName = "Мегафон";
     private final String serviceKind = "222";
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Кристина", "Ольгина", "Андреевна"}, {"Кира", "Хешина", "Григорьевна"}};
+    private final String[][] names = {{"Кристина", "Ольгина", "Андреевна"}, {"Кира", "Хешина", "Григорьевна"}};
     private String transaction_id;
     private Long version;
 

@@ -18,9 +18,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
-
 
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String RULE_NAME1 = "R01_GR_20_NewPayee";
@@ -31,7 +29,7 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
     private final GregorianCalendar time = new GregorianCalendar();
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
+    private final String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
 
     @Test(
             description = "Включаем правило"
@@ -83,19 +81,17 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -114,35 +110,27 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
 
     @Test(
             description = "Провести транзакцию №1 и №1.1 для клиента №1, тип транзакции PHONE_NUMBER_TRANSFER и " +
-                    "CARD_TRANSFER соответственно, сумма - 300р, остаток - 10000р; " +
+                    "CARD_TRANSFER соответственно, сумма - 500р, остаток - 10000р; " +
                     "(Проверка на не совпадение Типа транзакции с условиями правила)",
             dependsOnMethods = "addClients"
     )
 
     public void transaction1() {
+        time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransactionPHONE();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
-                .getPhoneNumberTransfer()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
 
+        time.add(Calendar.MINUTE, -20);
         Transaction transaction1 = getTransactionCARD();
-        TransactionDataType transactionData1 = transaction1.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData1 = transaction1.getData().getTransactionData();
         transactionData1
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData1
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
-                .getCardTransfer()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction1);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
     }
@@ -156,23 +144,19 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
     )
 
     public void transaction2() {
+        time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransactionQR();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
         TRANSACTION_ID = transactionData.getTransactionId();
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Платеж по QR-коду через СБП», условия правила не выполнены");
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
-        assertTableField("Resolution:","Правомочно");
-        assertTableField("Идентификатор клиента:",clientIds.get(0));
+        assertTableField("Resolution:", "Правомочно");
+        assertTableField("Идентификатор клиента:", clientIds.get(0));
         assertTableField("Транзакция:", TRANSACTION_ID);
     }
 
@@ -183,16 +167,12 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
     )
 
     public void transaction3() {
+        time.add(Calendar.SECOND, 10);
         Transaction transaction = getTransactionQR();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Платеж по QR-коду через СБП» транзакция с совпадающими реквизитами");
     }
@@ -204,14 +184,13 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
     )
 
     public void transaction4() {
+        time.add(Calendar.SECOND, 10);
         Transaction transaction = getTransactionQR();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getPaymentC2B()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transaction);
@@ -226,8 +205,28 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
     )
 
     public void transaction5() {
+        time.add(Calendar.SECOND, 10);
         Transaction transaction = getTransactionQR();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Платеж по QR-коду через СБП» условия правила не выполнены");
+    }
+
+    @Override
+    protected String getRuleName() {
+        return RULE_NAME;
+    }
+
+    private Transaction getTransactionQR() {
+        Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_IOS.xml");
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(false);
         transactionData
                 .getClientIds()
@@ -236,36 +235,42 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
                 .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getPaymentC2B()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Платеж по QR-коду через СБП» условия правила не выполнены");
-    }
-
-        @Override
-    protected String getRuleName() {
-        return RULE_NAME;
-    }
-
-    private Transaction getTransactionQR() {
-        Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_IOS.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
     }
 
     private Transaction getTransactionPHONE() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER_IOS.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .withInitialSourceAmount(BigDecimal.valueOf(10000))
+                .getPhoneNumberTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         return transaction;
     }
 
     private Transaction getTransactionCARD() {
         Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_MOBILE.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withRegular(false);
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .withInitialSourceAmount(BigDecimal.valueOf(10000))
+                .getCardTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         return transaction;
     }
 }
