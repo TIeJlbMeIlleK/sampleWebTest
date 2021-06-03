@@ -522,6 +522,27 @@ public abstract class RSHBCaseTest {
         }
     }
 
+    protected void assertPaymentMaxAmountVersionDoc(String clientId, String documentVersion, String transactionId, String txType, BigDecimal amount) {
+        try {
+            String[][] result = getDatabase()
+                    .select()
+                    .field("CLIENT_DBO_ID")
+                    .field("MAX_AMOUNT")
+                    .from("PAYMENT_MAX_AMOUNT")
+                    .with("object_type", "=", "'" + txType + "'")
+                    .with("DOCUMENT_VERSION", "=", documentVersion)
+                    .with("TRANSACTION_ID", "=", transactionId)
+                    .with("CLIENT_DBO_ID", "=", clientId)
+                    .with("MAX_AMOUNT", "=", amount.toString())
+                    .sort("CLIENT_DBO_ID", true)
+                    .setFormula("AND")
+                    .get();
+            assertEquals(1, result.length);
+        } catch (SQLException e) {
+            fail(e.getMessage());
+        }
+    }
+
     protected void assertTableField(String fieldName, String expectedValue) {
         assertEquals(
                 expectedValue,

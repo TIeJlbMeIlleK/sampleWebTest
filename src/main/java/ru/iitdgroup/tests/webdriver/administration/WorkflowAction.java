@@ -166,6 +166,23 @@ public class WorkflowAction extends AbstractEdit<WorkflowAction> {
         return getSelf();
     }
 
+
+    /**
+     * Удаляет поля в WF Клиента в Field Mappings
+     *
+     * @return
+     */
+
+    public WorkflowAction clearFieldMappings(){
+        if (driver.findElementsByXPath("//*[text()='No Fields Mapping Defined']").size() > 0){
+            return getSelf();
+        }else {
+            driver.findElementByXPath("//*[@id='fieldsMappingTbl:innerTbl']/table/tbody/tr/td/table/tbody/tr[1]/th[1]/div/input").click();
+            driver.findElementByXPath("//*[@id='mapFieldsBtnDelete']").click();
+        }
+        return getSelf();
+    }
+
     /**
      * Устанавливает или снимает галочку Send VES feedback в таблице Custom External APIs
      *

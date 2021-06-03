@@ -77,7 +77,7 @@ public abstract class AbstractView<S> {
      */
     public WebElement mark(String xpath) {
         WebElement elem = driver.findElementByXPath(xpath);
-        return mark( elem);
+        return mark(elem);
     }
 
     /**
@@ -93,40 +93,39 @@ public abstract class AbstractView<S> {
         return elem;
     }
 
-    public AbstractView<S> getActions(){
-        getDriver()
-                .findElementByXPath("//*[@id=\"moduleDetailsActionsToolbar\"]/div/table/tbody/tr/td[5]/table/tbody/tr/td/span/img").click();
+    public AbstractView<S> getActions() {
+        getDriver().findElementByXPath("//*[@id=\"moduleDetailsActionsToolbar\"]/div/table/tbody/tr/td[5]/table/tbody/tr/td/span/img").click();
         return this;
     }
 
-    public AbstractView<S> getActionsForClient(){
-        getDriver()
-                .findElementByXPath("//span[text()='Actions']").click();
+    public AbstractView<S> getActionsForClient() {
+        getDriver().findElementByXPath("//span[text()='Actions']").click();
         return this;
     }
 
-    public AbstractView<S> doAction(String text) {
-        getDriver()
-                .findElementByXPath("//*[@id=\"qtip-0-content\"]/a[text()='"+text+"']")
-                .click();
-        return this;
-    }
-
-    public AbstractView<S> approved() {
-        getDriver()
-                .findElementByXPath("/html/body/div[16]/div[3]/div/button[2]/span")
-                .click();
+    public AbstractView<S> getActionsClient(String text) {
+        getDriver().findElementByXPath("//span[text()='Actions']").click();
+        getDriver().findElementByXPath("//*[@id=\"qtip-0-content\"]/a[text()='" + text + "']").click();
+        getDriver().findElementByXPath("/html/body/div[16]/div[3]/div/button[2]/span").click();
         sleep(2);
         return this;
     }
 
-    public AbstractView<S>  refreshTab() {
-        getDriver()
-                .findElementByXPath("//img[@title='Refresh']")
-                .click();
+    public AbstractView<S> doAction(String text) {
+        getDriver().findElementByXPath("//*[@id=\"qtip-0-content\"]/a[text()='" + text + "']").click();
         return this;
     }
 
+    public AbstractView<S> approved() {
+        getDriver().findElementByXPath("/html/body/div[16]/div[3]/div/button[2]/span").click();
+        sleep(2);
+        return this;
+    }
+
+    public AbstractView<S> refreshTab() {
+        getDriver().findElementByXPath("//img[@title='Refresh']").click();
+        return this;
+    }
 
 
 }
