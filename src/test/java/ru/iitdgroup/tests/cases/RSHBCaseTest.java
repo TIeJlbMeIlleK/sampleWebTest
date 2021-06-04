@@ -4,7 +4,9 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteMessaging;
 import org.apache.ignite.cluster.ClusterGroup;
 import org.junit.Assert;
+import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.WebElement;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -172,12 +174,7 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_RULE_APPLY = "Найдены необработаные события для этого клиента";
     protected static final String RESULT_YOUNG_MAN = "Заявка на выпуск карты(цифровая , 15 лет)";
     protected static final String RESULT_OLD_MAN = "Тип транзакции «Заявка на выпуск карты» (тип карты «виртуальная», возраст клиента больше 18)";
-    protected static final  String RESULT_TRIGGERED = "Количество однотипных транзакций больше допустимой длины серии";
-
-
-
-
-
+    protected static final String RESULT_TRIGGERED = "Количество однотипных транзакций больше допустимой длины серии";
 
 
     private DBOAntiFraudWS ws;
@@ -213,9 +210,9 @@ public abstract class RSHBCaseTest {
 
     protected IgniteMessaging getMsg() {
         ClusterGroup clients = ignite
-            .cluster()
-            .forClients()
-            .forAttribute("ROLE", "clientNode");
+                .cluster()
+                .forClients()
+                .forAttribute("ROLE", "clientNode");
         return ignite.message(clients);
     }
 
@@ -268,7 +265,7 @@ public abstract class RSHBCaseTest {
                     .sort("id", false)
                     .limit(2)
                     .get();
-            return new String[] {id[0][0], id[1][0]};
+            return new String[]{id[0][0], id[1][0]};
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -278,6 +275,7 @@ public abstract class RSHBCaseTest {
 
     /**
      * Возвращает поцизию (широта, долгота) клиента
+     *
      * @param DBO_Id dbo-id клиента
      * @return массив их двух чисел (latitude, longitude)
      */
@@ -303,7 +301,7 @@ public abstract class RSHBCaseTest {
                     .get();
             String latitude = result[0][0].replace('.', ',');
             String longitude = result[0][1].replace('.', ',');
-            return new String[] {latitude, longitude};
+            return new String[]{latitude, longitude};
 
         } catch (InterruptedException | SQLException e) {
             e.printStackTrace();
@@ -366,6 +364,7 @@ public abstract class RSHBCaseTest {
 
     /**
      * Возвращает информацию о последнем отправленном СМС
+     *
      * @return массив:
      * [id,
      * JMS_CORRELATION_ID,
@@ -378,7 +377,7 @@ public abstract class RSHBCaseTest {
      */
     protected String[] getLastSentSMSInformation() {
         try {
-             String[][] results = getDatabase()
+            String[][] results = getDatabase()
                     .select()
                     .field("id")
                     .field("JMS_CORRELATION_ID")
@@ -392,7 +391,7 @@ public abstract class RSHBCaseTest {
                     .sort("MESSAGE_DATE", false)
                     .limit(1)
                     .get();
-             return results[0];
+            return results[0];
         } catch (SQLException e) {
             e.printStackTrace();
             throw new IllegalStateException(e);
@@ -431,11 +430,12 @@ public abstract class RSHBCaseTest {
 
     /**
      * Возвращает значение поля fieldName из таблицы tableName с последним (максимальным) id
+     *
      * @param tableName название таблицы
      * @param fieldName название поля
      * @return пара (value,id), где value - значение поля fieldName, id - последний id в таблице, которому соответствует value
      */
-    protected String[] getFieldWithLastId(String tableName, String fieldName){
+    protected String[] getFieldWithLastId(String tableName, String fieldName) {
         try {
             String[][] result = getDatabase()
                     .select()
@@ -451,8 +451,6 @@ public abstract class RSHBCaseTest {
             throw new IllegalStateException(e);
         }
     }
-
-
 
     protected void assertClientEmailApply(String dboID, String email) {
         try {
@@ -559,7 +557,7 @@ public abstract class RSHBCaseTest {
                         .getText());
     }
 
-    protected String copyThisLine(String fieldName){
+    protected String copyThisLine(String fieldName) {
         String result = String.format("//span[text()='%s']/../following::td", fieldName);
         return getIC().getDriver().findElementByXPath(result).getText();
     }

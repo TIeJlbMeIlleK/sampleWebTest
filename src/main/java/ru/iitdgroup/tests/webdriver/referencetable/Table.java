@@ -1,5 +1,6 @@
 package ru.iitdgroup.tests.webdriver.referencetable;
 
+import org.junit.Assert;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -165,6 +166,13 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
         } catch (NoSuchElementException e) { // таблица пустая
         }
         return this;
+    }
+
+    /**
+     * Проверяет справочник, что он пуст и имеет строку 'No records were found.'
+     */
+    public void tableNoRecords() {
+        Assert.assertTrue(driver.findElementsByXPath("//*[text()='No records were found.']").size() > 0);
     }
 
     /**

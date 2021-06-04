@@ -35,7 +35,7 @@
 				<ns4:BIK>442301977</ns4:BIK>
 				<ns4:CorrespondentAccountNumber>30101810422023601968</ns4:CorrespondentAccountNumber>
 			</ns4:PayeeBankProps>
-			<ns4:OperationDescription>На расходы 4276-0708 0081 3281</ns4:OperationDescription>
+			<ns4:OperationDescription></ns4:OperationDescription>
 			<ns4:CommissionAmount>5</ns4:CommissionAmount>
 			<ns4:IsCommunalPayment>false</ns4:IsCommunalPayment>
 		</ns4:OuterTransfer>
