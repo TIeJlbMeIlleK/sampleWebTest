@@ -44,28 +44,28 @@ public class IR_03_RepeatApprovedTransaction_CardTransfer extends RSHBCaseTest {
             description = "Включаем правило"
     )
     public void enableRules() {
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .editRule(RULE_NAME)
-//                .fillCheckBox("Active:", true)
-//                .fillCheckBox("АДАК выполнен:", false)
-//                .fillCheckBox("РДАК выполнен:", false)
-//                .fillCheckBox("Требовать совпадения остатка на счете:", false)
-//                .fillInputText("Длина серии:", "5")
-//                .fillInputText("Период серии в минутах:", "10")
-//                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
-//                .save()
-//                .detachWithoutRecording("Типы транзакций")
-//                .attachTransactionIR03("Типы транзакций", "Перевод на карту другому лицу")
-//                .sleep(10);
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillCheckBox("АДАК выполнен:", false)
+                .fillCheckBox("РДАК выполнен:", false)
+                .fillCheckBox("Требовать совпадения остатка на счете:", false)
+                .fillInputText("Длина серии:", "5")
+                .fillInputText("Период серии в минутах:", "10")
+                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
+                .save()
+                .detachWithoutRecording("Типы транзакций")
+                .attachTransactionIR03("Типы транзакций", "Перевод на карту другому лицу")
+                .sleep(10);
 
-//        getIC().locateTable(REFERENCE_TABLE)
-//                .deleteAll()
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
+        getIC().locateTable(REFERENCE_TABLE)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
     }
 
     @Test(

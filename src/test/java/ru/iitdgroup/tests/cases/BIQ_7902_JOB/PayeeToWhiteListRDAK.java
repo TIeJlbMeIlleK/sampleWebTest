@@ -11,12 +11,21 @@ import ru.iitdgroup.tests.webdriver.jobconfiguration.JobRunEdit;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class PayeeToWhiteList extends RSHBCaseTest {
+public class PayeeToWhiteListRDAK extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
+    private final GregorianCalendar time2 = new GregorianCalendar();
+    private GregorianCalendar cloneTime;
+    private GregorianCalendar cloneTime2;
+    private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    private final DateFormat format2 = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     private final List<String> clientIds = new ArrayList<>();
     private final String[][] names = {{"Степан", "Михалков", "Михайлович"}};
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
@@ -50,10 +59,10 @@ public class PayeeToWhiteList extends RSHBCaseTest {
 
         getIC().locateTable(REFERENCE_ITEM)
                 .findRowsBy()
-                .match("код значения", "CLAIM_PERIOD")
+                .match("код значения", "MANUAL_AUTHENTIFICATION_TIME_LIMIT")
                 .click()
                 .edit()
-                .fillInputText("Значение:", "0")
+                .fillInputText("Значение:", "1")
                 .save();
         getIC().locateTable(CONSOLIDATE_ACCOUNT)
                 .deleteAll()
@@ -103,12 +112,12 @@ public class PayeeToWhiteList extends RSHBCaseTest {
 
     @Test(
             description = "1. Провести транзакции: Оплата услуг, Перевод на карту, Перевод на счёт (в пользу юридического лица) " +
-                    "не на сводный счёт, Перевод на счёт, сводный, где ИНН 12 символов",
+                    "не на сводный счёт, Перевод на счёт, сводный, где ИНН 12 символов, Провести транзакцию любого типа",
             dependsOnMethods = "addClients"
     )
 
     public void transaction1() {
-        time.add(Calendar.MINUTE, -20);
+        time.add(Calendar.MINUTE, -5);
         Transaction transaction = getTransactionServicePayment();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
@@ -165,18 +174,38 @@ public class PayeeToWhiteList extends RSHBCaseTest {
                 .withPayeeName(payeeName);
         sendAndAssert(transactionPhone);
 
+        time2.add(Calendar.HOUR, -30);
+        cloneTime = (GregorianCalendar)time2.clone();
         getIC().locateTable(QUARANTINE_LIST)//проверка наличия записи в карантине
                 .refreshTable()
                 .findRowsBy()
                 .match("Имя получателя", "Иванов Иван Иванович")
                 .match("Номер банковского счета получателя", payeeAccount2)
                 .match("БИК банка получателя", bik)
+                .click().edit()
+                .fillInputText("Дата успешного РДАК:", format.format(time2.getTime()))
+                .save();
+        getIC().locateTable(QUARANTINE_LIST)//проверка наличия записи в карантине
+                .refreshTable()
+                .findRowsBy()
+                .match("Имя получателя", "Иванов Иван Иванович")
+                .match("Номер банковского счета получателя", payeeAccount2)
+                .match("БИК банка получателя", bik)
+                .match("Дата успешного РДАК", format.format(cloneTime.getTime())+ ":00")
                 .failIfNoRows();//проверка справочника на наличие записи
 
         getIC().locateTable(QUARANTINE_LIST)//проверка наличия записи в карантине
                 .refreshTable()
                 .findRowsBy()
                 .match("Номер Карты получателя", destinationCardNumber)
+                .click().edit()
+                .fillInputText("Дата успешного РДАК:", format.format(time2.getTime()))
+                .save();
+        getIC().locateTable(QUARANTINE_LIST)//проверка наличия записи в карантине
+                .refreshTable()
+                .findRowsBy()
+                .match("Номер Карты получателя", destinationCardNumber)
+                .match("Дата успешного РДАК", format.format(cloneTime.getTime())+ ":00")
                 .failIfNoRows();//проверка справочника на наличие записи
 
         getIC().locateTable(QUARANTINE_LIST)//проверка наличия записи в карантине
@@ -185,6 +214,16 @@ public class PayeeToWhiteList extends RSHBCaseTest {
                 .match("ИНН сводный", payeeINN)
                 .match("Номер банковского счета получателя", payeeAccountCons)
                 .match("БИК банка получателя", bik1)
+                .click().edit()
+                .fillInputText("Дата успешного РДАК:", format.format(time2.getTime()))
+                .save();
+        getIC().locateTable(QUARANTINE_LIST)//проверка наличия записи в карантине
+                .refreshTable()
+                .findRowsBy()
+                .match("ИНН сводный", payeeINN)
+                .match("Номер банковского счета получателя", payeeAccountCons)
+                .match("БИК банка получателя", bik1)
+                .match("Дата успешного РДАК", format.format(cloneTime.getTime())+ ":00")
                 .failIfNoRows();//проверка справочника на наличие записи
 
         getIC().locateTable(QUARANTINE_LIST)//проверка наличия записи в карантине
@@ -192,24 +231,50 @@ public class PayeeToWhiteList extends RSHBCaseTest {
                 .findRowsBy()
                 .match("Имя получателя", payeeName)
                 .match("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером", payeePhone)
+                .click().edit()
+                .fillInputText("Дата успешного РДАК:", format.format(time2.getTime()))
+                .save();
+        getIC().locateTable(QUARANTINE_LIST)//проверка наличия записи в карантине
+                .refreshTable()
+                .findRowsBy()
+                .match("Имя получателя", payeeName)
+                .match("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером", payeePhone)
+                .match("Дата успешного РДАК", format.format(cloneTime.getTime())+ ":00")
                 .failIfNoRows();//проверка справочника на наличие записи
 
+        time.add(Calendar.HOUR, -3);
+        cloneTime2 = (GregorianCalendar)time.clone();
         getIC().locateTable(QUARANTINE_LIST)//проверка наличия записи в карантине
                 .refreshTable()
                 .findRowsBy()
                 .match("Название сервис провайдера", serviceName)
                 .match("Наименование провайдера сервис услуги", providerName)
                 .match("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером", phoneNumber)
+                .click().edit()
+                .fillInputText("Дата успешного РДАК:", format.format(time.getTime()))
+                .save();
+        getIC().locateTable(QUARANTINE_LIST)//проверка наличия записи в карантине
+                .refreshTable()
+                .findRowsBy()
+                .match("Название сервис провайдера", serviceName)
+                .match("Наименование провайдера сервис услуги", providerName)
+                .match("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером", phoneNumber)
+                .match("Дата успешного РДАК", format.format(cloneTime2.getTime())+ ":00")
                 .failIfNoRows();//проверка справочника на наличие записи
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("AUTH_CHANGE_TIMESTAMP", Instant.now().minus(5, ChronoUnit.HOURS).toString());
+        map.put("AUTH_IMSI_DATE_CHANGE", Instant.now().minus(5, ChronoUnit.HOURS).toString());
+        getDatabase().updateWhere("Client", map, "WHERE [DBO_ID] = " + clientIds.get(0));
     }
 
     @Test(
-            description = "Запустить джоб PayeeToWhiteList и проверить карантин получателей",
+            description = "Запустить джоб PayeeToWhiteListRDAK и проверить карантин получателей",
             dependsOnMethods = "transaction1"
     )
     public void runJob() {
         getIC().locateJobs()
-                .selectJob("PayeeToWhiteList")
+                .selectJob("PayeeToWhiteListRDAK")
                 .waitSeconds(10)
                 .waitStatus(JobRunEdit.JobStatus.SUCCESS)
                 .run();
@@ -217,15 +282,11 @@ public class PayeeToWhiteList extends RSHBCaseTest {
 
         getIC().locateTable(QUARANTINE_LIST)//проверка наличия записи в карантине
                 .refreshTable()
-                .tableNoRecords();
-        System.out.println("Справочник «Карантин получателей» пуст");
-
-        getIC().locateTable(TRUSTED_RECIPIENTS)//проверка наличия записи в доверенных
-                .refreshTable()
                 .findRowsBy()
                 .match("Наименование провайдера сервис услуги", providerName)
-                .match("Наименование сервиса", serviceName)
+                .match("Название сервис провайдера", serviceName)
                 .match("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером", phoneNumber)
+                .match("Дата успешного РДАК", format.format(cloneTime2.getTime())+ ":00")
                 .failIfNoRows();//проверка справочника на наличие записи
 
         getIC().locateTable(TRUSTED_RECIPIENTS)//проверка наличия записи в доверенных

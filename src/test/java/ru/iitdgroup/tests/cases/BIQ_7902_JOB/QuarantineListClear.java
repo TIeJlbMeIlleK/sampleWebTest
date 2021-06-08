@@ -54,26 +54,26 @@ public class QuarantineListClear extends RSHBCaseTest {
             description = "Включить правило; остальные правила деактивированы"
     )
     public void enableRules() {
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .sleep(2)
-//                .selectRule(RULE_NAME)
-//                .activate()
-//                .sleep(10);
-//
-//        getIC().locateTable(REFERENCE_ITEM)
-//                .findRowsBy()
-//                .match("код значения", "CLAIM_PERIOD")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "0")
-//                .save();
-//        getIC().locateTable(CONSOLIDATE_ACCOUNT)
-//                .deleteAll()
-//                .addRecord()
-//                .fillInputText("Маска счёта:", "42756")
-//                .save();
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .sleep(2)
+                .selectRule(RULE_NAME)
+                .activate()
+                .sleep(10);
+
+        getIC().locateTable(REFERENCE_ITEM)
+                .findRowsBy()
+                .match("код значения", "CLAIM_PERIOD")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "0")
+                .save();
+        getIC().locateTable(CONSOLIDATE_ACCOUNT)
+                .deleteAll()
+                .addRecord()
+                .fillInputText("Маска счёта:", "42756")
+                .save();
 
         getIC().locateTable(QUARANTINE_LIST).deleteAll();
         getIC().locateTable(TRUSTED_RECIPIENTS).deleteAll();
