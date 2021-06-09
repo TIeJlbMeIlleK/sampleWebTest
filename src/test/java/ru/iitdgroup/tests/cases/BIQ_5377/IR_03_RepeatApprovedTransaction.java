@@ -18,20 +18,16 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
-
 
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String RULE_NAME1 = "R01_GR_20_NewPayee";
     private static String TRANSACTION_ID;
-
+    private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
     private final GregorianCalendar time = new GregorianCalendar();
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private final String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
 
     @Test(
             description = "Включаем правило"
@@ -57,6 +53,13 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
                 .detachWithoutRecording("Типы транзакций")
                 .attachTransactionIR03("Типы транзакций", "Платеж по QR-коду через СБП")
                 .sleep(10);
+
+        getIC().locateTable(REFERENCE_TABLE)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Платеж по QR-коду через СБП")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
     }
 
     @Test(
@@ -72,12 +75,12 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)

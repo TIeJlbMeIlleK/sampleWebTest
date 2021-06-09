@@ -19,21 +19,14 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class IR_02_UncheckedClients extends RSHBCaseTest {
-
 
     private static final String RULE_NAME = "R01_IR_02_UncheckedClients";
     private static String TABLE_NAME = "(Policy_parameters) Не проверяемые клиенты";
 
     private final GregorianCalendar time = new GregorianCalendar();
-
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Ольга", "Петушкова", "Ильинична"}};
-    private static final String LOGIN1 = new RandomString(5).nextString();
-    private static final String LOGIN2 = new RandomString(5).nextString();
-    private static final String LOGIN_HASH1 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-    private static final String LOGIN_HASH2 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Ольга", "Петушкова", "Ильинична"}};
 
     @Test(
             description = "Включаем правило"
@@ -58,23 +51,16 @@ public class IR_02_UncheckedClients extends RSHBCaseTest {
             for (int i = 0; i < 2; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
                 Client client = new Client("testCases/Templates/client.xml");
-                if (i == 0) {
-                    client.getData().getClientData().getClient().withLogin(LOGIN1);
-                } else {
-                    client.getData().getClientData().getClient().withLogin(LOGIN2);
-                }
-                if (i == 0) {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH1);
-                } else {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH2);
-                }
+
                 client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)

@@ -49,7 +49,7 @@ public class IR_03_RepeatApprovedTransaction_CardTr_InitialSourceAmount extends 
                 .save()
                 .detachWithoutRecording("Типы транзакций")
                 .attachTransactionIR03("Типы транзакций", "Перевод на карту другому лицу")
-                .sleep(10);
+                .sleep(20);
 
         getIC().locateTable(REFERENCE_TABLE)
                 .deleteAll()
