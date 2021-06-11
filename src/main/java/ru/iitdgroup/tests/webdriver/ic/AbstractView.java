@@ -111,6 +111,12 @@ public abstract class AbstractView<S> {
         return this;
     }
 
+    public AbstractView<S> getActionsClientButton167FZ() {
+        getDriver().findElementByXPath("//*[@id='moduleDetailsActionsToolbar']/div/table/tbody/tr/td[6]/a/span").click();
+        sleep(2);
+        return this;
+    }
+
     public AbstractView<S> doAction(String text) {
         getDriver().findElementByXPath("//*[@id=\"qtip-0-content\"]/a[text()='" + text + "']").click();
         return this;

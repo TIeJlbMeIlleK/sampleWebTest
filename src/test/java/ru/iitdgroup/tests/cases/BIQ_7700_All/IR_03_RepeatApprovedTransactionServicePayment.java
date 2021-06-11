@@ -101,7 +101,7 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
     )
 
     public void transServis() {
-        time.add(Calendar.HOUR, -20);
+        time.add(Calendar.MINUTE, -20);
         Transaction transService = getServicePayment();
         TransactionDataType transactionDataService = transService.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
