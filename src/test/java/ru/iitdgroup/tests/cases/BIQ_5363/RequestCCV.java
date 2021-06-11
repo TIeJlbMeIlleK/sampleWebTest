@@ -16,7 +16,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class RequestCCV extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_BR_01_PayeeInBlackList";
@@ -28,7 +27,32 @@ public class RequestCCV extends RSHBCaseTest {
     private final List<String> clientIds = new ArrayList<>();
 
     @Test(
-            description = "Создание клиентов"
+            description = "Включаем правило"
+    )
+    public void enableRules() {
+        getIC().locateRules()
+                .setTableFilter("Name", "Equals", RULE_NAME)
+                .selectRuleAfterFilter()
+                .activate();
+        getIC().locateRules()
+                .setTableFilter("Name", "Equals", RULE_NAME_1)
+                .selectRuleAfterFilter()
+                .activate();
+        getIC().locateRules()
+                .setTableFilter("Name", "Equals", RULE_NAME_2)
+                .selectRuleAfterFilter()
+                .activate();
+        getIC().locateRules()
+                .setTableFilter("Name", "Equals", RULE_NAME_3)
+                .selectRuleAfterFilter()
+                .activate()
+                .sleep(20);
+        commandServiceMock.run();
+    }
+
+    @Test(
+            description = "Создание клиентов",
+            dependsOnMethods = "enableRules"
     )
     public void createClients() {
         try {
@@ -51,40 +75,10 @@ public class RequestCCV extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Включаем правило",
-            dependsOnMethods = "createClients"
-    )
-    public void step0() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:",true)
-                .save()
-                .sleep(2);
-        getIC().locateRules()
-                .editRule(RULE_NAME_1)
-                .fillCheckBox("Active:",true)
-                .save()
-                .sleep(2);
-        getIC().locateRules()
-                .editRule(RULE_NAME_2)
-                .fillCheckBox("Active:",true)
-                .save()
-                .sleep(2);
-        getIC().locateRules()
-                .editRule(RULE_NAME_3)
-                .fillCheckBox("Active:",true)
-                .save()
-                .sleep(30);
-        commandServiceMock.run();
-    }
-
-    @Test(
             description = "-- «Запрос CVC/CVV/CVP»,Интернет банк, устройство ПК\n" +
                     "-- «Запрос CVC/CVV/CVP»,Мобильный банк, устройство IOC\n" +
                     "-- «Запрос CVC/CVV/CVP»,Мобильный банк, устройство Android",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "createClients"
     )
 
     public void step1() {
@@ -118,8 +112,8 @@ public class RequestCCV extends RSHBCaseTest {
         getIC()
                 .locateReports()
                 .openFolder("Отчеты по правилам")
-                .openRecord("Отчет срабатывания правил")
-                .setTableFilterForTransactions("ID транзакции","Equals",tran)
+                .openRecord("Срабатывания правила")
+                .setTableFilterForTransactions("Идентификатор трвнзакции ДБО","Equals",tran)
                 .setNewTableFilterForTransactions("Название правила","Equals",RULE_NAME)
                 .runReport().openFirst();
         assertTableField("Результат выполнения:","NOT_TRIGGERED");
@@ -128,8 +122,8 @@ public class RequestCCV extends RSHBCaseTest {
         getIC()
                 .locateReports()
                 .openFolder("Отчеты по правилам")
-                .openRecord("Отчет срабатывания правил")
-                .setTableFilterForTransactions("ID транзакции","Equals",tran1)
+                .openRecord("Срабатывания правила")
+                .setTableFilterForTransactions("Идентификатор трвнзакции ДБО","Equals",tran1)
                 .setNewTableFilterForTransactions("Название правила","Equals",RULE_NAME_1)
                 .runReport().openFirst();
         assertTableField("Результат выполнения:","NOT_TRIGGERED");
@@ -138,8 +132,8 @@ public class RequestCCV extends RSHBCaseTest {
         getIC()
                 .locateReports()
                 .openFolder("Отчеты по правилам")
-                .openRecord("Отчет срабатывания правил")
-                .setTableFilterForTransactions("ID транзакции","Equals",tran2)
+                .openRecord("Срабатывания правила")
+                .setTableFilterForTransactions("Идентификатор трвнзакции ДБО","Equals",tran2)
                 .setNewTableFilterForTransactions("Название правила","Equals",RULE_NAME_2)
                 .runReport().openFirst();
         assertTableField("Результат выполнения:","NOT_TRIGGERED");
@@ -148,8 +142,8 @@ public class RequestCCV extends RSHBCaseTest {
         getIC()
                 .locateReports()
                 .openFolder("Отчеты по правилам")
-                .openRecord("Отчет срабатывания правил")
-                .setTableFilterForTransactions("ID транзакции","Equals",tran2)
+                .openRecord("Срабатывания правила")
+                .setTableFilterForTransactions("Идентификатор трвнзакции ДБО","Equals",tran2)
                 .setNewTableFilterForTransactions("Название правила","Equals",RULE_NAME_3)
                 .runReport().openFirst();
         assertTableField("Результат выполнения:","NOT_TRIGGERED");
@@ -158,8 +152,8 @@ public class RequestCCV extends RSHBCaseTest {
     }
 
     @Test(
-            description = "-- «Запрос реквизитов карты»,Интернет банк, устройство ПК\n" +
-                    "-- «Запрос реквизитов карты»,Мобильный банк, устройство IOC\n" +
+            description = "-- «Запрос реквизитов карты»,Интернет банк, устройство ПК" +
+                    "-- «Запрос реквизитов карты»,Мобильный банк, устройство IOC" +
                     "-- «Запрос реквизитов карты»,Мобильный банк, устройство Android",
             dependsOnMethods = "step1"
     )
@@ -194,8 +188,8 @@ public class RequestCCV extends RSHBCaseTest {
         getIC()
                 .locateReports()
                 .openFolder("Отчеты по правилам")
-                .openRecord("Отчет срабатывания правил")
-                .setTableFilterForTransactions("ID транзакции","Equals",tran)
+                .openRecord("Срабатывания правила")
+                .setTableFilterForTransactions("Идентификатор трвнзакции ДБО","Equals",tran)
                 .setNewTableFilterForTransactions("Название правила","Equals",RULE_NAME)
                 .runReport().openFirst();
         assertTableField("Результат выполнения:","NOT_TRIGGERED");
@@ -204,8 +198,8 @@ public class RequestCCV extends RSHBCaseTest {
         getIC()
                 .locateReports()
                 .openFolder("Отчеты по правилам")
-                .openRecord("Отчет срабатывания правил")
-                .setTableFilterForTransactions("ID транзакции","Equals",tran1)
+                .openRecord("Срабатывания правила")
+                .setTableFilterForTransactions("Идентификатор трвнзакции ДБО","Equals",tran1)
                 .setNewTableFilterForTransactions("Название правила","Equals",RULE_NAME_1)
                 .runReport().openFirst();
         assertTableField("Результат выполнения:","NOT_TRIGGERED");
@@ -214,8 +208,8 @@ public class RequestCCV extends RSHBCaseTest {
         getIC()
                 .locateReports()
                 .openFolder("Отчеты по правилам")
-                .openRecord("Отчет срабатывания правил")
-                .setTableFilterForTransactions("ID транзакции","Equals",tran2)
+                .openRecord("Срабатывания правила")
+                .setTableFilterForTransactions("Идентификатор трвнзакции ДБО","Equals",tran2)
                 .setNewTableFilterForTransactions("Название правила","Equals",RULE_NAME_2)
                 .runReport().openFirst();
         assertTableField("Результат выполнения:","NOT_TRIGGERED");
@@ -224,8 +218,8 @@ public class RequestCCV extends RSHBCaseTest {
         getIC()
                 .locateReports()
                 .openFolder("Отчеты по правилам")
-                .openRecord("Отчет срабатывания правил")
-                .setTableFilterForTransactions("ID транзакции","Equals",tran2)
+                .openRecord("Срабатывания правила")
+                .setTableFilterForTransactions("Идентификатор трвнзакции ДБО","Equals",tran2)
                 .setNewTableFilterForTransactions("Название правила","Equals",RULE_NAME_3)
                 .runReport().openFirst();
         assertTableField("Результат выполнения:","NOT_TRIGGERED");

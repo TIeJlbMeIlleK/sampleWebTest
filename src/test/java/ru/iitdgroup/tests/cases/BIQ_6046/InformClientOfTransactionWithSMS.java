@@ -36,13 +36,11 @@ public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
     private static final String REFERENCE_ITEM2 = "(System_parameters) Интеграционные параметры";
     private static final String AUTH_PHONE = "79250252525";
     private static final String NOTIFICATION_PHONE = "79250333333";
-
+    private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Павел", "Петушков", "Павлович"}};
-    private static String[] login = {new RandomString(5).nextString()};
-    private static String[] loginHash = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
-    private static String[] dboId = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
+    private final String[][] names = {{"Павел", "Петушков", "Павлович"}};
+
 
     @Test(
             description = "Включить все правила и установить cutting score 1"
@@ -56,6 +54,13 @@ public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
                 .openRecord("Подозрительная транзакция")
                 .edit()
                 .fillInputText("Cutting score:", "1")
+                .save();
+
+        getIC().locateTable(REFERENCE_TABLE)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
+                .select("Наименование канала:", "Мобильный банк")
                 .save();
     }
 

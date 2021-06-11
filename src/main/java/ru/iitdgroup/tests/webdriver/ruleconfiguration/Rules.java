@@ -43,6 +43,12 @@ public class Rules extends AbstractView<Rules> implements TabledView<Rules> {
         return new Rules(driver);
     }
 
+    public Rules selectRuleAfterFilter() {
+        refreshTable();
+        driver.findElementByXPath("//*[@id='baseModuleListContent:j_id291:0']").click();
+        return new Rules(driver);
+    }
+
     public Rules activate() {
         executeAction(Action.Activate);
         waitSuccess();
