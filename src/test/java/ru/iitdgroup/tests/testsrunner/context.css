@@ -1,0 +1,24 @@
+.root {
+  -fx-background-color: cornsilk;
+  -fx-padding: 10;
+  -fx-background: rgb(255, 0, 0);
+}
+
+.context-menu {
+  -fx-background-color: #006699;
+  -fx-text-fill: white;
+  -fx-padding: 0;
+}
+
+.context-menu:hover {
+  -fx-background-color: #006699;
+  -fx-text-fill: white;
+}
+
+.menu-item .label {
+  -fx-text-fill: white;
+}
+
+.menu-item:focused .label {
+  -fx-text-fill: white;
+}

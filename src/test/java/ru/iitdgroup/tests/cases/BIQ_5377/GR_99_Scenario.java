@@ -36,18 +36,8 @@ public class GR_99_Scenario extends RSHBCaseTest {
     @Test(
             description = "Включаем правило R01_GR_99_Scenario и выполняем преднастройки"
     )
-//TODO Логическое выражение в правиле должно совпадать с ID Блоками сценария
+
     public void enableRules() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true)
-                .fillInputText("Период серии в минутах:", "10")
-                .fillInputText("Промежуток времени с момента восстановления доступа к ДБО:", "20")
-                .fillInputText("Логическое выражение:", "9&&10")
-                .save()
-                .sleep(10);
 
         Table table = getIC().locateTable(TABLE_NAME);
         int count = table
@@ -96,6 +86,18 @@ public class GR_99_Scenario extends RSHBCaseTest {
                     .fillFromExistingValues("Transaction Type:", "Наименование типа транзакции", "Equals", "Платеж по QR-коду через СБП")
                     .save();
         }
+
+        String[] ids = getScenarioBlock();
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillInputText("Период серии в минутах:", "10")
+                .fillInputText("Промежуток времени с момента восстановления доступа к ДБО:", "20")
+                .fillInputText("Логическое выражение:", ids[1] + "&&" + ids[0])
+                .save()
+                .sleep(10);
     }
 
     @Test(
