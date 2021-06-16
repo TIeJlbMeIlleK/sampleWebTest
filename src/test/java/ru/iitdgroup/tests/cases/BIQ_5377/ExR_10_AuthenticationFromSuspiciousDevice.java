@@ -8,7 +8,7 @@ import ru.iitdgroup.tests.apidriver.Authentication;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
+import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -23,9 +23,9 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     private final GregorianCalendar time = new GregorianCalendar();
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Борис", "Кудрявцев", "Викторович"}, {"Илья", "Пупкин", "Олегович"}, {"Ольга", "Типова", "Ивановна"},
+    private final String[][] names = {{"Борис", "Кудрявцев", "Викторович"}, {"Илья", "Пупкин", "Олегович"}, {"Ольга", "Типова", "Ивановна"},
             {"Федор", "Тяпов", "Михайлович"}};
-
+    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
     private static final String RULE_NAME = "R01_ExR_10_AuthenticationFromSuspiciousDevice";
     private static final String REFERENCE_ITEM1 = "(Rule_tables) Подозрительные устройства IdentifierForVendor";
     private static final String REFERENCE_ITEM2 = "(Rule_tables) Подозрительные устройства IMSI";
@@ -34,43 +34,56 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     private static final String TSP_TYPE = new RandomString(7).nextString();// создает рандомное значение Типа ТСП
     private static final String IFV = new RandomString(15).nextString();
     private static final String IFV1 = new RandomString(15).nextString();
-    private static final String IMSI = ThreadLocalRandom.current().nextLong(0, 15) + "";
-    private static final String IMEI = ThreadLocalRandom.current().nextLong(0, 15) + "";
-
-    private static final String LOGIN_1 = new RandomString(5).nextString();
-    private static final String LOGIN_2 = new RandomString(5).nextString();
-    private static final String LOGIN_3 = new RandomString(5).nextString();
-    private static final String LOGIN_4 = new RandomString(5).nextString();
+    private static final String IMSI = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 15);
+    private static final String IMEI = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 15);
 
     @Test(
-            description = "Создаем клиента"
+            description = "Включить правило R01_ExR_10_AuthenticationFromSuspiciousDevice"
+    )
+
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .selectRule(RULE_NAME)
+                .activate()
+                .sleep(5);
+
+        getIC().locateTable(REFERENCE_ITEM1)
+                .addRecord()
+                .fillInputText("Identifier for vendor:", IFV)
+                .save();
+        getIC().locateTable(REFERENCE_ITEM2)
+                .addRecord()
+                .fillInputText("imsi:", IMSI)
+                .save();
+        getIC().locateTable(REFERENCE_ITEM3)
+                .addRecord()
+                .fillInputText("imei:", IMEI)
+                .save();
+
+        commandServiceMock.run();
+    }
+
+    @Test(
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
     )
     public void addClient() {
         try {
             for (int i = 0; i < 4; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0,12);
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
 
-                if (i == 0) {
-                    client.getData().getClientData().getClient()
-                            .withLogin(LOGIN_1);
-                } else if (i == 1) {
-                    client.getData().getClientData().getClient()
-                            .withLogin(LOGIN_2);
-                } else if (i == 2) {
-                    client.getData().getClientData().getClient()
-                            .withLogin(LOGIN_3);
-                } else {
-                    client.getData().getClientData().getClient()
-                            .withLogin(LOGIN_4);
-                }
                 client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withLoginHash(dboId)
                         .withCifId(dboId)
@@ -89,60 +102,9 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Включить правило R01_ExR_10_AuthenticationFromSuspiciousDevice",
-            dependsOnMethods = "addClient"
-    )
-
-    public void enableRules() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true)
-                .save()
-                .sleep(5);
-    }
-
-    @Test(
-            description = "Занести IFV в справочник подозрительных" +
-                    "Занести IMSI в справочник подозрительных" +
-                    "Занести IMEI в справочник подозрителтьных",
-            dependsOnMethods = "enableRules"
-    )
-
-    public void addRecipients() {
-        Table.Formula ifv = getIC().locateTable(REFERENCE_ITEM1).findRowsBy();
-        if (ifv.calcMatchedRows().getTableRowNums().size() > 0) {
-            ifv.delete();
-        }
-        getIC().locateTable(REFERENCE_ITEM1)
-                .addRecord()
-                .fillInputText("Identifier for vendor:", IFV)
-                .save();
-
-        Table.Formula imsi = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
-        if (imsi.calcMatchedRows().getTableRowNums().size() > 0) {
-            imsi.delete();
-        }
-        getIC().locateTable(REFERENCE_ITEM2)
-                .addRecord()
-                .fillInputText("imsi:", IMSI)
-                .save();
-
-        Table.Formula imei = getIC().locateTable(REFERENCE_ITEM3).findRowsBy();
-        if (imei.calcMatchedRows().getTableRowNums().size() > 0) {
-            imei.delete();
-        }
-        getIC().locateTable(REFERENCE_ITEM3)
-                .addRecord()
-                .fillInputText("imei:", IMEI)
-                .save();
-    }
-
-    @Test(
             description = "Отправить аутентификацию с сессией № 1 для клиента № 1 с подозрительного IFV," +
                     "проверить карточку клиента и отправить транзакцию",
-            dependsOnMethods = "enableVES"
+            dependsOnMethods = "addClient"
     )
 
     public void step1() {
@@ -151,7 +113,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .getData().getClientAuthentication()
                 .getClientIds().setDboId(clientIds.get(0));
         authentication
-                .getData().getClientAuthentication().withLogin(LOGIN_1)
+                .getData().getClientAuthentication().withLogin(clientIds.get(0))
                 .getClientDevice().getIOS()
                 .setIdentifierForVendor(IFV);
         sendAndAssert(authentication);
@@ -167,16 +129,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
 
 
         Transaction transaction = getTransactionIOS();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
-                .withTSPName(TSP_TYPE)
-                .withTSPType(TSP_TYPE);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientDevice().getIOS()
                 .withIdentifierForVendor(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
@@ -197,7 +150,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .getClientIds().setDboId(clientIds.get(1));
         authentication
                 .getData().getClientAuthentication()
-                .withLogin(LOGIN_2)
+                .withLogin(clientIds.get(1))
                 .getClientDevice().getAndroid()
                 .withIMSI(IMSI);
         sendAndAssert(authentication);
@@ -213,16 +166,10 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
 
 
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
-                .withTSPName(TSP_TYPE)
-                .withTSPType(TSP_TYPE);
         transactionData
                 .getClientDevice()
                 .getAndroid()
@@ -245,7 +192,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .setDboId(clientIds.get(2));
         authentication
                 .getData().getClientAuthentication()
-                .withLogin(LOGIN_3)
+                .withLogin(clientIds.get(2))
                 .getClientDevice()
                 .getAndroid()
                 .withIMEI(IMEI);
@@ -262,16 +209,10 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
 
 
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(2));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
-                .withTSPName(TSP_TYPE)
-                .withTSPType(TSP_TYPE);
         transactionData
                 .getClientDevice()
                 .getAndroid()
@@ -292,7 +233,7 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
                 .getData().getClientAuthentication()
                 .getClientIds().setDboId(clientIds.get(3));
         authentication
-                .getData().getClientAuthentication().withLogin(LOGIN_4)
+                .getData().getClientAuthentication().withLogin(clientIds.get(3))
                 .getClientDevice().getIOS()
                 .setIdentifierForVendor(IFV1);
         sendAndAssert(authentication);
@@ -308,21 +249,24 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
 
 
         Transaction transaction = getTransactionIOS();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(3));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
-                .withTSPName(TSP_TYPE)
-                .withTSPType(TSP_TYPE);
         transactionData
                 .getClientDevice().getIOS()
                 .withIdentifierForVendor(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
+    }
+
+    @Test(
+            description = "Выключить мок ДБО",
+            dependsOnMethods = "step4"
+    )
+
+    public void disableCommandServiceMock() {
+        commandServiceMock.stop();
     }
 
     @Override
@@ -331,28 +275,48 @@ public class ExR_10_AuthenticationFromSuspiciousDevice extends RSHBCaseTest {
     }
 
     private Authentication getAuthentication() {
-        Authentication authentication = super.getAuthentication("testCases/Templates/Autentification_Android.xml");
-        return authentication;
+        return super.getAuthentication("testCases/Templates/Autentification_Android.xml");
     }
 
     private Authentication getAuthenticationIOS() {
-        Authentication authentication = super.getAuthentication("testCases/Templates/Autentification_IOS.xml");
-        return authentication;
+        return super.getAuthentication("testCases/Templates/Autentification_IOS.xml");
     }
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
+                .withTSPName(TSP_TYPE)
+                .withTSPType(TSP_TYPE);
         return transaction;
     }
 
     private Transaction getTransactionIOS() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_IOS.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
+                .withTSPName(TSP_TYPE)
+                .withTSPType(TSP_TYPE);
         return transaction;
     }
 }

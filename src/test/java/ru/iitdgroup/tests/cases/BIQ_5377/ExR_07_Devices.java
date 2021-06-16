@@ -2,15 +2,12 @@ package ru.iitdgroup.tests.cases.BIQ_5377;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import net.bytebuddy.utility.RandomString;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
-
+import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -26,10 +23,9 @@ public class ExR_07_Devices extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
     private GregorianCalendar time2;
-    private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-
+    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Борис", "Кудрявцев", "Викторович"}, {"Илья", "Пупкин", "Олегович"}, {"Ольга", "Петушкова", "Ильинична"}};
+    private final String[][] names = {{"Борис", "Кудрявцев", "Викторович"}, {"Илья", "Пупкин", "Олегович"}, {"Ольга", "Петушкова", "Ильинична"}};
 
     private static final String RULE_NAME = "R01_ExR_07_Devices";
     private static final String REFERENCE_ITEM1 = "(Rule_tables) Доверенные устройства для клиента";
@@ -41,12 +37,6 @@ public class ExR_07_Devices extends RSHBCaseTest {
     private static final String IMEI = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 15);
     private static final String IMEI1 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 15);
     private static final String DFP = new RandomString(15).nextString();
-    private static final String LOGIN_1 = new RandomString(5).nextString();
-    private static final String LOGIN_2 = new RandomString(5).nextString();
-    private static final String LOGIN_3 = new RandomString(5).nextString();
-    private static final String LOGIN_HASH1 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-    private static final String LOGIN_HASH2 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-    private static final String LOGIN_HASH3 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
 
     @Test(
             description = "Включить правило R01_ExR_07_Devices"
@@ -60,7 +50,8 @@ public class ExR_07_Devices extends RSHBCaseTest {
                 .fillCheckBox("Active:", true)
                 .fillInputText("Период контроля смены атрибутов клиента  (пример: 72 часа):", "1")
                 .save()
-                .sleep(10);
+                .sleep(20);
+        commandServiceMock.run();
     }
 
     @Test(
@@ -70,30 +61,18 @@ public class ExR_07_Devices extends RSHBCaseTest {
     public void addClient() {
         try {
             for (int i = 0; i < 3; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
-                if (i == 0) {
-                    client.getData().getClientData().getClient().withLogin(LOGIN_1);
-                } else if (i == 1){
-                    client.getData().getClientData().getClient().withLogin(LOGIN_2);
-                }else {
-                    client.getData().getClientData().getClient().withLogin(LOGIN_3);
-                }
 
-                if (i == 0) {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH1);
-                } else if (i == 1){
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH2);
-                }else {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH3);
-                }
                 client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -108,20 +87,7 @@ public class ExR_07_Devices extends RSHBCaseTest {
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
-    }
 
-    @Test(
-            description = "Занести в доверенные устройства № 1 Android для клиента № 1 и" +
-                    "Занести в доверенные устройства № 2 IOC для клиента № 1",
-            dependsOnMethods = "addClient"
-    )
-
-    public void addRecipients() {
-
-        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM1).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
         getIC().locateTable(REFERENCE_ITEM1)
                 .addRecord()
                 .fillInputText("DeviceFingerPrint:", DFP)
@@ -136,7 +102,7 @@ public class ExR_07_Devices extends RSHBCaseTest {
 
     @Test(
             description = "Провести транзакцию № 1 от имени клиента № 1 с устройства № 1",
-            dependsOnMethods = "addRecipients"
+            dependsOnMethods = "addClient"
     )
 
     public void step1() {
@@ -145,16 +111,7 @@ public class ExR_07_Devices extends RSHBCaseTest {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
-                .withTSPName(TSP_TYPE)
-                .withTSPType(TSP_TYPE);
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2));
         transactionData
                 .getClientDevice()
                 .getAndroid()
@@ -175,16 +132,7 @@ public class ExR_07_Devices extends RSHBCaseTest {
         Transaction transaction = getTransactionIOS();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
-                .withTSPName(TSP_TYPE)
-                .withTSPType(TSP_TYPE);
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2));
         transactionData
                 .withSessionId(DFP)
                 .getClientDevice()
@@ -200,18 +148,11 @@ public class ExR_07_Devices extends RSHBCaseTest {
     )
 
     public void step3() {
-
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
-                .withTSPName(TSP_TYPE)
-                .withTSPType(TSP_TYPE);
         transactionData
                 .getClientDevice()
                 .getAndroid()
@@ -227,20 +168,11 @@ public class ExR_07_Devices extends RSHBCaseTest {
     )
 
     public void step4() {
-
         Transaction transaction = getTransactionIOS();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
-                .withTSPName(TSP_TYPE)
-                .withTSPType(TSP_TYPE);
         transactionData
                 .withSessionId(DFP)
                 .getClientDevice()
@@ -256,20 +188,11 @@ public class ExR_07_Devices extends RSHBCaseTest {
     )
 
     public void step5() {
-
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(2));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
-                .withTSPName(TSP_TYPE)
-                .withTSPType(TSP_TYPE);
         transactionData
                 .getClientDevice()
                 .getAndroid()
@@ -280,6 +203,15 @@ public class ExR_07_Devices extends RSHBCaseTest {
                 "Нет транзакций с таким же IMEI, выполненных другим клиентом.\n");
     }
 
+    @Test(
+            description = "Выключить мок ДБО",
+            dependsOnMethods = "step5"
+    )
+
+    public void disableCommandServiceMock() {
+        commandServiceMock.stop();
+    }
+
     @Override
     protected String getRuleName() {
         return RULE_NAME;
@@ -287,17 +219,39 @@ public class ExR_07_Devices extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
+                .withTSPName(TSP_TYPE)
+                .withTSPType(TSP_TYPE);
         return transaction;
     }
 
     private Transaction getTransactionIOS() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_IOS.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
+                .withTSPName(TSP_TYPE)
+                .withTSPType(TSP_TYPE);
         return transaction;
     }
 }

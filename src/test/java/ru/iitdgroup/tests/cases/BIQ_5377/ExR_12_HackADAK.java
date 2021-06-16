@@ -8,6 +8,7 @@ import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.webdriver.alerts.AlertRecord;
+import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -17,22 +18,22 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class ExR_12_HackADAK extends RSHBCaseTest {
 
+    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
     private static final String RULE_NAME = "R01_ExR_12_HackADAK";
     private static final String RULE_NAME1 = "R01_GR_20_NewPayee";
     private static final String REFERENCE_ITEM = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_ITEM1 = "(Policy_parameters) Параметры проведения ДАК";
-
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-
     public String TRANSACTION_ID;
+    public final String IP_ADRESS = "178.219.186.12";
     private final GregorianCalendar time = new GregorianCalendar();
-    private GregorianCalendar time2;
-
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Лариса", "Касымова", "Игоревна"}};
+    public final String nameClient = "Лариса";
+    public final String notNameClient = "Зинаида";
+    private final String[][] names = {{nameClient, "Касымова", "Игоревна"}};
+    private static final String TSP_TYPE = new RandomString(7).nextString();// создает рандомное значение Типа ТСП
 
 //TODO перед запуском теста В Details Layout в карточке клиента должны быть выведены поля "Подбор ответа АДАК" и "Дата подбора АДАК"
+    // TODO должен быть включен только один вопрос в справочнике Вопросы ДАК: Ваше имя. Остальные вопросы выключены
 
     @Test(
             description = "Включаем правило и настраиваем справочники"
@@ -53,7 +54,7 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
                 .editRule(RULE_NAME1)
                 .fillCheckBox("Active:", true)
                 .save()
-                .sleep(15);
+                .sleep(10);
 
         getIC().locateTable(REFERENCE_ITEM1)
                 .findRowsBy()
@@ -72,6 +73,7 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
                 .fillCheckBox("Участвует в АДАК:", true)
                 .fillCheckBox("Участвует в РДАК:", true)
                 .save();
+        commandServiceMock.run();
     }
 
     @Test(
@@ -81,18 +83,18 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
     public void createClients() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9);
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -116,18 +118,7 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
 
     public void step1() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .withIpAddress("178.219.186.12");
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         TRANSACTION_ID = transactionData.getTransactionId();
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
@@ -138,16 +129,9 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
                 .sleep(1);
 
         Transaction adak = getAdak();
-        TransactionDataType tranAdak = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        tranAdak
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType tranAdak = adak.getData().getTransactionData();
         tranAdak
                 .withTransactionId(TRANSACTION_ID);
-        tranAdak.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Лариса");
         sendAndAssert(adak);
 
         getIC().locateAlerts()
@@ -164,18 +148,7 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
 
     public void step2() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .withIpAddress("178.219.186.12");
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         TRANSACTION_ID = transactionData.getTransactionId();
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
@@ -186,16 +159,11 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
                 .sleep(1);
 
         Transaction adak = getAdak();
-        TransactionDataType tranAdak = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        tranAdak
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType tranAdak = adak.getData().getTransactionData();
         tranAdak
                 .withTransactionId(TRANSACTION_ID);
         tranAdak.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Ирина");
+                .withAdditionalAuthAnswer(notNameClient);
         sendAndAssert(adak);
 
         getIC().locateAlerts()
@@ -212,18 +180,7 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
 
     public void step3() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .withIpAddress("178.219.186.12");
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         TRANSACTION_ID = transactionData.getTransactionId();
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
@@ -234,16 +191,11 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
                 .sleep(1);
 
         Transaction adak = getAdak();
-        TransactionDataType tranAdak = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        tranAdak
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType tranAdak = adak.getData().getTransactionData();
         tranAdak
                 .withTransactionId(TRANSACTION_ID);
         tranAdak.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Ирина");
+                .withAdditionalAuthAnswer(notNameClient);
         sendAndAssert(adak);
 
         getIC().locateAlerts()
@@ -269,20 +221,7 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
 
     public void step4() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .withIpAddress("178.219.186.12");
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         TRANSACTION_ID = transactionData.getTransactionId();
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Попытка подбора ответа на АДАК");
@@ -294,22 +233,16 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 1);
         Transaction adak = getAdak();
-        TransactionDataType tranAdak = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        tranAdak
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType tranAdak = adak.getData().getTransactionData();
         tranAdak
                 .withTransactionId(TRANSACTION_ID);
         tranAdak.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Ирина");
+                .withAdditionalAuthAnswer(notNameClient);
         sendAndAssert(adak);
 
-        AlertRecord recordsAlert = getIC()
-                .locateAlerts()
+        getIC().locateAlerts()
                 .openFirst();
-        String lastDate = recordsAlert.getLastDate();
+        String lastDate = copyThisLine("Timestamp:");
 
         assertTableField("Транзакция:", TRANSACTION_ID);
         assertTableField("Идентификатор клиента:", clientIds.get(0));
@@ -326,6 +259,15 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
         getIC().close();
     }
 
+    @Test(
+            description = "Выключить мок ДБО",
+            dependsOnMethods = "step4"
+    )
+
+    public void disableCommandServiceMock() {
+        commandServiceMock.stop();
+    }
+
     @Override
     protected String getRuleName() {
         return RULE_NAME;
@@ -333,17 +275,38 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
+                .withTSPName(TSP_TYPE)
+                .withTSPType(TSP_TYPE);
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .withIpAddress(IP_ADRESS);
         return transaction;
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData().getTransactionData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData().getServerInfo().withPort(8050);
+        TransactionDataType adakDate = adak.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        adakDate
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        adakDate.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(nameClient);
+        return adak;
     }
 }

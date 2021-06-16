@@ -52,7 +52,7 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
                 .save()
                 .detachWithoutRecording("Типы транзакций")
                 .attachTransactionIR03("Типы транзакций", "Платеж по QR-коду через СБП")
-                .sleep(10);
+                .sleep(20);
 
         getIC().locateTable(REFERENCE_TABLE)
                 .deleteAll()

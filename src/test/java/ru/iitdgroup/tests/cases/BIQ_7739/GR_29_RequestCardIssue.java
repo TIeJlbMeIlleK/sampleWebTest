@@ -41,7 +41,7 @@ public class GR_29_RequestCardIssue extends RSHBCaseTest {
                 .save()
                 .detachDelGroup()
                 .attachTransactionNew("Заявка на выпуск карты")
-                .sleep(15);
+                .sleep(25);
         getIC().close();
     }
 

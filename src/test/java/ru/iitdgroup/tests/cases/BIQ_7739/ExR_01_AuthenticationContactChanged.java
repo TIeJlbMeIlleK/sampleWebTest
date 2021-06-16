@@ -170,8 +170,6 @@ public class ExR_01_AuthenticationContactChanged extends RSHBCaseTest {
             dependsOnMethods = "transaction2"
     )
     public void transaction3() {
-//        TODO КЛИЕНТ с CHANGE_AUTH_IMSI
-
         getIC().locateReports()
                 .openFolder("Бизнес-сущности")
                 .openRecord("Список клиентов")

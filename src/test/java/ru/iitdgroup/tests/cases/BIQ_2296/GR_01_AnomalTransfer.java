@@ -94,14 +94,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getServicePayment()
-                .setAmountInSourceCurrency(new BigDecimal(10.00));
+                .withAmountInSourceCurrency(BigDecimal.valueOf(10.00));
 
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
         assertPaymentMaxAmount(
                 clientIds.get(0),
@@ -120,16 +116,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getCardTransfer()
-                .setAmountInSourceCurrency(new BigDecimal(10.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(10.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
 
+        assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
         assertPaymentMaxAmount(
                 clientIds.get(0),
                 transactionTypeCardTransfer,
@@ -148,16 +138,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getOuterTransfer()
-                .setAmountInSourceCurrency(new BigDecimal(10.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(10.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
 
+        assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
         assertPaymentMaxAmount(
                 clientIds.get(0),
                 transactionTypeOuterTransfer,
@@ -176,16 +160,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getBudgetTransfer()
-                .setAmountInSourceCurrency(new BigDecimal(10.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(10.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
 
+        assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
         assertPaymentMaxAmount(
                 clientIds.get(0),
                 transactionTypeBudgetTransfer,
@@ -203,14 +181,9 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getServicePayment()
-                .setAmountInSourceCurrency(new BigDecimal(11.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(11.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
         assertPaymentMaxAmount(
                 clientIds.get(0),
@@ -229,16 +202,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getCardTransfer()
-                .setAmountInSourceCurrency(new BigDecimal(11.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(11.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
 
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
         assertPaymentMaxAmount(
                 clientIds.get(0),
                 transactionTypeCardTransfer,
@@ -257,16 +224,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getOuterTransfer()
-                .setAmountInSourceCurrency(new BigDecimal(11.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(11.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
 
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
         assertPaymentMaxAmount(
                 clientIds.get(0),
                 transactionTypeOuterTransfer,
@@ -284,16 +245,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getBudgetTransfer()
-                .setAmountInSourceCurrency(new BigDecimal(11.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(11.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
 
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
         assertPaymentMaxAmount(
                 clientIds.get(0),
                 transactionTypeOuterTransfer,
@@ -311,14 +266,9 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getServicePayment()
-                .setAmountInSourceCurrency(new BigDecimal(20.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(20.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ANOMAL_TRANSFER);
         assertPaymentMaxAmount(
                 clientIds.get(0),
@@ -337,14 +287,9 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getCardTransfer()
-                .setAmountInSourceCurrency(new BigDecimal(20.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(20.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ANOMAL_TRANSFER);
         assertPaymentMaxAmount(
                 clientIds.get(0),
@@ -363,14 +308,9 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getOuterTransfer()
-                .setAmountInSourceCurrency(new BigDecimal(20.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(20.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ANOMAL_TRANSFER);
         assertPaymentMaxAmount(
                 clientIds.get(0),
@@ -388,14 +328,9 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getBudgetTransfer()
-                .setAmountInSourceCurrency(new BigDecimal(20.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(20.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ANOMAL_TRANSFER);
         assertPaymentMaxAmount(
                 clientIds.get(0),
@@ -413,14 +348,9 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData.getTransferBetweenAccounts()
-                .setAmountInSourceCurrency(new BigDecimal(10.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(10.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION_TYPE);
     }
 
@@ -436,14 +366,9 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(1));
         transactionData.getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(new BigDecimal(10.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(10.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
         assertPaymentMaxAmount(clientIds.get(1),
                 transactionTypePhoneNumberTransfer,
@@ -464,16 +389,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(1));
         transactionData.getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(new BigDecimal(11.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(11.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
 
+        assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
         assertPaymentMaxAmount(
                 clientIds.get(1),
                 transactionTypePhoneNumberTransfer,
@@ -492,14 +411,9 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(1));
         transactionData.getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(new BigDecimal(20.00));
-
+                .withAmountInSourceCurrency(BigDecimal.valueOf(20.00));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ANOMAL_TRANSFER);
         assertPaymentMaxAmount(
                 clientIds.get(1),
@@ -514,6 +428,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -521,6 +436,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
     }
     private Transaction getTransactionBETWEEN_ACCOUNTS() {
         Transaction transaction = getTransaction("testCases/Templates/TRANSFER_BETWEEN_ACCOUNTS.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -528,6 +444,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
     }
     private Transaction getTransactionBUDGET_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/BUDGET_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -535,6 +452,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
     }
     private Transaction getTransactionOUTER_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -542,6 +460,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
     }
     private Transaction getTransactionCARD_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
@@ -549,6 +468,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
     }
     private Transaction getTransactionPHONE_NUMBER_TRANSFER_WITH_PHONE() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
