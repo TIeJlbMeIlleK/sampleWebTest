@@ -11,10 +11,7 @@ import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -23,8 +20,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class GR_02_ResetBalance extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
-    private GregorianCalendar time_trans5;
-    private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
     private final List<String> clientIds = new ArrayList<>();
     private final String[][] names = {{"Тимур", "Киров", "Семенович"}};
