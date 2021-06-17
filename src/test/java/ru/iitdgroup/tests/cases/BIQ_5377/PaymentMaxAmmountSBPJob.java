@@ -8,8 +8,6 @@ import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.webdriver.jobconfiguration.JobRunEdit;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
-
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -21,7 +19,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
@@ -30,44 +27,15 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
 
     private final List<String> clientIds = new ArrayList<>();
     private Client client = null;
-
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
     private static final String RULE_NAME = "R01_GR_51_AnomalTransfer_TSP";
     private static final String REFERENCE_ITEM = "(Rule_tables)Максимальная сумма транзакции СБП по типам ТСП";
     private static final String TYPE_TSP = new RandomString(8).nextString();
 
-
-    @Test(
-            description = "Создаем клиента"
-    )
-    public void addClient() {
-        try {
-            for (int i = 0; i < 1; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-                Client client = new Client("testCases/Templates/client.xml");
-
-                client.getData().getClientData().getClient()
-                        .withFirstName("Эльмира")
-                        .withLastName("Табачникова")
-                        .withMiddleName("Андреевна")
-                        .getClientIds()
-                        .withDboId(dboId);
-
-                sendAndAssert(client);
-                clientIds.add(dboId);
-                this.client = client;
-                System.out.println(dboId);
-            }
-        } catch (JAXBException | IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-
     @Test(
             description = "Включить правило G51_AnomalTransfer_TSP" +
                     "-- период времени с максимальной суммы транзакции СБП = 1" +
-                    "-- Отклонение 0.2",
-            dependsOnMethods = "addClient"
+                    "-- Отклонение 0.2"
     )
     public void enableRules() {
         getIC().locateRules()
@@ -79,36 +47,52 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
                 .fillInputText("Количество дней, за которые осуществляется набор статистических данных:", "1")
                 .save()
                 .sleep(15);
-    }
 
-    @Test(
-            description = "Очистить справочник «Максимальная сумма транзакции СБП по типам ТСП»",
-            dependsOnMethods = "enableRules"
-    )
-
-    public void addMaxAmount() {
         getIC().locateTable(REFERENCE_ITEM).deleteAll();
     }
 
     @Test(
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
+    )
+    public void addClient() {
+        try {
+            for (int i = 0; i < 1; i++) {
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
+                Client client = new Client("testCases/Templates/client.xml");
+
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
+                        .getClientIds()
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+                sendAndAssert(client);
+                clientIds.add(dboId);
+                this.client = client;
+                System.out.println(dboId);
+            }
+        } catch (JAXBException | IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Test(
             description = "Отправить транзакцию №1 от Клиента №1 \"Платеж по QR-коду через СБП\" -- Сумма 10, Тип ТСП = ТСП№1",
-            dependsOnMethods = "addMaxAmount"
+            dependsOnMethods = "addClient"
     )
 
     public void step1() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(10))
-                .withTSPName(TYPE_TSP)
-                .withTSPType(TYPE_TSP);
         sendAndAssert(transaction);
     }
 
@@ -148,30 +132,23 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить транзакцию №2 от Клиента №1 \"Платеж по QR-коду через СБП\" -- Сумма 11, Тип ТСП = ТСП№1",
+            description = "Отправить транзакцию №2 от Клиента №1 Платеж по QR-коду через СБП -- Сумма 11, Тип ТСП = ТСП№1",
             dependsOnMethods = "runJobStep1"
     )
 
     public void step2() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+
         transactionData
                 .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(11))
-                .withTSPName(TYPE_TSP)
-                .withTSPType(TYPE_TSP);
+                .withAmountInSourceCurrency(BigDecimal.valueOf(11));
         sendAndAssert(transaction);
     }
 
     @Test(
-            description = "Отправить транзакцию №3 от Клиента №1 \"Платеж по QR-коду через СБП\" -- Сумма 13, Тип ТСП = ТСП№1\n" +
+            description = "Отправить транзакцию №3 от Клиента №1 Платеж по QR-коду через СБП -- Сумма 13, Тип ТСП = ТСП№1" +
                     "-- Отклонить транзакцию №3",
             dependsOnMethods = "step2"
     )
@@ -179,18 +156,10 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
     public void step3() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(13))
-                .withTSPName(TYPE_TSP)
-                .withTSPType(TYPE_TSP);
+                .withAmountInSourceCurrency(BigDecimal.valueOf(13));
         sendAndAssert(transaction);
 
         getIC().locateAlerts().refreshTable();
@@ -202,7 +171,7 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить транзакцию №4 от Клиента №1 \"Платеж по QR-коду через СБП\" -- Сумма 14, Тип ТСП = ТСП№1" +
+            description = "Отправить транзакцию №4 от Клиента №1 Платеж по QR-коду через СБП -- Сумма 14, Тип ТСП = ТСП№1" +
                     "-- Отклонить как Мошенничество №4",
             dependsOnMethods = "step3"
     )
@@ -210,18 +179,10 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
     public void step4() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(14))
-                .withTSPName(TYPE_TSP)
-                .withTSPType(TYPE_TSP);
+                .withAmountInSourceCurrency(BigDecimal.valueOf(14));
         sendAndAssert(transaction);
 
         getIC().locateAlerts().refreshTable();
@@ -242,18 +203,10 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
         time.add(Calendar.MINUTE, 1);
         time2 = (GregorianCalendar) time.clone();
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(15))
-                .withTSPName(TYPE_TSP)
-                .withTSPType(TYPE_TSP);
+                .withAmountInSourceCurrency(BigDecimal.valueOf(15));
         sendAndAssert(transaction);
 
         getIC().locateAlerts().refreshTable();
@@ -265,7 +218,7 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить транзакцию №6 от Клиента №1 \"Платеж по QR-коду через СБП\" -- Сумма 16, Тип ТСП = ТСП№1\n" +
+            description = "Отправить транзакцию №6 от Клиента №1 Платеж по QR-коду через СБП -- Сумма 16, Тип ТСП = ТСП№1" +
                     "-- Подтвердить транзакцию = №6",
             dependsOnMethods = "step5"
     )
@@ -273,18 +226,10 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
     public void step6() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(16))
-                .withTSPName(TYPE_TSP)
-                .withTSPType(TYPE_TSP);
+                .withAmountInSourceCurrency(BigDecimal.valueOf(16));
         sendAndAssert(transaction);
 
         getIC().locateAlerts().refreshTable();
@@ -310,7 +255,7 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
         getIC().locateJobs()
                 .selectJob("PaymentMaxAmountSBPJob")
                 .addParameter("numberOfDays ", "1")
-                .waitSeconds(10)
+                .waitSeconds(5)
                 .waitStatus(JobRunEdit.JobStatus.SUCCESS)
                 .run();
         getIC().home();
@@ -349,7 +294,7 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
         getIC().locateJobs()
                 .selectJob("PaymentMaxAmountSBPJob")
                 .addParameter("numberOfDays ", "1")
-                .waitSeconds(10)
+                .waitSeconds(5)
                 .waitStatus(JobRunEdit.JobStatus.SUCCESS)
                 .run();
         getIC().home();
@@ -375,9 +320,20 @@ public class PaymentMaxAmmountSBPJob extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(10))
+                .withTSPName(TYPE_TSP)
+                .withTSPType(TYPE_TSP);
         return transaction;
     }
 }

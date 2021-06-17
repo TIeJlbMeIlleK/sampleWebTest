@@ -6,47 +6,65 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.jobconfiguration.JobRunEdit;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
-
+import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class GR_20_NewPayee extends RSHBCaseTest {
 
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.DECEMBER, 23, 14, 10, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-
+    private final String[][] names = {{"Ульяна", "Смирнова", "Викторовна"}};
+    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
     private static final String REFERENCE_ITEM1 = "(Rule_tables) Карантин получателей";
     private static final String REFERENCE_ITEM2 = "(Rule_tables) Доверенные получатели";
-
     private static final String TRUSTED_RECIPIENT = "Егор Ильич Иванов";
     private static final String QUARANTINE_RECIPIENT = "Киса Витальевич Емельяненко";
 
+    @Test(
+            description = "Включить правило GR_20_NewPayee"
+    )
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .selectRule(RULE_NAME)
+                .activate()
+                .sleep(10);
+        commandServiceMock.run();
+    }
 
     @Test(
-            description = "Создаем клиента"
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
     )
     public void addClient() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
-                client.getData().getClientData().getClient()
-                        .withFirstName("Ульяна")
-                        .withLastName("Филимонова")
-                        .withMiddleName("Витальевна")
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
 
                 sendAndAssert(client);
                 clientIds.add(dboId);
@@ -55,33 +73,12 @@ public class GR_20_NewPayee extends RSHBCaseTest {
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    @Test(
-            description = "Добавить в Карантин получателей -- Получателя №1 для Клиента №1 и " +
-                    "Добавить в Доверенные получатели -- Получатель №2 для Клиента №1",
-            dependsOnMethods = "addClient"
-    )
-
-    public void addRecipients() {
-        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM1).findRowsBy();
-
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
 
         getIC().locateTable(REFERENCE_ITEM1)
                 .addRecord()
                 .fillInputText("Имя получателя:", QUARANTINE_RECIPIENT)
                 .fillUser("ФИО Клиента:", clientIds.get(0))
                 .save();
-
-        Table.Formula rows1 = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
-
-        if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows1.delete();
-        }
-
         getIC().locateTable(REFERENCE_ITEM2)
                 .addRecord()
                 .fillUser("ФИО Клиента:", clientIds.get(0))
@@ -90,37 +87,12 @@ public class GR_20_NewPayee extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Включить правило GR_20_NewPayee",
-            dependsOnMethods = "addRecipients"
-    )
-    public void enableRules() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true)
-                .save()
-                .sleep(10);
-    }
-
-    @Test(
             description = " Отправить транзакцию №1 от Клиента №1 \"Платеж по QR-коду через СБП\" -- Получатель №1",
-            dependsOnMethods = "enableRules"
+            dependsOnMethods = "addClient"
     )
 
     public void step1() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(200))
-                .withTSPName(QUARANTINE_RECIPIENT)
-                .withTSPType(QUARANTINE_RECIPIENT);
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, YOUNG_QUARANTINE);
     }
@@ -132,17 +104,12 @@ public class GR_20_NewPayee extends RSHBCaseTest {
 
     public void step2() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPaymentC2B()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(250))
                 .withTSPName(TRUSTED_RECIPIENT)
                 .withTSPType(TRUSTED_RECIPIENT);
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, IN_WHITE_LIST);
     }
@@ -154,11 +121,7 @@ public class GR_20_NewPayee extends RSHBCaseTest {
 
     public void step3() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPaymentC2B()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(20))
@@ -176,19 +139,23 @@ public class GR_20_NewPayee extends RSHBCaseTest {
 
     public void step4() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPaymentC2B()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(200))
                 .withTSPName("Петр Иванович Калашников")
                 .withTSPType("Петр Иванович Калашников");
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
+    }
+
+    @Test(
+            description = "Выключить мок ДБО",
+            dependsOnMethods = "step4"
+    )
+
+    public void disableCommandServiceMock() {
+        commandServiceMock.stop();
     }
 
     @Override
@@ -198,9 +165,20 @@ public class GR_20_NewPayee extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(200))
+                .withTSPName(QUARANTINE_RECIPIENT)
+                .withTSPType(QUARANTINE_RECIPIENT);
         return transaction;
     }
 

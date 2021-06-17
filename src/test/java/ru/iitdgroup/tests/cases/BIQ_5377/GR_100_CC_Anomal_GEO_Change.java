@@ -25,14 +25,11 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_100_CC_Anomal_GEO_Change";
     private static final String TABLE = "(System_parameters) Интеграционные параметры";
-    private static final long UNIT_TIME = Instant.now().getEpochSecond();
-    private static final String CARD_HOLDER_NAME = "Место работы";
+    private static final String CARD_HOLDER_NAME = "Андрей";
     private final GregorianCalendar time = new GregorianCalendar();
-
+    private static final long UNIT_TIME = Instant.now().getEpochSecond();
     private final List<String> clientIds = new ArrayList<>();
     private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
     private static final String PAN_ACCOUNT = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 13);
     private static final String CARD_ID = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 4);
 
@@ -46,7 +43,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(10);
+                .sleep(15);
 
         getIC().locateTable(TABLE)
                 .findRowsBy()
@@ -71,12 +68,12 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
                         .getClientData()
                         .getClient()
                         .withPasswordRecoveryDateTime(time)
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -151,14 +148,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
     public void transaction1() {
         time.add(Calendar.SECOND, 1);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getGettingCredit()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientDevice()
                 .getIOS()
@@ -177,14 +167,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
     public void transaction2() {
         time.add(Calendar.SECOND, 1);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getGettingCredit()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientDevice()
                 .getIOS()
@@ -203,14 +186,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
     public void transaction3() {
         time.add(Calendar.SECOND, 1);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getGettingCredit()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientDevice()
                 .getIOS()
@@ -226,9 +202,18 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/GETTING_CREDIT_IOC.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getGettingCredit()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         return transaction;
     }
 }

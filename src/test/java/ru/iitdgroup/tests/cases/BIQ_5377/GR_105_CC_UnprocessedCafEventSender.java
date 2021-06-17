@@ -21,28 +21,16 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.time.Instant;
 
-
 public class GR_105_CC_UnprocessedCafEventSender extends RSHBCaseTest {
 
-
     private static final String RULE_NAME = "R01_GR_105_CC_UnprocessedCafEventSender";
-
     private static final long UNIT_TIME = Instant.now().getEpochSecond();//конвертирует текущее время в UNIT TIME
-
     private final GregorianCalendar time = new GregorianCalendar();
-
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Эльмира", "Пирожкова", "Викторовна"}};
-    private static String[] login = {new RandomString(5).nextString(), new RandomString(5).nextString()};
-    private static String[] loginHash = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5),
-            (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
-    private static String[] dboId = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5),
-            (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Эльмира", "Пирожкова", "Викторовна"}};
     private static final String PAN_ACCOUNT = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 13);
     private static final String CARD_ID = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 4);
     private static final String CARD_HOLDER_NAME = "Место работы";
-
-
 
     @Test(
             description = "Включаем правило"
@@ -54,7 +42,7 @@ public class GR_105_CC_UnprocessedCafEventSender extends RSHBCaseTest {
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(15);
+                .sleep(20);
     }
 
     @Test(
@@ -64,28 +52,29 @@ public class GR_105_CC_UnprocessedCafEventSender extends RSHBCaseTest {
     public void addClients() {
         try {
             for (int i = 0; i < 2; i++) {
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
                         .withPasswordRecoveryDateTime(time)
-                        .withLogin(login[i])
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash[i])
-                        .withDboId(dboId[i])
-                        .withCifId(dboId[i])
-                        .withExpertSystemId(dboId[i])
-                        .withEksId(dboId[i])
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
                         .getAlfaIds()
-                        .withAlfaId(dboId[i]);
+                        .withAlfaId(dboId);
 
                 sendAndAssert(client);
-                clientIds.add(dboId[i]);
-                System.out.println(dboId[i]);
+                clientIds.add(dboId);
+                System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
@@ -146,14 +135,6 @@ public class GR_105_CC_UnprocessedCafEventSender extends RSHBCaseTest {
 
     public void transaction1() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Существует Событие из КАФ у Клиента");
     }
@@ -165,14 +146,10 @@ public class GR_105_CC_UnprocessedCafEventSender extends RSHBCaseTest {
 
     public void transaction2() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не сработало");
     }
@@ -197,14 +174,6 @@ public class GR_105_CC_UnprocessedCafEventSender extends RSHBCaseTest {
 
 
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не сработало");
     }
@@ -216,14 +185,10 @@ public class GR_105_CC_UnprocessedCafEventSender extends RSHBCaseTest {
 
     public void transaction4() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не сработало");
     }
@@ -235,9 +200,18 @@ public class GR_105_CC_UnprocessedCafEventSender extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_IOS.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         return transaction;
     }
 }

@@ -182,6 +182,7 @@ public class WorkflowAction extends AbstractEdit<WorkflowAction> {
             driver.findElementByXPath("//*[@id='fieldsMappingTbl:innerTbl']/table/tbody/tr/td/table/tbody/tr[1]/th[1]/div/input").click();
             driver.findElementByXPath("//*[@id='mapFieldsBtnDelete']").click();
         }
+        sleep(1);
         return getSelf();
     }
 

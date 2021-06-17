@@ -8,30 +8,20 @@ import ru.iitdgroup.tests.webdriver.jobconfiguration.JobRunEdit;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class JOB_PayeeWhiteListClear extends RSHBCaseTest {
 
-    private final GregorianCalendar time = new GregorianCalendar();
-    private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-    private Instant transactionTime1 = null;
-    private Instant transactionTime2 = null;
-
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Инна", "Пашкина", "Марковна"}, {"Николай", "Хрюков", "Михайлович"}};
-
+    private final String[][] names = {{"Инна", "Пашкина", "Марковна"}, {"Николай", "Хрюков", "Михайлович"}};
     private static final String RULE_NAME = "";
     private static final String REFERENCE_ITEM = "(Policy_parameters) Параметры обработки справочников и флагов";
     private static final String REFERENCE_ITEM2 = "(Rule_tables) Доверенные получатели";
     private static final String TYPE_TSP1 = new RandomString(8).nextString();
     private static final String TYPE_TSP2 = new RandomString(8).nextString();
-
 
     @Test(
             description = "Создаем клиента"
@@ -39,15 +29,24 @@ public class JOB_PayeeWhiteListClear extends RSHBCaseTest {
     public void addClient() {
         try {
             for (int i = 0; i < 2; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
-                client.getData().getClientData().getClient()
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
 
                 sendAndAssert(client);
                 clientIds.add(dboId);
@@ -59,11 +58,11 @@ public class JOB_PayeeWhiteListClear extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Занести в справочник \"Доверенные получатели\" запись № 1 для клиент-получатель №1, " +
-                    "где \"Дата занесения\" более 1 дня назад" +
-                    "Занести в справочник \"Доверенные получатели\" запись № 2 для клиент-получатель №2," +
-                    " где \"Дата занесения\" менее 1 дня назад" +
-                    "RemovalDate = 1 (справочник \"Параметры обработки справочников и флагов\")",
+            description = "Занести в справочник Доверенные получатели запись № 1 для клиент-получатель №1, " +
+                    "где Дата занесения более 1 дня назад" +
+                    "Занести в справочник Доверенные получатели запись № 2 для клиент-получатель №2," +
+                    " где Дата занесения менее 1 дня назад" +
+                    "RemovalDate = 1 (справочник Параметры обработки справочников и флагов)",
             dependsOnMethods = "addClient"
     )
     public void makeChangesToTheDirectory() {
@@ -76,8 +75,9 @@ public class JOB_PayeeWhiteListClear extends RSHBCaseTest {
                 .fillInputText("Имя получателя:", TYPE_TSP1)
                 .save();
         //меняем в БД дату занесения и дату последней транзакции у 1го клиента более 1 дня назад(-28 часов)
-        transactionTime1 = Instant.now().minus(28, ChronoUnit.HOURS);
-        HashMap<String,Object> map = new HashMap<>();
+        Instant transactionTime1 = Instant.now().minus(28, ChronoUnit.HOURS);
+
+        HashMap<String, Object> map = new HashMap<>();
         map.put("TIME_STAMP", transactionTime1.toString());
         map.put("LAST_TRANSACTION", transactionTime1.toString());
         getDatabase().updateWhere("WHITE_LIST", map, "WHERE [id] = (SELECT MAX([id]) FROM [WHITE_LIST])");
@@ -89,7 +89,8 @@ public class JOB_PayeeWhiteListClear extends RSHBCaseTest {
                 .fillInputText("Имя получателя:", TYPE_TSP2)
                 .save().sleep(3);
         //меняем в БД дату занесения и дату последней транзакции у 2го клиента менее 1 дня назад(-15 часов)
-        transactionTime2 = Instant.now().minus(15, ChronoUnit.HOURS);
+        Instant transactionTime2 = Instant.now().minus(15, ChronoUnit.HOURS);
+
         map = new HashMap<>();
         map.put("TIME_STAMP", transactionTime2.toString());
         map.put("LAST_TRANSACTION", transactionTime2.toString());
@@ -136,7 +137,6 @@ public class JOB_PayeeWhiteListClear extends RSHBCaseTest {
                 .match("Имя получателя", TYPE_TSP1)
                 .match("ФИО Клиента", name1)
                 .failIfRowsExists(); //проверка справочника на отсутствие записи
-
         getIC().close();
     }
 

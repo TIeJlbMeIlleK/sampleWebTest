@@ -6,48 +6,74 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
-
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class R01_WR_09_NonRiskTSP extends RSHBCaseTest {
 
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.DECEMBER, 23, 14, 10, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
     private static final String RULE_NAME = "R01_WR_09_NonRiskTSP";
     private static final String REFERENCE_ITEM = "(Rule_tables) Нерисковые ТСП";
-
     private static final String TSP_TYPE = "Предприниматель";
     private static final String TSP_NAME = "Киса Витальевич Воробьянинов";
 
+    @Test(
+            description = "Включить правило R01_WR_09_NonRiskTSP"
+    )
+
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate().selectRule(RULE_NAME)
+                .activate()
+                .sleep(10);
+
+        getIC().locateTable(REFERENCE_ITEM)
+                .deleteAll()
+                .addRecord()
+                .fillInputText("Нерисковый Тип ТСП или Имя ТСП:", TSP_NAME)
+                .select("Тип Нерисковых данных:", "TSP_NAME")
+                .save();
+
+        getIC().locateTable(REFERENCE_ITEM)
+                .addRecord()
+                .fillInputText("Нерисковый Тип ТСП или Имя ТСП:", TSP_TYPE)
+                .select("Тип Нерисковых данных:", "TSP_TYPE")
+                .save();
+    }
 
     @Test(
-            description = "Создаем клиента"
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
     )
     public void addClient() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
-
-                    client.getData().getClientData().getClient()
-                            .withFirstName("Маня")
-                            .withLastName("Романюк")
-                            .withMiddleName("Ивановна")
-                            .getClientIds()
-                            .withDboId(dboId);
-
-
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
+                        .getClientIds()
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -58,133 +84,65 @@ public class R01_WR_09_NonRiskTSP extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Добавить в справочник \"Не рисковые ТСП\" " +
-                    " -- Тип ТСП " +
-                    "-- Наименование ТСП",
+            description = "Отправить транзакцию №1 от Клиента №1 Платеж по QR-коду через СБП -- Тип ТСП из справочника",
             dependsOnMethods = "addClient"
-    )
-
-    public void addRecipients() {
-        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM).findRowsBy();
-
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
-
-        getIC().locateTable(REFERENCE_ITEM)
-                .addRecord()
-                .fillInputText("Нерисковый Тип ТСП или Имя ТСП:", TSP_NAME)
-                .select("Тип Нерисковых данных:", "TSP_NAME")
-                .save()
-                .sleep(5);
-
-        getIC().locateTable(REFERENCE_ITEM)
-                .addRecord()
-                .fillInputText("Нерисковый Тип ТСП или Имя ТСП:", TSP_TYPE)
-                .select("Тип Нерисковых данных:", "TSP_TYPE")
-                .save()
-                .sleep(5);
-    }
-
-    @Test(
-            description = "Включить правило R01_WR_09_NonRiskTSP",
-            dependsOnMethods = "addRecipients"
-    )
-
-    public void enableRules() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true)
-                .save()
-                .sleep(10);
-    }
-
-    @Test(
-            description = "Отправить транзакцию №1 от Клиента №1 \"Платеж по QR-коду через СБП\" -- Тип ТСП из справочника",
-            dependsOnMethods = "enableRules"
     )
 
     public void step1() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
                 .withTSPName(null)
                 .withTSPType(TSP_TYPE);
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Нерисковый Тип ТСП");
     }
 
     @Test(
-            description = "Отправить транзакцию №2 от Клиента №1 \"Платеж по QR-коду через СБП\" -- Наименование ТСП из справочника",
+            description = "Отправить транзакцию №2 от Клиента №1 Платеж по QR-коду через СБП -- Наименование ТСП из справочника",
             dependsOnMethods = "step1"
     )
 
     public void step2() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
                 .withTSPName(TSP_NAME)
                 .withTSPType(null);
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Нерисковое Имя ТСП");
     }
 
     @Test(
-            description = "Отправить транзакцию №3 от Клиента №1 \"Платеж по QR-коду через СБП\" -- В транзакции нет Наименования ТСП и Типа ТСП",
+            description = "Отправить транзакцию №3 от Клиента №1 Платеж по QR-коду через СБП -- В транзакции нет Наименования ТСП и Типа ТСП",
             dependsOnMethods = "step2"
     )
 
     public void step3() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
                 .withTSPName(null)
                 .withTSPType(null);
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "В транзакции отсутствуют Тип ТСП и Имя ТСП");
     }
 
     @Test(
-            description = "Отправить транзакцию №4 от Клиента №1 \"Платеж по QR-коду через СБП\" -- Тип ТСП и Наименование ТСП не из справочника",
+            description = "Отправить транзакцию №4 от Клиента №1 Платеж по QR-коду через СБП -- Тип ТСП и Наименование ТСП не из справочника",
             dependsOnMethods = "step3"
     )
 
     public void step4() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
                 .withTSPName("Наименование не из справочника")
                 .withTSPType("Тип не из справочника");
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, NO_MATCHES);
     }
@@ -196,9 +154,20 @@ public class R01_WR_09_NonRiskTSP extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(300))
+                .withTSPName(TSP_NAME)
+                .withTSPType(TSP_TYPE);
         return transaction;
     }
 

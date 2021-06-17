@@ -123,6 +123,7 @@ public class IC implements AutoCloseable {
 
 
     public Rules locateRules() {
+        view.sleep(1);
         locateView(TopMenuItem.ANALYTICS);
         locateView(TopMenuItem.RULES);
         driver.findElementByXPath("//span[text()='All Rules']/..").click();
