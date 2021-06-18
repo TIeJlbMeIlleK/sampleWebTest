@@ -1,8 +1,12 @@
 package ru.iitdgroup.tests.webdriver.ruleconfiguration;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.Select;
 import ru.iitdgroup.tests.webdriver.TabledView;
 import ru.iitdgroup.tests.webdriver.ic.AbstractView;
+import ru.iitdgroup.tests.webdriver.ic.ICXPath;
 
 /**
  * Контекст для работы с экранной формой правил.
@@ -43,7 +47,29 @@ public class Rules extends AbstractView<Rules> implements TabledView<Rules> {
         return new Rules(driver);
     }
 
-    public Rules selectRuleAfterFilter() {
+    public Rules setFilterAndSelectRule(String field, String operator, String value) {
+        clearTableFilters();
+        getSelf().getDriver().findElementByXPath("//*[text()='Add Filter']").click();
+        getSelf().sleep(2);
+
+        Select columnField = new Select(getSelf().getDriver()
+                .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
+                .findElements(By.className("af_selectOneChoice_content"))
+                .get(0));
+        columnField.selectByVisibleText(field);
+        getSelf().sleep(2);
+        Select operatorField = new Select(getSelf().getDriver()
+                .findElementByXPath("//div[@class='dataSetFiltersTable af_table']")
+                .findElements(By.className("af_selectOneChoice_content"))
+                .get(1));
+        operatorField.selectByVisibleText(operator);
+        getSelf().sleep(3);
+
+        try {
+            getSelf().icxpath().element("Value").following(ICXPath.WebElements.INPUT).type(value);
+        } catch (NoSuchElementException e) {
+            getSelf().getDriver().findElementByXPath("//*[@id=\"custom_tableReportFilters:0:custom_cmbValue\"]").sendKeys(value);
+        }
         refreshTable();
         driver.findElementByXPath("//*[@id='baseModuleListContent:j_id291:0']").click();
         return new Rules(driver);
