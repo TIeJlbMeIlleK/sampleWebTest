@@ -28,25 +28,29 @@ public class Rabbit implements AutoCloseable {
     private static final String DEFAULT_KAF_ALERT_PATH = "/caf/caf_alert.json";
     private static final String DEFAULT_KAF_NOT_TRANS_PATH = "/caf/caf_notFinance.json";
     private static final String DEFAULT_KAF_CLIENT_PATH = "/caf/client.json";
+    private static final String DEFAULT_KAF_ALERT_DECISION_PATH = "/caf/alertDecision.json";
 
     public enum ResponseType {
         VES_RESPONSE,
         CAF_CLIENT_RESPONSE,
         CAF_NOT_FINANCE_RESPONSE,
-        CAF_ALERT_RESPONSE
+        CAF_ALERT_RESPONSE,
+        CAF_ALERT_DECISION_RESPONSE
     }
 
     private String vesResponse;
     private String cafAlertResponse;
     private String cafNonFinanceResponse;
     private String cafClientResponse;
+    private String cafAlertDecisionResponse;
 
 
     public Rabbit(TestProperties props) {
         withVesResponse(DEFAULT_VES_PATH);
+        withCafClientResponse(DEFAULT_KAF_CLIENT_PATH);
         withCafAlertResponse(DEFAULT_KAF_ALERT_PATH);
         withCafNotFinanceResponse(DEFAULT_KAF_NOT_TRANS_PATH);
-        withCafClientResponse(DEFAULT_KAF_CLIENT_PATH);
+        withCafAlertDecisionResponse(DEFAULT_KAF_ALERT_DECISION_PATH);
         this.props = props;
         //TODO: перенести путь в файл настроек - оно системно-специфическое
         System.setProperty("webdriver.chrome.driver", props.getChromeDriverPath());
@@ -106,6 +110,9 @@ public class Rabbit implements AutoCloseable {
                 break;
             case CAF_ALERT_RESPONSE:
                 input = getCafAlertResponse();
+                break;
+            case CAF_ALERT_DECISION_RESPONSE:
+                input = getCafAlertDecisionResponse();
                 break;
             default:
                 input = getVesResponse();
@@ -172,6 +179,17 @@ public class Rabbit implements AutoCloseable {
     }
 
 
+    public Rabbit withCafAlertDecisionResponse(String cafAlertDecisionFile) {
+        try {
+            this.cafAlertDecisionResponse = Files
+                    .lines(Paths.get(RESOURCES.toAbsolutePath() + "/" + cafAlertDecisionFile), StandardCharsets.UTF_8)
+                    .collect(Collectors.joining(System.lineSeparator()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
+
     public void close() {
         try {
             //FIXME: не работает logoff
@@ -189,13 +207,13 @@ public class Rabbit implements AutoCloseable {
         return cafClientResponse;
     }
 
-    public String getCafAlertResponse() {
-        return cafAlertResponse;
-    }
+    public String getCafAlertResponse() { return cafAlertResponse; }
 
     public String getCafNotFinanceResponse() {
         return cafNonFinanceResponse;
     }
+
+    public String getCafAlertDecisionResponse() { return cafAlertDecisionResponse; }
 
     public String setVesResponse(String vesResponse) {
         this.vesResponse = vesResponse;
@@ -215,6 +233,11 @@ public class Rabbit implements AutoCloseable {
     public String setCafNotFinanceResponse(String cafNonFinanceResponse) {
         this.cafNonFinanceResponse = cafNonFinanceResponse;
         return cafNonFinanceResponse;
+    }
+
+    public String setCafAlertDecisionResponse(String cafAlertDecisionResponse) {
+        this.cafAlertDecisionResponse = cafAlertDecisionResponse;
+        return cafAlertDecisionResponse;
     }
 
     @Override

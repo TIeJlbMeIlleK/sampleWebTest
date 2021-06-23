@@ -93,6 +93,12 @@ public abstract class AbstractView<S> {
         return elem;
     }
 
+
+    public AbstractView<S> getButtonUnconfirmedFraud() {
+        getDriver().findElementByXPath("//*[@id='moduleDetailsActionsToolbar']/div/table/tbody/tr/td[12]/a/span").click();
+        return this;
+    }
+
     public AbstractView<S> getActions() {
         getDriver().findElementByXPath("//*[@id=\"moduleDetailsActionsToolbar\"]/div/table/tbody/tr/td[5]/table/tbody/tr/td/span/img").click();
         return this;

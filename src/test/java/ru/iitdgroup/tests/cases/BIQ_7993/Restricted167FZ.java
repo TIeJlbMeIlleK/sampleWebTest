@@ -8,14 +8,12 @@ import org.testng.annotations.Test;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.webdriver.rabbit.Rabbit;
 import ru.iitdgroup.tests.webdriver.report.ReportRecord;
-
 import java.util.concurrent.ThreadLocalRandom;
-
 import static org.junit.Assert.assertThat;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class Restricted167FZ extends RSHBCaseTest {
-    private static String RULE_NAME;
+    private final static String RULE_NAME = "";
 
     private static final String CARD_HOLDER_NAME = "Михалков Степан Михайлович";
     private static final String CARD_HOLDER_NAME2 = "Семенов Илья Иванович";
