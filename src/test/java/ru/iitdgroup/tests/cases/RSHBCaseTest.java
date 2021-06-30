@@ -4,10 +4,7 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteMessaging;
 import org.apache.ignite.cluster.ClusterGroup;
 import org.junit.Assert;
-import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.WebElement;
-import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -178,7 +175,7 @@ public abstract class RSHBCaseTest {
 
 
     private DBOAntiFraudWS ws;
-    private ESPP2AntiFraudWS esppWs;
+    private DBOAntiFraudWS esppWs;
     private TestProperties props;
     private IC ic;
     private Rabbit rabbit;
@@ -196,6 +193,10 @@ public abstract class RSHBCaseTest {
     public void before() {
         ws = new DBOAntiFraudWS(
                 getProps().getWSUrl(),
+                getProps().getWSUser(),
+                getProps().getWSPassword());
+        esppWs = new DBOAntiFraudWS(
+                getProps().getEsppWSUrl(),
                 getProps().getWSUser(),
                 getProps().getWSPassword());
     }
@@ -220,21 +221,16 @@ public abstract class RSHBCaseTest {
         return ws;
     }
 
-    protected ESPP2AntiFraudWS getWsEspp() {
+    protected DBOAntiFraudWS getWsEspp() {
         return esppWs;
     }
 
     protected DBOAntiFraudWS send(Template template) {
         try {
+            if (template instanceof TransactionEspp) {
+                return getWsEspp().send(template);
+            }
             return getWS().send(template);
-        } catch (SOAPException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    protected ESPP2AntiFraudWS sendESPP(Template template) {
-        try {
-            return getWsEspp().send(template);
         } catch (SOAPException e) {
             throw new IllegalStateException(e);
         }
@@ -242,14 +238,6 @@ public abstract class RSHBCaseTest {
 
     protected DBOAntiFraudWS sendAndAssert(Template template) {
         DBOAntiFraudWS result = send(template);
-        assertTrue(
-                String.format("Ошибка на стороне AntiFraudWS: %s", result.getResponse().getErrorMessage()),
-                result.isSuccessResponse());
-        return result;
-    }
-
-    protected ESPP2AntiFraudWS sendAndAssertESPP(Template template) {
-        ESPP2AntiFraudWS result = sendESPP(template);
         assertTrue(
                 String.format("Ошибка на стороне AntiFraudWS: %s", result.getResponse().getErrorMessage()),
                 result.isSuccessResponse());
@@ -361,6 +349,20 @@ public abstract class RSHBCaseTest {
         assertEquals(ruleResult, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
     }
+
+    protected void assertLastTransactionRuleApplyPersonalException(String ruleNamePersonalException, String ruleResult, String description) {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+        String[][] dbResult = getIncidentWrapByRule(ruleNamePersonalException);
+        assertEquals(ruleResult, dbResult[0][0]);
+        assertEquals(description, dbResult[0][1]);
+    }
+
+
 
     /**
      * Возвращает информацию о последнем отправленном СМС
@@ -577,14 +579,13 @@ public abstract class RSHBCaseTest {
         }
     }
 
-    protected Transaction getTransactionESPP(String filePath) {
+    protected TransactionEspp getTransactionESPP(String filePath) {
         try {
             //FIXME Добавить проверку на существование клиента в базе
-            Transaction transaction = new Transaction(filePath);
-//            transaction.getData()
-//                    .getTransactionData()
-//                    .withTransactionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
-//                    .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
+            TransactionEspp transaction = new TransactionEspp(filePath);
+            transaction.getData()
+                    .withTransactionId((ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7))
+                    .withDocumentNumber((ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5));
             return transaction;
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);

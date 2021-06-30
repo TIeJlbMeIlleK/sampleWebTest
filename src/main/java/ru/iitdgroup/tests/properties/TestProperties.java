@@ -49,13 +49,11 @@ public class TestProperties extends Properties {
         return getProperty("pictures.folder");
     }
 
-    public String getWSUrl() {
-        return getProperty("ws.url");
-    }
+    public String getWSUrl() { return getProperty("ws.url"); }
 
-    public String getWSUser() {
-        return getProperty("ws.user");
-    }
+    public String getEsppWSUrl() { return getProperty("ws.urlEspp"); }
+
+    public String getWSUser() { return getProperty("ws.user"); }
 
     public String getWSPassword() {
         return getProperty("ws.password");

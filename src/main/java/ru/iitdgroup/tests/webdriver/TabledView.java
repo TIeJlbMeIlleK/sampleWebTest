@@ -308,10 +308,41 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
+    default S attachPersonalExceptions(String rule) {
+        getSelf().getDriver().findElementByXPath("//img[@title='Attach']").click();
+        getSelf().waitUntil("//*[@title='Refresh']");
+        refreshTable();
+        setTabFilter("Серые правила", "Equals", rule).refreshTab();
+
+        if (getSelf().getDriver().findElementsByXPath("//*[text()='No records were found.']").size() > 0) {
+            getSelf().getDriver().findElementByXPath("//img[@id='j_id106:1:j_id151']").click();
+            getSelf().getDriver().findElementByXPath("//*[@id='j_id169:0:j_id172:0:field_col1_Required']").sendKeys(rule);
+            getSelf().getDriver().findElementByXPath("//a[@id='btnSave']").click();
+        } else {
+            getSelf().getDriver().findElementByXPath("//*[@id='j_id231']/table[2]/tbody/tr[1]/th[1]/div/input").click();
+            getSelf().getDriver().findElementByXPath("//a[@title='OK']").click();
+        }
+        return getSelf();
+    }
+
     default S detachWithoutRecording(String group) {
         getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElements(By.xpath("//a[text()='Show All']"))
                 .forEach(WebElement::click);
         getSelf().sleep(1);
+        if (getSelf().getDriver().findElementsByXPath("//*[text()='No records were found.']").size() > 0) {
+            return getSelf();
+        }
+        getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//input[@type='checkbox']")).click();
+        getSelf().sleep(1);
+        getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Detach']")).click();
+        getSelf().sleep(1);
+        getSelf().getDriver().findElementByXPath("//button[2]/span[text()='Yes']").click();
+        getSelf().sleep(1);
+        return getSelf();
+    }
+
+    default S getGroupPersonalExceptionsEndDetach(String group) {
+        getSelf().getDriver().findElementByXPath("//*[@id='j_id3439']").click();
         if (getSelf().getDriver().findElementsByXPath("//*[text()='No records were found.']").size() > 0) {
             return getSelf();
         }

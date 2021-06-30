@@ -2,15 +2,13 @@ package ru.iitdgroup.tests.cases.BIQ_4077;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.testng.annotations.Test;
-import ru.iitdgroup.intellinx.dbo.client.IOSDevice;
-import ru.iitdgroup.intellinx.dbo.client.PlatformKind;
+import ru.iitdgroup.intellinx.crosschannel.tranantifraudcheckrequest.TranAntiFraudCheckType;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
-import ru.iitdgroup.tests.apidriver.Authentication;
 import ru.iitdgroup.tests.apidriver.Client;
+import ru.iitdgroup.tests.apidriver.TransactionEspp;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -270,11 +268,10 @@ public class ExR_13_UnprocessedEvent extends RSHBCaseTest {
         return transaction;
     }
 
-    private Transaction getTransactionESPP() {
-        Transaction transaction = getTransactionESPP("testCases/Templates/ESPP_transaction.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+    private TransactionEspp getTransactionESPP() {
+        TransactionEspp transaction = getTransactionESPP("testCases/Templates/ESPP_transaction.xml");
+        TranAntiFraudCheckType transEspp = transaction.getData()
+                .withDocumentTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
     }
 

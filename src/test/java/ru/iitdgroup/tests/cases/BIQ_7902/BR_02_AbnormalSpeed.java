@@ -24,7 +24,7 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
+    private final String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
 
     @Test(
             description = "Включаем правило"
