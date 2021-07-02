@@ -55,7 +55,7 @@ public class GR_24_SeriesBetweenOwnAccounts extends RSHBCaseTest {
                 .fillInputText("Период серии в минутах:", "10")
                 .save()
                 .detachDelGroup()
-                .addAttachMask(mask)
+                .addAttachMask("Маска счёта", mask)
                 .sleep(20);
         getIC().close();
     }

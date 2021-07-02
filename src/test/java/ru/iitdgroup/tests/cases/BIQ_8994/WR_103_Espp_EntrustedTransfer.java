@@ -35,19 +35,19 @@ public class WR_103_Espp_EntrustedTransfer extends RSHBCaseTest {
                     "2. Включить WR_103_Espp_EntrustedTransfer (Белые правила)"
     )
     public void enableRules() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .selectRule(RULE_NAME_AttentionClient_ESPP)
-                .activate();
-        getIC().locateRules()
-                .editRule(RULE_NAME_ESPP)
-                .fillCheckBox("Active:", true)
-                .fillInputText("Крупный перевод:", "5000")
-                .fillInputText("Период серии в минутах:", "10")
-                .save()
-                .getGroupPersonalExceptionsEndDetach("Персональные Исключения")
-                .sleep(20);
+//        getIC().locateRules()
+//                .selectVisible()
+//                .deactivate()
+//                .selectRule(RULE_NAME_AttentionClient_ESPP)
+//                .activate();
+//        getIC().locateRules()
+//                .editRule(RULE_NAME_ESPP)
+//                .fillCheckBox("Active:", true)
+//                .fillInputText("Крупный перевод:", "5000")
+//                .fillInputText("Период серии в минутах:", "10")
+//                .save()
+//                .getGroupPersonalExceptionsEndDetach("Персональные Исключения")
+//                .sleep(5);
     }
 
     @Test(
@@ -83,23 +83,23 @@ public class WR_103_Espp_EntrustedTransfer extends RSHBCaseTest {
             throw new IllegalStateException(e);
         }
 
-        getIC().locateTable(TABLE_Special_attention)
-                .deleteAll()
-                .addRecord()
-                .fillCheckBox("Признак «Особое внимание»:", true)
-                .fillUser("Клиент:", clientIds.get(0))
-                .save();
-        getIC().locateTable(TABLE_Trusted_recipients)
-                .deleteAll()
-                .addRecord().fillUser("ФИО Клиента:", clientIds.get(0))
-                .fillInputText("Имя получателя:", "Егор Ильич Иванов")
-                .fillInputText("Номер карты получателя:", "42760000000000002365")
-                .fillInputText("Номер банковского счета получателя:", ACCOUNT_NUMBER)
-                .fillInputText("БИК банка получателя:", BIK)
-                .fillInputText("Наименование сервиса:", "Оплата услуг")
-                .fillInputText("Наименование провайдера сервис услуги:", "МТС")
-                .fillInputText("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером:", TRUSTED_PHONE)
-                .save();
+//        getIC().locateTable(TABLE_Special_attention)
+//                .deleteAll()
+//                .addRecord()
+//                .fillCheckBox("Признак «Особое внимание»:", true)
+//                .fillUser("Клиент:", clientIds.get(0))
+//                .save();
+//        getIC().locateTable(TABLE_Trusted_recipients)
+//                .deleteAll()
+//                .addRecord().fillUser("ФИО Клиента:", clientIds.get(0))
+//                .fillInputText("Имя получателя:", "Егор Ильич Иванов")
+//                .fillInputText("Номер карты получателя:", "42760000000000002365")
+//                .fillInputText("Номер банковского счета получателя:", ACCOUNT_NUMBER)
+//                .fillInputText("БИК банка получателя:", BIK)
+//                .fillInputText("Наименование сервиса:", "Оплата услуг")
+//                .fillInputText("Наименование провайдера сервис услуги:", "МТС")
+//                .fillInputText("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером:", TRUSTED_PHONE)
+//                .save();
     }
 
     @Test(
@@ -111,7 +111,7 @@ public class WR_103_Espp_EntrustedTransfer extends RSHBCaseTest {
     public void step1() {
         time.add(Calendar.MINUTE, -30);
         TransactionEspp transactionEspp = getTransactionEspp();
-        sendAndAssert(transactionEspp);
+        sendEsppAndAssert(transactionEspp);
         assertLastTransactionRuleApply(TRIGGERED, "Перевод на доверенного получателя");
 
         getIC().locateRules()
@@ -139,12 +139,17 @@ public class WR_103_Espp_EntrustedTransfer extends RSHBCaseTest {
     }
 
     private TransactionEspp getTransactionEspp() {
-        TransactionEspp esppTrans = getTransactionESPP("testCases/Templates/ESPP_transaction.xml");
-        TranAntiFraudCheckType transactionEspp = esppTrans.getData().withClientId(clientIds.get(0));
         ArrayList<ServicePaymentType.PaymentParameters.Parameter> parameters = new ArrayList<>();
         parameters.add(new ServicePaymentType.PaymentParameters.Parameter().withName("PayeeAccount").withValue(TRUSTED_PHONE));
         parameters.add(new ServicePaymentType.PaymentParameters.Parameter().withName("R_CorpBIC").withValue(BIK));
         parameters.add(new ServicePaymentType.PaymentParameters.Parameter().withName("R_CorpBankAccount").withValue(ACCOUNT_NUMBER));
+
+        TransactionEspp esppTrans = getTransactionESPP("testCases/Templates/ESPP_transaction.xml");
+        TranAntiFraudCheckType transactionEspp = esppTrans.getData();
+        transactionEspp
+                .withClientId(clientIds.get(0))
+                .withEksId(clientIds.get(0))
+                .withBranchId(clientIds.get(0));
         transactionEspp
                 .withRequestType("3")
                 .withPointId(5)

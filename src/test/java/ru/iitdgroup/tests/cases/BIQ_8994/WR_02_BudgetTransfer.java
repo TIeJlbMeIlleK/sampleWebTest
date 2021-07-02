@@ -21,7 +21,7 @@ public class WR_02_BudgetTransfer extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_WR_02_BudgetTransfer";
     private static final String RULE_NAME_AttentionClient = "R01_ExR_08_AttentionClient";
     private static final String TABLE_Special_attention = "(Rule_tables) Список клиентов с пометкой особое внимание";
-    private final String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
+    private final String[][] names = {{"Вероника", "Жукова", "Игоревна"}, {"Сергей", "Кириллов", "Тимурович"}};
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
 
@@ -106,7 +106,7 @@ public class WR_02_BudgetTransfer extends RSHBCaseTest {
             description = "4. Отправить от клиента №1 транзакцию №3 в сторону государства",
             dependsOnMethods = "step1"
     )
-    public void step3() {
+    public void step2() {
         time.add(Calendar.MINUTE, 11);
         Transaction transaction = getTransactionBudgetTransfer();
         sendAndAssert(transaction);
@@ -116,9 +116,9 @@ public class WR_02_BudgetTransfer extends RSHBCaseTest {
 
     @Test(
             description = "5. Отправить от клиента №2 транзакцию №4 в сторону государства",
-            dependsOnMethods = "step1"
+            dependsOnMethods = "step2"
     )
-    public void step4() {
+    public void step3() {
         time.add(Calendar.MINUTE, 10);
         Transaction transaction = getTransactionBudgetTransfer();
         transaction.getData().getTransactionData()

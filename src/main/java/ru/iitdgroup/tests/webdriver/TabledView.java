@@ -184,11 +184,15 @@ public interface TabledView<S extends AbstractView> {
     }
 
     default S detachAll(String group) {
-        getSelf().getDriver().findElementByXPath("//*[@id=\"layoutListTablePanel:j_id2488\"]/table[2]/tbody/tr[1]/th[1]/div/input").click();
-        getSelf().getDriver().findElementByXPath("//*[@id=\"j_id2356:1:j_id2401\"]").click();
-        getSelf().sleep(1);
-        getSelf().getDriver().findElementByXPath("/html/body/div[16]/div[3]/div/button[2]/span").click();
-        getSelf().sleep(1);
+        if (getSelf().getDriver().findElementsByXPath("//*[text()='No records were found.']").size() > 0) {
+            return getSelf();
+        } else {
+            getSelf().getDriver().findElementByXPath("//*[@id=\"layoutListTablePanel:j_id2488\"]/table[2]/tbody/tr[1]/th[1]/div/input").click();
+            getSelf().getDriver().findElementByXPath("//*[@id=\"j_id2356:1:j_id2401\"]").click();
+            getSelf().sleep(1);
+            getSelf().getDriver().findElementByXPath("/html/body/div[16]/div[3]/div/button[2]/span").click();
+            getSelf().sleep(1);
+        }
         return getSelf();
     }
 
@@ -250,14 +254,15 @@ public interface TabledView<S extends AbstractView> {
         return getSelf();
     }
 
-    default S addAttachMask(String mask) {
+    default S addAttachMask(String field, String mask) {
         getSelf().getDriver().findElementByXPath("//img[@title='Attach']").click();
         getSelf().waitUntil("//*[@title='Refresh']");
         refreshTable();
-        setTableFilter("Маска счёта", "Equals", mask).refreshTab();
+        setTableFilter(field, "Equals", mask).refreshTab();
         if (getSelf().getDriver().findElementsByXPath("//*[text()='No records were found.']").size() > 0) {
-            getSelf().getDriver().findElementByXPath("//img[@title='New (Rule_tables) Маски счётов для правила G24']").click();
-            getSelf().getDriver().findElementByXPath("//*[@id=\"j_id169:0:j_id172:1:field_col0\"]").sendKeys(mask);
+           // getSelf().getDriver().findElementByXPath("//img[@title='New (Rule_tables) Маски счётов для правила G24']").click();
+            getSelf().getDriver().findElementByXPath("//*[@id='j_id106:1:j_id151']").click();
+            getSelf().getDriver().findElementByXPath("//*[@id='j_id169:0:j_id172:0:field_col1']").sendKeys(mask);
             getSelf().getDriver().findElementByXPath("//a[@id='btnSave']").click();
         } else {
             getSelf().getDriver().findElementByXPath("//*[@class='af_tableSelectMany_cell-icon-format OraTableBorder1111']").click();
@@ -337,12 +342,14 @@ public interface TabledView<S extends AbstractView> {
         getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Detach']")).click();
         getSelf().sleep(1);
         getSelf().getDriver().findElementByXPath("//button[2]/span[text()='Yes']").click();
-        getSelf().sleep(1);
+        getSelf().sleep(3);
         return getSelf();
     }
 
     default S getGroupPersonalExceptionsEndDetach(String group) {
-        getSelf().getDriver().findElementByXPath("//*[@id='j_id3439']").click();
+        getSelf().sleep(2);
+        getSelf().getDriver().findElementByXPath("//*[@id='detailsPanelTabbed']/table/tbody/tr/td[4]").click();
+        //getSelf().getDriver().findElementByXPath("//*[@id='j_id3439']").click();
         if (getSelf().getDriver().findElementsByXPath("//*[text()='No records were found.']").size() > 0) {
             return getSelf();
         }
@@ -351,7 +358,7 @@ public interface TabledView<S extends AbstractView> {
         getSelf().getDriver().findElementByXPath(getGroupElement(group)).findElement(By.xpath("//img[@title='Detach']")).click();
         getSelf().sleep(1);
         getSelf().getDriver().findElementByXPath("//button[2]/span[text()='Yes']").click();
-        getSelf().sleep(1);
+        getSelf().sleep(3);
         return getSelf();
     }
 

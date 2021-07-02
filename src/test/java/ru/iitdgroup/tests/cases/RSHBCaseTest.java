@@ -175,7 +175,7 @@ public abstract class RSHBCaseTest {
 
 
     private DBOAntiFraudWS ws;
-    private DBOAntiFraudWS esppWs;
+    private ESPP2AntiFraudWS esppWs;
     private TestProperties props;
     private IC ic;
     private Rabbit rabbit;
@@ -195,7 +195,7 @@ public abstract class RSHBCaseTest {
                 getProps().getWSUrl(),
                 getProps().getWSUser(),
                 getProps().getWSPassword());
-        esppWs = new DBOAntiFraudWS(
+        esppWs = new ESPP2AntiFraudWS(
                 getProps().getEsppWSUrl(),
                 getProps().getWSUser(),
                 getProps().getWSPassword());
@@ -221,23 +221,37 @@ public abstract class RSHBCaseTest {
         return ws;
     }
 
-    protected DBOAntiFraudWS getWsEspp() {
+    protected ESPP2AntiFraudWS getWsEspp() {
         return esppWs;
     }
 
     protected DBOAntiFraudWS send(Template template) {
         try {
-            if (template instanceof TransactionEspp) {
-                return getWsEspp().send(template);
-            }
             return getWS().send(template);
         } catch (SOAPException e) {
             throw new IllegalStateException(e);
         }
     }
 
+    protected ESPP2AntiFraudWS sendEspp(Template template) {
+        try {
+            return getWsEspp().send(template);
+        } catch (SOAPException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+
     protected DBOAntiFraudWS sendAndAssert(Template template) {
         DBOAntiFraudWS result = send(template);
+        assertTrue(
+                String.format("Ошибка на стороне AntiFraudWS: %s", result.getResponse().getErrorMessage()),
+                result.isSuccessResponse());
+        return result;
+    }
+
+    protected ESPP2AntiFraudWS sendEsppAndAssert(Template template) {
+        ESPP2AntiFraudWS result = sendEspp(template);
         assertTrue(
                 String.format("Ошибка на стороне AntiFraudWS: %s", result.getResponse().getErrorMessage()),
                 result.isSuccessResponse());
