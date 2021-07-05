@@ -22,7 +22,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Людмила", "Серова", "Семеновна"}};
+    private final String[][] names = {{"Людмила", "Серова", "Семеновна"}};
 
     @Test(
             description = "Включаем правило"
@@ -145,7 +145,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void addClients() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 10);
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
@@ -183,14 +183,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transBetween() {
         time.add(Calendar.HOUR, -10);
         Transaction transBetween = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetween = transBetween.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataBetween
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBetween
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+        TransactionDataType transactionDataBetween = transBetween.getData().getTransactionData();
+               transactionDataBetween
                 .getTransferBetweenAccounts()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transBetween);
@@ -198,14 +192,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBetweenOutside = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetweenOutside = transBetweenOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataBetweenOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBetweenOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+        TransactionDataType transactionDataBetweenOutside = transBetweenOutside.getData().getTransactionData();
+               transactionDataBetweenOutside
                 .getTransferBetweenAccounts()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transBetweenOutside);
@@ -213,12 +201,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBetweenAccountBalance = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetweenAccountBalance = transBetweenAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataBetweenAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataBetweenAccountBalance = transBetweenAccountBalance.getData().getTransactionData();
         transactionDataBetweenAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getTransferBetweenAccounts()
@@ -228,14 +211,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBetweenDeviation = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetweenDeviation = transBetweenDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataBetweenDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBetweenDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+        TransactionDataType transactionDataBetweenDeviation = transBetweenDeviation.getData().getTransactionData();
+                transactionDataBetweenDeviation
                 .getTransferBetweenAccounts()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transBetweenDeviation);
@@ -243,14 +220,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBetweenLength = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetweenLength = transBetweenLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataBetweenLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBetweenLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+        TransactionDataType transactionDataBetweenLength = transBetweenLength.getData().getTransactionData();
+               transactionDataBetweenLength
                 .getTransferBetweenAccounts()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transBetweenLength);
@@ -267,14 +238,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transOuter() {
         time.add(Calendar.SECOND, 20);
         Transaction transOuter = getOuterTransfer();
-        TransactionDataType transactionDataOuter = transOuter.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataOuter
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOuter
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+        TransactionDataType transactionDataOuter = transOuter.getData().getTransactionData();
+                transactionDataOuter
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transOuter);
@@ -282,14 +247,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterOutside = getOuterTransfer();
-        TransactionDataType transactionDataOuterOutside = transOuterOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataOuterOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOuterOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+        TransactionDataType transactionDataOuterOutside = transOuterOutside.getData().getTransactionData();
+                transactionDataOuterOutside
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transOuterOutside);
@@ -297,12 +256,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterAccountBalance = getOuterTransfer();
-        TransactionDataType transactionDataOuterAccountBalance = transOuterAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataOuterAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataOuterAccountBalance = transOuterAccountBalance.getData().getTransactionData();
         transactionDataOuterAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getOuterTransfer()
@@ -312,14 +266,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterDeviation = getOuterTransfer();
-        TransactionDataType transactionDataOuterDeviation = transOuterDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOuterDeviation = transOuterDeviation.getData().getTransactionData();
         transactionDataOuterDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOuterDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transOuterDeviation);
@@ -327,14 +275,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterLength = getOuterTransfer();
-        TransactionDataType transactionDataOuterLength = transOuterLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOuterLength = transOuterLength.getData().getTransactionData();
         transactionDataOuterLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOuterLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transOuterLength);
@@ -351,14 +293,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transBudget() {
         time.add(Calendar.SECOND, 20);
         Transaction transBudget = getBudgetTransfer();
-        TransactionDataType transactionDataBudget = transBudget.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataBudget = transBudget.getData().getTransactionData();
         transactionDataBudget
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBudget
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getBudgetTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transBudget);
@@ -366,14 +302,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetOutside = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetOutside = transBudgetOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataBudgetOutside = transBudgetOutside.getData().getTransactionData();
         transactionDataBudgetOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBudgetOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getBudgetTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transBudgetOutside);
@@ -381,12 +311,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetAccountBalance = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetAccountBalance = transBudgetAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataBudgetAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataBudgetAccountBalance = transBudgetAccountBalance.getData().getTransactionData();
         transactionDataBudgetAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getBudgetTransfer()
@@ -396,14 +321,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetDeviation = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetDeviation = transBudgetDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataBudgetDeviation = transBudgetDeviation.getData().getTransactionData();
         transactionDataBudgetDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBudgetDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getBudgetTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transBudgetDeviation);
@@ -411,14 +330,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetLength = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetLength = transBudgetLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataBudgetLength = transBudgetLength.getData().getTransactionData();
         transactionDataBudgetLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBudgetLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getBudgetTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transBudgetLength);
@@ -435,14 +348,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transServis() {
         time.add(Calendar.SECOND, 20);
         Transaction transServis = getServisPayment();
-        TransactionDataType transactionDataServis = transServis.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataServis = transServis.getData().getTransactionData();
         transactionDataServis
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataServis
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transServis);
@@ -450,14 +357,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transServisOutside = getServisPayment();
-        TransactionDataType transactionDataServisOutside = transServisOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataServisOutside = transServisOutside.getData().getTransactionData();
         transactionDataServisOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataServisOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transServisOutside);
@@ -465,12 +366,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transServisAccountBalance = getServisPayment();
-        TransactionDataType transactionDataServisAccountBalance = transServisAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataServisAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataServisAccountBalance = transServisAccountBalance.getData().getTransactionData();
         transactionDataServisAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getServicePayment()
@@ -480,14 +376,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transServisDeviation = getServisPayment();
-        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData();
         transactionDataServisDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataServisDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transServisDeviation);
@@ -495,14 +385,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transServisLength = getServisPayment();
-        TransactionDataType transactionDataServisLength = transServisLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataServisLength = transServisLength.getData().getTransactionData();
         transactionDataServisLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataServisLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transServisLength);
@@ -519,14 +403,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transOpenDeposit() {
         time.add(Calendar.SECOND, 20);
         Transaction transOpenDeposit = getOpenDeposit();
-        TransactionDataType transactionDataOpenDeposit = transOpenDeposit.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOpenDeposit = transOpenDeposit.getData().getTransactionData();
         transactionDataOpenDeposit
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOpenDeposit
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOpenDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transOpenDeposit);
@@ -534,14 +412,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenDepositOutside = getOpenDeposit();
-        TransactionDataType transactionDataOpenDepositOutside = transOpenDepositOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOpenDepositOutside = transOpenDepositOutside.getData().getTransactionData();
         transactionDataOpenDepositOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOpenDepositOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOpenDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transOpenDepositOutside);
@@ -549,12 +421,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenDepositAccountBalance = getOpenDeposit();
-        TransactionDataType transactionDataOpenDepositAccountBalance = transOpenDepositAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataOpenDepositAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataOpenDepositAccountBalance = transOpenDepositAccountBalance.getData().getTransactionData();
         transactionDataOpenDepositAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getOpenDeposit()
@@ -564,14 +431,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenDepositDeviation = getOpenDeposit();
-        TransactionDataType transactionDataOpenDepositDeviation = transOpenDepositDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOpenDepositDeviation = transOpenDepositDeviation.getData().getTransactionData();
         transactionDataOpenDepositDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOpenDepositDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOpenDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transOpenDepositDeviation);
@@ -579,14 +440,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenDepositLength = getOpenDeposit();
-        TransactionDataType transactionDataOpenDepositLength = transOpenDepositLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOpenDepositLength = transOpenDepositLength.getData().getTransactionData();
         transactionDataOpenDepositLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOpenDepositLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOpenDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transOpenDepositLength);
@@ -603,14 +458,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transClosureDeposit() {
         time.add(Calendar.SECOND, 20);
         Transaction transClosureDeposit = getClosureDeposit();
-        TransactionDataType transactionDataClosureDeposit = transClosureDeposit.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataClosureDeposit = transClosureDeposit.getData().getTransactionData();
         transactionDataClosureDeposit
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataClosureDeposit
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClosureDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transClosureDeposit);
@@ -618,14 +467,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureDepositOutside = getClosureDeposit();
-        TransactionDataType transactionDataClosureDepositOutside = transClosureDepositOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataClosureDepositOutside = transClosureDepositOutside.getData().getTransactionData();
         transactionDataClosureDepositOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataClosureDepositOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClosureDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transClosureDepositOutside);
@@ -633,12 +476,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureDepositAccountBalance = getClosureDeposit();
-        TransactionDataType transactionDataClosureDepositAccountBalance = transClosureDepositAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataClosureDepositAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataClosureDepositAccountBalance = transClosureDepositAccountBalance.getData().getTransactionData();
         transactionDataClosureDepositAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getClosureDeposit()
@@ -648,14 +486,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureDepositDeviation = getClosureDeposit();
-        TransactionDataType transactionDataClosureDepositDeviation = transClosureDepositDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataClosureDepositDeviation = transClosureDepositDeviation.getData().getTransactionData();
         transactionDataClosureDepositDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataClosureDepositDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClosureDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transClosureDepositDeviation);
@@ -663,14 +495,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureDepositLength = getClosureDeposit();
-        TransactionDataType transactionDataClosureDepositLength = transClosureDepositLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataClosureDepositLength = transClosureDepositLength.getData().getTransactionData();
         transactionDataClosureDepositLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataClosureDepositLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClosureDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transClosureDepositLength);
@@ -687,14 +513,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transOpenAccount() {
         time.add(Calendar.SECOND, 20);
         Transaction transOpenAccount = getOpenAccount();
-        TransactionDataType transactionDataOpenAccount = transOpenAccount.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOpenAccount = transOpenAccount.getData().getTransactionData();
         transactionDataOpenAccount
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOpenAccount
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOpenAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transOpenAccount);
@@ -702,14 +522,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenAccountOutside = getOpenAccount();
-        TransactionDataType transactionDataOpenAccountOutside = transOpenAccountOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOpenAccountOutside = transOpenAccountOutside.getData().getTransactionData();
         transactionDataOpenAccountOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOpenAccountOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOpenAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transOpenAccountOutside);
@@ -717,12 +531,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenAccountAccountBalance = getOpenAccount();
-        TransactionDataType transactionDataOpenAccountAccountBalance = transOpenAccountAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataOpenAccountAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataOpenAccountAccountBalance = transOpenAccountAccountBalance.getData().getTransactionData();
         transactionDataOpenAccountAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getOpenAccount()
@@ -732,14 +541,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenAccountDeviation = getOpenAccount();
-        TransactionDataType transactionDataOpenAccountDeviation = transOpenAccountDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOpenAccountDeviation = transOpenAccountDeviation.getData().getTransactionData();
         transactionDataOpenAccountDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOpenAccountDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOpenAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transOpenAccountDeviation);
@@ -747,14 +550,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenAccountLength = getOpenAccount();
-        TransactionDataType transactionDataOpenAccountLength = transOpenAccountLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOpenAccountLength = transOpenAccountLength.getData().getTransactionData();
         transactionDataOpenAccountLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOpenAccountLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOpenAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transOpenAccountLength);
@@ -771,14 +568,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transClosureAccount() {
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccount = getClosureAccount();
-        TransactionDataType transactionDataClosureAccount = transClosureAccount.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataClosureAccount = transClosureAccount.getData().getTransactionData();
         transactionDataClosureAccount
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataClosureAccount
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClosureAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transClosureAccount);
@@ -786,14 +577,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountOutside = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountOutside = transClosureAccountOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataClosureAccountOutside = transClosureAccountOutside.getData().getTransactionData();
         transactionDataClosureAccountOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataClosureAccountOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClosureAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transClosureAccountOutside);
@@ -801,12 +586,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountBalance = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountBalance = transClosureAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataClosureAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataClosureAccountBalance = transClosureAccountBalance.getData().getTransactionData();
         transactionDataClosureAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getClosureAccount()
@@ -816,14 +596,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountDeviation = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountDeviation = transClosureAccountDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataClosureAccountDeviation = transClosureAccountDeviation.getData().getTransactionData();
         transactionDataClosureAccountDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataClosureAccountDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClosureAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transClosureAccountDeviation);
@@ -831,14 +605,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountLength = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountLength = transClosureAccountLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataClosureAccountLength = transClosureAccountLength.getData().getTransactionData();
         transactionDataClosureAccountLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataClosureAccountLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClosureAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transClosureAccountLength);
@@ -855,14 +623,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transOuterCard() {
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCard = getOuterCardTrans();
-        TransactionDataType transactionDataOuterCard = transOuterCard.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOuterCard = transOuterCard.getData().getTransactionData();
         transactionDataOuterCard
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOuterCard
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterCardTransfer()
                 .withAmountInDestinationCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transOuterCard);
@@ -870,14 +632,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCardOutside = getOuterCardTrans();
-        TransactionDataType transactionDataOuterCardOutside = transOuterCardOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOuterCardOutside = transOuterCardOutside.getData().getTransactionData();
         transactionDataOuterCardOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOuterCardOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterCardTransfer()
                 .withAmountInDestinationCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transOuterCardOutside);
@@ -885,12 +641,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCardAccountBalance = getOuterCardTrans();
-        TransactionDataType transactionDataOuterCardAccountBalance = transOuterCardAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataOuterCardAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataOuterCardAccountBalance = transOuterCardAccountBalance.getData().getTransactionData();
         transactionDataOuterCardAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getOuterCardTransfer()
@@ -900,14 +651,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCardDeviation = getOuterCardTrans();
-        TransactionDataType transactionDataOuterCardDeviation = transOuterCardDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOuterCardDeviation = transOuterCardDeviation.getData().getTransactionData();
         transactionDataOuterCardDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOuterCardDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterCardTransfer()
                 .withAmountInDestinationCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transOuterCardDeviation);
@@ -915,14 +660,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCardLength = getOuterCardTrans();
-        TransactionDataType transactionDataOuterCardLength = transOuterCardLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataOuterCardLength = transOuterCardLength.getData().getTransactionData();
         transactionDataOuterCardLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOuterCardLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterCardTransfer()
                 .withAmountInDestinationCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transOuterCardLength);
@@ -939,14 +678,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transMTSystem() {
         time.add(Calendar.SECOND, 20);
         Transaction transMTSystem = getMTSystemTrans();
-        TransactionDataType transactionDataMTSystem = transMTSystem.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataMTSystem = transMTSystem.getData().getTransactionData();
         transactionDataMTSystem
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataMTSystem
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getMTSystemTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transMTSystem);
@@ -954,14 +687,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTSystemOutside = getMTSystemTrans();
-        TransactionDataType transactionDataMTSystemOutside = transMTSystemOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataMTSystemOutside = transMTSystemOutside.getData().getTransactionData();
         transactionDataMTSystemOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataMTSystemOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getMTSystemTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transMTSystemOutside);
@@ -969,12 +696,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTSystemAccountBalance = getMTSystemTrans();
-        TransactionDataType transactionDataMTSystemAccountBalance = transMTSystemAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataMTSystemAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataMTSystemAccountBalance = transMTSystemAccountBalance.getData().getTransactionData();
         transactionDataMTSystemAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getMTSystemTransfer()
@@ -984,14 +706,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTSystemDeviation = getMTSystemTrans();
-        TransactionDataType transactionDataMTSystemDeviation = transMTSystemDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataMTSystemDeviation = transMTSystemDeviation.getData().getTransactionData();
         transactionDataMTSystemDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataMTSystemDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getMTSystemTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transMTSystemDeviation);
@@ -999,14 +715,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTSystemLength = getMTSystemTrans();
-        TransactionDataType transactionDataMTSystemLength = transMTSystemLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataMTSystemLength = transMTSystemLength.getData().getTransactionData();
         transactionDataMTSystemLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataMTSystemLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getMTSystemTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transMTSystemLength);
@@ -1023,14 +733,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transCreatSubscription() {
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscription = getCreatSubscription();
-        TransactionDataType transactionDataCreat = transCreatSubscription.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataCreat = transCreatSubscription.getData().getTransactionData();
         transactionDataCreat
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataCreat
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getCreateSubscription()
                 .getAccuredPayment()
                 .withMaxAmount(BigDecimal.valueOf(500.00));
@@ -1039,14 +743,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionOutside = getCreatSubscription();
-        TransactionDataType transactionDataCreatOutside = transCreatSubscriptionOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataCreatOutside = transCreatSubscriptionOutside.getData().getTransactionData();
         transactionDataCreatOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataCreatOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getCreateSubscription()
                 .getAccuredPayment()
                 .withMaxAmount(BigDecimal.valueOf(800.00));
@@ -1055,12 +753,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionAccountBalance = getCreatSubscription();
-        TransactionDataType transactionDataCreatAccountBalance = transCreatSubscriptionAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataCreatAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataCreatAccountBalance = transCreatSubscriptionAccountBalance.getData().getTransactionData();
         transactionDataCreatAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getCreateSubscription()
@@ -1071,14 +764,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionDeviation = getCreatSubscription();
-        TransactionDataType transactionDataCreatDeviation = transCreatSubscriptionDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataCreatDeviation = transCreatSubscriptionDeviation.getData().getTransactionData();
         transactionDataCreatDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataCreatDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getCreateSubscription()
                 .getAccuredPayment()
                 .withMaxAmount(BigDecimal.valueOf(372.25));
@@ -1087,14 +774,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionLength = getCreatSubscription();
-        TransactionDataType transactionDataCreatLength = transCreatSubscriptionLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataCreatLength = transCreatSubscriptionLength.getData().getTransactionData();
         transactionDataCreatLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataCreatLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getCreateSubscription()
                 .getAccuredPayment()
                 .withMaxAmount(BigDecimal.valueOf(500.00));
@@ -1112,23 +793,12 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transRequestGosuslugi() {
         time.add(Calendar.SECOND, 20);
         Transaction transRequestGosuslugi = getRequestGosuslugi();
-        TransactionDataType transactionDataRequestGosuslugi = transRequestGosuslugi.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestGosuslugi
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transRequestGosuslugi);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос в госуслуги», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestGosuslugiAccountBalance = getRequestGosuslugi();
-        TransactionDataType transactionDataRequestGosuslugiAccountBalance = transRequestGosuslugiAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestGosuslugiAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataRequestGosuslugiAccountBalance = transRequestGosuslugiAccountBalance.getData().getTransactionData();
         transactionDataRequestGosuslugiAccountBalance
                 .getRequestForGosuslugi()
                 .withGosuslugiRequestType(987);
@@ -1137,34 +807,16 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestGosuslugiDouble = getRequestGosuslugi();
-        TransactionDataType transactionDataRequestGosuslugiDouble = transRequestGosuslugiDouble.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestGosuslugiDouble
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transRequestGosuslugiDouble);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос в госуслуги» транзакция с совпадающими реквизитами");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestGosuslugiLength = getRequestGosuslugi();
-        TransactionDataType transactionDataRequestGosuslugiLength = transRequestGosuslugiLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestGosuslugiLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transRequestGosuslugiLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос в госуслуги» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transRequestGosuslugiPeriod = getRequestGosuslugi();
-        TransactionDataType transactionDataRequestGosuslugiPeriod = transRequestGosuslugiPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestGosuslugiPeriod
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transRequestGosuslugiPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос в госуслуги», условия правила не выполнены");
     }
@@ -1179,14 +831,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transGettingCredit() {
         time.add(Calendar.SECOND, 20);
         Transaction transGettingCredit = getGettingCredit();
-        TransactionDataType transactionDataGettingCredit = transGettingCredit.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataGettingCredit = transGettingCredit.getData().getTransactionData();
         transactionDataGettingCredit
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataGettingCredit
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getGettingCredit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transGettingCredit);
@@ -1194,14 +840,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transGettingCreditOutside = getGettingCredit();
-        TransactionDataType transactionDataGettingCreditOutside = transGettingCreditOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataGettingCreditOutside = transGettingCreditOutside.getData().getTransactionData();
         transactionDataGettingCreditOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataGettingCreditOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getGettingCredit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transGettingCreditOutside);
@@ -1209,12 +849,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transGettingCreditAccountBalance = getGettingCredit();
-        TransactionDataType transactionDataGettingCreditAccountBalance = transGettingCreditAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataGettingCreditAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataGettingCreditAccountBalance = transGettingCreditAccountBalance.getData().getTransactionData();
         transactionDataGettingCreditAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getGettingCredit()
@@ -1224,14 +859,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transGettingCreditDeviation = getGettingCredit();
-        TransactionDataType transactionDataGettingCreditDeviation = transGettingCreditDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataGettingCreditDeviation = transGettingCreditDeviation.getData().getTransactionData();
         transactionDataGettingCreditDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataGettingCreditDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getGettingCredit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transGettingCreditDeviation);
@@ -1239,14 +868,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transGettingCreditLength = getGettingCredit();
-        TransactionDataType transactionDataGettingCreditLength = transGettingCreditLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataGettingCreditLength = transGettingCreditLength.getData().getTransactionData();
         transactionDataGettingCreditLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataGettingCreditLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getGettingCredit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transGettingCreditLength);
@@ -1262,23 +885,12 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transRequestPAN() {
         time.add(Calendar.HOUR, -9);
         Transaction transRequestPAN = getRequestPAN();
-        TransactionDataType transactionDataRequestPAN = transRequestPAN.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestPAN
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transRequestPAN);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос реквизитов карты», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestPANAccountBalance = getRequestPAN();
-        TransactionDataType transactionDataRequestPANAccountBalance = transRequestPANAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestPANAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataRequestPANAccountBalance = transRequestPANAccountBalance.getData().getTransactionData();
         transactionDataRequestPANAccountBalance
                 .getRequestPAN()
                 .withSourceCardNumber("4275352520011118989");
@@ -1287,34 +899,16 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestPANDouble = getRequestPAN();
-        TransactionDataType transactionDataRequestPANDouble = transRequestPANDouble.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestPANDouble
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transRequestPANDouble);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос реквизитов карты» транзакция с совпадающими реквизитами");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestPANLength = getRequestPAN();
-        TransactionDataType transactionDataRequestPANLength = transRequestPANLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestPANLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transRequestPANLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос реквизитов карты» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transRequestPANPeriod = getRequestPAN();
-        TransactionDataType transactionDataRequestPANPeriod = transRequestPANPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestPANPeriod
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transRequestPANPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос реквизитов карты», условия правила не выполнены");
     }
@@ -1328,23 +922,12 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transRequestCCV() {
         time.add(Calendar.HOUR, -18);
         Transaction transRequestCCV = getRequestCCV();
-        TransactionDataType transactionDataRequestCCV = transRequestCCV.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestCCV
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transRequestCCV);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос CVC/CVV/CVP», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestCCVAccountBalance = getRequestCCV();
-        TransactionDataType transactionDataRequestCCVAccountBalance = transRequestCCVAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestCCVAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataRequestCCVAccountBalance = transRequestCCVAccountBalance.getData().getTransactionData();
         transactionDataRequestCCVAccountBalance
                 .getRequestCCV()
                 .withSourceCardNumber("4275388840011117777");
@@ -1353,34 +936,16 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestCCVDouble = getRequestCCV();
-        TransactionDataType transactionDataRequestCCVDouble = transRequestCCVDouble.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestCCVDouble
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transRequestCCVDouble);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос CVC/CVV/CVP» транзакция с совпадающими реквизитами");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestCCVLength = getRequestCCV();
-        TransactionDataType transactionDataRequestCCVLength = transRequestCCVLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestCCVLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transRequestCCVLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос CVC/CVV/CVP» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transRequestCCVPeriod = getRequestCCV();
-        TransactionDataType transactionDataRequestCCVPeriod = transRequestCCVPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataRequestCCVPeriod
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transRequestCCVPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос CVC/CVV/CVP», условия правила не выполнены");
     }
@@ -1394,23 +959,12 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transCancellation() {
         time.add(Calendar.SECOND, 20);
         Transaction transCancellation = getCancellationTrans();
-        TransactionDataType transactionDataCancellation = transCancellation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataCancellation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transCancellation);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Отмена операции», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transCancellationAccountBalance = getCancellationTrans();
-        TransactionDataType transactionDataCancellationAccountBalance = transCancellationAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataCancellationAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataCancellationAccountBalance = transCancellationAccountBalance.getData().getTransactionData();
         transactionDataCancellationAccountBalance
                 .getTransactionCancellation()
                 .withTransactionIdToCancel(444L);
@@ -1419,34 +973,16 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transCancellationDouble = getCancellationTrans();
-        TransactionDataType transactionDataCancellationDouble = transCancellationDouble.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataCancellationDouble
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transCancellationDouble);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Отмена операции» транзакция с совпадающими реквизитами");
 
         time.add(Calendar.SECOND, 20);
         Transaction transCancellationLength = getCancellationTrans();
-        TransactionDataType transactionDataCancellationLength = transCancellationLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataCancellationLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transCancellationLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Отмена операции» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transCancellationPeriod = getCancellationTrans();
-        TransactionDataType transactionDataCancellationPeripd = transCancellationPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataCancellationPeripd
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         sendAndAssert(transCancellationPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Отмена операции», условия правила не выполнены");
     }
@@ -1460,14 +996,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transEditMT() {
         time.add(Calendar.SECOND, 20);
         Transaction transEditMT = getMTTransferEdit();
-        TransactionDataType transactionDataMTtransferEdit = transEditMT.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataMTtransferEdit = transEditMT.getData().getTransactionData();
         transactionDataMTtransferEdit
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataMTtransferEdit
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getMTTransferEdit()
                 .getSystemTransferCont()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
@@ -1476,14 +1006,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transEditMTOutside = getMTTransferEdit();
-        TransactionDataType transactionDataMTtransferEditOutside = transEditMTOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataMTtransferEditOutside = transEditMTOutside.getData().getTransactionData();
         transactionDataMTtransferEditOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataMTtransferEditOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getMTTransferEdit()
                 .getSystemTransferCont()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -1492,12 +1016,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transEditMTAccountBalance = getMTTransferEdit();
-        TransactionDataType transactionDataMTtransferEditAccountBalance = transEditMTAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataMTtransferEditAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataMTtransferEditAccountBalance = transEditMTAccountBalance.getData().getTransactionData();
         transactionDataMTtransferEditAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getMTTransferEdit()
@@ -1508,14 +1027,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transEditMTDeviation = getMTTransferEdit();
-        TransactionDataType transactionDataMTtransferEditDeviation = transEditMTDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataMTtransferEditDeviation = transEditMTDeviation.getData().getTransactionData();
         transactionDataMTtransferEditDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataMTtransferEditDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getMTTransferEdit()
                 .getSystemTransferCont()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -1524,14 +1037,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transEditMTLength = getMTTransferEdit();
-        TransactionDataType transactionDataMTtransferEditLength = transEditMTLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataMTtransferEditLength = transEditMTLength.getData().getTransactionData();
         transactionDataMTtransferEditLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataMTtransferEditLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getMTTransferEdit()
                 .getSystemTransferCont()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
@@ -1548,14 +1055,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transCommunal() {
         time.add(Calendar.SECOND, 20);
         Transaction transCommunal = getCommunalPayment();
-        TransactionDataType transactionDataCommunal = transCommunal.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataCommunal = transCommunal.getData().getTransactionData();
         transactionDataCommunal
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataCommunal
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterTransfer()
                 .withIsCommunalPayment(true)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
@@ -1564,14 +1065,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transCommunalOutside = getCommunalPayment();
-        TransactionDataType transactionDataCommunalOutside = transCommunalOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataCommunalOutside = transCommunalOutside.getData().getTransactionData();
         transactionDataCommunalOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataCommunalOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterTransfer()
                 .withIsCommunalPayment(true)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -1580,12 +1075,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transCommunalAccountBalance = getCommunalPayment();
-        TransactionDataType transactionDataCommunalAccountBalance = transCommunalAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataCommunalAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataCommunalAccountBalance = transCommunalAccountBalance.getData().getTransactionData();
         transactionDataCommunalAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getOuterTransfer()
@@ -1596,14 +1086,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transCommunalDeviation = getCommunalPayment();
-        TransactionDataType transactionDataCommunalDeviation = transCommunalDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataCommunalDeviation = transCommunalDeviation.getData().getTransactionData();
         transactionDataCommunalDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataCommunalDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterTransfer()
                 .withIsCommunalPayment(true)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -1612,14 +1096,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transCommunalLength = getCommunalPayment();
-        TransactionDataType transactionDataCommunalLength = transCommunalLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataCommunalLength = transCommunalLength.getData().getTransactionData();
         transactionDataCommunalLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataCommunalLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterTransfer()
                 .withIsCommunalPayment(true)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
@@ -1636,14 +1114,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
     public void transBuyingInsurance() {
         time.add(Calendar.SECOND, 20);
         Transaction transBuyingInsurance = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsurance = transBuyingInsurance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataBuyingInsurance = transBuyingInsurance.getData().getTransactionData();
         transactionDataBuyingInsurance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBuyingInsurance
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getByuingInsurance()
                 .withInsuranceAmount(BigDecimal.valueOf(500.00));
         sendAndAssert(transBuyingInsurance);
@@ -1651,14 +1123,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBuyingInsuranceOutside = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsuranceOutside = transBuyingInsuranceOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataBuyingInsuranceOutside = transBuyingInsuranceOutside.getData().getTransactionData();
         transactionDataBuyingInsuranceOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBuyingInsuranceOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getByuingInsurance()
                 .withInsuranceAmount(BigDecimal.valueOf(800.00));
         sendAndAssert(transBuyingInsuranceOutside);
@@ -1666,12 +1132,7 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBuyingInsuranceAccountBalance = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsuranceAccountBalance = transBuyingInsuranceAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataBuyingInsuranceAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionDataBuyingInsuranceAccountBalance = transBuyingInsuranceAccountBalance.getData().getTransactionData();
         transactionDataBuyingInsuranceAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
                 .getByuingInsurance()
@@ -1681,14 +1142,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBuyingInsuranceDeviation = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsuranceDeviation = transBuyingInsuranceDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataBuyingInsuranceDeviation = transBuyingInsuranceDeviation.getData().getTransactionData();
         transactionDataBuyingInsuranceDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBuyingInsuranceDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getByuingInsurance()
                 .withInsuranceAmount(BigDecimal.valueOf(372.25));
         sendAndAssert(transBuyingInsuranceDeviation);
@@ -1696,14 +1151,8 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBuyingInsuranceLength = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsuranceLength = transBuyingInsuranceLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataBuyingInsuranceLength = transBuyingInsuranceLength.getData().getTransactionData();
         transactionDataBuyingInsuranceLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBuyingInsuranceLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getByuingInsurance()
                 .withInsuranceAmount(BigDecimal.valueOf(500.00));
         sendAndAssert(transBuyingInsuranceLength);
@@ -1717,133 +1166,181 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
     private Transaction getTransferBetweenAccounts() {
         Transaction transaction = getTransaction("testCases/Templates/TRANSFER_BETWEEN_ACCOUNTS_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getOuterTransfer() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getBudgetTransfer() {
         Transaction transaction = getTransaction("testCases/Templates/BUDGET_TRANSFER_MOBILE.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getServisPayment() {
         Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT_MB.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getCreatSubscription() {
         Transaction transaction = getTransaction("testCases/Templates/CREATE_SUBSCRIPTION_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getOpenDeposit() {
         Transaction transaction = getTransaction("testCases/Templates/OPEN_DEPOSIT_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getClosureDeposit() {
         Transaction transaction = getTransaction("testCases/Templates/CLOSURE_DEPOSIT.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getOpenAccount() {
         Transaction transaction = getTransaction("testCases/Templates/OPEN_ACCOUNT_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getClosureAccount() {
         Transaction transaction = getTransaction("testCases/Templates/CLOSURE_ACCOUNT.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getOuterCardTrans() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_CARD_TRANSFER_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getMTSystemTrans() {
         Transaction transaction = getTransaction("testCases/Templates/MT_SYSTEM_TRANSFER_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getRequestGosuslugi() {
         Transaction transaction = getTransaction("testCases/Templates/REQUEST_FOR_GOSUSLUGI_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
+        transactionDataType
                 .getRequestForGosuslugi()
                 .withGosuslugiRequestType(325);
         return transaction;
@@ -1851,23 +1348,31 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
     private Transaction getGettingCredit() {
         Transaction transaction = getTransaction("testCases/Templates/GETTING_CREDIT_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getRequestPAN() {
         Transaction transaction = getTransaction("testCases/Templates/REQUEST_PAN_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
+        transactionDataType
                 .getRequestPAN()
                 .withSourceCardNumber("4777344440099994444");
         return transaction;
@@ -1875,12 +1380,17 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
     private Transaction getRequestCCV() {
         Transaction transaction = getTransaction("testCases/Templates/REQUEST_CCV_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
+        transactionDataType
                 .getRequestCCV()
                 .withSourceCardNumber("4275344440011112222");
         return transaction;
@@ -1888,11 +1398,16 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
     private Transaction getCancellationTrans() {
         Transaction transaction = getTransaction("testCases/Templates/TRANSACTION_CANCELLATION.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
+        transactionDataType
                 .getTransactionCancellation()
                 .withTransactionIdToCancel(235L);
         return transaction;
@@ -1900,35 +1415,46 @@ public class IR_03_RepeatApprovedTransactionAll extends RSHBCaseTest {
 
     private Transaction getMTTransferEdit() {
         Transaction transaction = getTransaction("testCases/Templates/MT_TRANSFER_EDIT.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getCommunalPayment() {
         Transaction transaction = getTransaction("testCases/Templates/COMMUNAL_PAYMENT_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getBuyingInsurance() {
         Transaction transaction = getTransaction("testCases/Templates/BUYING_INSURANCE_Android.xml");
-        transaction.getData()
-                .getServerInfo()
+        transaction.getData().getServerInfo()
                 .withPort(8050);
-        transaction.getData()
-                .getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 }

@@ -92,6 +92,7 @@ public class WR_03_EntrustedTransfer extends RSHBCaseTest {
                         .withAlfaId(dboId);
                 sendAndAssert(client);
                 clientIds.add(dboId);
+                System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
@@ -121,8 +122,7 @@ public class WR_03_EntrustedTransfer extends RSHBCaseTest {
         Transaction transaction = getTransferServicePayment();
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Сработало персональное исключение 'ExR_05_GrayIP' белого правила");
-        assertLastTransactionRuleApplyPersonalException(RULE_NAME_GRAY_IP, TRIGGERED, "IP адрес найден в Сером списке");
-
+        assertRuleResultForTheLastTransaction(RULE_NAME_GRAY_IP, TRIGGERED, "IP адрес найден в Сером списке");
     }
 
     @Test(
@@ -139,7 +139,7 @@ public class WR_03_EntrustedTransfer extends RSHBCaseTest {
                 .withIpAddress(null);
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Сработало персональное исключение 'ExR_05_GrayIP' белого правила");
-        assertLastTransactionRuleApplyPersonalException(RULE_NAME_GRAY_IP, FEW_DATA, "В конфигурации устройства нет IP адреса");
+        assertRuleResultForTheLastTransaction(RULE_NAME_GRAY_IP, FEW_DATA, "В конфигурации устройства нет IP адреса");
 
         getIC().locateRules()
                 .selectRule(RULE_NAME_GRAY_IP)

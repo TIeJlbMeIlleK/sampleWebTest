@@ -39,7 +39,7 @@ public class IR_03_RepeatApprovedTransactionOuterCardRdakAdak extends RSHBCaseTe
     private final GregorianCalendar time3 = new GregorianCalendar();
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Илья", "Кузнецов", "Андреевич"}, {firstNameAdak, "Павлов", "Олегович"}};
+    private final String[][] names = {{"Илья", "Кузнецов", "Андреевич"}, {firstNameAdak, "Павлов", "Олегович"}};
 
     @Test(
             description = "Включаем правило"

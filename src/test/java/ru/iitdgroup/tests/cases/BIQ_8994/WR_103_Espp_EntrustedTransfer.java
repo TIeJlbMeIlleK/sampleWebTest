@@ -78,6 +78,7 @@ public class WR_103_Espp_EntrustedTransfer extends RSHBCaseTest {
                         .withAlfaId(dboId);
                 sendAndAssert(client);
                 clientIds.add(dboId);
+                System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
@@ -130,7 +131,7 @@ public class WR_103_Espp_EntrustedTransfer extends RSHBCaseTest {
         TransactionEspp transactionEspp = getTransactionEspp();
         sendAndAssert(transactionEspp);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Сработало персональное исключение 'ExR_08_ESPP_AttentionClient' белого правила");
-        assertLastTransactionRuleApplyPersonalException(RULE_NAME_AttentionClient_ESPP, TRIGGERED, "Клиент с пометкой Особое внимание");
+        assertRuleResultForTheLastTransaction(RULE_NAME_AttentionClient_ESPP, TRIGGERED, "Клиент с пометкой Особое внимание");
     }
 
     @Override

@@ -21,7 +21,7 @@ public class IR_03_RepeatApprovedTransaction1 extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
+    private final String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
 
     @Test(
             description = "Включаем правило"
@@ -153,19 +153,17 @@ public class IR_03_RepeatApprovedTransaction1 extends RSHBCaseTest {
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -209,98 +207,49 @@ public class IR_03_RepeatApprovedTransaction1 extends RSHBCaseTest {
     public void transferAll() {
 
         Transaction transBuyingInsurance = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsurance = transBuyingInsurance.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataBuyingInsurance = transBuyingInsurance.getData().getTransactionData();
         transactionDataBuyingInsurance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBuyingInsurance
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getByuingInsurance()
                 .withInsuranceAmount(BigDecimal.valueOf(500));
         sendAndAssert(transBuyingInsurance);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Покупка страховки держателей карт», условия правила не выполнены");
 
         Transaction transCreatSubscription = getCreatSubscription();
-        TransactionDataType transactionDataCreat = transCreatSubscription.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataCreat = transCreatSubscription.getData().getTransactionData();
         transactionDataCreat
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataCreat
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCreateSubscription()
                 .getAccuredPayment()
                 .withMaxAmount(BigDecimal.valueOf(500));
         sendAndAssert(transCreatSubscription);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Подписка на сервисы оплаты», условия правила не выполнены");
 
-
         Transaction transRequestGosuslugi = getRequestGosuslugi();
-        TransactionDataType transactionDataRequestGosuslugi = transRequestGosuslugi.getData().getTransactionData()
-                .withRegular(false);
-        transactionDataRequestGosuslugi
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataRequestGosuslugi
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
         sendAndAssert(transRequestGosuslugi);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос в госуслуги», условия правила не выполнены");
 
         Transaction transGettingCredit = getGettingCredit();
-        TransactionDataType transactionDataGettingCredit = transGettingCredit.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataGettingCredit = transGettingCredit.getData().getTransactionData();
         transactionDataGettingCredit
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataGettingCredit
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getGettingCredit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transGettingCredit);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос на выдачу кредита», условия правила не выполнены");
 
         Transaction transRequestPAN = getRequestPAN();
-        TransactionDataType transactionDataRequestPAN = transRequestPAN.getData().getTransactionData()
-                .withRegular(false);
-        transactionDataRequestPAN
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataRequestPAN
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
         sendAndAssert(transRequestPAN);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос реквизитов карты», условия правила не выполнены");
 
         Transaction transRequestCCV = getRequestCCV();
-        TransactionDataType transactionDataRequestCCV = transRequestCCV.getData().getTransactionData()
-                .withRegular(false);
-        transactionDataRequestCCV
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataRequestCCV
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
         sendAndAssert(transRequestCCV);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос CVC/CVV/CVP», условия правила не выполнены");
 
         Transaction transCancellation = getCancellationTrans();
-        TransactionDataType transactionDataCancellation = transCancellation.getData().getTransactionData()
-                .withRegular(false);
-        transactionDataCancellation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataCancellation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
         sendAndAssert(transCancellation);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Отмена операции», условия правила не выполнены");
 
         Transaction transEditMT = getMTTransferEdit();
-        TransactionDataType transactionDataMTtransferEdit = transEditMT.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataMTtransferEdit = transEditMT.getData().getTransactionData();
         transactionDataMTtransferEdit
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataMTtransferEdit
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getMTTransferEdit()
                 .getSystemTransferCont()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -308,13 +257,8 @@ public class IR_03_RepeatApprovedTransaction1 extends RSHBCaseTest {
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Изменение перевода, отправленного через систему денежных переводов», условия правила не выполнены");
 
         Transaction transCommunal = getCommunalPayment();
-        TransactionDataType transactionDataCommunal = transCommunal.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataCommunal = transCommunal.getData().getTransactionData();
         transactionDataCommunal
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataCommunal
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getOuterTransfer()
                 .withIsCommunalPayment(true)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -322,136 +266,85 @@ public class IR_03_RepeatApprovedTransaction1 extends RSHBCaseTest {
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Транзакция ЖКХ», условия правила не выполнены");
 
         Transaction transBetween = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetween = transBetween.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataBetween = transBetween.getData().getTransactionData();
         transactionDataBetween
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBetween
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getTransferBetweenAccounts()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transBetween);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
 
         Transaction transOuter = getOuterTransfer();
-        TransactionDataType transactionDataOuter = transOuter.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataOuter = transOuter.getData().getTransactionData();
         transactionDataOuter
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOuter
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transOuter);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
 
         Transaction transBudget = getBudgetTransfer();
-        TransactionDataType transactionDataBudget = transBudget.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataBudget = transBudget.getData().getTransactionData();
         transactionDataBudget
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBudget
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getBudgetTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transBudget);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
 
         Transaction transServis = getServisPayment();
-        TransactionDataType transactionDataServis = transServis.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataServis = transServis.getData().getTransactionData();
         transactionDataServis
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataServis
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transServis);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
 
         Transaction transOpenDeposit = getOpenDeposit();
-        TransactionDataType transactionDataOpenDeposit = transOpenDeposit.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataOpenDeposit = transOpenDeposit.getData().getTransactionData();
         transactionDataOpenDeposit
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOpenDeposit
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getOpenDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transOpenDeposit);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
 
         Transaction transClosureDeposit = getClosureDeposit();
-        TransactionDataType transactionDataClosureDeposit = transClosureDeposit.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataClosureDeposit = transClosureDeposit.getData().getTransactionData();
         transactionDataClosureDeposit
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataClosureDeposit
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getClosureDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transClosureDeposit);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
 
         Transaction transOpenAccount = getOpenAccount();
-        TransactionDataType transactionDataOpenAccount = transOpenAccount.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataOpenAccount = transOpenAccount.getData().getTransactionData();
         transactionDataOpenAccount
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOpenAccount
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getOpenAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transOpenAccount);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
 
         Transaction transClosureAccount = getClosureAccount();
-        TransactionDataType transactionDataClosureAccount = transClosureAccount.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataClosureAccount = transClosureAccount.getData().getTransactionData();
         transactionDataClosureAccount
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataClosureAccount
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getClosureAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transClosureAccount);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
 
         Transaction transOuterCard = getOuterCardTrans();
-        TransactionDataType transactionDataOuterCard = transOuterCard.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataOuterCard = transOuterCard.getData().getTransactionData();
         transactionDataOuterCard
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataOuterCard
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getOuterCardTransfer()
                 .withAmountInDestinationCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transOuterCard);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
 
         Transaction transMTSystem = getMTSystemTrans();
-        TransactionDataType transactionDataMTSystem = transMTSystem.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionDataMTSystem = transMTSystem.getData().getTransactionData();
         transactionDataMTSystem
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataMTSystem
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getMTSystemTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transMTSystem);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
     }
-
 
     @Override
     protected String getRuleName() {
@@ -460,150 +353,283 @@ public class IR_03_RepeatApprovedTransaction1 extends RSHBCaseTest {
 
     private Transaction getTransferBetweenAccounts() {
         Transaction transaction = getTransaction("testCases/Templates/TRANSFER_BETWEEN_ACCOUNTS_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getOuterTransfer() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getBudgetTransfer() {
         Transaction transaction = getTransaction("testCases/Templates/BUDGET_TRANSFER_MOBILE.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getServisPayment() {
         Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT_MB.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getCreatSubscription() {
         Transaction transaction = getTransaction("testCases/Templates/CREATE_SUBSCRIPTION_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getOpenDeposit() {
         Transaction transaction = getTransaction("testCases/Templates/OPEN_DEPOSIT_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getClosureDeposit() {
         Transaction transaction = getTransaction("testCases/Templates/CLOSURE_DEPOSIT.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getOpenAccount() {
         Transaction transaction = getTransaction("testCases/Templates/OPEN_ACCOUNT_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getClosureAccount() {
         Transaction transaction = getTransaction("testCases/Templates/CLOSURE_ACCOUNT.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getOuterCardTrans() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_CARD_TRANSFER_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getMTSystemTrans() {
         Transaction transaction = getTransaction("testCases/Templates/MT_SYSTEM_TRANSFER_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getRequestGosuslugi() {
         Transaction transaction = getTransaction("testCases/Templates/REQUEST_FOR_GOSUSLUGI_Android.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getGettingCredit() {
         Transaction transaction = getTransaction("testCases/Templates/GETTING_CREDIT_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getRequestPAN() {
         Transaction transaction = getTransaction("testCases/Templates/REQUEST_PAN_Android.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getRequestCCV() {
         Transaction transaction = getTransaction("testCases/Templates/REQUEST_CCV_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getCancellationTrans() {
         Transaction transaction = getTransaction("testCases/Templates/TRANSACTION_CANCELLATION.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getMTTransferEdit() {
         Transaction transaction = getTransaction("testCases/Templates/MT_TRANSFER_EDIT.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getCommunalPayment() {
         Transaction transaction = getTransaction("testCases/Templates/COMMUNAL_PAYMENT_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getBuyingInsurance() {
         Transaction transaction = getTransaction("testCases/Templates/BUYING_INSURANCE_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 }

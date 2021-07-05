@@ -23,7 +23,7 @@ public class IR_03_RepeatApprovedTransactionBetween extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Зинаида", "Глухова", "Георгиевна"}};
+    private final String[][] names = {{"Зинаида", "Глухова", "Георгиевна"}};
 
 
     @Test(
@@ -63,19 +63,17 @@ public class IR_03_RepeatApprovedTransactionBetween extends RSHBCaseTest {
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -102,113 +100,50 @@ public class IR_03_RepeatApprovedTransactionBetween extends RSHBCaseTest {
     public void transBetween() {
         time.add(Calendar.HOUR, -10);
         Transaction transBetween = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetween = transBetween.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataBetween
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBetween
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
-                .getTransferBetweenAccounts()
-                .withDestinationProduct(destinationProduct)
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transBetween);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод между счетами», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transBetweenOutside = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetweenOutside = transBetweenOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataBetweenOutside = transBetweenOutside.getData().getTransactionData();
         transactionDataBetweenOutside
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBetweenOutside
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getTransferBetweenAccounts()
-                .withDestinationProduct(destinationProduct)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
         sendAndAssert(transBetweenOutside);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод между счетами» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transBetweenAccountBalance = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetweenAccountBalance = transBetweenAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataBetweenAccountBalance
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBetweenAccountBalance
-                .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
-                .getTransferBetweenAccounts()
-                .withDestinationProduct(destinationProduct)
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
+        transBetweenAccountBalance.getData().getTransactionData()
+                .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transBetweenAccountBalance);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод между счетами» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transBetweenDestination = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetweenDestination = transBetweenDestination.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataBetweenDestination = transBetweenDestination.getData().getTransactionData();
         transactionDataBetweenDestination
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBetweenDestination
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getTransferBetweenAccounts()
-                .withDestinationProduct("40817810241000017777")
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
+                .withDestinationProduct("40817810241000017777");
         sendAndAssert(transBetweenDestination);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод между счетами» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transBetweenDeviation = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetweenDeviation = transBetweenDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+        TransactionDataType transactionDataBetweenDeviation = transBetweenDeviation.getData().getTransactionData();
         transactionDataBetweenDeviation
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBetweenDeviation
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getTransferBetweenAccounts()
-                .withDestinationProduct(destinationProduct)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transBetweenDeviation);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод между счетами» транзакция с совпадающими реквизитами");
 
         time.add(Calendar.SECOND, 20);
         Transaction transBetweenLength = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetweenLength = transBetweenLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataBetweenLength
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBetweenLength
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
-                .getTransferBetweenAccounts()
-                .withDestinationProduct(destinationProduct)
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transBetweenLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод между счетами» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transBetweenPeriod = getTransferBetweenAccounts();
-        TransactionDataType transactionDataBetweenPeriod = transBetweenPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionDataBetweenPeriod
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataBetweenPeriod
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
-                .getTransferBetweenAccounts()
-                .withDestinationProduct(destinationProduct)
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transBetweenPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод между счетами», условия правила не выполнены");
     }
@@ -223,9 +158,19 @@ public class IR_03_RepeatApprovedTransactionBetween extends RSHBCaseTest {
         transaction.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
+                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionDataType
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionDataType
+                .getTransferBetweenAccounts()
+                .withDestinationProduct(destinationProduct)
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         return transaction;
     }
 }

@@ -1,5 +1,6 @@
 package ru.iitdgroup.tests.cases;
 
+import net.bytebuddy.utility.RandomString;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteMessaging;
 import org.apache.ignite.cluster.ClusterGroup;
@@ -343,7 +344,7 @@ public abstract class RSHBCaseTest {
                     .field("DESCRIPTION")
                     .from("INCIDENT_WRAP")
                     .with("RULE_TITLE", "=", "'" + ruleName + "'")
-                    .sort("timestamp", false)
+                    .sort("id", false)
                     .limit(1)
                     .get();
         } catch (SQLException e) {
@@ -364,14 +365,14 @@ public abstract class RSHBCaseTest {
         assertEquals(description, dbResult[0][1]);
     }
 
-    protected void assertLastTransactionRuleApplyPersonalException(String ruleNamePersonalException, String ruleResult, String description) {
+    protected void assertRuleResultForTheLastTransaction(String ruleName, String ruleResult, String description) {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
             throw new IllegalStateException(e);
         }
-        String[][] dbResult = getIncidentWrapByRule(ruleNamePersonalException);
+        String[][] dbResult = getIncidentWrapByRule(ruleName);
         assertEquals(ruleResult, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
     }
@@ -585,7 +586,7 @@ public abstract class RSHBCaseTest {
             transaction.getData()
                     .getTransactionData()
                     .withTransactionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
-                    .withSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
+                    .withSessionId(new RandomString(40).nextString())
                     .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
             return transaction;
         } catch (JAXBException | IOException e) {

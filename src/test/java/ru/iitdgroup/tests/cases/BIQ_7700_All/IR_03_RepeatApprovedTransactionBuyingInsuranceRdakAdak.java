@@ -40,7 +40,7 @@ public class IR_03_RepeatApprovedTransactionBuyingInsuranceRdakAdak extends RSHB
     private final GregorianCalendar time3 = new GregorianCalendar();
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Артем", "Свиридов", "Тимурович"}, {firstNameAdak, "Рогов", "Олегович"}};
+    private final String[][] names = {{"Артем", "Свиридов", "Тимурович"}, {firstNameAdak, "Рогов", "Олегович"}};
 
     @Test(
             description = "Включаем правило"

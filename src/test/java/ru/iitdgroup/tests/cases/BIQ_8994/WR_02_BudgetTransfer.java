@@ -70,6 +70,7 @@ public class WR_02_BudgetTransfer extends RSHBCaseTest {
                         .withAlfaId(dboId);
                 sendAndAssert(client);
                 clientIds.add(dboId);
+                System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
@@ -111,7 +112,7 @@ public class WR_02_BudgetTransfer extends RSHBCaseTest {
         Transaction transaction = getTransactionBudgetTransfer();
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Сработало персональное исключение 'ExR_08_AttentionClient' белого правила");
-        assertLastTransactionRuleApplyPersonalException(RULE_NAME_AttentionClient, TRIGGERED, "Клиент с пометкой Особое внимание");
+        assertRuleResultForTheLastTransaction(RULE_NAME_AttentionClient, TRIGGERED, "Клиент с пометкой Особое внимание");
     }
 
     @Test(

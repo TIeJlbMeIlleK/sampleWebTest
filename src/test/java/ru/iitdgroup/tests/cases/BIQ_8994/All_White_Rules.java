@@ -204,6 +204,7 @@ public class All_White_Rules extends RSHBCaseTest {
                         .withAlfaId(dboId);
                 sendAndAssert(client);
                 clientIds.add(dboId);
+                System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
@@ -244,7 +245,7 @@ public class All_White_Rules extends RSHBCaseTest {
         time.add(Calendar.MINUTE, 3);
         Transaction transaction = getTransferServicePayment();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApplyPersonalException(RULE_NAME_WR_03, TRIGGERED, "В списке разрешенных найдены совпадающие параметры");
+        assertRuleResultForTheLastTransaction(RULE_NAME_WR_03, TRIGGERED, "В списке разрешенных найдены совпадающие параметры");
     }
 
     @Test(
@@ -256,7 +257,7 @@ public class All_White_Rules extends RSHBCaseTest {
         time.add(Calendar.MINUTE, 5);
         Transaction transaction = getBudgetTransfer();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApplyPersonalException(RULE_NAME_WR_02, TRIGGERED, "Транзакция в сторону государства");
+        assertRuleResultForTheLastTransaction(RULE_NAME_WR_02, TRIGGERED, "Транзакция в сторону государства");
     }
 
     @Test(
@@ -268,7 +269,7 @@ public class All_White_Rules extends RSHBCaseTest {
         time.add(Calendar.MINUTE, 5);
         Transaction transaction = getGettingCredit();
         sendAndAssert(transaction);
-        assertLastTransactionRuleApplyPersonalException(RULE_NAME_WR_08, NOT_TRIGGERED, "Сработало персональное исключение 'ExR_05_GrayIP' белого правила");
+        assertRuleResultForTheLastTransaction(RULE_NAME_WR_08, NOT_TRIGGERED, "Сработало персональное исключение 'ExR_05_GrayIP' белого правила");
     }
 
     @Override
