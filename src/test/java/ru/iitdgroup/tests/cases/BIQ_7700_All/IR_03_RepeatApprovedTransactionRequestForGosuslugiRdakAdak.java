@@ -23,16 +23,12 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
     private static final String REFERENCE_TABLE_ALERT = "(Rule_tables) Подозрительные IP адреса";
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
-
     private static final int gosuslugiRequestType = 15;
     private static final String firstNameAdak = "Николай";
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private final String[][] names = {{"Петр", "Урин", "Семенович"}, {firstNameAdak, "Румянцева", "Григорьевна"}};
     private final String ipAddress = "95.73.149.81";
-
-    private String transaction_id;
-    private Long version;
 
     @Test(
             description = "Включаем правило"
@@ -146,8 +142,6 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
     public void transOpenDeposit() {
         time.add(Calendar.MINUTE, -20);
         Transaction transRequestForGosuslugi = getTransferRequestForGosuslugi();
-        TransactionDataType transactionDataRequestForGosuslugi = transRequestForGosuslugi.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestForGosuslugi);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос в госуслуги», условия правила не выполнены");
 
@@ -158,8 +152,6 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestForGosuslugiTwo = getTransferRequestForGosuslugi();
-        TransactionDataType transactionDataRequestForGosuslugiTwo = transRequestForGosuslugiTwo.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestForGosuslugiTwo);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос в госуслуги» условия правила не выполнены");
 
@@ -181,8 +173,7 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestForGosuslugiType = getTransferRequestForGosuslugi();
-        TransactionDataType transactionDataRequestForGosuslugiType = transRequestForGosuslugiType.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataRequestForGosuslugiType = transRequestForGosuslugiType.getData().getTransactionData();
         transactionDataRequestForGosuslugiType
                 .getRequestForGosuslugi()
                 .withGosuslugiRequestType(10);
@@ -191,8 +182,6 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestForGosuslugiTrigg = getTransferRequestForGosuslugi();
-        TransactionDataType transactionDataRequestForGosuslugiTrigg = transRequestForGosuslugiTrigg.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestForGosuslugiTrigg);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос в госуслуги» транзакция с совпадающими реквизитами");
     }
@@ -210,12 +199,11 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
 //
 //    public void transBetweenADAK() {
 //        Transaction transRequestForGosuslugi = getTransferRequestForGosuslugi();
-//        TransactionDataType transactionDataRequestForGosuslugi = transRequestForGosuslugi.getData().getTransactionData()
-//                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+//        TransactionDataType transactionDataRequestForGosuslugi = transRequestForGosuslugi.getData().getTransactionData();
 //        transactionDataRequestForGosuslugi
 //                .getClientIds().withDboId(clientIds.get(1));
-//        transaction_id = transactionDataRequestForGosuslugi.getTransactionId();
-//        version = transactionDataRequestForGosuslugi.getVersion();
+//        String transaction_id = transactionDataRequestForGosuslugi.getTransactionId();
+//        Long version = transactionDataRequestForGosuslugi.getVersion();
 //        sendAndAssert(transRequestForGosuslugi);
 //        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос в госуслуги», условия правила не выполнены");
 //
@@ -223,22 +211,12 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
 //        assertTableField("Status:", "Ожидаю выполнения АДАК");
 //
 //        Transaction adak = getAdak();
-//        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-//                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-//                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-//        transactionADAK
-//                .getClientIds()
-//                .withDboId(clientIds.get(1))
-//                .withLoginHash(clientIds.get(1))
-//                .withCifId(clientIds.get(1))
-//                .withExpertSystemId(clientIds.get(1));
+//        TransactionDataType transactionADAK = adak.getData().getTransactionData();
 //        transactionADAK
 //                .withTransactionId(transaction_id)
 //                .withVersion(version);
-//        transactionADAK.getAdditionalAnswer()
-//                .withAdditionalAuthAnswer(firstNameAdak);
 //        sendAndAssert(adak);
-//
+
 //        getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
 //        assertTableField("Resolution:", "Правомочно");
 //        assertTableField("Status:", "Обработано");
@@ -248,8 +226,7 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
 //
 //        time.add(Calendar.SECOND, 20);
 //        Transaction transRequestForGosuslugiType = getTransferRequestForGosuslugi();
-//        TransactionDataType transactionDataRequestForGosuslugiType = transRequestForGosuslugiType.getData().getTransactionData()
-//                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+//        TransactionDataType transactionDataRequestForGosuslugiType = transRequestForGosuslugiType.getData().getTransactionData();
 //        transactionDataRequestForGosuslugiType
 //                .getRequestForGosuslugi()
 //                .withGosuslugiRequestType(10);
@@ -260,8 +237,7 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
 //
 //        time.add(Calendar.SECOND, 20);
 //        Transaction transRequestForGosuslugiTrigg = getTransferRequestForGosuslugi();
-//        TransactionDataType transactionDataRequestForGosuslugiTrigg = transRequestForGosuslugiTrigg.getData().getTransactionData()
-//                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+//        TransactionDataType transactionDataRequestForGosuslugiTrigg = transRequestForGosuslugiTrigg.getData().getTransactionData();
 //        sendAndAssert(transRequestForGosuslugiTrigg);
 //        transactionDataRequestForGosuslugiTrigg
 //                .getClientIds()
@@ -280,12 +256,13 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getRequestForGosuslugi()
                 .withGosuslugiRequestType(gosuslugiRequestType);
         transaction.getData().getTransactionData()
@@ -296,13 +273,22 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugiRdakAdak extends 
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
+        return adak;
     }
 }

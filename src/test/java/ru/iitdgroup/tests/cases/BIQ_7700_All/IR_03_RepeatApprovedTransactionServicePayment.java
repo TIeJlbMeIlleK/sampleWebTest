@@ -19,13 +19,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-    private final String serviceName = "Мегафон по номеру телефона";
-    private final String providerName = "Мегафон";
-    private final String serviceKind = "222";
-
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Елена", "Тырина", "Андреевна"}};
+    private final String[][] names = {{"Елена", "Тырина", "Андреевна"}};
 
     @Test(
             description = "Включаем правило"
@@ -64,19 +60,17 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -103,15 +97,12 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
     public void transServis() {
         time.add(Calendar.MINUTE, -20);
         Transaction transService = getServicePayment();
-        TransactionDataType transactionDataService = transService.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transService);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Оплата услуг», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transServiceOutside = getServicePayment();
-        TransactionDataType transactionDataServiceOutside = transServiceOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServiceOutside = transServiceOutside.getData().getTransactionData();
         transactionDataServiceOutside
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -120,8 +111,7 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transServiceAccountBalance = getServicePayment();
-        TransactionDataType transactionDataServiceAccountBalance = transServiceAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServiceAccountBalance = transServiceAccountBalance.getData().getTransactionData();
         transactionDataServiceAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transServiceAccountBalance);
@@ -129,8 +119,7 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transServiceProviderName = getServicePayment();
-        TransactionDataType transactionDataServiceProviderName = transServiceProviderName.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServiceProviderName = transServiceProviderName.getData().getTransactionData();
         transactionDataServiceProviderName
                 .getServicePayment()
                 .withProviderName("МТС");
@@ -139,8 +128,7 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transServiceName = getServicePayment();
-        TransactionDataType transactionDataServiceName = transServiceName.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServiceName = transServiceName.getData().getTransactionData();
         transactionDataServiceName
                 .getServicePayment()
                 .withServiceName("МТС по телефону");
@@ -149,8 +137,7 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transServisDeviation = getServicePayment();
-        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData();
         transactionDataServisDeviation
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -159,15 +146,11 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transServisLength = getServicePayment();
-        TransactionDataType transactionDataServisLength = transServisLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transServisLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Оплата услуг» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transServisPeriod = getServicePayment();
-        TransactionDataType transactionDataServisPeriod = transServisPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transServisPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Оплата услуг», условия правила не выполнены");
     }
@@ -183,17 +166,19 @@ public class IR_03_RepeatApprovedTransactionServicePayment extends RSHBCaseTest 
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transaction.getData().getTransactionData()
                 .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
-                .withProviderName(providerName)
-                .withServiceName(serviceName);
+                .withServiceKind("222")
+                .withProviderName("Мегафон")
+                .withServiceName("Мегафон по номеру телефона");
         return transaction;
     }
 }

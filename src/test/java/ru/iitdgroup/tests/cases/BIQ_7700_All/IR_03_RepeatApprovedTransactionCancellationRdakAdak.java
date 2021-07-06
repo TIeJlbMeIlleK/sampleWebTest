@@ -148,8 +148,6 @@ public class IR_03_RepeatApprovedTransactionCancellationRdakAdak extends RSHBCas
     public void transOpenDeposit() {
         time.add(Calendar.MINUTE, -20);
         Transaction transCancellation = getTransCancellation();
-        transCancellation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCancellation);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Отмена операции», условия правила не выполнены");
 
@@ -160,8 +158,6 @@ public class IR_03_RepeatApprovedTransactionCancellationRdakAdak extends RSHBCas
 
         time.add(Calendar.SECOND, 20);
         Transaction transCancellationTwo = getTransCancellation();
-        transCancellationTwo.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCancellationTwo);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Отмена операции» условия правила не выполнены");
 
@@ -183,8 +179,7 @@ public class IR_03_RepeatApprovedTransactionCancellationRdakAdak extends RSHBCas
 
         time.add(Calendar.SECOND, 20);
         Transaction transCancellationtransactionIdToCancel = getTransCancellation();
-        TransactionDataType transactionDataCancellation = transCancellationtransactionIdToCancel.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCancellation = transCancellationtransactionIdToCancel.getData().getTransactionData();
         transactionDataCancellation
                 .getTransactionCancellation()
                 .withTransactionIdToCancel(ThreadLocalRandom.current().nextLong(100000000000L));
@@ -193,8 +188,6 @@ public class IR_03_RepeatApprovedTransactionCancellationRdakAdak extends RSHBCas
 
         time.add(Calendar.SECOND, 20);
         Transaction transCancellationTrigg = getTransCancellation();
-        transCancellationTrigg.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCancellationTrigg);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Отмена операции» транзакция с совпадающими реквизитами");
     }
@@ -211,12 +204,11 @@ public class IR_03_RepeatApprovedTransactionCancellationRdakAdak extends RSHBCas
 
     public void transBetweenADAK() {
         Transaction transCancellation = getTransCancellation();
-        TransactionDataType transactionCancellation = transCancellation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionCancellation = transCancellation.getData().getTransactionData();
         transactionCancellation
                 .getClientIds().withDboId(clientIds.get(1));
-        transaction_id = transactionCancellation.getTransactionId();
-        version = transactionCancellation.getVersion();
+        String transaction_id = transactionCancellation.getTransactionId();
+        Long version = transactionCancellation.getVersion();
         sendAndAssert(transCancellation);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Отмена операции», условия правила не выполнены");
 
@@ -224,20 +216,10 @@ public class IR_03_RepeatApprovedTransactionCancellationRdakAdak extends RSHBCas
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
                 .withTransactionId(transaction_id)
                 .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer(firstNameAdak);
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
@@ -249,8 +231,7 @@ public class IR_03_RepeatApprovedTransactionCancellationRdakAdak extends RSHBCas
 
         time.add(Calendar.SECOND, 20);
         Transaction transCancellationtransactionIdToCancel = getTransCancellation();
-        TransactionDataType transactionDataCancellation = transCancellationtransactionIdToCancel.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCancellation = transCancellationtransactionIdToCancel.getData().getTransactionData();
         transactionDataCancellation
                 .getTransactionCancellation()
                 .withTransactionIdToCancel(ThreadLocalRandom.current().nextLong(100000000000L));
@@ -261,8 +242,7 @@ public class IR_03_RepeatApprovedTransactionCancellationRdakAdak extends RSHBCas
 
         time.add(Calendar.SECOND, 20);
         Transaction transCancellationTrigg = getTransCancellation();
-        TransactionDataType transDataTypeCancellationTrigg = transCancellationTrigg.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transDataTypeCancellationTrigg = transCancellationTrigg.getData().getTransactionData();
         transDataTypeCancellationTrigg
                 .getClientIds().withDboId(clientIds.get(1));
         sendAndAssert(transCancellationTrigg);
@@ -280,12 +260,13 @@ public class IR_03_RepeatApprovedTransactionCancellationRdakAdak extends RSHBCas
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getTransactionCancellation()
                 .withTransactionIdToCancel(transactionIdToCancel);
         transaction.getData().getTransactionData()
@@ -296,13 +277,22 @@ public class IR_03_RepeatApprovedTransactionCancellationRdakAdak extends RSHBCas
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
+        return adak;
     }
 }

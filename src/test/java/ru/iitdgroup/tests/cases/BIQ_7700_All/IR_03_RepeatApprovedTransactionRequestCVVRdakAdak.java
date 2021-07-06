@@ -26,19 +26,12 @@ public class IR_03_RepeatApprovedTransactionRequestCVVRdakAdak extends RSHBCaseT
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
     private final static String sourceCardNumber = "455634" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
-
-    private String documentHash1;
-    private String documentHash2;
     private final static String firstNameAdak = "Григорий";
-    private String transaction_id;
-    private Long version;
-
     private final GregorianCalendar time = new GregorianCalendar();
     private final GregorianCalendar time2 = new GregorianCalendar();
     private final GregorianCalendar time3 = new GregorianCalendar();
-
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Илья", "Кузнецов", "Андреевич"}, {firstNameAdak, "Павлов", "Олегович"}};
+    private final String[][] names = {{"Илья", "Кузнецов", "Андреевич"}, {firstNameAdak, "Павлов", "Олегович"}};
 
     @Test(
             description = "Включаем правило"
@@ -111,7 +104,7 @@ public class IR_03_RepeatApprovedTransactionRequestCVVRdakAdak extends RSHBCaseT
                 String organization = "МВД "+ new RandomString(10).nextString();
                 Client client = new Client("testCases/Templates/client.xml");
                 time2.add(Calendar.YEAR, -12);
-                time2.add(Calendar.YEAR, -48);
+                time3.add(Calendar.YEAR, -48);
 
                 client.getData()
                         .getClientData()
@@ -146,6 +139,9 @@ public class IR_03_RepeatApprovedTransactionRequestCVVRdakAdak extends RSHBCaseT
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
+
+        String documentHash1;
+        String documentHash2;
 
         try {
             String[][] hash = getDatabase()//сохраняем в переменную Hash действующего документа из карточки клиента
@@ -187,8 +183,6 @@ public class IR_03_RepeatApprovedTransactionRequestCVVRdakAdak extends RSHBCaseT
     public void transOuterCard() {
         time.add(Calendar.MINUTE, -20);
         Transaction transRequestCCV = getTransferRequestCCV();
-        transRequestCCV.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestCCV);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос CVC/CVV/CVP», условия правила не выполнены");
 
@@ -199,8 +193,6 @@ public class IR_03_RepeatApprovedTransactionRequestCVVRdakAdak extends RSHBCaseT
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestCCVTwo = getTransferRequestCCV();
-        TransactionDataType transactionDataRequestCCVTwo = transRequestCCVTwo.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestCCVTwo);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос CVC/CVV/CVP» условия правила не выполнены");
 
@@ -221,18 +213,15 @@ public class IR_03_RepeatApprovedTransactionRequestCVVRdakAdak extends RSHBCaseT
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestCCVsourceCardNumber = getTransferRequestCCV();
-        TransactionDataType transactionDataRequestCCVsourceCardNumber = transRequestCCVsourceCardNumber.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataRequestCCVsourceCardNumber = transRequestCCVsourceCardNumber.getData().getTransactionData();
         transactionDataRequestCCVsourceCardNumber
                 .getRequestCCV()
-                .withSourceCardNumber("4275344440011113333");
+                .withSourceCardNumber("42753444" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transRequestCCVsourceCardNumber);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос CVC/CVV/CVP» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestCCVTrigg = getTransferRequestCCV();
-        transRequestCCVTrigg.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestCCVTrigg);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос CVC/CVV/CVP» транзакция с совпадающими реквизитами");
     }
@@ -249,13 +238,12 @@ public class IR_03_RepeatApprovedTransactionRequestCVVRdakAdak extends RSHBCaseT
 
     public void transRequestCVVADAK() {
         Transaction transRequestCCV = getTransferRequestCCV();
-        TransactionDataType transactionDataRequestCVV = transRequestCCV.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataRequestCVV = transRequestCCV.getData().getTransactionData();
         transactionDataRequestCVV
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transaction_id = transactionDataRequestCVV.getTransactionId();
-        version = transactionDataRequestCVV.getVersion();
+        String transaction_id = transactionDataRequestCVV.getTransactionId();
+        Long version = transactionDataRequestCVV.getVersion();
         sendAndAssert(transRequestCCV);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос CVC/CVV/CVP», условия правила не выполнены");
 
@@ -263,20 +251,10 @@ public class IR_03_RepeatApprovedTransactionRequestCVVRdakAdak extends RSHBCaseT
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
                 .withTransactionId(transaction_id)
                 .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer(firstNameAdak);
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
@@ -288,11 +266,10 @@ public class IR_03_RepeatApprovedTransactionRequestCVVRdakAdak extends RSHBCaseT
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestCCVsourceCardNumber = getTransferRequestCCV();
-        TransactionDataType transactionDataRequestCCVsourceCardNumber = transRequestCCVsourceCardNumber.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataRequestCCVsourceCardNumber = transRequestCCVsourceCardNumber.getData().getTransactionData();
         transactionDataRequestCCVsourceCardNumber
                 .getRequestCCV()
-                .withSourceCardNumber("4275344440011117474");
+                .withSourceCardNumber("42753444" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         transactionDataRequestCCVsourceCardNumber
                 .getClientIds().withDboId(clientIds.get(1));
         sendAndAssert(transRequestCCVsourceCardNumber);
@@ -300,8 +277,7 @@ public class IR_03_RepeatApprovedTransactionRequestCVVRdakAdak extends RSHBCaseT
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestCCVTrigg = getTransferRequestCCV();
-        TransactionDataType transactionDataRequestCVVTrigg = transRequestCCVTrigg.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataRequestCVVTrigg = transRequestCCVTrigg.getData().getTransactionData();
         transactionDataRequestCVVTrigg
                 .getClientIds().withDboId(clientIds.get(1));
         sendAndAssert(transRequestCCVTrigg);
@@ -320,24 +296,34 @@ public class IR_03_RepeatApprovedTransactionRequestCVVRdakAdak extends RSHBCaseT
                 .withPort(8050);
         transaction.getData().getTransactionData()
                 .withRegular(false)
+                .withVersion(1L)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getRequestCCV()
                 .withSourceCardNumber(sourceCardNumber);
         return transaction;
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
+        return adak;
     }
 }

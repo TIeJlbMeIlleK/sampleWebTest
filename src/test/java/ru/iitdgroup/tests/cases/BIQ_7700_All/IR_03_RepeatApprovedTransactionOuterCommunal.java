@@ -19,8 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IR_03_RepeatApprovedTransactionOuterCommunal extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-    private static final String unifiedAccountNumber = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);;
-
+    private static final String unifiedAccountNumber = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private final String[][] names = {{"Сергей", "Глызин", "Витальевич"}};
@@ -99,15 +98,12 @@ public class IR_03_RepeatApprovedTransactionOuterCommunal extends RSHBCaseTest {
     public void transOuterCommunal() {
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunal = getOuterCommunalTransfer();
-        transOuterCommunal.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOuterCommunal);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Транзакция ЖКХ», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunalOutside = getOuterCommunalTransfer();
-        TransactionDataType transactionDataOuterCommunalOutside = transOuterCommunalOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterCommunalOutside = transOuterCommunalOutside.getData().getTransactionData();
         transactionDataOuterCommunalOutside
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -116,8 +112,7 @@ public class IR_03_RepeatApprovedTransactionOuterCommunal extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunalAccountBalance = getOuterCommunalTransfer();
-        TransactionDataType transactionDataOuterCommunalAccountBalance = transOuterCommunalAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterCommunalAccountBalance = transOuterCommunalAccountBalance.getData().getTransactionData();
         transactionDataOuterCommunalAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transOuterCommunalAccountBalance);
@@ -125,8 +120,7 @@ public class IR_03_RepeatApprovedTransactionOuterCommunal extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunalUnifiedAccountNumber = getOuterCommunalTransfer();
-        TransactionDataType transactionDataOuterCommunalUnifiedAccountNumber = transOuterCommunalUnifiedAccountNumber.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterCommunalUnifiedAccountNumber = transOuterCommunalUnifiedAccountNumber.getData().getTransactionData();
         transactionDataOuterCommunalUnifiedAccountNumber
                 .getOuterTransfer()
                 .getCommunalPaymentProps()
@@ -136,8 +130,7 @@ public class IR_03_RepeatApprovedTransactionOuterCommunal extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunalDeviation = getOuterCommunalTransfer();
-        TransactionDataType transactionDataOuterCommunalDeviation = transOuterCommunalDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterCommunalDeviation = transOuterCommunalDeviation.getData().getTransactionData();
         transactionDataOuterCommunalDeviation
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -146,15 +139,11 @@ public class IR_03_RepeatApprovedTransactionOuterCommunal extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunalLength = getOuterCommunalTransfer();
-        transOuterCommunalLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOuterCommunalLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Транзакция ЖКХ» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transOuterCommunalPeriod = getOuterCommunalTransfer();
-        transOuterCommunalPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOuterCommunalPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Транзакция ЖКХ», условия правила не выполнены");
     }
@@ -170,13 +159,14 @@ public class IR_03_RepeatApprovedTransactionOuterCommunal extends RSHBCaseTest {
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false)
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterTransfer()
                 .withIsCommunalPayment(true)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))

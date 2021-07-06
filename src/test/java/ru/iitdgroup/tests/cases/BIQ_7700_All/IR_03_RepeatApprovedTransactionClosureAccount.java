@@ -21,11 +21,10 @@ public class IR_03_RepeatApprovedTransactionClosureAccount extends RSHBCaseTest 
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
 
     private final GregorianCalendar time = new GregorianCalendar();
-    private final String productName = "Текущий счет";
-    private final String sourceProduct = "40802020202087879898";
-    private final String destinationProduct = "40802020202032323636";
+    private final String sourceProduct = "40802020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String destinationProduct = "40802020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Сергей", "Зупаров", "Альбертович"}};
+    private final String[][] names = {{"Сергей", "Зупаров", "Альбертович"}};
 
     @Test(
             description = "Включаем правило"
@@ -64,19 +63,17 @@ public class IR_03_RepeatApprovedTransactionClosureAccount extends RSHBCaseTest 
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -103,15 +100,12 @@ public class IR_03_RepeatApprovedTransactionClosureAccount extends RSHBCaseTest 
     public void transClosureAccount() {
         time.add(Calendar.HOUR, -20);
         Transaction transClosureAccount = getClosureAccount();
-        TransactionDataType transactionDataClosureAccount = transClosureAccount.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transClosureAccount);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Закрытие счёта (в том числе накопительного)», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountOutside = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountOutside = transClosureAccountOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureAccountOutside = transClosureAccountOutside.getData().getTransactionData();
         transactionDataClosureAccountOutside
                 .getClosureAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -120,8 +114,7 @@ public class IR_03_RepeatApprovedTransactionClosureAccount extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountBalance = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountBalance = transClosureAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureAccountBalance = transClosureAccountBalance.getData().getTransactionData();
         transactionDataClosureAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transClosureAccountBalance);
@@ -129,18 +122,16 @@ public class IR_03_RepeatApprovedTransactionClosureAccount extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountSourceProduct = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountSourceProduct = transClosureAccountSourceProduct.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureAccountSourceProduct = transClosureAccountSourceProduct.getData().getTransactionData();
         transactionDataClosureAccountSourceProduct
                 .getClosureAccount()
-                .withSourceProduct("40801010101010101010");
+                .withSourceProduct("40801010" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transClosureAccountSourceProduct);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Закрытие счёта (в том числе накопительного)» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountProductName = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountProductName = transClosureAccountProductName.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureAccountProductName = transClosureAccountProductName.getData().getTransactionData();
         transactionDataClosureAccountProductName
                 .getClosureAccount()
                 .withProductName("Накопительный счёт");
@@ -149,18 +140,16 @@ public class IR_03_RepeatApprovedTransactionClosureAccount extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountDestinationProduct = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountDestinationProduct = transClosureAccountDestinationProduct.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureAccountDestinationProduct = transClosureAccountDestinationProduct.getData().getTransactionData();
         transactionDataClosureAccountDestinationProduct
                 .getClosureAccount()
-                .withDestinationProduct("40801010101010555656");
+                .withDestinationProduct("40801010" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transClosureAccountDestinationProduct);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Закрытие счёта (в том числе накопительного)» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountDeviation = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountDeviation = transClosureAccountDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureAccountDeviation = transClosureAccountDeviation.getData().getTransactionData();
         transactionDataClosureAccountDeviation
                 .getClosureAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -169,15 +158,11 @@ public class IR_03_RepeatApprovedTransactionClosureAccount extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountLength = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountLength = transClosureAccountLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transClosureAccountLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Закрытие счёта (в том числе накопительного)» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transClosureAccountPeriod = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountPeriod = transClosureAccountPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transClosureAccountPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Закрытие счёта (в том числе накопительного)», условия правила не выполнены");
     }
@@ -193,16 +178,17 @@ public class IR_03_RepeatApprovedTransactionClosureAccount extends RSHBCaseTest 
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
                 .getClosureAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
-                .withProductName(productName)
+                .withProductName("Текущий счет")
                 .withSourceProduct(sourceProduct)
                 .withDestinationProduct(destinationProduct);
         return transaction;

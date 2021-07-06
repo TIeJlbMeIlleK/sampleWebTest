@@ -19,10 +19,10 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-
+    private final String nameADAKSuccess = "Дмитрий";
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Людмила", "Оськина", "Игоревна"}, {"Дмитрий", "Румянцев", "Григорьевич"}};
+    private final String[][] names = {{"Людмила", "Оськина", "Игоревна"}, {nameADAKSuccess, "Румянцев", "Григорьевич"}};
 
     private static final String RULE_NAME_ALERT = "R01_ExR_05_GrayIP";
     private static final String REFERENCE_TABLE_RDAK = "(Policy_parameters) Параметры обработки событий";
@@ -30,11 +30,8 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
 
-    private final String uin = "18203702140083959124";
+    private final String uin = "10236545" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
     private final String ipAddress = "95.73.149.81";
-    private String transaction_id;
-    private Long version;
-
 
     @Test(
             description = "Включаем правило"
@@ -101,7 +98,7 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
                 .addRecord()
                 .fillInputText("IP устройства:", ipAddress)
                 .save();
-   }
+    }
 
     @Test(
             description = "Создание клиентов",
@@ -147,8 +144,6 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
     public void transBudget() {
         time.add(Calendar.MINUTE, -20);
         Transaction transBudget = getBudgetTransfer();
-        TransactionDataType transactionDataBudget = transBudget.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transBudget);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод в сторону государства», условия правила не выполнены");
 
@@ -159,8 +154,6 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetTwo = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetTwo = transBudgetTwo.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transBudgetTwo);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод в сторону государства» условия правила не выполнены");
 
@@ -182,8 +175,7 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetOutside = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetOutside = transBudgetOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBudgetOutside = transBudgetOutside.getData().getTransactionData();
         transactionDataBudgetOutside
                 .getBudgetTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -192,8 +184,7 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetAccountBalance = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetAccountBalance = transBudgetAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBudgetAccountBalance = transBudgetAccountBalance.getData().getTransactionData();
         transactionDataBudgetAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transBudgetAccountBalance);
@@ -201,8 +192,7 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetUIN = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetUIN = transBudgetUIN.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBudgetUIN = transBudgetUIN.getData().getTransactionData();
         transactionDataBudgetUIN
                 .getBudgetTransfer()
                 .withUIN("1");
@@ -211,8 +201,7 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetDeviation = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetDeviation = transBudgetDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBudgetDeviation = transBudgetDeviation.getData().getTransactionData();
         transactionDataBudgetDeviation
                 .getBudgetTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -232,12 +221,12 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
 
     public void transBetweenADAK() {
         Transaction transBudget = getBudgetTransfer();
-        TransactionDataType transactionDataBudget = transBudget.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBudget = transBudget.getData().getTransactionData();
         transactionDataBudget
-                .getClientIds().withDboId(clientIds.get(1));
-        transaction_id = transactionDataBudget.getTransactionId();
-        version = transactionDataBudget.getVersion();
+                .getClientIds()
+                .withDboId(clientIds.get(1));
+        String transaction_id = transactionDataBudget.getTransactionId();
+        Long version = transactionDataBudget.getVersion();
         sendAndAssert(transBudget);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод в сторону государства», условия правила не выполнены");
 
@@ -245,20 +234,10 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
                 .withTransactionId(transaction_id)
                 .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Дмитрий");
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
@@ -270,8 +249,7 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetUIN = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetUIN = transBudgetUIN.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBudgetUIN = transBudgetUIN.getData().getTransactionData();
         transactionDataBudgetUIN
                 .getClientIds()
                 .withDboId(clientIds.get(1));
@@ -283,8 +261,7 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetDeviation = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetDeviation = transBudgetDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBudgetDeviation = transBudgetDeviation.getData().getTransactionData();
         transactionDataBudgetDeviation
                 .getClientIds()
                 .withDboId(clientIds.get(1));
@@ -306,13 +283,14 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .withVersion(1L)
                 .withRegular(false)
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getBudgetTransfer()
                 .withUIN(uin)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
@@ -324,13 +302,22 @@ public class IR_03_RepeatApprovedTransactionBudgetRdakAdak extends RSHBCaseTest 
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(nameADAKSuccess);
+        return adak;
     }
 }

@@ -19,7 +19,6 @@ public class IR_03_RepeatApprovedTransactionRequestPan extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
     private static final String sourceCardNumber = "42563577" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
-
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private final String[][] names = {{"Кирилл", "Суров", "Дмитриевич"}};
@@ -98,39 +97,30 @@ public class IR_03_RepeatApprovedTransactionRequestPan extends RSHBCaseTest {
     public void requestPAN() {
         time.add(Calendar.HOUR, -10);
         Transaction transRequestPAN = getTransferRequestPAN();
-        TransactionDataType transactionDataRequestPAN = transRequestPAN.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestPAN);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос реквизитов карты», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestPANsourceCardNumber = getTransferRequestPAN();
-        TransactionDataType transactionDataRequestPANsourceCardNumber = transRequestPANsourceCardNumber.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataRequestPANsourceCardNumber = transRequestPANsourceCardNumber.getData().getTransactionData();
         transactionDataRequestPANsourceCardNumber
                 .getRequestPAN()
-                .withSourceCardNumber("4275344440011117777");
+                .withSourceCardNumber("42753444" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transRequestPANsourceCardNumber);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос реквизитов карты» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestPANTrigg = getTransferRequestPAN();
-        TransactionDataType transactionDataRequestPANTrigg = transRequestPANTrigg.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestPANTrigg);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос реквизитов карты» транзакция с совпадающими реквизитами");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestPANLength = getTransferRequestPAN();
-        TransactionDataType transactionDataRequestPANLength = transRequestPANLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestPANLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос реквизитов карты» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transRequestPANPeriod = getTransferRequestPAN();
-        TransactionDataType transactionDataRequestPANPeriod = transRequestPANPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestPANPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос реквизитов карты», условия правила не выполнены");
     }
@@ -146,12 +136,13 @@ public class IR_03_RepeatApprovedTransactionRequestPan extends RSHBCaseTest {
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getRequestPAN()
                 .withSourceCardNumber(sourceCardNumber);
         return transaction;

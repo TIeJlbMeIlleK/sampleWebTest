@@ -22,7 +22,7 @@ public class IR_03_RepeatApprovedTransactionCreateSubscription extends RSHBCaseT
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Альбина", "Нурко", "Степановна"}};
+    private final String[][] names = {{"Альбина", "Нурко", "Степановна"}};
 
     @Test(
             description = "Включаем правило"
@@ -61,19 +61,17 @@ public class IR_03_RepeatApprovedTransactionCreateSubscription extends RSHBCaseT
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -100,15 +98,12 @@ public class IR_03_RepeatApprovedTransactionCreateSubscription extends RSHBCaseT
     public void transCreatSubscription() {
         time.add(Calendar.HOUR, -20);
         Transaction transCreatSubscription = getCreatSubscription();
-        TransactionDataType transactionDataCreat = transCreatSubscription.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCreatSubscription);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Подписка на сервисы оплаты», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionOutside = getCreatSubscription();
-        TransactionDataType transactionDataCreatOutside = transCreatSubscriptionOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCreatOutside = transCreatSubscriptionOutside.getData().getTransactionData();
         transactionDataCreatOutside
                 .getCreateSubscription()
                 .getAccuredPayment()
@@ -118,8 +113,7 @@ public class IR_03_RepeatApprovedTransactionCreateSubscription extends RSHBCaseT
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionAccountBalance = getCreatSubscription();
-        TransactionDataType transactionDataCreatAccountBalance = transCreatSubscriptionAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCreatAccountBalance = transCreatSubscriptionAccountBalance.getData().getTransactionData();
         transactionDataCreatAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transCreatSubscriptionAccountBalance);
@@ -127,8 +121,7 @@ public class IR_03_RepeatApprovedTransactionCreateSubscription extends RSHBCaseT
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionDeviation = getCreatSubscription();
-        TransactionDataType transactionDataCreatDeviation = transCreatSubscriptionDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCreatDeviation = transCreatSubscriptionDeviation.getData().getTransactionData();
         transactionDataCreatDeviation
                 .getCreateSubscription()
                 .getAccuredPayment()
@@ -138,15 +131,11 @@ public class IR_03_RepeatApprovedTransactionCreateSubscription extends RSHBCaseT
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionLength = getCreatSubscription();
-        TransactionDataType transactionDataCreatLength = transCreatSubscriptionLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCreatSubscriptionLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Подписка на сервисы оплаты» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transCreatSubscriptionPeriod = getCreatSubscription();
-        TransactionDataType transactionDataCreatPeriod = transCreatSubscriptionPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCreatSubscriptionPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Подписка на сервисы оплаты», условия правила не выполнены");
     }
@@ -162,13 +151,14 @@ public class IR_03_RepeatApprovedTransactionCreateSubscription extends RSHBCaseT
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
                 .getCreateSubscription()
                 .getAccuredPayment()
                 .withMaxAmount(BigDecimal.valueOf(500.00));

@@ -19,13 +19,13 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IR_03_RepeatApprovedTransactionOuter extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-    private final String bik = "442301977";
-    private final String payeeAccount = "40187200334466554477";
-    private final String payeeINN = "312654987123";
+    private final String bik = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 10);
+    private final String payeeAccount = "40187200" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String payeeINN = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ирина", "Муркина", "Сергеевна"}};
+    private final String[][] names = {{"Ирина", "Муркина", "Сергеевна"}};
 
     @Test(
             description = "Включаем правило"
@@ -64,19 +64,17 @@ public class IR_03_RepeatApprovedTransactionOuter extends RSHBCaseTest {
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 10);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -103,15 +101,12 @@ public class IR_03_RepeatApprovedTransactionOuter extends RSHBCaseTest {
     public void transOuter() {
         time.add(Calendar.SECOND, 20);
         Transaction transOuter = getOuterTransfer();
-        TransactionDataType transactionDataOuter = transOuter.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOuter);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод другому лицу», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterOutside = getOuterTransfer();
-        TransactionDataType transactionDataOuterOutside = transOuterOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterOutside = transOuterOutside.getData().getTransactionData();
         transactionDataOuterOutside
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -120,8 +115,7 @@ public class IR_03_RepeatApprovedTransactionOuter extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterAccountBalance = getOuterTransfer();
-        TransactionDataType transactionDataOuterAccountBalance = transOuterAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterAccountBalance = transOuterAccountBalance.getData().getTransactionData();
         transactionDataOuterAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transOuterAccountBalance);
@@ -129,41 +123,37 @@ public class IR_03_RepeatApprovedTransactionOuter extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterAccountBik = getOuterTransfer();
-        TransactionDataType transactionDataOuterAccountBik = transOuterAccountBik.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterAccountBik = transOuterAccountBik.getData().getTransactionData();
         transactionDataOuterAccountBik
                 .getOuterTransfer()
                 .getPayeeBankProps()
-                .withBIK("442302222");
+                .withBIK((ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 10));
         sendAndAssert(transOuterAccountBik);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод другому лицу» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterPayeeAccount = getOuterTransfer();
-        TransactionDataType transactionDataOuterPayeeAccount = transOuterPayeeAccount.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterPayeeAccount = transOuterPayeeAccount.getData().getTransactionData();
         transactionDataOuterPayeeAccount
                 .getOuterTransfer()
                 .getPayeeProps()
-                .withPayeeAccount("40187200334466559988");
+                .withPayeeAccount("40187200" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transOuterPayeeAccount);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод другому лицу» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterPayeeINN = getOuterTransfer();
-        TransactionDataType transactionDataOuterPayeeINN = transOuterPayeeINN.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterPayeeINN = transOuterPayeeINN.getData().getTransactionData();
         transactionDataOuterPayeeINN
                 .getOuterTransfer()
                 .getPayeeProps()
-                .withPayeeINN("312654988888");
+                .withPayeeINN((ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transOuterPayeeINN);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод другому лицу» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterDeviation = getOuterTransfer();
-        TransactionDataType transactionDataOuterDeviation = transOuterDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterDeviation = transOuterDeviation.getData().getTransactionData();
         transactionDataOuterDeviation
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -172,19 +162,14 @@ public class IR_03_RepeatApprovedTransactionOuter extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterLength = getOuterTransfer();
-        TransactionDataType transactionDataOuterLength = transOuterLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOuterLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод другому лицу» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transOuterPeriod = getOuterTransfer();
-        TransactionDataType transactionDataOuterPeriod = transOuterPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOuterPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод другому лицу», условия правила не выполнены");
     }
-
 
     @Override
     protected String getRuleName() {
@@ -197,13 +182,14 @@ public class IR_03_RepeatApprovedTransactionOuter extends RSHBCaseTest {
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false)
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
                 .getPayeeProps()

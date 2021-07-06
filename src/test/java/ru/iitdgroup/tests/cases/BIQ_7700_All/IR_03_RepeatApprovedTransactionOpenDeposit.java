@@ -21,10 +21,9 @@ public class IR_03_RepeatApprovedTransactionOpenDeposit extends RSHBCaseTest {
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
 
     private final GregorianCalendar time = new GregorianCalendar();
-    private final String productName = "Вклад до востребования";
-    private final String sourceProduct = "40802020202020202020";
+    private final String sourceProduct = "40802020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Оксана", "Быкова", "Семеновна"}};
+    private final String[][] names = {{"Оксана", "Быкова", "Семеновна"}};
 
     @Test(
             description = "Включаем правило"
@@ -63,19 +62,17 @@ public class IR_03_RepeatApprovedTransactionOpenDeposit extends RSHBCaseTest {
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -102,15 +99,12 @@ public class IR_03_RepeatApprovedTransactionOpenDeposit extends RSHBCaseTest {
     public void transOpenDeposit() {
         time.add(Calendar.HOUR, -20);
         Transaction transOpenDeposit = getOpenDeposit();
-        TransactionDataType transactionDataOpenDeposit = transOpenDeposit.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOpenDeposit);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Открытие вклада», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenDepositOutside = getOpenDeposit();
-        TransactionDataType transactionDataOpenDepositOutside = transOpenDepositOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOpenDepositOutside = transOpenDepositOutside.getData().getTransactionData();
         transactionDataOpenDepositOutside
                 .getOpenDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -119,8 +113,7 @@ public class IR_03_RepeatApprovedTransactionOpenDeposit extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenDepositAccountBalance = getOpenDeposit();
-        TransactionDataType transactionDataOpenDepositAccountBalance = transOpenDepositAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOpenDepositAccountBalance = transOpenDepositAccountBalance.getData().getTransactionData();
         transactionDataOpenDepositAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transOpenDepositAccountBalance);
@@ -128,8 +121,7 @@ public class IR_03_RepeatApprovedTransactionOpenDeposit extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenDepositProductName = getOpenDeposit();
-        TransactionDataType transactionDataOpenDepositProductName = transOpenDepositProductName.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOpenDepositProductName = transOpenDepositProductName.getData().getTransactionData();
         transactionDataOpenDepositProductName
                 .getOpenDeposit()
                 .withProductName("Просто Вклад");
@@ -138,18 +130,16 @@ public class IR_03_RepeatApprovedTransactionOpenDeposit extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenDepositSourceProduct = getOpenDeposit();
-        TransactionDataType transactionDataOpenDepositSourceProduct = transOpenDepositSourceProduct.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOpenDepositSourceProduct = transOpenDepositSourceProduct.getData().getTransactionData();
         transactionDataOpenDepositSourceProduct
                 .getOpenDeposit()
-                .withSourceProduct("40802020202020204444");
+                .withSourceProduct("40802020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transOpenDepositSourceProduct);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Открытие вклада» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenDepositDeviation = getOpenDeposit();
-        TransactionDataType transactionDataOpenDepositDeviation = transOpenDepositDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOpenDepositDeviation = transOpenDepositDeviation.getData().getTransactionData();
         transactionDataOpenDepositDeviation
                 .getOpenDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -158,15 +148,11 @@ public class IR_03_RepeatApprovedTransactionOpenDeposit extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenDepositLength = getOpenDeposit();
-        TransactionDataType transactionDataOpenDepositLength = transOpenDepositLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOpenDepositLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Открытие вклада» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transOpenDepositPeriod = getOpenDeposit();
-        TransactionDataType transactionDataOpenDepositPeriod = transOpenDepositPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOpenDepositPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Открытие вклада», условия правила не выполнены");
 
@@ -184,15 +170,16 @@ public class IR_03_RepeatApprovedTransactionOpenDeposit extends RSHBCaseTest {
                 .withPort(8050);
         transaction.getData().getTransactionData()
                 .withRegular(false)
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
                 .getOpenDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
-                .withProductName(productName)
+                .withProductName("Вклад до востребования")
                 .withSourceProduct(sourceProduct);
         return transaction;
     }

@@ -27,19 +27,13 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
     private final String sourceCardNumber = "4336377" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
-
-    private String documentHash1;
-    private String documentHash2;
     private final static String firstNameAdak = "Григорий";
-    private String transaction_id;
-    private Long version;
-
     private final GregorianCalendar time = new GregorianCalendar();
     private final GregorianCalendar time2 = new GregorianCalendar();
     private final GregorianCalendar time3 = new GregorianCalendar();
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Илья", "Кузнецов", "Андреевич"}, {firstNameAdak, "Павлов", "Олегович"}};
+    private final String[][] names = {{"Илья", "Кузнецов", "Андреевич"}, {firstNameAdak, "Павлов", "Олегович"}};
 
     @Test(
             description = "Включаем правило"
@@ -115,8 +109,8 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
                 System.out.println(timeBirthday);
                 String organization = "МВД "+ new RandomString(10).nextString();
                 Client client = new Client("testCases/Templates/client.xml");
-                time2.add(Calendar.YEAR, -timePssw);
-                time3.add(Calendar.YEAR, -timeBirthday);
+                time2.add(Calendar.YEAR, -11);
+                time3.add(Calendar.YEAR, -57);
 
                 client.getData()
                         .getClientData()
@@ -151,6 +145,9 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
+
+        String documentHash1;
+        String documentHash2;
 
         try {
             String[][] hash = getDatabase()//сохраняем в переменную Hash действующего документа из карточки клиента
@@ -192,8 +189,6 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
     public void transOuterCard() {
         time.add(Calendar.MINUTE, -20);
         Transaction transRequestPAN = getTransferRequestPAN();
-        TransactionDataType transactionDataRequestPAN = transRequestPAN.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestPAN);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос реквизитов карты», условия правила не выполнены");
 
@@ -204,8 +199,6 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestPANTwo = getTransferRequestPAN();
-        TransactionDataType transactionDataRequestPANTwo = transRequestPANTwo.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestPANTwo);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос реквизитов карты» условия правила не выполнены");
 
@@ -226,18 +219,15 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestPANsourceCardNumber = getTransferRequestPAN();
-        TransactionDataType transactionDataRequestPANsourceCardNumber = transRequestPANsourceCardNumber.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataRequestPANsourceCardNumber = transRequestPANsourceCardNumber.getData().getTransactionData();
         transactionDataRequestPANsourceCardNumber
                 .getRequestPAN()
-                .withSourceCardNumber("4275344440011117777");
+                .withSourceCardNumber("42753444" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transRequestPANsourceCardNumber);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос реквизитов карты» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestPANTrigg = getTransferRequestPAN();
-        TransactionDataType transactionDataRequestPANTrigg = transRequestPANTrigg.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestPANTrigg);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос реквизитов карты» транзакция с совпадающими реквизитами");
     }
@@ -254,13 +244,12 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
 
     public void transOuterADAK() {
         Transaction transRequestPAN = getTransferRequestPAN();
-        TransactionDataType transactionDataRequestPAN = transRequestPAN.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataRequestPAN = transRequestPAN.getData().getTransactionData();
         transactionDataRequestPAN
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transaction_id = transactionDataRequestPAN.getTransactionId();
-        version = transactionDataRequestPAN.getVersion();
+        String transaction_id = transactionDataRequestPAN.getTransactionId();
+        Long version = transactionDataRequestPAN.getVersion();
         sendAndAssert(transRequestPAN);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос реквизитов карты», условия правила не выполнены");
 
@@ -268,20 +257,10 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
                 .withTransactionId(transaction_id)
                 .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer(firstNameAdak);
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
@@ -293,11 +272,10 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestPANsourceCardNumber = getTransferRequestPAN();
-        TransactionDataType transactionDataRequestPANsourceCardNumber = transRequestPANsourceCardNumber.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataRequestPANsourceCardNumber = transRequestPANsourceCardNumber.getData().getTransactionData();
         transactionDataRequestPANsourceCardNumber
                 .getRequestPAN()
-                .withSourceCardNumber("4275344440011112222");
+                .withSourceCardNumber("42753444" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         transactionDataRequestPANsourceCardNumber
                 .getClientIds().withDboId(clientIds.get(1));
         sendAndAssert(transRequestPANsourceCardNumber);
@@ -305,8 +283,7 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestPANTrigg = getTransferRequestPAN();
-        TransactionDataType transactionDataRequestPANTrigg = transRequestPANTrigg.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataRequestPANTrigg = transRequestPANTrigg.getData().getTransactionData();
         transactionDataRequestPANTrigg
                 .getClientIds().withDboId(clientIds.get(1));
         sendAndAssert(transRequestPANTrigg);
@@ -324,25 +301,35 @@ public class IR_03_RepeatApprovedTransactionRequestPanRdakAdak extends RSHBCaseT
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getRequestPAN()
                 .withSourceCardNumber(sourceCardNumber);
         return transaction;
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
+        return adak;
     }
 }

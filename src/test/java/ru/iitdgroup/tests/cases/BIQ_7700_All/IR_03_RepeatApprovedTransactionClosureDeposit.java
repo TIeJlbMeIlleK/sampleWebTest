@@ -21,11 +21,10 @@ public class IR_03_RepeatApprovedTransactionClosureDeposit extends RSHBCaseTest 
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
 
     private final GregorianCalendar time = new GregorianCalendar();
-    private final String productName = "Вклад до востребования";
-    private final String sourceProduct = "40802020202077558844";
-    private final String destinationProduct = "40802020202048485858";
+    private final String sourceProduct = "40802020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String destinationProduct = "40802020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Елизавета", "Тураева", "Игоревна"}};
+    private final String[][] names = {{"Елизавета", "Тураева", "Игоревна"}};
 
     @Test(
             description = "Включаем правило"
@@ -64,19 +63,17 @@ public class IR_03_RepeatApprovedTransactionClosureDeposit extends RSHBCaseTest 
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -103,15 +100,12 @@ public class IR_03_RepeatApprovedTransactionClosureDeposit extends RSHBCaseTest 
     public void transClosureDeposit() {
         time.add(Calendar.HOUR, -20);
         Transaction transClosureDeposit = getClosureDeposit();
-        TransactionDataType transactionDataClosureDeposit = transClosureDeposit.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transClosureDeposit);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Закрытие вклада», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureDepositOutside = getClosureDeposit();
-        TransactionDataType transactionDataClosureDepositOutside = transClosureDepositOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureDepositOutside = transClosureDepositOutside.getData().getTransactionData();
         transactionDataClosureDepositOutside
                 .getClosureDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -120,8 +114,7 @@ public class IR_03_RepeatApprovedTransactionClosureDeposit extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureDepositAccountBalance = getClosureDeposit();
-        TransactionDataType transactionDataClosureDepositAccountBalance = transClosureDepositAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureDepositAccountBalance = transClosureDepositAccountBalance.getData().getTransactionData();
         transactionDataClosureDepositAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transClosureDepositAccountBalance);
@@ -129,18 +122,16 @@ public class IR_03_RepeatApprovedTransactionClosureDeposit extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureDepositSourceProduct = getClosureDeposit();
-        TransactionDataType transactionDataClosureDepositSourceProduct = transClosureDepositSourceProduct.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureDepositSourceProduct = transClosureDepositSourceProduct.getData().getTransactionData();
         transactionDataClosureDepositSourceProduct
                 .getClosureDeposit()
-                .withSourceProduct("40802020202020209999");
+                .withSourceProduct("40802020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transClosureDepositSourceProduct);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Закрытие вклада» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureDepositProductName = getClosureDeposit();
-        TransactionDataType transactionDataClosureDepositProductName = transClosureDepositProductName.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureDepositProductName = transClosureDepositProductName.getData().getTransactionData();
         transactionDataClosureDepositProductName
                 .getClosureDeposit()
                 .withProductName("Закрытие");
@@ -149,18 +140,16 @@ public class IR_03_RepeatApprovedTransactionClosureDeposit extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureDepositDestinationProduct = getClosureDeposit();
-        TransactionDataType transactionDataClosureDepositDestinationProduct = transClosureDepositDestinationProduct.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureDepositDestinationProduct = transClosureDepositDestinationProduct.getData().getTransactionData();
         transactionDataClosureDepositDestinationProduct
                 .getClosureDeposit()
-                .withDestinationProduct("40802055552020202032");
+                .withDestinationProduct("40802055" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transClosureDepositDestinationProduct);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Закрытие вклада» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureDepositDeviation = getClosureDeposit();
-        TransactionDataType transactionDataClosureDepositDeviation = transClosureDepositDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureDepositDeviation = transClosureDepositDeviation.getData().getTransactionData();
         transactionDataClosureDepositDeviation
                 .getClosureDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -169,15 +158,11 @@ public class IR_03_RepeatApprovedTransactionClosureDeposit extends RSHBCaseTest 
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureDepositLength = getClosureDeposit();
-        TransactionDataType transactionDataClosureDepositLength = transClosureDepositLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transClosureDepositLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Закрытие вклада» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transClosureDepositPeriod = getClosureDeposit();
-        TransactionDataType transactionDataClosureDepositPeriod = transClosureDepositPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transClosureDepositPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Закрытие вклада», условия правила не выполнены");
     }
@@ -193,16 +178,17 @@ public class IR_03_RepeatApprovedTransactionClosureDeposit extends RSHBCaseTest 
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
                 .getClosureDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
-                .withProductName(productName)
+                .withProductName("Вклад до востребования")
                 .withSourceProduct(sourceProduct)
                 .withDestinationProduct(destinationProduct);
         return transaction;

@@ -18,12 +18,10 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IR_03_RepeatApprovedTransactionRequestCCV extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-    private final static String sourceCardNumber = "4556344440011115555";
-
+    private final static String sourceCardNumber = "45563444" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private final String[][] names = {{"Сергей", "Кириллов", "Олегович"}};
-
 
     @Test(
             description = "Включаем правило"
@@ -98,39 +96,30 @@ public class IR_03_RepeatApprovedTransactionRequestCCV extends RSHBCaseTest {
     public void requestCCV() {
         time.add(Calendar.HOUR, -10);
         Transaction transRequestCCV = getTransferRequestCCV();
-        transRequestCCV.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestCCV);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос CVC/CVV/CVP», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestCCVsourceCardNumber = getTransferRequestCCV();
-        TransactionDataType transactionDataRequestCCVsourceCardNumber = transRequestCCVsourceCardNumber.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataRequestCCVsourceCardNumber = transRequestCCVsourceCardNumber.getData().getTransactionData();
         transactionDataRequestCCVsourceCardNumber
                 .getRequestCCV()
-                .withSourceCardNumber("4275344440011118888");
+                .withSourceCardNumber("42753444" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transRequestCCVsourceCardNumber);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос CVC/CVV/CVP» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestCCVTrigg = getTransferRequestCCV();
-        transRequestCCVTrigg.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestCCVTrigg);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос CVC/CVV/CVP» транзакция с совпадающими реквизитами");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestCCVLength = getTransferRequestCCV();
-        transRequestCCVLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestCCVLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос CVC/CVV/CVP» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transRequestCCVPeriod = getTransferRequestCCV();
-        transRequestCCVPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestCCVPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос CVC/CVV/CVP», условия правила не выполнены");
     }
@@ -146,12 +135,13 @@ public class IR_03_RepeatApprovedTransactionRequestCCV extends RSHBCaseTest {
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getRequestCCV()
                 .withSourceCardNumber(sourceCardNumber);
         return transaction;

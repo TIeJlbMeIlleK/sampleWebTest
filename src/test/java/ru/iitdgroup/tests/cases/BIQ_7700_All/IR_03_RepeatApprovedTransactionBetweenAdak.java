@@ -26,11 +26,10 @@ public class IR_03_RepeatApprovedTransactionBetweenAdak extends RSHBCaseTest {
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
     private final String ipAddress = "95.73.149.81";
-    private static String TRANSACTION_ID;
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ирина", "Зыкова", "Игоревна"}};
+    private final String[][] names = {{"Ирина", "Зыкова", "Игоревна"}};
 
     @Test(
             description = "Включаем правило"
@@ -151,63 +150,37 @@ public class IR_03_RepeatApprovedTransactionBetweenAdak extends RSHBCaseTest {
 
     public void transactiotransBetweenADAK() {
         Transaction transaction = getTransactionBetween();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
-                .getTransferBetweenAccounts()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
+        TransactionDataType transactionDataType =transaction.getData().getTransactionData()
+                .withInitialSourceAmount(BigDecimal.valueOf(10000.00));
         sendAndAssert(transaction);
-        TRANSACTION_ID = transactionData.getTransactionId();
+        String transactionId = transactionDataType.getTransactionId();
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод между счетами», условия правила не выполнены");
 
         getIC().locateAlerts().openFirst().action("Выполнить АДАК").sleep(1);
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(0))
-                .withLoginHash(clientIds.get(0))
-                .withCifId(clientIds.get(0))
-                .withExpertSystemId(clientIds.get(0));
-        transactionADAK
-                .withTransactionId(TRANSACTION_ID);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Ирина");
+                .withTransactionId(transactionId);
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
         assertTableField("Resolution:", "Правомочно");
         assertTableField("Status:", "Обработано");
         assertTableField("Идентификатор клиента:", clientIds.get(0));
-        assertTableField("Транзакция:", TRANSACTION_ID);
+        assertTableField("Транзакция:", transactionId);
         assertTableField("Статус АДАК:", "SUCCESS");
     }
 
     @Test(
-            description = "Отправить транзакцию №3 от клиента №1 спустя 5 мин от транзакции №1, " +
+            description = "Отправить транзакцию №3 от клиента №1 спустя 5 мин от транзакции №1," +
                     "тип транзакции Перевод между счетами, сумма 500р, остаток на счету 8000р, реквизиты совпадают с транзакцией №1 ",
             dependsOnMethods = "transactiotransBetweenADAK"
     )
 
     public void transactiotransBetweenADAKTrigg() {
         Transaction transaction = getTransactionBetween();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(8000.00))
-                .getTransferBetweenAccounts()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод между счетами» транзакция с совпадающими реквизитами");
     }
@@ -219,9 +192,19 @@ public class IR_03_RepeatApprovedTransactionBetweenAdak extends RSHBCaseTest {
 
     private Transaction getTransactionBetween() {
         Transaction transaction = getTransaction("testCases/Templates/TRANSFER_BETWEEN_ACCOUNTS_Android.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getTransferBetweenAccounts()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         transactionData
                 .getClientDevice().getAndroid().withIpAddress(ipAddress);
         return transaction;
@@ -229,6 +212,17 @@ public class IR_03_RepeatApprovedTransactionBetweenAdak extends RSHBCaseTest {
 
     private Transaction getAdak() {
         Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(0))
+                .withLoginHash(clientIds.get(0))
+                .withCifId(clientIds.get(0))
+                .withExpertSystemId(clientIds.get(0));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer("Ирина");
         return adak;
     }
 }

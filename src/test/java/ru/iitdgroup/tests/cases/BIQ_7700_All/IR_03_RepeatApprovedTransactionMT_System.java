@@ -19,11 +19,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IR_03_RepeatApprovedTransactionMT_System extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-    private final String receiverCountry = "Российская Федерация";
-
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Олег", "Смирнов", "Петрович"}};
+    private final String[][] names = {{"Олег", "Смирнов", "Петрович"}};
 
     @Test(
             description = "Включаем правило"
@@ -61,7 +59,7 @@ public class IR_03_RepeatApprovedTransactionMT_System extends RSHBCaseTest {
     public void addClients() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 10);
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
@@ -99,15 +97,12 @@ public class IR_03_RepeatApprovedTransactionMT_System extends RSHBCaseTest {
     public void transferMTSystem() {
         time.add(Calendar.HOUR, -20);
         Transaction transferMTSystem = getMTSystemTransfer();
-        TransactionDataType transactionDataMTSystem = transferMTSystem.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transferMTSystem);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод через систему денежных переводов», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTSystemOutside = getMTSystemTransfer();
-        TransactionDataType transactionDataMTSystemOutside = transMTSystemOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTSystemOutside = transMTSystemOutside.getData().getTransactionData();
         transactionDataMTSystemOutside
                 .getMTSystemTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -116,8 +111,7 @@ public class IR_03_RepeatApprovedTransactionMT_System extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTSystemAccountBalance = getMTSystemTransfer();
-        TransactionDataType transactionDataMTSystemAccountBalance = transMTSystemAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTSystemAccountBalance = transMTSystemAccountBalance.getData().getTransactionData();
         transactionDataMTSystemAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transMTSystemAccountBalance);
@@ -125,8 +119,7 @@ public class IR_03_RepeatApprovedTransactionMT_System extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTSystemReceiverCountry = getMTSystemTransfer();
-        TransactionDataType transactionDataMTSystemReceiverCountry = transMTSystemReceiverCountry.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTSystemReceiverCountry = transMTSystemReceiverCountry.getData().getTransactionData();
         transactionDataMTSystemReceiverCountry
                 .getMTSystemTransfer()
                 .withReceiverCountry("Россия");
@@ -135,8 +128,7 @@ public class IR_03_RepeatApprovedTransactionMT_System extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTSystemDeviation = getMTSystemTransfer();
-        TransactionDataType transactionDataMTSystemDeviation = transMTSystemDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTSystemDeviation = transMTSystemDeviation.getData().getTransactionData();
         transactionDataMTSystemDeviation
                 .getMTSystemTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -145,15 +137,11 @@ public class IR_03_RepeatApprovedTransactionMT_System extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTSystemLength = getMTSystemTransfer();
-        TransactionDataType transactionDataMTSystemLength = transMTSystemLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transMTSystemLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод через систему денежных переводов» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transMTSystemPeriod = getMTSystemTransfer();
-        TransactionDataType transactionDataMTSystemPeriod = transMTSystemPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transMTSystemPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод через систему денежных переводов», условия правила не выполнены");
     }
@@ -169,17 +157,18 @@ public class IR_03_RepeatApprovedTransactionMT_System extends RSHBCaseTest {
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false)
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getMTSystemTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
                 .withReceiverName("Иванов Василий Сергеевич")
-                .withReceiverCountry(receiverCountry);
+                .withReceiverCountry("Российская Федерация");
         return transaction;
     }
 }

@@ -99,33 +99,28 @@ public class IR_03_RepeatApprovedTransactionGettingCredit extends RSHBCaseTest {
     public void gettingCredit() {
         time.add(Calendar.HOUR, -10);
         Transaction transCredit = getTransferGettingCredit();
-        transCredit.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCredit);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос на выдачу кредита», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreditDestinationProduct = getTransferGettingCredit();
-        TransactionDataType transactionDataCreditDestinationProduct = transCreditDestinationProduct.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCreditDestinationProduct = transCreditDestinationProduct.getData().getTransactionData();
         transactionDataCreditDestinationProduct
                 .getGettingCredit()
-                .withDestinationProduct("4275344440011118888");
+                .withDestinationProduct("42753444" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transCreditDestinationProduct);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос на выдачу кредита» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreditBalance = getTransferGettingCredit();
         transCreditBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transCreditBalance);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос на выдачу кредита» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreditSum = getTransferGettingCredit();
-        TransactionDataType transactionDataCreditSUM = transCreditSum.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCreditSUM = transCreditSum.getData().getTransactionData();
         transactionDataCreditSUM
                 .getGettingCredit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -134,8 +129,7 @@ public class IR_03_RepeatApprovedTransactionGettingCredit extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreditSumma = getTransferGettingCredit();
-        TransactionDataType transactionDataCreditSumma = transCreditSumma.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCreditSumma = transCreditSumma.getData().getTransactionData();
         transactionDataCreditSumma
                 .getGettingCredit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -144,15 +138,11 @@ public class IR_03_RepeatApprovedTransactionGettingCredit extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreditLength = getTransferGettingCredit();
-        transCreditLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCreditLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос на выдачу кредита» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transCreditPeriod = getTransferGettingCredit();
-        transCreditPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCreditPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос на выдачу кредита», условия правила не выполнены");
     }
@@ -168,13 +158,14 @@ public class IR_03_RepeatApprovedTransactionGettingCredit extends RSHBCaseTest {
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
                 .getGettingCredit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
                 .withDestinationProduct(destinationProduct);

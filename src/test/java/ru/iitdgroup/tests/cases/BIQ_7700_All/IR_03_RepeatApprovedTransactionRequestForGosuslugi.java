@@ -9,7 +9,6 @@ import ru.iitdgroup.tests.cases.RSHBCaseTest;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -20,11 +19,9 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugi extends RSHBCase
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
     private static final int gosuslugiRequestType = 15;
-
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private final String[][] names = {{"Ася", "Кирова", "Георгиевна"}};
-
 
     @Test(
             description = "Включаем правило"
@@ -63,19 +60,17 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugi extends RSHBCase
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -101,15 +96,12 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugi extends RSHBCase
     public void requestForGosuslugi() {
         time.add(Calendar.HOUR, -10);
         Transaction transRequestForGosuslugi = getTransferRequestForGosuslugi();
-        TransactionDataType transactionDataRequestForGosuslugi = transRequestForGosuslugi.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestForGosuslugi);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос в госуслуги», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestForGosuslugiType = getTransferRequestForGosuslugi();
-        TransactionDataType transactionDataRequestForGosuslugiType = transRequestForGosuslugiType.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataRequestForGosuslugiType = transRequestForGosuslugiType.getData().getTransactionData();
         transactionDataRequestForGosuslugiType
                 .getRequestForGosuslugi()
                 .withGosuslugiRequestType(10);
@@ -118,22 +110,16 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugi extends RSHBCase
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestForGosuslugiTrigg = getTransferRequestForGosuslugi();
-        TransactionDataType transactionDataRequestForGosuslugiTrigg = transRequestForGosuslugiTrigg.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestForGosuslugiTrigg);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Запрос в госуслуги» транзакция с совпадающими реквизитами");
 
         time.add(Calendar.SECOND, 20);
         Transaction transRequestForGosuslugiLength = getTransferRequestForGosuslugi();
-        TransactionDataType transactionDataRequestForGosuslugiLength = transRequestForGosuslugiLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestForGosuslugiLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Запрос в госуслуги» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transRequestForGosuslugiPeriod = getTransferRequestForGosuslugi();
-        TransactionDataType transactionDataRequestForGosuslugiPeriod = transRequestForGosuslugiPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transRequestForGosuslugiPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Запрос в госуслуги», условия правила не выполнены");
     }
@@ -149,12 +135,13 @@ public class IR_03_RepeatApprovedTransactionRequestForGosuslugi extends RSHBCase
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getRequestForGosuslugi()
                 .withGosuslugiRequestType(gosuslugiRequestType);
         return transaction;

@@ -23,12 +23,10 @@ public class IR_03_RepeatApprovedTransactionCreateSubscriptionRdakAdak extends R
     private static final String REFERENCE_TABLE_RDAK = "(Policy_parameters) Параметры обработки событий";
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
-
+    private final String firstNameAdak = "Олег";
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Марина", "Головина", "Викторовна"}, {"Олег", "Сидоров", "Семенович"}};
-    private String transaction_id;
-    private Long version;
+    private final String[][] names = {{"Марина", "Головина", "Викторовна"}, {firstNameAdak, "Сидоров", "Семенович"}};
 
     @Test(
             description = "Включаем правило"
@@ -136,8 +134,6 @@ public class IR_03_RepeatApprovedTransactionCreateSubscriptionRdakAdak extends R
     public void transCreatSubscription() {
         time.add(Calendar.MINUTE, -20);
         Transaction transCreatSubscription = getCreatSubscription();
-        TransactionDataType transactionDataCreat = transCreatSubscription.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCreatSubscription);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Подписка на сервисы оплаты», условия правила не выполнены");
 
@@ -148,8 +144,6 @@ public class IR_03_RepeatApprovedTransactionCreateSubscriptionRdakAdak extends R
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionOutside = getCreatSubscription();
-        TransactionDataType transactionDataCreatOutside = transCreatSubscriptionOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCreatSubscriptionOutside);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Подписка на сервисы оплаты» условия правила не выполнены");
 
@@ -171,8 +165,7 @@ public class IR_03_RepeatApprovedTransactionCreateSubscriptionRdakAdak extends R
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionAccountBalance = getCreatSubscription();
-        TransactionDataType transactionDataCreatAccountBalance = transCreatSubscriptionAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCreatAccountBalance = transCreatSubscriptionAccountBalance.getData().getTransactionData();
         transactionDataCreatAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transCreatSubscriptionAccountBalance);
@@ -180,8 +173,7 @@ public class IR_03_RepeatApprovedTransactionCreateSubscriptionRdakAdak extends R
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionDeviation = getCreatSubscription();
-        TransactionDataType transactionDataCreatDeviation = transCreatSubscriptionDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCreatDeviation = transCreatSubscriptionDeviation.getData().getTransactionData();
         transactionDataCreatDeviation
                 .getCreateSubscription()
                 .getAccuredPayment()
@@ -202,13 +194,12 @@ public class IR_03_RepeatApprovedTransactionCreateSubscriptionRdakAdak extends R
 
     public void transOuterADAK() {
         Transaction transCreatSubscription = getCreatSubscription();
-        TransactionDataType transactionDataCreat = transCreatSubscription.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCreat = transCreatSubscription.getData().getTransactionData();
         transactionDataCreat
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transaction_id = transactionDataCreat.getTransactionId();
-        version = transactionDataCreat.getVersion();
+        String transactionId = transactionDataCreat.getTransactionId();
+        Long version = transactionDataCreat.getVersion();
         sendAndAssert(transCreatSubscription);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Подписка на сервисы оплаты», условия правила не выполнены");
 
@@ -216,33 +207,22 @@ public class IR_03_RepeatApprovedTransactionCreateSubscriptionRdakAdak extends R
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
-        transactionADAK
-                .withTransactionId(transaction_id)
+                .withTransactionId(transactionId)
                 .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Олег");
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
         assertTableField("Resolution:", "Правомочно");
         assertTableField("Status:", "Обработано");
         assertTableField("Идентификатор клиента:", clientIds.get(1));
-        assertTableField("Транзакция:", transaction_id);
+        assertTableField("Транзакция:", transactionId);
         assertTableField("Статус АДАК:", "SUCCESS");
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionAccountBalance = getCreatSubscription();
-        TransactionDataType transactionDataCreatAccountBalance = transCreatSubscriptionAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCreatAccountBalance = transCreatSubscriptionAccountBalance.getData().getTransactionData();
         transactionDataCreatAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         transactionDataCreatAccountBalance
@@ -253,8 +233,7 @@ public class IR_03_RepeatApprovedTransactionCreateSubscriptionRdakAdak extends R
 
         time.add(Calendar.SECOND, 20);
         Transaction transCreatSubscriptionDeviation = getCreatSubscription();
-        TransactionDataType transactionDataCreatDeviation = transCreatSubscriptionDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCreatDeviation = transCreatSubscriptionDeviation.getData().getTransactionData();
         transactionDataCreatDeviation
                 .getCreateSubscription()
                 .getAccuredPayment()
@@ -277,13 +256,14 @@ public class IR_03_RepeatApprovedTransactionCreateSubscriptionRdakAdak extends R
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
                 .getCreateSubscription()
                 .getAccuredPayment()
                 .withMaxAmount(BigDecimal.valueOf(500.00));
@@ -291,13 +271,22 @@ public class IR_03_RepeatApprovedTransactionCreateSubscriptionRdakAdak extends R
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
+        return adak;
     }
 }

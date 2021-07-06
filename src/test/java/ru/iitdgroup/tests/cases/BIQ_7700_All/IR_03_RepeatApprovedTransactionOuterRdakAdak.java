@@ -23,17 +23,13 @@ public class IR_03_RepeatApprovedTransactionOuterRdakAdak extends RSHBCaseTest {
     private static final String REFERENCE_TABLE_RDAK = "(Policy_parameters) Параметры обработки событий";
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
-
-    private final String bik = "442301977";
-    private final String payeeAccount = "40187200334466554477";
-    private final String payeeINN = "312654987123";
-
+    private final String bik = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 10);
+    private final String payeeAccount = "40187200" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String payeeINN = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ирина", "Муркина", "Сергеевна"}, {"Петр", "Урин", "Семенович"}};
-
-    private String transaction_id;
-    private Long version;
+    private final String firstNameAdak = "Сергей";
+    private final String[][] names = {{"Ирина", "Муркина", "Сергеевна"}, {firstNameAdak, "Урин", "Семенович"}};
 
     @Test(
             description = "Включаем правило"
@@ -103,7 +99,7 @@ public class IR_03_RepeatApprovedTransactionOuterRdakAdak extends RSHBCaseTest {
     public void addClients() {
         try {
             for (int i = 0; i < 2; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 10);
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
@@ -140,8 +136,6 @@ public class IR_03_RepeatApprovedTransactionOuterRdakAdak extends RSHBCaseTest {
     public void transOuterRDAK() {
         time.add(Calendar.MINUTE, -20);
         Transaction transOuter = getOuterTransfer();
-        TransactionDataType transactionDataOuter = transOuter.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOuter);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод другому лицу», условия правила не выполнены");
 
@@ -152,8 +146,6 @@ public class IR_03_RepeatApprovedTransactionOuterRdakAdak extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterOutside = getOuterTransfer();
-        TransactionDataType transactionDataOuterOutside = transOuterOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOuterOutside);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод другому лицу» условия правила не выполнены");
 
@@ -175,8 +167,7 @@ public class IR_03_RepeatApprovedTransactionOuterRdakAdak extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterAccountBalance = getOuterTransfer();
-        TransactionDataType transactionDataOuterAccountBalance = transOuterAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterAccountBalance = transOuterAccountBalance.getData().getTransactionData();
         transactionDataOuterAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transOuterAccountBalance);
@@ -184,8 +175,7 @@ public class IR_03_RepeatApprovedTransactionOuterRdakAdak extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterDeviation = getOuterTransfer();
-        TransactionDataType transactionDataOuterDeviation = transOuterDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterDeviation = transOuterDeviation.getData().getTransactionData();
         transactionDataOuterDeviation
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -205,13 +195,12 @@ public class IR_03_RepeatApprovedTransactionOuterRdakAdak extends RSHBCaseTest {
 
     public void transOuterADAK() {
         Transaction transOuter = getOuterTransfer();
-        TransactionDataType transactionDataOuter = transOuter.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuter = transOuter.getData().getTransactionData();
         transactionDataOuter
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transaction_id = transactionDataOuter.getTransactionId();
-        version = transactionDataOuter.getVersion();
+        String transaction_id = transactionDataOuter.getTransactionId();
+        Long version = transactionDataOuter.getVersion();
         sendAndAssert(transOuter);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод другому лицу», условия правила не выполнены");
 
@@ -219,20 +208,10 @@ public class IR_03_RepeatApprovedTransactionOuterRdakAdak extends RSHBCaseTest {
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
                 .withTransactionId(transaction_id)
                 .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Петр");
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
@@ -245,7 +224,6 @@ public class IR_03_RepeatApprovedTransactionOuterRdakAdak extends RSHBCaseTest {
         time.add(Calendar.SECOND, 20);
         Transaction transOuterBalance = getOuterTransfer();
         TransactionDataType transactionDataOuterBalance = transOuterBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         transactionDataOuterBalance
                 .getClientIds().withDboId(clientIds.get(1));
@@ -254,8 +232,7 @@ public class IR_03_RepeatApprovedTransactionOuterRdakAdak extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterDeviation = getOuterTransfer();
-        TransactionDataType transactionDataOuterDeviation = transOuterDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterDeviation = transOuterDeviation.getData().getTransactionData();
         transactionDataOuterDeviation
                 .getClientIds().withDboId(clientIds.get(1));
         transactionDataOuterDeviation
@@ -276,13 +253,14 @@ public class IR_03_RepeatApprovedTransactionOuterRdakAdak extends RSHBCaseTest {
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false)
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
                 .getPayeeProps()
@@ -296,13 +274,22 @@ public class IR_03_RepeatApprovedTransactionOuterRdakAdak extends RSHBCaseTest {
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
+        return adak;
     }
 }

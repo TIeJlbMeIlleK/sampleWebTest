@@ -19,11 +19,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IR_03_RepeatApprovedTransactionMTSystemEdit extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-    private final String receiverCountry = "Российская Федерация";
     private final String editiingTransactionId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
     private static final String receiverName = "Иванов Иван Иванович";
-
-
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private final String[][] names = {{"Альберт", "Свиридов", "Петрович"}};
@@ -64,7 +61,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemEdit extends RSHBCaseTest {
     public void addClients() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 10);
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
@@ -102,15 +99,12 @@ public class IR_03_RepeatApprovedTransactionMTSystemEdit extends RSHBCaseTest {
     public void transferMTEdit() {
         time.add(Calendar.HOUR, -20);
         Transaction transferMTTransferEdit = getMTTransferEdit();
-        transferMTTransferEdit.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transferMTTransferEdit);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Изменение перевода, отправленного через систему денежных переводов», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTTransferEditOutside = getMTTransferEdit();
-        TransactionDataType transactionDataMTTransferEditOutside = transMTTransferEditOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTTransferEditOutside = transMTTransferEditOutside.getData().getTransactionData();
         transactionDataMTTransferEditOutside
                 .getMTTransferEdit()
                 .getSystemTransferCont()
@@ -120,8 +114,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemEdit extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTTransferEditAccountBalance = getMTTransferEdit();
-        TransactionDataType transactionDataMTTransferEditAccountBalance = transMTTransferEditAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTTransferEditAccountBalance = transMTTransferEditAccountBalance.getData().getTransactionData();
         transactionDataMTTransferEditAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transMTTransferEditAccountBalance);
@@ -129,8 +122,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemEdit extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTTransferEditReceiverCountry = getMTTransferEdit();
-        TransactionDataType transactionDataMTTransferEditReceiverCountry = transMTTransferEditReceiverCountry.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTTransferEditReceiverCountry = transMTTransferEditReceiverCountry.getData().getTransactionData();
         transactionDataMTTransferEditReceiverCountry
                 .getMTTransferEdit()
                 .getSystemTransferCont()
@@ -140,8 +132,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemEdit extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTTransferEditEditiingTransactionId = getMTTransferEdit();
-        TransactionDataType transactionDataMTTransferEditeditiingTransactionId = transMTTransferEditEditiingTransactionId.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTTransferEditeditiingTransactionId = transMTTransferEditEditiingTransactionId.getData().getTransactionData();
         transactionDataMTTransferEditeditiingTransactionId
                 .getMTTransferEdit()
                 .withEditingTransactionId("6363");
@@ -150,8 +141,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemEdit extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTTransferEditDeviation = getMTTransferEdit();
-        TransactionDataType transactionDataMTTransferEditDeviation = transMTTransferEditDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTTransferEditDeviation = transMTTransferEditDeviation.getData().getTransactionData();
         transactionDataMTTransferEditDeviation
                 .getMTTransferEdit()
                 .getSystemTransferCont()
@@ -161,15 +151,11 @@ public class IR_03_RepeatApprovedTransactionMTSystemEdit extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTTransferEditLength = getMTTransferEdit();
-        transMTTransferEditLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transMTTransferEditLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Изменение перевода, отправленного через систему денежных переводов» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transMTTransferEditPeriod = getMTTransferEdit();
-        transMTTransferEditPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transMTTransferEditPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Изменение перевода, отправленного через систему денежных переводов», условия правила не выполнены");
     }
@@ -185,19 +171,20 @@ public class IR_03_RepeatApprovedTransactionMTSystemEdit extends RSHBCaseTest {
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false)
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getMTTransferEdit()
                 .withEditingTransactionId(editiingTransactionId)
                 .getSystemTransferCont()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
                 .withReceiverName(receiverName)
-                .withReceiverCountry(receiverCountry);
+                .withReceiverCountry("Российская Федерация");
         return transaction;
     }
 }

@@ -22,7 +22,7 @@ public class IR_03_RepeatApprovedTransactionBudget extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Екатерина", "Мыркина", "Игоревна"}};
+    private final String[][] names = {{"Екатерина", "Мыркина", "Игоревна"}};
 
     @Test(
             description = "Включаем правило"
@@ -61,19 +61,17 @@ public class IR_03_RepeatApprovedTransactionBudget extends RSHBCaseTest {
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -100,15 +98,12 @@ public class IR_03_RepeatApprovedTransactionBudget extends RSHBCaseTest {
     public void transBudget() {
         time.add(Calendar.HOUR, -10);
         Transaction transBudget = getBudgetTransfer();
-        TransactionDataType transactionDataBudget = transBudget.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transBudget);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод в сторону государства», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetOutside = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetOutside = transBudgetOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBudgetOutside = transBudgetOutside.getData().getTransactionData();
         transactionDataBudgetOutside
                 .getBudgetTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -117,8 +112,7 @@ public class IR_03_RepeatApprovedTransactionBudget extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetAccountBalance = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetAccountBalance = transBudgetAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBudgetAccountBalance = transBudgetAccountBalance.getData().getTransactionData();
         transactionDataBudgetAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transBudgetAccountBalance);
@@ -126,8 +120,7 @@ public class IR_03_RepeatApprovedTransactionBudget extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetUIN = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetUIN = transBudgetUIN.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBudgetUIN = transBudgetUIN.getData().getTransactionData();
         transactionDataBudgetUIN
                 .getBudgetTransfer()
                 .withUIN("1");
@@ -136,8 +129,7 @@ public class IR_03_RepeatApprovedTransactionBudget extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetDeviation = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetDeviation = transBudgetDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBudgetDeviation = transBudgetDeviation.getData().getTransactionData();
         transactionDataBudgetDeviation
                 .getBudgetTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -146,15 +138,11 @@ public class IR_03_RepeatApprovedTransactionBudget extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transBudgetLength = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetLength = transBudgetLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transBudgetLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод в сторону государства» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transBudgetPeriod = getBudgetTransfer();
-        TransactionDataType transactionDataBudgetPeriod = transBudgetPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transBudgetPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод в сторону государства», условия правила не выполнены");
     }
@@ -170,13 +158,14 @@ public class IR_03_RepeatApprovedTransactionBudget extends RSHBCaseTest {
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
+                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getBudgetTransfer()
                 .withUIN("0")
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));

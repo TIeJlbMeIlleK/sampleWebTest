@@ -8,7 +8,6 @@ import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.SchemaOutputResolver;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -97,15 +96,12 @@ public class IR_03_RepeatApprovedTransactionCancellation extends RSHBCaseTest {
     public void transactionCancellation() {
         time.add(Calendar.HOUR, -10);
         Transaction transCancellation = getTransCancellation();
-        transCancellation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCancellation);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Отмена операции», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transCancellationtransactionIdToCancel = getTransCancellation();
-        TransactionDataType transactionDataCancellation = transCancellationtransactionIdToCancel.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataCancellation = transCancellationtransactionIdToCancel.getData().getTransactionData();
         transactionDataCancellation
                 .getTransactionCancellation()
                 .withTransactionIdToCancel(3232323232L);
@@ -114,22 +110,16 @@ public class IR_03_RepeatApprovedTransactionCancellation extends RSHBCaseTest {
 
         time.add(Calendar.SECOND, 20);
         Transaction transCancellationTrigg = getTransCancellation();
-        transCancellationTrigg.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCancellationTrigg);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Отмена операции» транзакция с совпадающими реквизитами");
 
         time.add(Calendar.SECOND, 20);
         Transaction transCancellationLength = getTransCancellation();
-        transCancellationLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCancellationLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Отмена операции» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transCancellationPeriod = getTransCancellation();
-        transCancellationPeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transCancellationPeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Отмена операции», условия правила не выполнены");
     }
@@ -145,12 +135,13 @@ public class IR_03_RepeatApprovedTransactionCancellation extends RSHBCaseTest {
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .getTransactionCancellation()
                 .withTransactionIdToCancel(transactionIdToCancel);
         return transaction;

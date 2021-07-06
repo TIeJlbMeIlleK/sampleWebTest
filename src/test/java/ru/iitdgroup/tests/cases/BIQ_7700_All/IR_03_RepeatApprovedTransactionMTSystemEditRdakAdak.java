@@ -28,13 +28,9 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
     private final String editiingTransactionId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
     private static final String receiverName = "Иванов Иван Иванович";
     private static final String firstNameAdak = "Людмила";
-
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-
     private final String[][] names = {{"Кристина", "Ольгина", "Андреевна"}, {firstNameAdak, "Хешина", "Григорьевна"}};
-    private String transaction_id;
-    private Long version;
 
     @Test(
             description = "Включаем правило"
@@ -143,8 +139,6 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
     public void transServis() {
         time.add(Calendar.MINUTE, -15);
         Transaction transferMTTransferEdit = getMTTransferEdit();
-        transferMTTransferEdit.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transferMTTransferEdit);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Изменение перевода, отправленного через систему денежных переводов», условия правила не выполнены");
 
@@ -155,8 +149,6 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
 
         time.add(Calendar.SECOND, 20);
         Transaction transferMTTransferEditTwo = getMTTransferEdit();
-        transferMTTransferEditTwo.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transferMTTransferEditTwo);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Изменение перевода, отправленного через систему денежных переводов» условия правила не выполнены");
 
@@ -178,8 +170,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTTransferEditAccountBalance = getMTTransferEdit();
-        TransactionDataType transactionDataMTTransferEditAccountBalance = transMTTransferEditAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTTransferEditAccountBalance = transMTTransferEditAccountBalance.getData().getTransactionData();
         transactionDataMTTransferEditAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transMTTransferEditAccountBalance);
@@ -187,8 +178,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTTransferEditReceiverCountry = getMTTransferEdit();
-        TransactionDataType transactionDataMTTransferEditReceiverCountry = transMTTransferEditReceiverCountry.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTTransferEditReceiverCountry = transMTTransferEditReceiverCountry.getData().getTransactionData();
         transactionDataMTTransferEditReceiverCountry
                 .getMTTransferEdit()
                 .getSystemTransferCont()
@@ -198,8 +188,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTTransferEditEditiingTransactionId = getMTTransferEdit();
-        TransactionDataType transactionDataMTTransferEditeditiingTransactionId = transMTTransferEditEditiingTransactionId.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTTransferEditeditiingTransactionId = transMTTransferEditEditiingTransactionId.getData().getTransactionData();
         transactionDataMTTransferEditeditiingTransactionId
                 .getMTTransferEdit()
                 .withEditingTransactionId("6363");
@@ -208,8 +197,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTTransferEditDeviation = getMTTransferEdit();
-        TransactionDataType transactionDataMTTransferEditDeviation = transMTTransferEditDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTTransferEditDeviation = transMTTransferEditDeviation.getData().getTransactionData();
         transactionDataMTTransferEditDeviation
                 .getMTTransferEdit()
                 .getSystemTransferCont()
@@ -230,12 +218,11 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
 
     public void transBetweenADAK() {
         Transaction transferMTTransferEdit = getMTTransferEdit();
-        TransactionDataType transferDataTypeMTTransferEdit = transferMTTransferEdit.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transferDataTypeMTTransferEdit = transferMTTransferEdit.getData().getTransactionData();
         transferDataTypeMTTransferEdit
                 .getClientIds().withDboId(clientIds.get(1));
-        transaction_id = transferDataTypeMTTransferEdit.getTransactionId();
-        version = transferDataTypeMTTransferEdit.getVersion();
+        String transaction_id = transferDataTypeMTTransferEdit.getTransactionId();
+        Long version = transferDataTypeMTTransferEdit.getVersion();
         sendAndAssert(transferMTTransferEdit);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Изменение перевода, отправленного через систему денежных переводов», условия правила не выполнены");
 
@@ -243,20 +230,10 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
                 .withTransactionId(transaction_id)
                 .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer(firstNameAdak);
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
@@ -269,8 +246,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTTransferEditOutside = getMTTransferEdit();
-        TransactionDataType transactionDataMTTransferEditOutside = transMTTransferEditOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTTransferEditOutside = transMTTransferEditOutside.getData().getTransactionData();
         transactionDataMTTransferEditOutside
                 .getMTTransferEdit()
                 .getSystemTransferCont()
@@ -283,8 +259,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTTransferEditDeviation = getMTTransferEdit();
-        TransactionDataType transactionDataMTTransferEditDeviation = transMTTransferEditDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTTransferEditDeviation = transMTTransferEditDeviation.getData().getTransactionData();
         transactionDataMTTransferEditDeviation
                 .getMTTransferEdit()
                 .getSystemTransferCont()
@@ -307,13 +282,14 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false)
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getMTTransferEdit()
                 .withEditingTransactionId(editiingTransactionId)
                 .getSystemTransferCont()
@@ -324,14 +300,23 @@ public class IR_03_RepeatApprovedTransactionMTSystemEditRdakAdak extends RSHBCas
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
+        return adak;
     }
 }
 

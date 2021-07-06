@@ -23,16 +23,12 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
     private static final String REFERENCE_TABLE_RDAK = "(Policy_parameters) Параметры обработки событий";
     private static final String REFERENCE_TABLE2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
-
     private static final String serviceName = "Мегафон по номеру телефона";
     private static final String providerName = "Мегафон";
-    private final String serviceKind = "222";
-
     private final GregorianCalendar time = new GregorianCalendar();
+    private final String firstNameAdak = "Светлана";
     private final List<String> clientIds = new ArrayList<>();
-    private final String[][] names = {{"Кристина", "Ольгина", "Андреевна"}, {"Кира", "Хешина", "Григорьевна"}};
-    private String transaction_id;
-    private Long version;
+    private final String[][] names = {{"Кристина", "Ольгина", "Андреевна"}, {firstNameAdak, "Хешина", "Григорьевна"}};
 
     @Test(
             description = "Включаем правило"
@@ -141,8 +137,6 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
     public void transServis() {
         time.add(Calendar.MINUTE, -5);
         Transaction transService = getServicePayment();
-        TransactionDataType transactionDataService = transService.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transService);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Оплата услуг», условия правила не выполнены");
 
@@ -153,8 +147,6 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
 
         time.add(Calendar.SECOND, 20);
         Transaction transServiceOutside = getServicePayment();
-        TransactionDataType transactionDataServiceOutside = transServiceOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transServiceOutside);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Оплата услуг» условия правила не выполнены");
 
@@ -176,8 +168,7 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
 
         time.add(Calendar.SECOND, 20);
         Transaction transServiceAccountBalance = getServicePayment();
-        TransactionDataType transactionDataServiceAccountBalance = transServiceAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServiceAccountBalance = transServiceAccountBalance.getData().getTransactionData();
         transactionDataServiceAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transServiceAccountBalance);
@@ -185,8 +176,7 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
 
         time.add(Calendar.SECOND, 20);
         Transaction transServiceProviderName = getServicePayment();
-        TransactionDataType transactionDataServiceProviderName = transServiceProviderName.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServiceProviderName = transServiceProviderName.getData().getTransactionData();
         transactionDataServiceProviderName
                 .getServicePayment()
                 .withProviderName("МТС");
@@ -195,8 +185,7 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
 
         time.add(Calendar.SECOND, 20);
         Transaction transServiceName = getServicePayment();
-        TransactionDataType transactionDataServiceName = transServiceName.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServiceName = transServiceName.getData().getTransactionData();
         transactionDataServiceName
                 .getServicePayment()
                 .withServiceName("МТС по телефону");
@@ -205,8 +194,7 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
 
         time.add(Calendar.SECOND, 20);
         Transaction transServisDeviation = getServicePayment();
-        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData();
         transactionDataServisDeviation
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -226,13 +214,12 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
 
     public void transBetweenADAK() {
         Transaction transService = getServicePayment();
-        TransactionDataType transactionDataService = transService.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataService = transService.getData().getTransactionData();
         transactionDataService
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transaction_id = transactionDataService.getTransactionId();
-        version = transactionDataService.getVersion();
+        String transaction_id = transactionDataService.getTransactionId();
+        Long version = transactionDataService.getVersion();
         sendAndAssert(transService);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Оплата услуг», условия правила не выполнены");
 
@@ -240,20 +227,10 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
                 .withTransactionId(transaction_id)
                 .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Кира");
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
@@ -266,8 +243,7 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
 
         time.add(Calendar.SECOND, 20);
         Transaction transServiceName = getServicePayment();
-        TransactionDataType transactionDataServiceName = transServiceName.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServiceName = transServiceName.getData().getTransactionData();
         transactionDataServiceName
                 .getServicePayment()
                 .withServiceName("МТС по телефону");
@@ -279,8 +255,7 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
 
         time.add(Calendar.SECOND, 20);
         Transaction transServisDeviation = getServicePayment();
-        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData();
         transactionDataServisDeviation
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -302,13 +277,14 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transaction.getData().getTransactionData()
                 .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
                 .withProviderName(providerName)
@@ -317,14 +293,23 @@ public class IR_03_RepeatApprovedTransactionServicePaymentRdakAdak extends RSHBC
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
+        return adak;
     }
 }
 

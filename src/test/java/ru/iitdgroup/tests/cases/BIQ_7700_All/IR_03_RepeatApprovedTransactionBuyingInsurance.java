@@ -19,12 +19,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IR_03_RepeatApprovedTransactionBuyingInsurance extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-    private final String insuranceCompany = "АО СК РСХБ-Страхование";
-    private final String product = "4 - Несч. случаи и болезни КК с доп. покрытием";
-
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Игорь", "Зерко", "Степанович"}};
+    private final String[][] names = {{"Игорь", "Зерко", "Степанович"}};
 
     @Test(
             description = "Включаем правило"
@@ -63,19 +60,17 @@ public class IR_03_RepeatApprovedTransactionBuyingInsurance extends RSHBCaseTest
         try {
             for (int i = 0; i < 1; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
-                String login = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-                String loginHash = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(login)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(loginHash)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -102,15 +97,12 @@ public class IR_03_RepeatApprovedTransactionBuyingInsurance extends RSHBCaseTest
     public void transBuyingInsurance() {
         time.add(Calendar.HOUR, -20);
         Transaction transBuyingInsurance = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsurance = transBuyingInsurance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transBuyingInsurance);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Покупка страховки держателей карт», условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transBuyingInsuranceOutside = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsuranceOutside = transBuyingInsuranceOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBuyingInsuranceOutside = transBuyingInsuranceOutside.getData().getTransactionData();
         transactionDataBuyingInsuranceOutside
                 .getByuingInsurance()
                 .withInsuranceAmount(BigDecimal.valueOf(800.00));
@@ -119,8 +111,7 @@ public class IR_03_RepeatApprovedTransactionBuyingInsurance extends RSHBCaseTest
 
         time.add(Calendar.SECOND, 20);
         Transaction transBuyingInsuranceAccountBalance = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsuranceAccountBalance = transBuyingInsuranceAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBuyingInsuranceAccountBalance = transBuyingInsuranceAccountBalance.getData().getTransactionData();
         transactionDataBuyingInsuranceAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transBuyingInsuranceAccountBalance);
@@ -128,8 +119,7 @@ public class IR_03_RepeatApprovedTransactionBuyingInsurance extends RSHBCaseTest
 
         time.add(Calendar.SECOND, 20);
         Transaction transBuyingInsuranceInsuranceCompany = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsuranceInsuranceCompany = transBuyingInsuranceInsuranceCompany.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBuyingInsuranceInsuranceCompany = transBuyingInsuranceInsuranceCompany.getData().getTransactionData();
         transactionDataBuyingInsuranceInsuranceCompany
                 .getByuingInsurance()
                 .withInsuranceCompany("Страховка");
@@ -138,8 +128,7 @@ public class IR_03_RepeatApprovedTransactionBuyingInsurance extends RSHBCaseTest
 
         time.add(Calendar.SECOND, 20);
         Transaction transBuyingInsuranceProduct = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsuranceProduct = transBuyingInsuranceProduct.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBuyingInsuranceProduct = transBuyingInsuranceProduct.getData().getTransactionData();
         transactionDataBuyingInsuranceProduct
                 .getByuingInsurance()
                 .withProduct("Любые случаи");
@@ -148,8 +137,7 @@ public class IR_03_RepeatApprovedTransactionBuyingInsurance extends RSHBCaseTest
 
         time.add(Calendar.SECOND, 20);
         Transaction transBuyingInsuranceDeviation = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsuranceDeviation = transBuyingInsuranceDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataBuyingInsuranceDeviation = transBuyingInsuranceDeviation.getData().getTransactionData();
         transactionDataBuyingInsuranceDeviation
                 .getByuingInsurance()
                 .withInsuranceAmount(BigDecimal.valueOf(372.25));
@@ -158,15 +146,11 @@ public class IR_03_RepeatApprovedTransactionBuyingInsurance extends RSHBCaseTest
 
         time.add(Calendar.SECOND, 20);
         Transaction transBuyingInsuranceLength = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsuranceLength = transBuyingInsuranceLength.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transBuyingInsuranceLength);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Покупка страховки держателей карт» условия правила не выполнены");
 
         time.add(Calendar.MINUTE, 10);
         Transaction transBuyingInsurancePeriod = getBuyingInsurance();
-        TransactionDataType transactionDataBuyingInsurancePeriod = transBuyingInsurancePeriod.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transBuyingInsurancePeriod);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Покупка страховки держателей карт», условия правила не выполнены");
     }
@@ -183,16 +167,17 @@ public class IR_03_RepeatApprovedTransactionBuyingInsurance extends RSHBCaseTest
                 .withPort(8050);
         transaction.getData().getTransactionData()
                 .withRegular(false)
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
                 .getByuingInsurance()
                 .withInsuranceAmount(BigDecimal.valueOf(500.00))
-                .withProduct(product)
-                .withInsuranceCompany(insuranceCompany);
+                .withProduct("4 - Несч. случаи и болезни КК с доп. покрытием")
+                .withInsuranceCompany("АО СК РСХБ-Страхование");
         return transaction;
     }
 }

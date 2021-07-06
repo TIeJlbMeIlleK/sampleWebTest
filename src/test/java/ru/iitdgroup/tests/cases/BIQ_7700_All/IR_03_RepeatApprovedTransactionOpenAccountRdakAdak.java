@@ -26,15 +26,11 @@ public class IR_03_RepeatApprovedTransactionOpenAccountRdakAdak extends RSHBCase
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
 
     private final GregorianCalendar time = new GregorianCalendar();
-    private final String productName = "Накопительный счёт";
-    private final String sourceProduct = "40802020202073736464";
+    private final String sourceProduct = "40802020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
     private final List<String> clientIds = new ArrayList<>();
-
     private final String ipAddress = "95.73.149.81";
-    private String transaction_id;
-    private Long version;
-
-    private String[][] names = {{"Петр", "Урин", "Семенович"}, {"Ольга", "Румянцева", "Григорьевна"}};
+    private final String firstNameAdak = "Анастасия";
+    private final String[][] names = {{"Петр", "Урин", "Семенович"}, {firstNameAdak, "Румянцева", "Григорьевна"}};
 
     @Test(
             description = "Включаем правило"
@@ -148,8 +144,6 @@ public class IR_03_RepeatApprovedTransactionOpenAccountRdakAdak extends RSHBCase
     public void transOpenAccount() {
         time.add(Calendar.MINUTE, -20);
         Transaction transOpenAccount = getOpenAccount();
-        TransactionDataType transactionDataOpenAccount = transOpenAccount.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOpenAccount);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Открытие счёта (в том числе накопительного)», условия правила не выполнены");
 
@@ -160,8 +154,6 @@ public class IR_03_RepeatApprovedTransactionOpenAccountRdakAdak extends RSHBCase
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenAccountOutside = getOpenAccount();
-        TransactionDataType transactionDataOpenAccountOutside = transOpenAccountOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOpenAccountOutside);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Открытие счёта (в том числе накопительного)» условия правила не выполнены");
 
@@ -183,8 +175,7 @@ public class IR_03_RepeatApprovedTransactionOpenAccountRdakAdak extends RSHBCase
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenAccountAccountBalance = getOpenAccount();
-        TransactionDataType transactionDataOpenAccountAccountBalance = transOpenAccountAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOpenAccountAccountBalance = transOpenAccountAccountBalance.getData().getTransactionData();
         transactionDataOpenAccountAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transOpenAccountAccountBalance);
@@ -192,18 +183,16 @@ public class IR_03_RepeatApprovedTransactionOpenAccountRdakAdak extends RSHBCase
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenAccountSourceProduct = getOpenAccount();
-        TransactionDataType transactionDataOpenAccountSourceProduct = transOpenAccountSourceProduct.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOpenAccountSourceProduct = transOpenAccountSourceProduct.getData().getTransactionData();
         transactionDataOpenAccountSourceProduct
                 .getOpenAccount()
-                .withSourceProduct("40801010101010101010");
+                .withSourceProduct("40801010" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transOpenAccountSourceProduct);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Открытие счёта (в том числе накопительного)» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenAccountDeviation = getOpenAccount();
-        TransactionDataType transactionDataOpenAccountDeviation = transOpenAccountDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOpenAccountDeviation = transOpenAccountDeviation.getData().getTransactionData();
         transactionDataOpenAccountDeviation
                 .getOpenAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -223,12 +212,11 @@ public class IR_03_RepeatApprovedTransactionOpenAccountRdakAdak extends RSHBCase
 
     public void transBetweenADAK() {
         Transaction transOpenAccount = getOpenAccount();
-        TransactionDataType transactionDataOpenAccount = transOpenAccount.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOpenAccount = transOpenAccount.getData().getTransactionData();
         transactionDataOpenAccount
                 .getClientIds().withDboId(clientIds.get(1));
-        transaction_id = transactionDataOpenAccount.getTransactionId();
-        version = transactionDataOpenAccount.getVersion();
+        String transaction_id = transactionDataOpenAccount.getTransactionId();
+        Long version = transactionDataOpenAccount.getVersion();
         sendAndAssert(transOpenAccount);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Открытие счёта (в том числе накопительного)», условия правила не выполнены");
 
@@ -236,20 +224,10 @@ public class IR_03_RepeatApprovedTransactionOpenAccountRdakAdak extends RSHBCase
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
                 .withTransactionId(transaction_id)
                 .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Ольга");
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
@@ -261,11 +239,10 @@ public class IR_03_RepeatApprovedTransactionOpenAccountRdakAdak extends RSHBCase
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenAccountSourceProduct = getOpenAccount();
-        TransactionDataType transactionDataOpenAccountSourceProduct = transOpenAccountSourceProduct.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOpenAccountSourceProduct = transOpenAccountSourceProduct.getData().getTransactionData();
         transactionDataOpenAccountSourceProduct
                 .getOpenAccount()
-                .withSourceProduct("40801010101010101010");
+                .withSourceProduct("40801010" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         transactionDataOpenAccountSourceProduct
                 .getClientIds().withDboId(clientIds.get(1));
         sendAndAssert(transOpenAccountSourceProduct);
@@ -273,8 +250,7 @@ public class IR_03_RepeatApprovedTransactionOpenAccountRdakAdak extends RSHBCase
 
         time.add(Calendar.SECOND, 20);
         Transaction transOpenAccountDeviation = getOpenAccount();
-        TransactionDataType transactionDataOpenAccountDeviation = transOpenAccountDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOpenAccountDeviation = transOpenAccountDeviation.getData().getTransactionData();
         transactionDataOpenAccountDeviation
                 .getOpenAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -296,15 +272,16 @@ public class IR_03_RepeatApprovedTransactionOpenAccountRdakAdak extends RSHBCase
                 .withPort(8050);
         transaction.getData().getTransactionData()
                 .withRegular(false)
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
                 .getOpenAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
-                .withProductName(productName)
+                .withProductName("Накопительный счёт")
                 .withSourceProduct(sourceProduct);
         transaction.getData()
                 .getTransactionData().getClientDevice().getAndroid().withIpAddress(ipAddress);
@@ -312,13 +289,22 @@ public class IR_03_RepeatApprovedTransactionOpenAccountRdakAdak extends RSHBCase
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
+        return adak;
     }
 }

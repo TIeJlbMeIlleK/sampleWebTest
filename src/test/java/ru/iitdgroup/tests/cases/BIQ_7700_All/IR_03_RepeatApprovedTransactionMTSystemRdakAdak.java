@@ -137,8 +137,6 @@ public class IR_03_RepeatApprovedTransactionMTSystemRdakAdak extends RSHBCaseTes
     public void transServis() {
         time.add(Calendar.MINUTE, -15);
         Transaction transService = getMTSystemTransfer();
-        TransactionDataType transactionDataService = transService.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transService);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод через систему денежных переводов», условия правила не выполнены");
 
@@ -149,8 +147,6 @@ public class IR_03_RepeatApprovedTransactionMTSystemRdakAdak extends RSHBCaseTes
 
         time.add(Calendar.SECOND, 20);
         Transaction transServiceOutside = getMTSystemTransfer();
-        TransactionDataType transactionDataServiceOutside = transServiceOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transServiceOutside);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод через систему денежных переводов» условия правила не выполнены");
 
@@ -172,8 +168,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemRdakAdak extends RSHBCaseTes
 
         time.add(Calendar.SECOND, 20);
         Transaction transServiceAccountBalance = getMTSystemTransfer();
-        TransactionDataType transactionDataServiceAccountBalance = transServiceAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServiceAccountBalance = transServiceAccountBalance.getData().getTransactionData();
         transactionDataServiceAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transServiceAccountBalance);
@@ -181,8 +176,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemRdakAdak extends RSHBCaseTes
 
         time.add(Calendar.SECOND, 20);
         Transaction transServisDeviation = getMTSystemTransfer();
-        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData();
         transactionDataServisDeviation
                 .getMTSystemTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -202,8 +196,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemRdakAdak extends RSHBCaseTes
 
     public void transBetweenADAK() {
         Transaction transService = getMTSystemTransfer();
-        TransactionDataType transactionDataService = transService.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataService = transService.getData().getTransactionData();
         transactionDataService
                 .getClientIds()
                 .withDboId(clientIds.get(1));
@@ -216,20 +209,10 @@ public class IR_03_RepeatApprovedTransactionMTSystemRdakAdak extends RSHBCaseTes
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
                 .withTransactionId(transaction_id)
                 .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer(firstNameAdak);
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
@@ -242,8 +225,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemRdakAdak extends RSHBCaseTes
 
         time.add(Calendar.SECOND, 20);
         Transaction transMTSystemReceiverCountry = getMTSystemTransfer();
-        TransactionDataType transactionDataMTSystemReceiverCountry = transMTSystemReceiverCountry.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataMTSystemReceiverCountry = transMTSystemReceiverCountry.getData().getTransactionData();
         transactionDataMTSystemReceiverCountry
                 .getMTSystemTransfer()
                 .withReceiverCountry("Россия");
@@ -256,8 +238,7 @@ public class IR_03_RepeatApprovedTransactionMTSystemRdakAdak extends RSHBCaseTes
 
         time.add(Calendar.SECOND, 20);
         Transaction transServisDeviation = getMTSystemTransfer();
-        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataServisDeviation = transServisDeviation.getData().getTransactionData();
         transactionDataServisDeviation
                 .getMTSystemTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -279,13 +260,14 @@ public class IR_03_RepeatApprovedTransactionMTSystemRdakAdak extends RSHBCaseTes
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false)
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getMTSystemTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
                 .withReceiverName("Лохманов Петр Львович")
@@ -294,14 +276,23 @@ public class IR_03_RepeatApprovedTransactionMTSystemRdakAdak extends RSHBCaseTes
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
+        return adak;
     }
 }
 

@@ -25,13 +25,9 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
     private static final String REFERENCE_TABLE3 = "(Policy_parameters) Параметры проведения ДАК";
     private static final String unifiedAccountNumber = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);;
     private static final String firstNameAdak = "Людмила";
-
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-
     private final String[][] names = {{"Кристина", "Ольгина", "Андреевна"}, {firstNameAdak, "Хешина", "Григорьевна"}};
-    private String transaction_id;
-    private Long version;
 
     @Test(
             description = "Включаем правило"
@@ -140,8 +136,6 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
     public void transServis() {
         time.add(Calendar.MINUTE, -15);
         Transaction transOuterCommunal = getOuterCommunalTransfer();
-        transOuterCommunal.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOuterCommunal);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Транзакция ЖКХ», условия правила не выполнены");
 
@@ -152,8 +146,6 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunalTwo = getOuterCommunalTransfer();
-        transOuterCommunalTwo.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transOuterCommunalTwo);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Транзакция ЖКХ» условия правила не выполнены");
 
@@ -175,8 +167,7 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunalAccountBalance = getOuterCommunalTransfer();
-        TransactionDataType transactionDataOuterCommunalAccountBalance = transOuterCommunalAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterCommunalAccountBalance = transOuterCommunalAccountBalance.getData().getTransactionData();
         transactionDataOuterCommunalAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transOuterCommunalAccountBalance);
@@ -184,8 +175,7 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunalUnifiedAccountNumber = getOuterCommunalTransfer();
-        TransactionDataType transactionDataOuterCommunalUnifiedAccountNumber = transOuterCommunalUnifiedAccountNumber.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterCommunalUnifiedAccountNumber = transOuterCommunalUnifiedAccountNumber.getData().getTransactionData();
         transactionDataOuterCommunalUnifiedAccountNumber
                 .getOuterTransfer()
                 .getCommunalPaymentProps()
@@ -195,8 +185,7 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunalOutside = getOuterCommunalTransfer();
-        TransactionDataType transactionDataOuterCommunalOutside = transOuterCommunalOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterCommunalOutside = transOuterCommunalOutside.getData().getTransactionData();
         transactionDataOuterCommunalOutside
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -205,8 +194,7 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunalDeviation = getOuterCommunalTransfer();
-        TransactionDataType transactionDataOuterCommunalDeviation = transOuterCommunalDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterCommunalDeviation = transOuterCommunalDeviation.getData().getTransactionData();
         transactionDataOuterCommunalDeviation
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -226,12 +214,11 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
 
     public void transBetweenADAK() {
         Transaction transOuterCommunal = getOuterCommunalTransfer();
-        TransactionDataType transDataTypeOuterCommunal = transOuterCommunal.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transDataTypeOuterCommunal = transOuterCommunal.getData().getTransactionData();
         transDataTypeOuterCommunal
                 .getClientIds().withDboId(clientIds.get(1));
-        transaction_id = transDataTypeOuterCommunal.getTransactionId();
-        version = transDataTypeOuterCommunal.getVersion();
+        String transaction_id = transDataTypeOuterCommunal.getTransactionId();
+        Long version = transDataTypeOuterCommunal.getVersion();
         sendAndAssert(transOuterCommunal);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Транзакция ЖКХ», условия правила не выполнены");
 
@@ -239,20 +226,10 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
                 .withTransactionId(transaction_id)
                 .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer(firstNameAdak);
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
@@ -265,8 +242,7 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunalOutside = getOuterCommunalTransfer();
-        TransactionDataType transactionDataOuterCommunalOutside = transOuterCommunalOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterCommunalOutside = transOuterCommunalOutside.getData().getTransactionData();
         transactionDataOuterCommunalOutside
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(800.00));
@@ -278,8 +254,7 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
 
         time.add(Calendar.SECOND, 20);
         Transaction transOuterCommunalDeviation = getOuterCommunalTransfer();
-        TransactionDataType transactionDataOuterCommunalDeviation = transOuterCommunalDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataOuterCommunalDeviation = transOuterCommunalDeviation.getData().getTransactionData();
         transactionDataOuterCommunalDeviation
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -301,13 +276,14 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false)
-                .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
                 .getOuterTransfer()
                 .withIsCommunalPayment(true)
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
@@ -317,14 +293,23 @@ public class IR_03_RepeatApprovedTransactionOuterCommunalRdakAdak extends RSHBCa
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
+        return adak;
     }
 }
 

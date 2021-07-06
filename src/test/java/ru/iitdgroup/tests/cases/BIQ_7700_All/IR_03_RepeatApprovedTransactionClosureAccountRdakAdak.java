@@ -27,13 +27,11 @@ public class IR_03_RepeatApprovedTransactionClosureAccountRdakAdak extends RSHBC
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private static final String productName = "Текущий счет";
-    private static final String sourceProduct = "40802020202087879898";
-    private static final String destinationProduct = "40802020202032323636";
+    private static final String sourceProduct = "40802020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private static final String destinationProduct = "40802020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
     private static final String ipAddress = "95.73.149.81";
-    private String transaction_id;
-    private Long version;
-
-    private final String[][] names = {{"Илья", "Зимин", "Семенович"}, {"Зинаида", "Кудрявцева", "Григорьевна"}};
+    private static final String firstNameAdak = "Зинаида";
+    private final String[][] names = {{"Илья", "Зимин", "Семенович"}, {firstNameAdak, "Кудрявцева", "Григорьевна"}};
 
     @Test(
             description = "Включаем правило"
@@ -147,8 +145,6 @@ public class IR_03_RepeatApprovedTransactionClosureAccountRdakAdak extends RSHBC
     public void transClosureAccount() {
         time.add(Calendar.MINUTE, -20);
         Transaction transClosureAccount = getClosureAccount();
-        TransactionDataType transactionDataClosureAccount = transClosureAccount.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transClosureAccount);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Закрытие счёта (в том числе накопительного)», условия правила не выполнены");
 
@@ -159,8 +155,6 @@ public class IR_03_RepeatApprovedTransactionClosureAccountRdakAdak extends RSHBC
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountOutside = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountOutside = transClosureAccountOutside.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transClosureAccountOutside);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Закрытие счёта (в том числе накопительного)» условия правила не выполнены");
 
@@ -182,8 +176,7 @@ public class IR_03_RepeatApprovedTransactionClosureAccountRdakAdak extends RSHBC
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountBalance = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountBalance = transClosureAccountBalance.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureAccountBalance = transClosureAccountBalance.getData().getTransactionData();
         transactionDataClosureAccountBalance
                 .withInitialSourceAmount(BigDecimal.valueOf(8000.00));
         sendAndAssert(transClosureAccountBalance);
@@ -191,18 +184,16 @@ public class IR_03_RepeatApprovedTransactionClosureAccountRdakAdak extends RSHBC
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountSourceProduct = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountSourceProduct = transClosureAccountSourceProduct.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureAccountSourceProduct = transClosureAccountSourceProduct.getData().getTransactionData();
         transactionDataClosureAccountSourceProduct
                 .getClosureAccount()
-                .withSourceProduct("40801010101010101010");
+                .withSourceProduct("40801010" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         sendAndAssert(transClosureAccountSourceProduct);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Закрытие счёта (в том числе накопительного)» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountDeviation = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountDeviation = transClosureAccountDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureAccountDeviation = transClosureAccountDeviation.getData().getTransactionData();
         transactionDataClosureAccountDeviation
                 .getClosureAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -222,11 +213,10 @@ public class IR_03_RepeatApprovedTransactionClosureAccountRdakAdak extends RSHBC
 
     public void transBetweenADAK() {
         Transaction transClosureAccount = getClosureAccount();
-        TransactionDataType transactionDataClosureAccount = transClosureAccount.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureAccount = transClosureAccount.getData().getTransactionData();
         transactionDataClosureAccount.getClientIds().withDboId(clientIds.get(1));
-        transaction_id = transactionDataClosureAccount.getTransactionId();
-        version = transactionDataClosureAccount.getVersion();
+        String transaction_id = transactionDataClosureAccount.getTransactionId();
+        Long version = transactionDataClosureAccount.getVersion();
         sendAndAssert(transClosureAccount);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Закрытие счёта (в том числе накопительного)», условия правила не выполнены");
 
@@ -234,20 +224,10 @@ public class IR_03_RepeatApprovedTransactionClosureAccountRdakAdak extends RSHBC
         assertTableField("Status:", "Ожидаю выполнения АДАК");
 
         Transaction adak = getAdak();
-        TransactionDataType transactionADAK = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionADAK
-                .getClientIds()
-                .withDboId(clientIds.get(1))
-                .withLoginHash(clientIds.get(1))
-                .withCifId(clientIds.get(1))
-                .withExpertSystemId(clientIds.get(1));
+        TransactionDataType transactionADAK = adak.getData().getTransactionData();
         transactionADAK
                 .withTransactionId(transaction_id)
                 .withVersion(version);
-        transactionADAK.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Зинаида");
         sendAndAssert(adak);
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
@@ -259,19 +239,17 @@ public class IR_03_RepeatApprovedTransactionClosureAccountRdakAdak extends RSHBC
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountSourceProduct = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountSourceProduct = transClosureAccountSourceProduct.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureAccountSourceProduct = transClosureAccountSourceProduct.getData().getTransactionData();
         transactionDataClosureAccountSourceProduct
                 .getClosureAccount()
-                .withSourceProduct("40801010101010101010");
+                .withSourceProduct("40801010" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12));
         transactionDataClosureAccountSourceProduct.getClientIds().withDboId(clientIds.get(1));
         sendAndAssert(transClosureAccountSourceProduct);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Закрытие счёта (в том числе накопительного)» условия правила не выполнены");
 
         time.add(Calendar.SECOND, 20);
         Transaction transClosureAccountDeviation = getClosureAccount();
-        TransactionDataType transactionDataClosureAccountDeviation = transClosureAccountDeviation.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionDataClosureAccountDeviation = transClosureAccountDeviation.getData().getTransactionData();
         transactionDataClosureAccountDeviation
                 .getClosureAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -291,13 +269,14 @@ public class IR_03_RepeatApprovedTransactionClosureAccountRdakAdak extends RSHBC
                 .getServerInfo()
                 .withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
                 .withRegular(false)
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withInitialSourceAmount(BigDecimal.valueOf(10000.00))
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
                 .getClosureAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500.00))
                 .withProductName(productName)
@@ -308,13 +287,22 @@ public class IR_03_RepeatApprovedTransactionClosureAccountRdakAdak extends RSHBC
     }
 
     private Transaction getAdak() {
-        Transaction transaction = getTransaction("testCases/Templates/ADAK.xml");
-        transaction.getData()
+        Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
+        adak.getData()
                 .getServerInfo()
                 .withPort(8050);
-        transaction.getData().getTransactionData()
+        TransactionDataType transactionADAK = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
+        transactionADAK
+                .getClientIds()
+                .withDboId(clientIds.get(1))
+                .withLoginHash(clientIds.get(1))
+                .withCifId(clientIds.get(1))
+                .withExpertSystemId(clientIds.get(1));
+        transactionADAK.getAdditionalAnswer()
+                .withAdditionalAuthAnswer(firstNameAdak);
+        return adak;
     }
 }
