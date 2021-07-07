@@ -16,30 +16,26 @@ import java.util.concurrent.ThreadLocalRandom;
 public class GR_03_SeriesOneToMany extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_03_SeriesOneToMany";
-
-    private static String  id;
-
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 10, 0, 0, 0);
+    private static String id;
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Петр", "Зимушкин", "Федорович"}};
 
     @Test(
             description = "Настройка и включение правил"
     )
     public void enableRules() {
-        System.out.println("\"Правило GR_03 срабатывает для транзакций в рамках BIQ-2296\" -- BIQ2370" + " ТК№10(101)");
+        System.out.println("Правило GR_03 срабатывает для транзакций в рамках BIQ-2296 -- BIQ2370 ТК№10(101)");
 
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .sleep(5);
-
-        getIC().locateRules()
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
-                .fillInputText("Длина серии:","3")
-                .fillInputText("Период серии в минутах:","10")
-                .fillInputText("Сумма серии:","1000")
+                .fillInputText("Длина серии:", "3")
+                .fillInputText("Период серии в минутах:", "10")
+                .fillInputText("Сумма серии:", "1000")
+                .fillCheckBox("Проверка регулярных:", false)
                 .save()
                 .sleep(20);
         getIC().close();
@@ -52,16 +48,26 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
     public void client() {
         try {
             for (int i = 0; i < 2; i++) {
-                //FIXME Добавить проверку на существование клиента в базе
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+                client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
                 sendAndAssert(client);
+                System.out.println(dboId);
                 clientIds.add(dboId);
             }
         } catch (JAXBException | IOException e) {
@@ -70,23 +76,18 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию № 1 \"Перевод по номеру телефона\" для Клиента № 1, сумма 999",
+            description = "Провести транзакцию № 1 Перевод по номеру телефона для Клиента № 1, сумма 999",
             dependsOnMethods = "client"
     )
     public void transaction1() {
+        time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getPhoneNumberTransfer().setAmountInSourceCurrency(new BigDecimal("998.00"));
+                .getPhoneNumberTransfer()
+                .withAmountInSourceCurrency(new BigDecimal("998.00"));
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
     }
 
@@ -97,20 +98,13 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
     public void transaction2() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionSDP();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getMTSystemTransfer().setAmountInSourceCurrency(new BigDecimal("2.00"));
+                .getMTSystemTransfer()
+                .withAmountInSourceCurrency(new BigDecimal("2.00"));
         id = transaction.getData().getTransactionData().getTransactionId();
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_APPLY_BY_SUM);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test(
@@ -120,85 +114,70 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
     public void transaction3() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionSdpRefactor();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getMTTransferEdit().getSystemTransferCont().setAmountInSourceCurrency(new BigDecimal("1.00"));
-        transaction.getData().getTransactionData().getMTTransferEdit().setEditingTransactionId(id);
+                .getMTTransferEdit()
+                .getSystemTransferCont()
+                .withAmountInSourceCurrency(new BigDecimal("1.00"));
+        transactionData
+                .getMTTransferEdit()
+                .withEditingTransactionId(id);
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test(
-            description = "Провести транзакцию № 4, 5, 6 \"Перевод через систему денежных переводов\" для Клиента № 2, сумма 10",
+            description = "Провести транзакцию № 4, 5, 6 Перевод через систему денежных переводов для Клиента № 2, сумма 10",
             dependsOnMethods = "transaction3"
     )
     public void transaction4() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionSDP();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transactionData.getMTSystemTransfer().setAmountInSourceCurrency(new BigDecimal("10.00"));
+        transactionData
+                .getMTSystemTransfer()
+                .withAmountInSourceCurrency(new BigDecimal("10.00"));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test(
-            description = "Провести транзакцию № 4, 5, 6 \"Перевод через систему денежных переводов\" для Клиента № 2, сумма 10",
+            description = "Провести транзакцию № 4, 5, 6 Перевод через систему денежных переводов для Клиента № 2, сумма 10",
             dependsOnMethods = "transaction4"
     )
     public void transaction5() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionSDP();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transactionData.getMTSystemTransfer().setAmountInSourceCurrency(new BigDecimal("10.00"));
+        transactionData
+                .getMTSystemTransfer()
+                .withAmountInSourceCurrency(new BigDecimal("10.00"));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
+
     @Test(
-            description = "Провести транзакцию № 4, 5, 6 \"Перевод через систему денежных переводов\" для Клиента № 2, сумма 10",
+            description = "Провести транзакцию № 4, 5, 6 Перевод через систему денежных переводов для Клиента № 2, сумма 10",
             dependsOnMethods = "transaction5"
     )
     public void transaction6() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionSDP();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transactionData.getMTSystemTransfer().setAmountInSourceCurrency(new BigDecimal("10.00"));
+        transactionData
+                .getMTSystemTransfer()
+                .withAmountInSourceCurrency(new BigDecimal("10.00"));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_APPLY_BY_LENGHT);
-        try {
-            Thread.sleep(2_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -208,23 +187,40 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
 
     private Transaction getTransactionSDP() {
         Transaction transaction = getTransaction("testCases/Templates/SDP.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
+
     private Transaction getTransactionSdpRefactor() {
         Transaction transaction = getTransaction("testCases/Templates/SDP_Refactor.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
+
     private Transaction getTransactionPHONE_NUMBER_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 }

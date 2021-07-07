@@ -1,14 +1,11 @@
 package ru.iitdgroup.tests.cases.BIQ_7700;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
-
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,11 +20,7 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String RULE_NAME1 = "R01_GR_20_NewPayee";
     private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
-
-    private static String TRANSACTION_ID;
-
     private final GregorianCalendar time = new GregorianCalendar();
-
     private final List<String> clientIds = new ArrayList<>();
     private final String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
 
@@ -118,19 +111,11 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
     public void transaction1() {
         time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransactionPHONE();
-        TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
 
         time.add(Calendar.MINUTE, -20);
         Transaction transaction1 = getTransactionCARD();
-        TransactionDataType transactionData1 = transaction1.getData().getTransactionData();
-        transactionData1
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction1);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
     }
@@ -147,17 +132,14 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
         time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransactionQR();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        TRANSACTION_ID = transactionData.getTransactionId();
+        String transactionId = transactionData.getTransactionId();
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Платеж по QR-коду через СБП», условия правила не выполнены");
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
         assertTableField("Resolution:", "Правомочно");
         assertTableField("Идентификатор клиента:", clientIds.get(0));
-        assertTableField("Транзакция:", TRANSACTION_ID);
+        assertTableField("Транзакция:", transactionId);
     }
 
     @Test(
@@ -169,10 +151,6 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
     public void transaction3() {
         time.add(Calendar.SECOND, 10);
         Transaction transaction = getTransactionQR();
-        TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Платеж по QR-коду через СБП» транзакция с совпадающими реквизитами");
     }
@@ -187,9 +165,6 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
         time.add(Calendar.SECOND, 10);
         Transaction transaction = getTransactionQR();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         transactionData
                 .getPaymentC2B()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
@@ -207,10 +182,6 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
     public void transaction5() {
         time.add(Calendar.SECOND, 10);
         Transaction transaction = getTransactionQR();
-        TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Платеж по QR-коду через СБП» условия правила не выполнены");
     }
@@ -225,14 +196,15 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
         transaction.getData().getServerInfo().withPort(8050);
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
+                .withRegular(false)
+                .withVersion(1L)
+                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getPaymentC2B()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         return transaction;
@@ -243,14 +215,15 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
         transaction.getData().getServerInfo().withPort(8050);
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getPhoneNumberTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         return transaction;
@@ -261,14 +234,15 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
         transaction.getData().getServerInfo().withPort(8050);
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
         transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
                 .getCardTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         return transaction;

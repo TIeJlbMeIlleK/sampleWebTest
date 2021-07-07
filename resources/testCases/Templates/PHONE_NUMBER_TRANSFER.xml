@@ -7,38 +7,43 @@
       <ns2:Port>8050</ns2:Port>
    </ns4:ServerInfo>
    <ns4:TransactionData>
-      <ns4:TransactionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(10)}</ns4:TransactionId>
-      <ns4:Version>1</ns4:Version>
+      <ns4:TransactionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns4:TransactionId>
+      <ns4:Version>11</ns4:Version>
       <ns4:ClientIds>
-         <ns2:DboId>251</ns2:DboId>
-         <ns2:CifId>251</ns2:CifId>
-         <ns2:EksId>251</ns2:EksId>
-         <ns2:ExpertSystemId>251</ns2:ExpertSystemId>
-         <ns2:LoginHash>251</ns2:LoginHash>
+         <ns2:DboId>48</ns2:DboId>
+         <ns2:CifId>48</ns2:CifId>
+         <ns2:EksId>48</ns2:EksId>
+         <ns2:ExpertSystemId>48</ns2:ExpertSystemId>
+         <ns2:LoginHash>48</ns2:LoginHash>
          <ns2:AlfaIds>
-            <ns2:AlfaId>251</ns2:AlfaId>
+            <ns2:AlfaId>48</ns2:AlfaId>
          </ns2:AlfaIds>
       </ns4:ClientIds>
-      <ns4:DocumentSaveTimestamp>${=new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new java.util.Date())}.000+03:00</ns4:DocumentSaveTimestamp>
-      <ns4:DocumentNumber>1</ns4:DocumentNumber>
+      <ns4:DocumentSaveTimestamp>2021-07-05T10:01:00.000+03:00</ns4:DocumentSaveTimestamp>
+      <ns4:DocumentNumber>14534</ns4:DocumentNumber>
       <ns4:Type>PHONE_NUMBER_TRANSFER</ns4:Type>
       <ns4:Regular>false</ns4:Regular>
       <ns4:SessionTimeout>1800000</ns4:SessionTimeout>
       <ns4:Limit>9615</ns4:Limit>
       <ns4:PhoneNumberTransfer>
-         <ns4:AmountInSourceCurrency>500.00</ns4:AmountInSourceCurrency>
-         <ns4:PayeePhone>79050100240</ns4:PayeePhone>
+         <ns4:AmountInSourceCurrency>1500.00</ns4:AmountInSourceCurrency>
+         <ns4:PayeePhone>79125347201</ns4:PayeePhone>
          <ns4:BankName>РОССЕЛЬХОЗБАНК</ns4:BankName>
-         <ns4:PayeeName>Иван Иванович Иванович</ns4:PayeeName>
+         <ns4:PayeeName>Андрей</ns4:PayeeName>
          <ns4:CommissionAmount>5.00</ns4:CommissionAmount>
          <ns4:SourceProduct>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(9)}</ns4:SourceProduct>
+         <ns4:PayeeAccount>40817810326693073477</ns4:PayeeAccount>
+         <ns4:BIK>513699355</ns4:BIK>
+         <ns4:DestinationCardNumber>47125831810089110671</ns4:DestinationCardNumber>
          <ns4:SBP_id>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(10)}</ns4:SBP_id>
+         <ns4:EBD_108>7777777777544444</ns4:EBD_108>
+         <ns4:EBD_109></ns4:EBD_109>
       </ns4:PhoneNumberTransfer>
-      <ns4:InitialSourceAmount>95817.36</ns4:InitialSourceAmount>
+      <ns4:InitialSourceAmount>10000.00</ns4:InitialSourceAmount>
       <ns4:ConfirmationSubjectType>CLIENT</ns4:ConfirmationSubjectType>
       <ns4:ConfirmationBigTransfer>CC</ns4:ConfirmationBigTransfer>
-      <ns4:DocumentConfirmationTimestamp>${=new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new java.util.Date())}.000+03:00</ns4:DocumentConfirmationTimestamp>
-      <ns4:SessionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(10)}</ns4:SessionId>
+      <ns4:DocumentConfirmationTimestamp>2021-03-21T10:00:00+03:00</ns4:DocumentConfirmationTimestamp>
+      <ns4:SessionId>sf5g45fhf5hb5h56h5dh46x5dfh4xd56ghb5x1b6x5b16x5f6d54fg</ns4:SessionId>
       <ns4:Channel>MOBILE_BANK</ns4:Channel>
       <ns4:ClientDevice>
          <ns3:Platform>Android</ns3:Platform>

@@ -33,7 +33,8 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
     @Test(
             description = "Настройка и включение правила"
     )
-    //TODO Создан и настроен инцидент для правила (для few_data score 5, иначе 30), Cutting Score 30
+    //TODO Создан и настроен инцидент для правила (для few_data score 5, иначе 30), Cutting Score 30, иначе создается Алерт
+    // и не рассчитывается максимальная сумма транзакции
 
     public void enableRules() {
         getIC().locateRules()
@@ -43,7 +44,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
                 .fillCheckBox("Active:", true)
                 .fillInputText("Величина отклонения (пример 0.05):", "0,2")
                 .save()
-                .sleep(15);
+                .sleep(25);
 
         getIC().close();
     }
@@ -97,10 +98,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
-        assertPaymentMaxAmount(
-                clientIds.get(0),
-                transactionTypeServicePayment,
-                BigDecimal.valueOf(10.00));
+        assertPaymentMaxAmount(clientIds.get(0), transactionTypeServicePayment, BigDecimal.valueOf(10.00));
     }
 
     @Test(
@@ -118,10 +116,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
-        assertPaymentMaxAmount(
-                clientIds.get(0),
-                transactionTypeCardTransfer,
-                transactionData.getCardTransfer().getAmountInSourceCurrency());
+        assertPaymentMaxAmount(clientIds.get(0), transactionTypeCardTransfer, BigDecimal.valueOf(10.00));
     }
 
     @Test(
@@ -140,10 +135,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
-        assertPaymentMaxAmount(
-                clientIds.get(0),
-                transactionTypeOuterTransfer,
-                transactionData.getOuterTransfer().getAmountInSourceCurrency());
+        assertPaymentMaxAmount(clientIds.get(0), transactionTypeOuterTransfer, BigDecimal.valueOf(10.00));
     }
 
     @Test(
@@ -162,10 +154,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
-        assertPaymentMaxAmount(
-                clientIds.get(0),
-                transactionTypeBudgetTransfer,
-                transactionData.getBudgetTransfer().getAmountInSourceCurrency());
+        assertPaymentMaxAmount(clientIds.get(0), transactionTypeBudgetTransfer, BigDecimal.valueOf(10.00));
     }
 
     @Test(
@@ -183,10 +172,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
-        assertPaymentMaxAmount(
-                clientIds.get(0),
-                transactionTypeServicePayment,
-                transactionData.getServicePayment().getAmountInSourceCurrency());
+        assertPaymentMaxAmount(clientIds.get(0), transactionTypeServicePayment, BigDecimal.valueOf(11.00));
     }
 
     @Test(
@@ -204,10 +190,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
-        assertPaymentMaxAmount(
-                clientIds.get(0),
-                transactionTypeCardTransfer,
-                transactionData.getCardTransfer().getAmountInSourceCurrency());
+        assertPaymentMaxAmount(clientIds.get(0), transactionTypeCardTransfer, BigDecimal.valueOf(11.00));
     }
 
     @Test(
@@ -226,10 +209,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
-        assertPaymentMaxAmount(
-                clientIds.get(0),
-                transactionTypeOuterTransfer,
-                transactionData.getOuterTransfer().getAmountInSourceCurrency());
+        assertPaymentMaxAmount(clientIds.get(0), transactionTypeOuterTransfer, BigDecimal.valueOf(11.00));
     }
 
     @Test(
@@ -248,10 +228,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
-        assertPaymentMaxAmount(
-                clientIds.get(0),
-                transactionTypeOuterTransfer,
-                transactionData.getBudgetTransfer().getAmountInSourceCurrency());
+        assertPaymentMaxAmount(clientIds.get(0), transactionTypeOuterTransfer, BigDecimal.valueOf(11.00));
     }
 
     @Test(
@@ -269,10 +246,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ANOMAL_TRANSFER);
-        assertPaymentMaxAmount(
-                clientIds.get(0),
-                transactionTypeServicePayment,
-                MAX_AMMOUNT);
+        assertPaymentMaxAmount(clientIds.get(0), transactionTypeServicePayment, MAX_AMMOUNT);
     }
 
     @Test(
@@ -290,10 +264,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ANOMAL_TRANSFER);
-        assertPaymentMaxAmount(
-                clientIds.get(0),
-                transactionTypeServicePayment,
-                MAX_AMMOUNT);
+        assertPaymentMaxAmount(clientIds.get(0), transactionTypeServicePayment, MAX_AMMOUNT);
     }
 
     @Test(
@@ -311,10 +282,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ANOMAL_TRANSFER);
-        assertPaymentMaxAmount(
-                clientIds.get(0),
-                transactionTypeServicePayment,
-                MAX_AMMOUNT);
+        assertPaymentMaxAmount(clientIds.get(0), transactionTypeServicePayment, MAX_AMMOUNT);
     }
 
     @Test(
@@ -332,10 +300,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ANOMAL_TRANSFER);
-        assertPaymentMaxAmount(
-                clientIds.get(0),
-                transactionTypeServicePayment,
-                MAX_AMMOUNT);
+        assertPaymentMaxAmount(clientIds.get(0), transactionTypeServicePayment, MAX_AMMOUNT);
     }
 
     @Test(
@@ -371,11 +336,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(FEW_DATA, RESULT_EMPTY_MAXAMOUNTLIST);
-        assertPaymentMaxAmount(clientIds.get(1),
-                transactionTypePhoneNumberTransfer,
-                transactionData
-                        .getPhoneNumberTransfer()
-                        .getAmountInSourceCurrency());
+        assertPaymentMaxAmount(clientIds.get(1), transactionTypePhoneNumberTransfer, BigDecimal.valueOf(10.00));
     }
 
     @Test(
@@ -395,10 +356,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
 
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
 
-        assertPaymentMaxAmount(
-                clientIds.get(1),
-                transactionTypePhoneNumberTransfer,
-                transactionData.getPhoneNumberTransfer().getAmountInSourceCurrency());
+        assertPaymentMaxAmount(clientIds.get(1), transactionTypePhoneNumberTransfer, BigDecimal.valueOf(11.00));
     }
 
     @Test(
@@ -417,10 +375,7 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
         sendAndAssert(transaction);
 
         assertLastTransactionRuleApply(TRIGGERED, RESULT_ANOMAL_TRANSFER);
-        assertPaymentMaxAmount(
-                clientIds.get(1),
-                transactionTypePhoneNumberTransfer,
-                MAX_AMMOUNT);
+        assertPaymentMaxAmount(clientIds.get(1), transactionTypePhoneNumberTransfer, MAX_AMMOUNT);
     }
 
     @Override
@@ -430,7 +385,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
@@ -438,7 +396,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
 
     private Transaction getTransactionBETWEEN_ACCOUNTS() {
         Transaction transaction = getTransaction("testCases/Templates/TRANSFER_BETWEEN_ACCOUNTS.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
@@ -446,7 +407,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
 
     private Transaction getTransactionBUDGET_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/BUDGET_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
@@ -454,7 +418,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
 
     private Transaction getTransactionOUTER_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
@@ -462,7 +429,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
 
     private Transaction getTransactionCARD_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
@@ -470,7 +440,10 @@ public class GR_01_AnomalTransfer extends RSHBCaseTest {
 
     private Transaction getTransactionPHONE_NUMBER_TRANSFER_WITH_PHONE() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
