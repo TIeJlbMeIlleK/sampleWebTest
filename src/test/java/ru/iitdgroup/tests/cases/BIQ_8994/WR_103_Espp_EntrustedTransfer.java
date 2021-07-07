@@ -35,19 +35,20 @@ public class WR_103_Espp_EntrustedTransfer extends RSHBCaseTest {
                     "2. Включить WR_103_Espp_EntrustedTransfer (Белые правила)"
     )
     public void enableRules() {
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .selectRule(RULE_NAME_AttentionClient_ESPP)
-//                .activate();
-//        getIC().locateRules()
-//                .editRule(RULE_NAME_ESPP)
-//                .fillCheckBox("Active:", true)
-//                .fillInputText("Крупный перевод:", "5000")
-//                .fillInputText("Период серии в минутах:", "10")
-//                .save()
-//                .getGroupPersonalExceptionsEndDetach("Персональные Исключения")
-//                .sleep(5);
+
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME_ESPP)
+                .fillCheckBox("Active:", true)
+                .fillInputText("Крупный перевод:", "5000")
+                .fillInputText("Период серии в минутах:", "10")
+                .save()
+                .getGroupPersonalExceptionsEndDetach("Персональные Исключения")
+                .backToAllTheRules()
+                .selectRule(RULE_NAME_AttentionClient_ESPP)
+                .activate()
+                .sleep(15);
     }
 
     @Test(
@@ -84,23 +85,23 @@ public class WR_103_Espp_EntrustedTransfer extends RSHBCaseTest {
             throw new IllegalStateException(e);
         }
 
-//        getIC().locateTable(TABLE_Special_attention)
-//                .deleteAll()
-//                .addRecord()
-//                .fillCheckBox("Признак «Особое внимание»:", true)
-//                .fillUser("Клиент:", clientIds.get(0))
-//                .save();
-//        getIC().locateTable(TABLE_Trusted_recipients)
-//                .deleteAll()
-//                .addRecord().fillUser("ФИО Клиента:", clientIds.get(0))
-//                .fillInputText("Имя получателя:", "Егор Ильич Иванов")
-//                .fillInputText("Номер карты получателя:", "42760000000000002365")
-//                .fillInputText("Номер банковского счета получателя:", ACCOUNT_NUMBER)
-//                .fillInputText("БИК банка получателя:", BIK)
-//                .fillInputText("Наименование сервиса:", "Оплата услуг")
-//                .fillInputText("Наименование провайдера сервис услуги:", "МТС")
-//                .fillInputText("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером:", TRUSTED_PHONE)
-//                .save();
+        getIC().locateTable(TABLE_Special_attention)
+                .deleteAll()
+                .addRecord()
+                .fillCheckBox("Признак «Особое внимание»:", true)
+                .fillUser("Клиент:", clientIds.get(0))
+                .save();
+        getIC().locateTable(TABLE_Trusted_recipients)
+                .deleteAll()
+                .addRecord().fillUser("ФИО Клиента:", clientIds.get(0))
+                .fillInputText("Имя получателя:", "Егор Ильич Иванов")
+                .fillInputText("Номер карты получателя:", "42760000000000002365")
+                .fillInputText("Номер банковского счета получателя:", ACCOUNT_NUMBER)
+                .fillInputText("БИК банка получателя:", BIK)
+                .fillInputText("Наименование сервиса:", "Оплата услуг")
+                .fillInputText("Наименование провайдера сервис услуги:", "МТС")
+                .fillInputText("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером:", TRUSTED_PHONE)
+                .save();
     }
 
     @Test(
@@ -119,7 +120,7 @@ public class WR_103_Espp_EntrustedTransfer extends RSHBCaseTest {
                 .editRule(RULE_NAME_ESPP)
                 .save()
                 .attachPersonalExceptions("ExR_08_ESPP_AttentionClient")
-                .sleep(25);
+                .sleep(20);
     }
 
     @Test(
@@ -165,6 +166,5 @@ public class WR_103_Espp_EntrustedTransfer extends RSHBCaseTest {
                 .getPaymentParameters()
                 .withParameter(parameters);
         return esppTrans;
-
     }
 }

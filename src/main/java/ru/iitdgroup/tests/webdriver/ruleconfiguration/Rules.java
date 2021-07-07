@@ -47,6 +47,11 @@ public class Rules extends AbstractView<Rules> implements TabledView<Rules> {
         return new Rules(driver);
     }
 
+    public Rules backToAllTheRules() {
+        driver.findElementByXPath("//*[@id='j_id107:0:breadcrumb']").click();
+        return new Rules(driver);
+    }
+
     public Rules setFilterAndSelectRule(String field, String operator, String value) {
         clearTableFilters();
         getSelf().getDriver().findElementByXPath("//*[text()='Add Filter']").click();
