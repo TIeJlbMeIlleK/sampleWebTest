@@ -127,18 +127,12 @@ public class IC implements AutoCloseable {
         locateView(TopMenuItem.ANALYTICS);
         locateView(TopMenuItem.RULES);
         driver.findElementByXPath("//span[text()='All Rules']/..").click();
-        view.sleep(1);
-        driver.findElementByXPath("//*[@id='baseModuleListContent:j_id291:selectResultsPerPageDropDown']/option[5]").click();
+        view.sleep(2);
+        driver.findElementByXPath("//td[@class='AFContentCell']//select[@class='af_selectOneChoice_content']/option[@value='4']").click();
         driver.findElementByXPath("//*[@id='toolbarActions']/div/table/tbody/tr/td[2]/a").click();
         view.sleep(1);
         driver.executeScript("window.scrollBy(0,10000)");
         view.sleep(1);
-        return new Rules(driver);
-    }
-
-    public Rules GoToTheListRule() {
-        driver.findElementByXPath("//*[@id=\"j_id107:0:breadcrumb\"]")
-                .click();
         return new Rules(driver);
     }
 

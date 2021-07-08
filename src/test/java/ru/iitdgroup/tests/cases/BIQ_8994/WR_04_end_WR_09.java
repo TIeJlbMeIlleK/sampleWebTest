@@ -47,19 +47,19 @@ public class WR_04_end_WR_09 extends RSHBCaseTest {
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .selectRule(RULE_NAME_GRAY_DEVICE_EXR_06)
-                .activate();
-        getIC().locateRules()
                 .editRule(RULE_NAME_WR_04)
                 .fillCheckBox("Active:", true)
                 .save()
                 .detachWithoutRecording("Персональные Исключения")
-                .attachPersonalExceptions("ExR_06_GrayDevice");
-        getIC().locateRules()
+                .attachPersonalExceptions("ExR_06_GrayDevice")
+                .backToAllTheRules()
                 .editRule(RULE_NAME_WR_09)
                 .fillCheckBox("Active:", true)
                 .save()
                 .detachWithoutRecording("Персональные Исключения")
+                .backToAllTheRules()
+                .selectRule(RULE_NAME_GRAY_DEVICE_EXR_06)
+                .activate()
                 .sleep(10);
 
         getIC().locateTable(TABLE_VIP_CLIENT_CARD)

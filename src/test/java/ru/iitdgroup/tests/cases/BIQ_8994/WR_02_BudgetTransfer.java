@@ -34,8 +34,7 @@ public class WR_02_BudgetTransfer extends RSHBCaseTest {
                 .selectVisible()
                 .deactivate()
                 .selectRule(RULE_NAME_AttentionClient)
-                .activate();
-        getIC().locateRules()
+                .activate()
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
                 .save()

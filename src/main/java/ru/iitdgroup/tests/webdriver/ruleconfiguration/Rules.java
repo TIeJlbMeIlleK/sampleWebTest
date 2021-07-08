@@ -32,6 +32,10 @@ public class Rules extends AbstractView<Rules> implements TabledView<Rules> {
     }
 
     public RuleRecord openRecord(String ruleName) {
+        getSelf().sleep(1);
+        driver.findElementByXPath("//*[@id='toolbarActions']/div/table/tbody/tr/td[2]/a").click();
+        driver.executeScript("window.scrollBy(0,10000)");
+        getSelf().sleep(2);
         //FIXME: не работает с правилами в конце списка - в IC некликабельно то, что не помещается полностью на экран
         final String xpath = String.format("//span[@style=' ' and text()='%s']/../..", ruleName);
         driver.findElementByXPath(xpath).click();
@@ -48,7 +52,8 @@ public class Rules extends AbstractView<Rules> implements TabledView<Rules> {
     }
 
     public Rules backToAllTheRules() {
-        driver.findElementByXPath("//*[@id='j_id107:0:breadcrumb']").click();
+        getSelf().sleep(2);
+        driver.findElementByXPath("//span[@class='breadcrumbs af_panelGroupLayout']/a[text()='Rules']").click();
         return new Rules(driver);
     }
 

@@ -173,7 +173,7 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_YOUNG_MAN = "Заявка на выпуск карты(цифровая , 15 лет)";
     protected static final String RESULT_OLD_MAN = "Тип транзакции «Заявка на выпуск карты» (тип карты «виртуальная», возраст клиента больше 18)";
     protected static final String RESULT_TRIGGERED = "Количество однотипных транзакций больше допустимой длины серии";
-
+    protected String DESCRIPTION_RULES;
 
     private DBOAntiFraudWS ws;
     private ESPP2AntiFraudWS esppWs;
@@ -338,7 +338,7 @@ public abstract class RSHBCaseTest {
 
     protected String[][] getIncidentWrapByRule(String ruleName) {
         try {
-            return getDatabase()
+             return getDatabase()
                     .select()
                     .field("EXECUTION_TYPE")
                     .field("DESCRIPTION")
@@ -361,6 +361,7 @@ public abstract class RSHBCaseTest {
             throw new IllegalStateException(e);
         }
         String[][] dbResult = getIncidentWrapByRule(getRuleName());
+
         assertEquals(ruleResult, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
     }
@@ -376,7 +377,6 @@ public abstract class RSHBCaseTest {
         assertEquals(ruleResult, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
     }
-
 
 
     /**

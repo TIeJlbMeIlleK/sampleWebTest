@@ -46,8 +46,7 @@ public class WR_03_EntrustedTransfer extends RSHBCaseTest {
                 .selectVisible()
                 .deactivate()
                 .selectRule(RULE_NAME_GRAY_IP)
-                .activate();
-        getIC().locateRules()
+                .activate()
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
                 .fillInputText("Крупный перевод:", "5000")
@@ -144,7 +143,7 @@ public class WR_03_EntrustedTransfer extends RSHBCaseTest {
         getIC().locateRules()
                 .selectRule(RULE_NAME_GRAY_IP)
                 .deactivate()
-                .sleep(20);
+                .sleep(25);
     }
 
     @Test(
@@ -160,12 +159,13 @@ public class WR_03_EntrustedTransfer extends RSHBCaseTest {
         assertLastTransactionRuleApply(TRIGGERED, "В списке разрешенных найдены совпадающие параметры");
 
         getIC().locateRules()
-                .selectRule(RULE_NAME_GRAY_IP)
-                .activate()
                 .editRule(RULE_NAME)
                 .save()
                 .getGroupPersonalExceptionsEndDetach("Персональные Исключения")
-                .sleep(20);
+                .backToAllTheRules()
+                .selectRule(RULE_NAME_GRAY_IP)
+                .activate()
+                .sleep(25);
     }
 
     @Test(

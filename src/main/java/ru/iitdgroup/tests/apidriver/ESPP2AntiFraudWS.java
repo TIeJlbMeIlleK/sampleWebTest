@@ -4,6 +4,7 @@ package ru.iitdgroup.tests.apidriver;
 
 import generated.ObjectFactory;
 import generated.TranAntiFraudCheckResponseType;
+import org.apache.commons.io.IOUtils;
 
 
 import javax.xml.bind.JAXBContext;
@@ -94,6 +95,8 @@ public class ESPP2AntiFraudWS {
                 connOutputStream.write(outputStream.toString().getBytes());
             }
             lastResponseCode = conn.getResponseCode();
+            final String response = IOUtils.toString(conn.getInputStream());
+            System.out.println(response);
             SOAPMessage responseMessage = MessageFactory
                     .newInstance()
                     .createMessage(new MimeHeaders(), conn.getInputStream());
@@ -102,7 +105,6 @@ public class ESPP2AntiFraudWS {
         } catch (IOException | JAXBException | ParserConfigurationException e) {
             throw new IllegalStateException(e);
         }
-
         return this;
     }
 
@@ -147,5 +149,4 @@ public class ESPP2AntiFraudWS {
         }
         return "Basic " + Base64.getEncoder().encodeToString(rawBasicAuth);
     }
-
 }

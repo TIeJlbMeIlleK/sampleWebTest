@@ -7,7 +7,6 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.alerts.AlertRecord;
 import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 
 import javax.xml.bind.JAXBException;
@@ -43,18 +42,15 @@ public class ExR_12_HackADAK extends RSHBCaseTest {
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
+                .selectRule(RULE_NAME1)
+                .activate()
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
                 .fillInputText("Статусы АДАК:", "WRONG, REFUSE")
                 .fillInputText("Период серии (в минутах):", "10")
                 .fillInputText("Количество неуспешных попыток :", "2")
-                .save();
-        getIC().GoToTheListRule()
-                .selectVisible()
-                .editRule(RULE_NAME1)
-                .fillCheckBox("Active:", true)
                 .save()
-                .sleep(10);
+                .sleep(20);
 
         getIC().locateTable(REFERENCE_ITEM1)
                 .findRowsBy()
