@@ -6,7 +6,6 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.administration.WorkflowAction;
 import ru.iitdgroup.tests.webdriver.jobconfiguration.JobRunEdit;
 
 import javax.xml.bind.JAXBException;
@@ -26,10 +25,8 @@ public class ClientFlagsRemovalByClaimPeriod extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
     private static final String REFERENCE_ITEM = "(Policy_parameters) Параметры обработки справочников и флагов";
     private static final String REFERENCE_ITEM_SIM = "(System_parameters) Параметры переиспользования информации о замене SIM НМТ";
-    private static final String WF_CLIENT_CHANGE = "Cмена учетных данных_true";
-    private static final String WF_CLIENT_CHANGE_IMSI = "Изменен IMSI аутент_true";
-
-    private static String transactionIdServ1;
+    private static final String WF_CLIENT_CHANGE = "Cмена учетных данных_true";//создан Action "Cмена учетных данных_true"
+    private static final String WF_CLIENT_CHANGE_IMSI = "Изменен IMSI аутент_true";//создан Action "Изменен IMSI аутент_true"
     private static final Long version1 = 1L;
 
     @Test(
@@ -39,7 +36,6 @@ public class ClientFlagsRemovalByClaimPeriod extends RSHBCaseTest {
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .sleep(2)
                 .selectRule(RULE_NAME)
                 .activate()
                 .sleep(5);
@@ -157,6 +153,7 @@ public class ClientFlagsRemovalByClaimPeriod extends RSHBCaseTest {
     )
 
     public void transaction() {
+        String transactionIdServ1;
         time.add(Calendar.HOUR, -72);
         Transaction transaction = getTransactionServicePayment();
         TransactionDataType transactionData = transaction.getData().getTransactionData();

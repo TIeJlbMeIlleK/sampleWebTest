@@ -173,7 +173,6 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_YOUNG_MAN = "Заявка на выпуск карты(цифровая , 15 лет)";
     protected static final String RESULT_OLD_MAN = "Тип транзакции «Заявка на выпуск карты» (тип карты «виртуальная», возраст клиента больше 18)";
     protected static final String RESULT_TRIGGERED = "Количество однотипных транзакций больше допустимой длины серии";
-    protected String DESCRIPTION_RULES;
 
     private DBOAntiFraudWS ws;
     private ESPP2AntiFraudWS esppWs;
@@ -377,7 +376,6 @@ public abstract class RSHBCaseTest {
         assertEquals(ruleResult, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
     }
-
 
     /**
      * Возвращает информацию о последнем отправленном СМС
@@ -596,7 +594,6 @@ public abstract class RSHBCaseTest {
 
     protected TransactionEspp getTransactionESPP(String filePath) {
         try {
-            //FIXME Добавить проверку на существование клиента в базе
             TransactionEspp transaction = new TransactionEspp(filePath);
             transaction.getData()
                     .withTransactionId((ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7))

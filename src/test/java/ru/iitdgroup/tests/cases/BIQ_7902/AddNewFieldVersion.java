@@ -1,7 +1,6 @@
 package ru.iitdgroup.tests.cases.BIQ_7902;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -18,15 +17,12 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class AddNewFieldVersion extends RSHBCaseTest {
 
     private static final String RULE_NAME = "";
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private static final String[][] names = {{"Игорь", "Любушкин", "Иванович"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
     private static String transactionID;
 
     @Test(
@@ -42,12 +38,12 @@ public class AddNewFieldVersion extends RSHBCaseTest {
                         .getClientData()
                         .getClient()
                         .withPasswordRecoveryDateTime(time)
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -73,14 +69,7 @@ public class AddNewFieldVersion extends RSHBCaseTest {
     public void step1() throws InterruptedException {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(1L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getServicePayment()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
+                .withVersion(1L);
         transactionID = transactionData.getTransactionId();
         sendAndAssert(transaction);
 
@@ -89,16 +78,9 @@ public class AddNewFieldVersion extends RSHBCaseTest {
         assertEquals(res[0], "1");
 
         Transaction transaction2 = getTransaction();
-        TransactionDataType transactionData2 = transaction2.getData().getTransactionData()
+        transaction2.getData().getTransactionData()
                 .withTransactionId(transactionID)
-                .withVersion(2L)
-                .withRegular(false);
-        transactionData2
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData2
-                .getServicePayment()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
+                .withVersion(2L);
         sendAndAssert(transaction2);
 
         Thread.sleep(2000);
@@ -115,14 +97,7 @@ public class AddNewFieldVersion extends RSHBCaseTest {
     public void step2() throws InterruptedException {
         Transaction transaction = getTransactionPhone();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(1L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPhoneNumberTransfer()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
+                .withVersion(1L);
         transactionID = transactionData.getTransactionId();
         sendAndAssert(transaction);
 
@@ -131,16 +106,9 @@ public class AddNewFieldVersion extends RSHBCaseTest {
         assertEquals(res[0], "1");
 
         Transaction transaction2 = getTransactionPhone();
-        TransactionDataType transactionData2 = transaction2.getData().getTransactionData()
+        transaction2.getData().getTransactionData()
                 .withTransactionId(transactionID)
-                .withVersion(2L)
-                .withRegular(false);
-        transactionData2
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData2
-                .getPhoneNumberTransfer()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
+                .withVersion(2L);
         sendAndAssert(transaction2);
 
         Thread.sleep(2000);
@@ -157,14 +125,7 @@ public class AddNewFieldVersion extends RSHBCaseTest {
     public void step3() throws InterruptedException {
         Transaction transaction = getTransactionOuterTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(1L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getOuterTransfer()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
+                .withVersion(1L);
         transactionID = transactionData.getTransactionId();
         sendAndAssert(transaction);
 
@@ -173,16 +134,9 @@ public class AddNewFieldVersion extends RSHBCaseTest {
         assertEquals(res[0], "1");
 
         Transaction transaction2 = getTransactionOuterTransfer();
-        TransactionDataType transactionData2 = transaction2.getData().getTransactionData()
+        transaction2.getData().getTransactionData()
                 .withTransactionId(transactionID)
-                .withVersion(2L)
-                .withRegular(false);
-        transactionData2
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData2
-                .getOuterTransfer()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
+                .withVersion(2L);
         sendAndAssert(transaction2);
 
         Thread.sleep(2000);
@@ -199,14 +153,7 @@ public class AddNewFieldVersion extends RSHBCaseTest {
     public void step4() throws InterruptedException {
         Transaction transaction = getTransactionQRCode();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(1L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
+                .withVersion(1L);
         transactionID = transactionData.getTransactionId();
         sendAndAssert(transaction);
 
@@ -215,16 +162,9 @@ public class AddNewFieldVersion extends RSHBCaseTest {
         assertEquals(res[0], "1");
 
         Transaction transaction2 = getTransactionQRCode();
-        TransactionDataType transactionData2 = transaction2.getData().getTransactionData()
+        transaction2.getData().getTransactionData()
                 .withTransactionId(transactionID)
-                .withVersion(2L)
-                .withRegular(false);
-        transactionData2
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData2
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
+                .withVersion(2L);
         sendAndAssert(transaction2);
 
         Thread.sleep(2000);
@@ -240,33 +180,61 @@ public class AddNewFieldVersion extends RSHBCaseTest {
 
     private Transaction getTransactionPhone() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
+        transactionDataType
+                .getPhoneNumberTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         return transaction;
     }
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT_MB.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
+        transactionDataType
+                .getServicePayment()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         return transaction;
     }
 
     private Transaction getTransactionOuterTransfer() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
+        transactionDataType
+                .getOuterTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         return transaction;
     }
 
     private Transaction getTransactionQRCode() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionDataType
+                .getClientIds().withDboId(clientIds.get(0));
+        transactionDataType
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1000));
         return transaction;
     }
 }

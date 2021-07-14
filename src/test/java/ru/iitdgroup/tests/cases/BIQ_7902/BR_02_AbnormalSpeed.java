@@ -1,7 +1,6 @@
 package ru.iitdgroup.tests.cases.BIQ_7902;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -21,7 +20,6 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_BR_02_AbnormalSpeed";
     private static String transactionID1;
-
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private final String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
@@ -85,15 +83,9 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
         time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(5555L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
                 .withInitialSourceAmount(BigDecimal.valueOf(10000))
+                .withVersion(5555L);
+        transactionData
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         transactionID1 = transactionData.getTransactionId();
@@ -111,15 +103,10 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
         time.add(Calendar.SECOND, 55);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withInitialSourceAmount(BigDecimal.valueOf(9500))
                 .withVersion(5555L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
                 .withRegular(true);
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(9500))
                 .getServicePayment()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
@@ -137,13 +124,7 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionID1)
-                .withVersion(5554L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(5554L);
         transactionData
                 .withInitialSourceAmount(BigDecimal.valueOf(9500))
                 .getServicePayment()
@@ -163,13 +144,7 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
         Transaction transaction = getTransactionAccount();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionID1)
-                .withVersion(5553L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(5553L);
         transactionData
                 .withInitialSourceAmount(BigDecimal.valueOf(9500))
                 .getTransferBetweenAccounts()
@@ -188,13 +163,7 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
         time.add(Calendar.SECOND, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(5553L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(5553L);
         transactionData
                 .withInitialSourceAmount(BigDecimal.valueOf(9500))
                 .getServicePayment()
@@ -210,17 +179,25 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT_MB.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getTransactionAccount() {
         Transaction transaction = getTransaction("testCases/Templates/TRANSFER_BETWEEN_ACCOUNTS.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 }

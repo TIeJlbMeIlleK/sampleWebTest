@@ -27,7 +27,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
     private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Тимур", "Киров", "Семенович"}, {"Зина", "Птушкина", "Ильинична"},
+    private final String[][] names = {{"Тимур", "Киров", "Семенович"}, {"Зина", "Птушкина", "Ильинична"},
             {"Федор", "Бондарчук", "Григорьевич"}, {"Илья", "Кисов", "Васильевич"}};
 
     private static final String RULE_NAME = "R01_GR_03_SeriesOneToMany";
@@ -57,16 +57,23 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
     public void addClient() {
         try {
             for (int i = 0; i < 4; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
-
-                client.getData().getClientData().getClient()
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
-
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -106,8 +113,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
 
         Transaction transaction = getTransactionPhone();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(8888L)
-                .withRegular(false);
+                .withVersion(8888L);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
@@ -130,8 +136,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionID)
-                .withVersion(8889L)
-                .withRegular(false);
+                .withVersion(8889L);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
@@ -152,8 +157,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
 
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(8899L)
-                .withRegular(false);
+                .withVersion(8899L);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
@@ -174,8 +178,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
     public void step5() {
         Transaction transaction = getTransactionPhone();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(8890L)
-                .withRegular(false);
+                .withVersion(8890L);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(2));
@@ -199,8 +202,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
         Transaction transaction = getTransactionPhone();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionID)
-                .withVersion(8891L)
-                .withRegular(false);
+                .withVersion(8891L);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(2));
@@ -222,8 +224,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
         Transaction transaction = getTransactionPhone();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionID)
-                .withVersion(8892L)
-                .withRegular(false);
+                .withVersion(8892L);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(2));
@@ -244,10 +245,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
         time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransactionCard();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withVersion(8893L)
-                .withRegular(false);
+                .withVersion(8893L);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(3));
@@ -269,10 +267,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
         Transaction transaction = getTransactionCard();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionID)
-                .withVersion(8894L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+                .withVersion(8894L);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(3));
@@ -294,10 +289,7 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
         Transaction transaction = getTransactionCard();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionID)
-                .withVersion(8895L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+                .withVersion(8895L);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(3));
@@ -315,7 +307,9 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
 
     private Transaction getTransactionPhone() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER_IOS.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
@@ -323,7 +317,9 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
 
     private Transaction getTransactionCard() {
         Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER_MOBILE.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
@@ -331,7 +327,9 @@ public class GR_03_SeriesOneToMany extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;

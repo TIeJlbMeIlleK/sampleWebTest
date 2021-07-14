@@ -38,8 +38,7 @@ public interface TabledView<S extends AbstractView> {
                 .findElements(By.className("af_selectOneChoice_content"))
                 .get(1));
         operatorField.selectByVisibleText(operator);
-
-        getSelf().sleep(3);
+        getSelf().sleep(2);
 
         try {
             getSelf().icxpath().element("Value").following(ICXPath.WebElements.INPUT).type(value);

@@ -1,9 +1,11 @@
 package ru.iitdgroup.tests.webdriver.referencetable;
 
 import org.junit.Assert;
+import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.Select;
 import ru.iitdgroup.tests.webdriver.TabledView;
 import ru.iitdgroup.tests.webdriver.ic.AbstractView;
 import ru.iitdgroup.tests.webdriver.ic.ICXPath;
@@ -137,6 +139,8 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
      * @return
      */
     public Table delete(int technicalRow) {
+        driver.executeScript("window.scrollTo(0,10000)");
+        driver.executeScript("window.scrollBy(0,10000)");
         if (data == null) readData();
         select(technicalRow);
         return delete();
@@ -166,6 +170,23 @@ public class Table extends AbstractView<Table> implements TabledView<Table> {
         } catch (NoSuchElementException e) { // таблица пустая
         }
         return this;
+    }
+
+    /**
+     * Добавить второй фильтр или несколько фильтров для таблицы
+     */
+    public Table addTableFilter(String numberFilter, String field, String operator, String value) {
+        getSelf().getDriver().findElementByXPath("//a[@id='base_tableReportFilters:base_btnReportAddFilter']").click();
+        getSelf().sleep(1);
+        getSelf().getDriver()
+                .findElementByXPath("//*[@id='base_tableReportFilters:" + numberFilter + ":base_cmbField']/option[text()='" + field + "']").click();
+        getSelf().sleep(1);
+        getSelf().getDriver()
+                .findElementByXPath("//select[@id='base_tableReportFilters:" + numberFilter + ":base_cmbOperator']/option[text()='" + operator + "']").click();
+        getSelf().sleep(1);
+        getSelf().getDriver().findElementByXPath("//*[@id='base_tableReportFilters:" + numberFilter + ":base_cmbValue']").sendKeys(value);
+        getSelf().sleep(1);
+        return getSelf();
     }
 
     /**

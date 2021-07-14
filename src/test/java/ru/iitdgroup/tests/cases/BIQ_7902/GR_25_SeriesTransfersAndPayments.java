@@ -21,17 +21,11 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_25_SeriesTransfersAndPayments";
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
-
-
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
     private final GregorianCalendar time = new GregorianCalendar();
     private GregorianCalendar time2;
     private static String transactionID1;
     private static String transactionID2;
-
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-
 
     @Test(
             description = "Настройка и включение правила"
@@ -64,12 +58,12 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -95,13 +89,7 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
         time.add(Calendar.HOUR, -2);
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withVersion(9908L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(9908L);
         transactionData
                 .getCardTransfer()
                 .withAmountInSourceCurrency(new BigDecimal("1999.00"));
@@ -117,13 +105,7 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionOUTER_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withVersion(9908L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(9908L);
         transactionData
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(new BigDecimal("1.00"));
@@ -140,13 +122,7 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionSERVICE_PAYMENT();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(9908L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(9908L);
         transactionData
                 .getServicePayment()
                 .withAmountInSourceCurrency(new BigDecimal("1998.00"));
@@ -165,10 +141,7 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
         Transaction transaction = getTransactionSERVICE_PAYMENT();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionID2)
-                .withVersion(9909L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
+                .withVersion(9909L);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
@@ -190,13 +163,7 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
         Transaction transaction = getTransactionSERVICE_PAYMENT();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionID1)
-                .withVersion(9909L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(9909L);
         transactionData
                 .getServicePayment()
                 .withAmountInSourceCurrency(new BigDecimal("1.00"));
@@ -215,11 +182,7 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
                 .withTransactionId(transactionID2)
                 .withVersion(9910L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2));
         transactionData
                 .getServicePayment()
                 .withAmountInSourceCurrency(new BigDecimal("1.00"));
@@ -234,25 +197,37 @@ public class GR_25_SeriesTransfersAndPayments extends RSHBCaseTest {
 
     private Transaction getTransactionSERVICE_PAYMENT() {
         Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getTransactionOUTER_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getTransactionCARD_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 }

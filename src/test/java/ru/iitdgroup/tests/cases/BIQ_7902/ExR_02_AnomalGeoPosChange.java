@@ -1,7 +1,6 @@
 package ru.iitdgroup.tests.cases.BIQ_7902;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -24,10 +23,9 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
     private static final String TABLE = "(System_parameters) Интеграционные параметры";
     private static String transactionId1;
     private static String transactionId2;
-
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Зуля", "Закирова", "Муратовна"}};
+    private final String[][] names = {{"Зуля", "Закирова", "Муратовна"}};
 
     @Test(
             description = "Настройка интеграционных параметров и включение правила R01_ExR_02_AnomalGeoPosChange"
@@ -93,13 +91,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
         time.add(Calendar.HOUR, -26);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withVersion(7777L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(7777L);
         transactionData
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -122,13 +114,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionId1)
-                .withVersion(7778L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(7778L);
         transactionData
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -150,13 +136,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionId1)
-                .withVersion(7779L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(7779L);
         transactionData
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -177,13 +157,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
         time.add(Calendar.SECOND, 1);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(7779L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(7779L);
         transactionData
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -206,13 +180,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionId2)
-                .withVersion(7780L)
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(7780L);
         transactionData
                 .getOuterTransfer()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
@@ -232,8 +200,11 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER_IOS.xml");
         transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 }

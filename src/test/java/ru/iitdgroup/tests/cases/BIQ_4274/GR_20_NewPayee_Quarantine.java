@@ -1,19 +1,16 @@
 package ru.iitdgroup.tests.cases.BIQ_4274;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import org.apache.ignite.IgniteMessaging;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.dbdriver.Database;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -21,358 +18,326 @@ public class GR_20_NewPayee_Quarantine extends RSHBCaseTest {
 
     private static final String TABLE_QUARANTINE = "(Rule_tables) Карантин получателей";
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
-
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.AUGUST, 1, 1, 0, 0);
-    private final GregorianCalendar time1 = new GregorianCalendar(Calendar.getInstance().getTimeZone());
+    private final GregorianCalendar time = new GregorianCalendar();
+    private final GregorianCalendar time1 = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private static final String TABLE_GOOD = "(Rule_tables) Доверенные получатели";
+    private static final String TABLE_TRUSTED = "(Rule_tables) Доверенные получатели";
     private static final String LOCAL_TABLE = "(Policy_parameters) Параметры обработки справочников и флагов";
+    private final String[][] names =
+            {{"Вероника", "Жукова", "Игоревна"},
+                    {"Петр", "Смирнов", "Вячеславович"},
+                    {"Семен", "Мотиков", "Петрович"},
+                    {"Зинаида", "Логинова", "Павловна"},
+                    {"Людмила", "Калинина", "Михайловна"},
+                    {"Валентина", "Семченкова", "Ивановна"}};
+    private final String payeePhone = "79" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9);
+    private final String payeePhone2 = "79" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9);
+    private final String destantionCardNumber = "42789652" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String destantionCardNumber2 = "42789652" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String destantionCardNumber3 = "42789652" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String destantionCardNumber4 = "42789652" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String cardNumberTrusted = "42789652" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String payeeAccount = "4278" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String BIK = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9);
+    private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+
+    //        TODO требуется реализовать настройку блока Alert Scoring Model по правилу + Alert Scoring Model общие настройки
 
     @Test(
             description = "Настройка и включение правила"
     )
     public void enableRules() {
         getIC().locateRules()
-                .editRule(RULE_NAME)
-                .save();
-
-//        TODO требуется реализовать настройку блока Alert Scoring Model по правилу + Alert Scoring Model общие настройки
-
-        getIC().locateRules()
                 .selectVisible()
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(5);
-// Чистим справочники доверенных получателей и Карантина получателей по клиентам
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
-        Table.Formula rows1 = getIC().locateTable(TABLE_GOOD).findRowsBy();
-        if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows1.delete();
-        }
+                .sleep(20);
 
-        getIC().locateTable(LOCAL_TABLE).findRowsBy().match("Код значения","TIME_AFTER_ADDING_TO_QUARANTINE")
+        getIC().locateTable(LOCAL_TABLE)
+                .findRowsBy()
+                .match("код значения", "TIME_AFTER_ADDING_TO_QUARANTINE")
                 .click()
                 .edit()
                 .fillInputText("Значение:", "1")
                 .save();
-
     }
 
     @Test(
-            description = "Создаем клиента",
+            description = "Создаем клиента" +
+                    "Занести произвольный номер карты получателя  в 'Доверенные получатели' для клиента №5" +
+                    "Занести произвольный номер карты получателя  в 'Карантин получателей' для клиента №4",
             dependsOnMethods = "enableRules"
     )
-    public void step0() {
+    public void addClient() {
+        time1.add(Calendar.HOUR, -50);
         try {
-            for (int i = 0; i < 7; i++) {
-                //FIXME Добавить проверку на существование клиента в базе
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+            for (int i = 0; i < 6; i++) {
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+                client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
                 sendAndAssert(client);
                 clientIds.add(dboId);
+                System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
-    }
 
-    @Test(
-            description = "Провести транзакции № 1 Оплата услуг, сумма 10",
-            dependsOnMethods = "step0"
-    )
-    public void step1() {
-        Transaction transaction = getTransactionPhoneNumberTransfer();
-        TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-
-        transactionData.getPhoneNumberTransfer()
-                .setBIK(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount(null);
-        transactionData.getPhoneNumberTransfer()
-                .setDestinationCardNumber(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeePhone("79599925915");
-
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-    }
-
-    @Test(
-            description = "Провести транзакции № 2 Перевод на карту, сумма 10",
-            dependsOnMethods = "step1"
-    )
-    public void step2() {
-        Transaction transaction = getTransactionPhoneNumberTransfer();
-        TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(1));
-
-        transactionData.getPhoneNumberTransfer()
-                .setBIK(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount(null);
-        transactionData.getPhoneNumberTransfer()
-                .setDestinationCardNumber("4650551178965454");
-        transactionData.getPhoneNumberTransfer()
-                .setPayeePhone(null);
-
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-    }
-
-    @Test(
-            description = "Провести транзакции № 3 Перевод на счет, сумма 10",
-            dependsOnMethods = "step2"
-    )
-    public void step3() {
-        Transaction transaction = getTransactionPhoneNumberTransfer();
-        TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(2));
-
-        transactionData.getPhoneNumberTransfer()
-                .setBIK("042301514");
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount("4081710835650000700");
-        transactionData.getPhoneNumberTransfer()
-                .setDestinationCardNumber(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeePhone(null);
-
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-    }
-
-    @Test(
-            description = "Провести транзакции № 4 Перевод в бюджет, сумма 10",
-            dependsOnMethods = "step3"
-    )
-    public void step4() {
-        Transaction transaction = getTransactionPhoneNumberTransfer();
-        TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(3));
-
-        transactionData.getPhoneNumberTransfer()
-                .setBIK(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount(null);
-        transactionData.getPhoneNumberTransfer()
-                .setDestinationCardNumber("4670551178965500");
-        transactionData.getPhoneNumberTransfer()
-                .setPayeePhone(null);
-
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-    }
-
-    @Test(
-            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
-            dependsOnMethods = "step4"
-    )
-    public void step5() {
-        time.add(Calendar.MINUTE,5);
-        Transaction transaction = getTransactionPhoneNumberTransfer();
-        TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(3));
-
-        transactionData.getPhoneNumberTransfer()
-                .setBIK(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount(null);
-        transactionData.getPhoneNumberTransfer()
-                .setDestinationCardNumber("4670551178965500");
-        transactionData.getPhoneNumberTransfer()
-                .setPayeePhone(null);
-
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, YOUNG_QUARANTINE);
-    }
-
-    @Test(
-            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
-            dependsOnMethods = "step5"
-    )
-    public void datePlus2Days() {
-        getIC().locateTable(TABLE_GOOD)
+        getIC().locateTable(TABLE_TRUSTED)
+                .deleteAll()
                 .addRecord()
-                .fillInputText("Номер карты получателя:","4154551178964123")
-                .fillUser("Клиент:",clientIds.get(4))
+                .fillUser("ФИО Клиента:", clientIds.get(4))
+                .fillInputText("Номер карты получателя:", cardNumberTrusted)
                 .save();
-
-        Map<String, Object> values = new HashMap<>();
-        values.put("TIME_STAMP", Instant.now().minus(2, ChronoUnit.DAYS).toString());
-
-        try (Database db = getDatabase()) {
-            db.updateWhere("dbo.QUARANTINE_LIST", values, "WHERE CARDNUMBER = 4670551178965500");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        IgniteMessaging rmtMsg = getMsg();
-        rmtMsg.send("RELOAD_QUARANTINE", this.getClass().getSimpleName());
-//      Для WhiteList - RELOAD_WHITE
+        getIC().locateTable(TABLE_QUARANTINE)
+                .deleteAll()
+                .addRecord()
+                .fillInputText("Номер Карты получателя:", destantionCardNumber2)
+                .fillInputText("Дата занесения:", format.format(time1.getTime()))//дата занесения 2 дня назад
+                .fillInputText("Дата последней авторизованной транзакции:", format.format(time1.getTime()))//дата занесения 2 дня назад
+                .fillUser("ФИО Клиента:", clientIds.get(3))
+                .save();
     }
 
     @Test(
-            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
-            dependsOnMethods = "datePlus2Days"
+            description = "1. Провести транзакцию № 1 на уникальный номер телефона(без указания 'Номера карты' и 'БИКСЧЕТ')," +
+                    "для клиента № 1 'Перевод по номеру телефона'",
+            dependsOnMethods = "addClient"
     )
-    public void step6() {
-        time1.add(Calendar.SECOND,30);
-        Transaction transaction = getTransactionPhoneNumberTransfer_new();
-        TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(3));
 
-        transactionData.getPhoneNumberTransfer()
-                .setBIK(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount(null);
-        transactionData.getPhoneNumberTransfer()
-                .setDestinationCardNumber("4670551178965500");
-        transactionData.getPhoneNumberTransfer()
-                .setPayeePhone(null);
-
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(FEW_DATA, RESULT_EXIST_QUARANTINE_LOCATION);
-    }
-
-    @Test(
-            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
-            dependsOnMethods = "step6"
-    )
-    public void step7() {
+    public void phoneNumberTransferPayeePhone() {
+        time.add(Calendar.MINUTE, -30);
         Transaction transaction = getTransactionPhoneNumberTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(4));
-
-        transactionData.getPhoneNumberTransfer()
-                .setBIK(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount(null);
-        transactionData.getPhoneNumberTransfer()
-                .setDestinationCardNumber("4154551178964123");
-        transactionData.getPhoneNumberTransfer()
-                .setPayeePhone(null);
-
+                .getPhoneNumberTransfer()
+                .withPayeePhone(payeePhone)
+                .withPayeeName(null)
+                .withBIK(null)
+                .withPayeeAccount(null)
+                .withDestinationCardNumber(null);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, IN_WHITE_LIST);
+        assertLastTransactionRuleApply(TRIGGERED, "Получатель добавлен в список карантина");
     }
 
     @Test(
-            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
-            dependsOnMethods = "step7"
+            description = "2. Провести транзакцию № 2 на уникальный номер карты (без указания 'Номера телефона'" +
+                    "и 'БИКСЧЕТ'), для клиента № 2 'Перевод по номеру телефона'",
+            dependsOnMethods = "phoneNumberTransferPayeePhone"
     )
-    public void step8() {
+
+    public void phoneNumberTransferDestinationCard() {
+        Transaction transaction = getTransactionPhoneNumberTransfer();
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .getPhoneNumberTransfer()
+                .withPayeePhone(null)
+                .withPayeeName(null)
+                .withBIK(null)
+                .withPayeeAccount(null)
+                .withDestinationCardNumber(destantionCardNumber);
+        transactionData
+                .getClientIds().withDboId(clientIds.get(1));
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, "Получатель добавлен в список карантина");
+    }
+
+    @Test(
+            description = "3. Провести транзакцию № 3 уникальный БИКСЧЕТ(без указания 'Номера карты'" +
+                    "и 'Номера телефона'), для клиента № 3 'Перевод по номеру телефона'",
+            dependsOnMethods = "phoneNumberTransferDestinationCard"
+    )
+
+    public void phoneNumberTransferBIKAccount() {
+        Transaction transaction = getTransactionPhoneNumberTransfer();
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .getPhoneNumberTransfer()
+                .withPayeePhone(null)
+                .withPayeeName(null)
+                .withBIK(BIK)
+                .withPayeeAccount(payeeAccount)
+                .withDestinationCardNumber(null);
+        transactionData
+                .getClientIds().withDboId(clientIds.get(2));
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, "Получатель добавлен в список карантина");
+    }
+
+    @Test(
+            description = "4. Провести транзакцию №4 'Перевод по номеру телефона' от клиента №2, спустя 2 мин " +
+                    "в транзакции указан только номер карты",
+            dependsOnMethods = "phoneNumberTransferBIKAccount"
+    )
+
+    public void phoneNumberTransferDestinationCard2() {
+        time.add(Calendar.MINUTE, 2);
+        Transaction transaction = getTransactionPhoneNumberTransfer();
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .getPhoneNumberTransfer()
+                .withPayeePhone(null)
+                .withPayeeName(null)
+                .withBIK(null)
+                .withPayeeAccount(null)
+                .withDestinationCardNumber(destantionCardNumber);
+        transactionData
+                .getClientIds().withDboId(clientIds.get(1));
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, "Получатель недавно находится в карантине");
+    }
+
+    @Test(
+            description = "7. Провести транзакцию №6 'Перевод по номеру телефона' от клиента №4, " +
+                    "номер карты из Карантина, дата занесения 2 дня назад",
+            dependsOnMethods = "phoneNumberTransferDestinationCard2"
+    )
+
+    public void phoneNumberTransferDestinationCardQuarantine() {
+        time.add(Calendar.MINUTE, 2);
+        Transaction transaction = getTransactionPhoneNumberTransfer();
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .getPhoneNumberTransfer()
+                .withPayeePhone(null)
+                .withPayeeName(null)
+                .withBIK(null)
+                .withPayeeAccount(null)
+                .withDestinationCardNumber(destantionCardNumber2);
+        transactionData
+                .getClientIds().withDboId(clientIds.get(3));
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(FEW_DATA, "Получатель уже находится в карантине");
+    }
+
+    @Test(
+            description = "9. Провести транзакцию № 7 'Перевод по номеру телефона', от клиента №5, на карту получателя в доверенных ",
+            dependsOnMethods = "phoneNumberTransferDestinationCardQuarantine"
+    )
+
+    public void phoneNumberTransferTrusted() {
+        time.add(Calendar.MINUTE, 2);
+        Transaction transaction = getTransactionPhoneNumberTransfer();
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        transactionData
+                .getPhoneNumberTransfer()
+                .withPayeePhone(null)
+                .withPayeeName(null)
+                .withBIK(null)
+                .withPayeeAccount(null)
+                .withDestinationCardNumber(cardNumberTrusted);
+        transactionData
+                .getClientIds().withDboId(clientIds.get(4));
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Получатель найден в списке разрешенных");
+    }
+
+    @Test(
+            description = "10. Провести транзакцию №8 'Перевод на карту', от клиента №5, на карту получателя в доверенных",
+            dependsOnMethods = "phoneNumberTransferTrusted"
+    )
+
+    public void cardTransferTrusted() {
+        time.add(Calendar.MINUTE, 2);
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(4));
-
-        transactionData.getCardTransfer()
-                .setDestinationCardNumber("4154551178964123");
-
+                .getCardTransfer()
+                .withDestinationCardNumber(cardNumberTrusted);
+        transactionData
+                .getClientIds().withDboId(clientIds.get(4));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, IN_WHITE_LIST);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Получатель найден в списке разрешенных");
     }
 
     @Test(
-            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
-            dependsOnMethods = "step8"
+            description = "11. Провести транзакцию №9 'Перевод по номеру телефона' от клиента №6 с уникальным номером телефона и номером карты",
+            dependsOnMethods = "cardTransferTrusted"
     )
-    public void step9() {
+
+    public void phoneNumberTransferPayeePhoneCard() {
+        time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionPhoneNumberTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(5));
-
-        transactionData.getPhoneNumberTransfer()
-                .setBIK(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount(null);
-        transactionData.getPhoneNumberTransfer()
-                .setDestinationCardNumber("4104551178964155");
-        transactionData.getPhoneNumberTransfer()
-                .setPayeePhone("79559295901");
-
+                .getPhoneNumberTransfer()
+                .withPayeePhone(payeePhone2)
+                .withPayeeName(null)
+                .withBIK(null)
+                .withPayeeAccount(null)
+                .withDestinationCardNumber(destantionCardNumber3);
+        transactionData
+                .getClientIds().withDboId(clientIds.get(5));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
+        assertLastTransactionRuleApply(TRIGGERED, "Получатель добавлен в список карантина");
     }
 
     @Test(
-            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
-            dependsOnMethods = "step9"
+            description = "12. Провести транзакцию №10 'Перевод по номеру телефона' от клиента №6 " +
+                    "с телефоном из транзакции № 9, но новым номером карты",
+            dependsOnMethods = "phoneNumberTransferPayeePhoneCard"
     )
-    public void step10() {
+
+    public void phoneNumberTransferPayeePhoneCardNew() {
+        time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionPhoneNumberTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(5));
-
-        transactionData.getPhoneNumberTransfer()
-                .setBIK(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount(null);
-        transactionData.getPhoneNumberTransfer()
-                .setDestinationCardNumber("4104551178965500");
-        transactionData.getPhoneNumberTransfer()
-                .setPayeePhone("79559295901");
-
+                .getPhoneNumberTransfer()
+                .withPayeePhone(payeePhone2)
+                .withPayeeName(null)
+                .withBIK(null)
+                .withPayeeAccount(null)
+                .withDestinationCardNumber(destantionCardNumber4);
+        transactionData
+                .getClientIds().withDboId(clientIds.get(5));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, YOUNG_QUARANTINE);
-
-        getIC().close();
+        assertLastTransactionRuleApply(TRIGGERED, "Получатель недавно находится в карантине");
     }
-
 
     @Override
     protected String getRuleName() {
         return RULE_NAME;
     }
 
-    private Transaction getTransactionPhoneNumberTransfer_new() {
-        Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time1))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time1));
-        return transaction;
-    }
-    private Transaction getTransactionCARD_TRANSFER() {
-        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        return transaction;
-    }
     private Transaction getTransactionPhoneNumberTransfer() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
+        return transaction;
+    }
+
+    private Transaction getTransactionCARD_TRANSFER() {
+        Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
+        transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 }

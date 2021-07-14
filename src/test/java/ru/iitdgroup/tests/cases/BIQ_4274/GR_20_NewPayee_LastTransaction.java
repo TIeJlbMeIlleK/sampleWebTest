@@ -1,20 +1,16 @@
 package ru.iitdgroup.tests.cases.BIQ_4274;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import org.apache.ignite.IgniteMessaging;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.dbdriver.Database;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -22,40 +18,33 @@ public class GR_20_NewPayee_LastTransaction extends RSHBCaseTest {
 
     private static final String TABLE_QUARANTINE = "(Rule_tables) Карантин получателей";
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
-
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.AUGUST, 1, 1, 0, 0);
-    private final GregorianCalendar time1 = new GregorianCalendar(Calendar.getInstance().getTimeZone());
+    private final GregorianCalendar time = new GregorianCalendar();
+    private final GregorianCalendar time1 = new GregorianCalendar();
+    private GregorianCalendar time2;
     private final List<String> clientIds = new ArrayList<>();
-    private static final String TABLE_GOOD = "(Rule_tables) Доверенные получатели";
     private static final String LOCAL_TABLE = "(Policy_parameters) Параметры обработки справочников и флагов";
+    private final String[][] names = {{"Татьяна", "Спиридонова", "Георгиевна"}};
+    private final String destantionCardNumber = "425678" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String payeeAccount = "425678" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    private static final String QUARANTINE_RECIPIENT = "Олеся Викторовна Зимина";
+
+    //        TODO требуется реализовать настройку блока Alert Scoring Model по правилу + Alert Scoring Model общие настройки
 
     @Test(
             description = "Настройка и включение правила"
     )
     public void enableRules() {
-        getIC().locateRules()
-                .editRule(RULE_NAME)
-                .save();
-
-//        TODO требуется реализовать настройку блока Alert Scoring Model по правилу + Alert Scoring Model общие настройки
-
-        getIC().locateRules()
+               getIC().locateRules()
                 .selectVisible()
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(5);
-// Чистим справочники доверенных получателей и Карантина получателей по клиентам
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
-        Table.Formula rows1 = getIC().locateTable(TABLE_GOOD).findRowsBy();
-        if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows1.delete();
-        }
+                .sleep(25);
 
-        getIC().locateTable(LOCAL_TABLE).findRowsBy().match("Код значения","TIME_AFTER_ADDING_TO_QUARANTINE")
+        getIC().locateTable(LOCAL_TABLE)
+                .findRowsBy()
+                .match("код значения", "TIME_AFTER_ADDING_TO_QUARANTINE")
                 .click()
                 .edit()
                 .fillInputText("Значение:", "1")
@@ -66,154 +55,119 @@ public class GR_20_NewPayee_LastTransaction extends RSHBCaseTest {
             description = "Создаем клиента",
             dependsOnMethods = "enableRules"
     )
-    public void step0() {
+    public void addClient() {
+        time1.add(Calendar.HOUR, -50);
         try {
             for (int i = 0; i < 1; i++) {
-                //FIXME Добавить проверку на существование клиента в базе
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+                client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
                 sendAndAssert(client);
+                System.out.println(dboId);
                 clientIds.add(dboId);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
+
+        getIC().locateTable(TABLE_QUARANTINE)
+                .deleteAll()
+                .addRecord()
+                .fillUser("ФИО Клиента:", clientIds.get(0))
+                .fillInputText("Имя получателя:", QUARANTINE_RECIPIENT)
+                .fillInputText("Номер Карты получателя:", destantionCardNumber)
+                .fillInputText("Номер банковского счета получателя:", payeeAccount)
+                .fillInputText("Дата занесения:", format.format(time1.getTime()))//дата занесения 2 дня назад
+                .fillInputText("Дата последней авторизованной транзакции:", format.format(time1.getTime()))
+                .save();
     }
 
     @Test(
-            description = "Провести транзакции № 1 Оплата услуг, сумма 10",
-            dependsOnMethods = "step0"
+            description = "1. Провести транзакцию № 1 Перевод по номеру телефона",
+            dependsOnMethods = "addClient"
     )
     public void step1() {
+        time1.add(Calendar.HOUR, 2);
         Transaction transaction = getTransactionPhoneNumberTransfer();
-        TransactionDataType transactionData = transaction.getData().getTransactionData();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time1))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time1));
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-
-        transactionData.getPhoneNumberTransfer()
-                .setBIK(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount(null);
-        transactionData.getPhoneNumberTransfer()
-                .setDestinationCardNumber("4650551178965411");
-        transactionData.getPhoneNumberTransfer()
-                .setPayeePhone(null);
-
+                .getPhoneNumberTransfer()
+                .withBIK(null)
+                .withPayeeName(QUARANTINE_RECIPIENT)
+                .withPayeeAccount(payeeAccount)
+                .withDestinationCardNumber(destantionCardNumber)
+                .withPayeePhone(null);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
+        assertLastTransactionRuleApply(TRIGGERED, "Получатель недавно находится в карантине");
     }
 
     @Test(
-            description = "Провести транзакции № 2 Перевод на карту, сумма 10",
+            description = "3.  Провести транзакцию № 2 'Перевод по номеру телефона' от имени клиенат № 1 в пользу получателя, находящегося в карантине",
             dependsOnMethods = "step1"
     )
     public void step2() {
-        time.add(Calendar.SECOND,30);
+        time.add(Calendar.MINUTE, -10);
+        time2 = (GregorianCalendar) time.clone();
         Transaction transaction = getTransactionPhoneNumberTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-
-        transactionData.getPhoneNumberTransfer()
-                .setBIK(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount(null);
-        transactionData.getPhoneNumberTransfer()
-                .setDestinationCardNumber("4650551178965411");
-        transactionData.getPhoneNumberTransfer()
-                .setPayeePhone(null);
-
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, YOUNG_QUARANTINE);
-    }
-
-    @Test(
-            description = "Провести транзакции № 3 Перевод на счет, сумма 10",
-            dependsOnMethods = "step2"
-    )
-    public void step3() {
-        Map<String, Object> values = new HashMap<>();
-        values.put("TIME_STAMP", Instant.now().minus(2, ChronoUnit.DAYS).toString());
-
-        try (Database db = getDatabase()) {
-            db.updateWhere("dbo.QUARANTINE_LIST", values, "WHERE CARDNUMBER = 4650551178965411");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        IgniteMessaging rmtMsg = getMsg();
-        rmtMsg.send("RELOAD_QUARANTINE", this.getClass().getSimpleName());
-//      Для WhiteList - RELOAD_WHITE
-    }
-
-    @Test(
-            description = "Провести транзакции № 4 Перевод в бюджет, сумма 10",
-            dependsOnMethods = "step3"
-    )
-    public void step4() {
-        time1.add(Calendar.SECOND,30);
-        Transaction transaction = getTransactionPhoneNumberTransfer_new();
-        TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-
-        transactionData.getPhoneNumberTransfer()
-                .setBIK(null);
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount(null);
-        transactionData.getPhoneNumberTransfer()
-                .setDestinationCardNumber("4650551178965411");
-        transactionData.getPhoneNumberTransfer()
-                .setPayeePhone(null);
-
+                .getPhoneNumberTransfer()
+                .withBIK(null)
+                .withPayeeName(QUARANTINE_RECIPIENT)
+                .withPayeeAccount(payeeAccount)
+                .withDestinationCardNumber(destantionCardNumber)
+                .withPayeePhone(null);
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(FEW_DATA, RESULT_EXIST_QUARANTINE_LOCATION);
     }
 
     @Test(
-            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
-            dependsOnMethods = "step4"
+            description = "4. Проверить Карантин получателей",
+            dependsOnMethods = "step2"
     )
-    public void step5() {
+    public void step3() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        String s = dateFormat.format(time1.getTime());
+        String s = dateFormat.format(time2.getTime());
 
         getIC().locateTable(TABLE_QUARANTINE)
                 .findRowsBy()
-                .match("Номер Карты получателя","4650551178965411")
+                .match("Номер Карты получателя", destantionCardNumber)
                 .click();
-        assertTableField("Дата последней транзакции:",s);
+        assertTableField("Дата последней авторизованной транзакции:", s);
         getIC().close();
     }
-
 
     @Override
     protected String getRuleName() {
         return RULE_NAME;
     }
 
-    private Transaction getTransactionPhoneNumberTransfer_new() {
-        Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time1))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time1));
-        return transaction;
-    }
-
     private Transaction getTransactionPhoneNumberTransfer() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 }

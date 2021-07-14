@@ -1,20 +1,16 @@
 package ru.iitdgroup.tests.cases.BIQ_6046;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
-
 import java.text.DateFormat;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -31,9 +27,7 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
 
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Семен", "Скирин", "Федорович"}};
-    private static String[] login = {new RandomString(5).nextString(), new RandomString(5).nextString()};
-    private static String[] loginHash = {(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5)};
+    private final String[][] names = {{"Семен", "Скирин", "Федорович"}};
 
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
     private static final String REFERENCE_ITEM1 = "(Rule_tables) Карантин получателей";
@@ -152,17 +146,14 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию № 1 \"Перевод на счет другому лицу\" от имени клиента № 1 в пользу получателя №1, находящегося в карантине (БИК+СЧЕТ)",
+            description = "Провести транзакцию № 1 \"Перевод на счет другому лицу\" от имени клиента № 1 в " +
+                    "пользу получателя №1, находящегося в карантине (БИК+СЧЕТ)",
             dependsOnMethods = "addClient"
     )
 
     public void transaction1() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getOuterTransfer()
                 .getPayeeProps()
@@ -182,17 +173,14 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию № 2 \"Перевод на счет другому лицу\" от имени клиента № 1 в пользу получателя №2, находящегося в карантине (БИК+СЧЕТ)",
+            description = "Провести транзакцию № 2 \"Перевод на счет другому лицу\" от имени клиента № 1 в " +
+                    "пользу получателя №2, находящегося в карантине (БИК+СЧЕТ)",
             dependsOnMethods = "transaction1"
     )
 
     public void transaction2() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getOuterTransfer()
                 .getPayeeProps()
@@ -212,17 +200,14 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию № 3 \"Перевод на счет другому лицу\" от имени клиента № 1 в пользу получателя №1, находящегося в карантине (ИНН)",
+            description = "Провести транзакцию № 3 \"Перевод на счет другому лицу\" от имени клиента № 1 в " +
+                    "пользу получателя №1, находящегося в карантине (ИНН)",
             dependsOnMethods = "transaction2"
     )
 
     public void transaction3() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getOuterTransfer()
                 .getPayeeProps()
@@ -242,17 +227,14 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию № 4 \"Перевод на счет другому лицу\" от имени клиента № 1 в пользу получателя №2, находящегося в карантине (ИНН)",
+            description = "Провести транзакцию № 4 \"Перевод на счет другому лицу\" от имени клиента № 1 в " +
+                    "пользу получателя №2, находящегося в карантине (ИНН)",
             dependsOnMethods = "transaction3"
     )
 
     public void transaction4() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getOuterTransfer()
                 .getPayeeProps()
@@ -272,17 +254,14 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию № 5 \"Перевод на счет другому лицу\" от имени клиента № 1 в пользу получателя, находящегося в доверенных (БИК+СЧЕТ)",
+            description = "Провести транзакцию № 5 \"Перевод на счет другому лицу\" от имени клиента № 1 в " +
+                    "пользу получателя, находящегося в доверенных (БИК+СЧЕТ)",
             dependsOnMethods = "transaction4"
     )
 
     public void transaction5() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getOuterTransfer()
                 .getPayeeProps()
@@ -302,17 +281,14 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакцию № 6 \"Перевод на счет другому лицу\" от имени клиента № 1 в пользу получателя, находящегося в доверенных (ИНН)",
+            description = "Провести транзакцию № 6 \"Перевод на счет другому лицу\" от имени клиента № 1 в " +
+                    "пользу получателя, находящегося в доверенных (ИНН)",
             dependsOnMethods = "transaction5"
     )
 
     public void transaction6() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getOuterTransfer()
                 .getPayeeProps()
@@ -338,9 +314,14 @@ public class GR_20_NewPayeeTimeAfterAddingToQuarantine extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 }

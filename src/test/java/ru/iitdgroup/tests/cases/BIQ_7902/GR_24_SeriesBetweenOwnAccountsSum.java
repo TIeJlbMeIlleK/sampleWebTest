@@ -1,7 +1,6 @@
 package ru.iitdgroup.tests.cases.BIQ_7902;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -16,25 +15,19 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class GR_24_SeriesBetweenOwnAccountsSum extends RSHBCaseTest {
-
 
     private static final String RULE_NAME = "R01_GR_24_SeriesBetweenOwnAccounts";
     private static String transactionID1;
     private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Зинаида", "Жоркина", "Семеновна"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-
-    private final String sourceProduct = "40801020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
-    private final String destinationProduct1 = "40801020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
-    private final String destinationProduct2 = "40801020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
-    private final String destinationProduct3 = "40801020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
-    private final String destinationProduct4 = "40801020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
-    private final String destinationProduct5 = "40801020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String[][] names = {{"Зинаида", "Жоркина", "Семеновна"}};
     private final String mask = "408";
+    private final String sourceProduct = mask + "01020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String destinationProduct1 = mask + "01020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String destinationProduct2 = mask + "01020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String destinationProduct3 = mask + "01020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String destinationProduct4 = mask + "01020" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
 
     @Test(
             description = "1. Правило GR_24 включено" +
@@ -73,12 +66,12 @@ public class GR_24_SeriesBetweenOwnAccountsSum extends RSHBCaseTest {
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -105,11 +98,7 @@ public class GR_24_SeriesBetweenOwnAccountsSum extends RSHBCaseTest {
     public void step1() {
         Transaction transaction = getTransactionTRANSFER_BETWEEN_ACCOUNTS();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(9907L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(9907L);
         transactionData
                 .getTransferBetweenAccounts()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(10))
@@ -130,11 +119,7 @@ public class GR_24_SeriesBetweenOwnAccountsSum extends RSHBCaseTest {
         Transaction transaction = getTransactionCLOSURE_ACCOUNT();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withTransactionId(transactionID1)
-                .withVersion(9908L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(9908L);
         transactionData
                 .getClosureAccount()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(990))
@@ -153,11 +138,7 @@ public class GR_24_SeriesBetweenOwnAccountsSum extends RSHBCaseTest {
     public void step3() {
         Transaction transaction = getTransactionCLOSURE_DEPOSIT();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(9907L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(9907L);
         transactionData
                 .getClosureDeposit()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(10))
@@ -176,11 +157,7 @@ public class GR_24_SeriesBetweenOwnAccountsSum extends RSHBCaseTest {
     public void step4() {
         Transaction transaction = getTransactionTRANSFER_BETWEEN_ACCOUNTS();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withVersion(9907L)
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withVersion(9907L);
         transactionData
                 .getTransferBetweenAccounts()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(10))
@@ -197,25 +174,40 @@ public class GR_24_SeriesBetweenOwnAccountsSum extends RSHBCaseTest {
 
     private Transaction getTransactionTRANSFER_BETWEEN_ACCOUNTS() {
         Transaction transaction = getTransaction("testCases/Templates/TRANSFER_BETWEEN_ACCOUNTS.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionDataType
+                .getClientIds()
+                .withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getTransactionCLOSURE_ACCOUNT() {
         Transaction transaction = getTransaction("testCases/Templates/CLOSURE_ACCOUNT.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionDataType
+                .getClientIds()
+                .withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getTransactionCLOSURE_DEPOSIT() {
         Transaction transaction = getTransaction("testCases/Templates/CLOSURE_DEPOSIT.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionDataType = transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionDataType
+                .getClientIds()
+                .withDboId(clientIds.get(0));
         return transaction;
     }
 }

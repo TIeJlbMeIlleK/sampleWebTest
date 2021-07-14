@@ -18,7 +18,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class ClientFlags3DSRemovalByRDAK extends RSHBCaseTest {
 
-    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private final String[][] names = {{"Степан", "Михалков", "Михайлович"}};
     private static final String CARD_HOLDER_NAME = "Михалков Степан Михайлович";
