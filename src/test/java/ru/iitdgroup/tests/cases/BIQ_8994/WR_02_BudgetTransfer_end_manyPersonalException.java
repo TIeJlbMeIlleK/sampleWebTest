@@ -25,7 +25,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class WR_02_BudgetTransfer_end_manyPersonalException extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_WR_02_BudgetTransfer";
-    private static final String ruleName = "WR_02_BudgetTransfer";
     private static final String RULE_NAME_ExR_01 = "R01_ExR_01_AuthenticationContactChanged";
     private static final String RULE_NAME_ExR_03 = "R01_ExR_03_UseNewDevice";
     private static final String RULE_NAME_ExR_05 = "R01_ExR_05_GrayIP";
@@ -206,13 +205,20 @@ public class WR_02_BudgetTransfer_end_manyPersonalException extends RSHBCaseTest
         time.add(Calendar.MINUTE, -25);
         Transaction transaction = getTransactionBudgetTransfer();
         sendAndAssert(transaction);
-        String result[][] = getIncidentWrapByRule(RULE_NAME);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+        String[][] result = getIncidentWrapByRule(RULE_NAME);
         String descriptionRule = result[0][1];
         System.out.println(descriptionRule);
 
         assertLastTransactionRuleApply(NOT_TRIGGERED, descriptionRule);//нет возможности написать точное описание отработки правила
         //т.к. неизвестна очередность сработки Персонального Исключения Белого правила, какое сработает первым
         //описание включает в себя название первого сработавшего правила.
+
         assertRuleResultForTheLastTransaction(RULE_NAME_ExR_05, TRIGGERED, "IP адрес найден в Сером списке");
         assertRuleResultForTheLastTransaction(RULE_NAME_ExR_03, TRIGGERED, "Обращение к опасному домену");
         assertRuleResultForTheLastTransaction(RULE_NAME_GR_02, TRIGGERED, "Обнуление остатка");
