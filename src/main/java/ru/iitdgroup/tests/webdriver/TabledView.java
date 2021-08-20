@@ -313,6 +313,7 @@ public interface TabledView<S extends AbstractView> {
     }
 
     default S attachPersonalExceptions(String rule) {
+        getSelf().getDriver().findElementByXPath("//*[@id='detailsPanelTabbed']/table/tbody/tr/td[4]").click();
         getSelf().getDriver().findElementByXPath("//img[@title='Attach']").click();
         getSelf().waitUntil("//*[@title='Refresh']");
         refreshTable();

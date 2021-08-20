@@ -125,10 +125,10 @@ public class GR_99_Scenario extends RSHBCaseTest {
 
                 if (i == 0 || i == 1) {
                     client.getData()
-                            .getClientData().getClient().withPasswordRecoveryDateTime(time_1);
+                            .getClientData().getClient().withPasswordRecoveryDateTime(new XMLGregorianCalendarImpl(time_1));
                 }else {
                     client.getData()
-                            .getClientData().getClient().withPasswordRecoveryDateTime(time_3);
+                            .getClientData().getClient().withPasswordRecoveryDateTime(new XMLGregorianCalendarImpl(time_3));
                 }
 
                 client.getData()

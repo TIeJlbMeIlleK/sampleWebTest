@@ -71,7 +71,7 @@ public class GR_102_CC_Avito1 extends RSHBCaseTest {
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withPasswordRecoveryDateTime(time)
+                        .withPasswordRecoveryDateTime(new XMLGregorianCalendarImpl(time))
                         .withLogin(login[i])
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])

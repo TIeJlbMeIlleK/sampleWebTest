@@ -67,7 +67,7 @@ public class GR_100_CC_Anomal_GEO_Change extends RSHBCaseTest {
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withPasswordRecoveryDateTime(time)
+                        .withPasswordRecoveryDateTime(new XMLGregorianCalendarImpl(time))
                         .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])

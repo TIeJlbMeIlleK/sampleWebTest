@@ -74,7 +74,7 @@ public class Exr_04_InfectedDevice extends RSHBCaseTest {
                         .getClientData()
                         .getClient()
                         .withLogin(dboId)
-                        .withPasswordRecoveryDateTime(time)
+                        .withPasswordRecoveryDateTime(new XMLGregorianCalendarImpl(time))
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])

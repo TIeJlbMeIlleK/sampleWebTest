@@ -115,7 +115,7 @@ public class WR_02_BudgetTransfer_end_manyPersonalException extends RSHBCaseTest
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .withBirthDate(new XMLGregorianCalendarImpl(time3))
-                        .withPasswordRecoveryDateTime(time2)
+                        .withPasswordRecoveryDateTime(new XMLGregorianCalendarImpl(time2))
                         .getClientIds()
                         .withLoginHash(dboId)
                         .withDboId(dboId)

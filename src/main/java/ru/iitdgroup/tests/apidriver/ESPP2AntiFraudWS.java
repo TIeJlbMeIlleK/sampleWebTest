@@ -2,13 +2,12 @@ package ru.iitdgroup.tests.apidriver;
 
 
 
-import generated.ObjectFactory;
-import generated.TranAntiFraudCheckResponseType;
-import org.apache.commons.io.IOUtils;
+
+import ru.iitdgroup.intellinx.crosschannel.tranantifraudcheckresponse.ObjectFactory;
+import ru.iitdgroup.intellinx.crosschannel.tranantifraudcheckresponse.TranAntiFraudCheckResponseType;
 
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
@@ -95,13 +94,12 @@ public class ESPP2AntiFraudWS {
                 connOutputStream.write(outputStream.toString().getBytes());
             }
             lastResponseCode = conn.getResponseCode();
-            final String response = IOUtils.toString(conn.getInputStream());
-            System.out.println(response);
             SOAPMessage responseMessage = MessageFactory
                     .newInstance()
                     .createMessage(new MimeHeaders(), conn.getInputStream());
-            lastResponse = (TranAntiFraudCheckResponseType) ((JAXBElement) this.responseUnmarshaller
-                    .unmarshal(responseMessage.getSOAPBody().getFirstChild())).getValue();
+            lastResponse = this.responseUnmarshaller
+                    .unmarshal(responseMessage.getSOAPBody().getFirstChild(), TranAntiFraudCheckResponseType.class)
+                    .getValue();
         } catch (IOException | JAXBException | ParserConfigurationException e) {
             throw new IllegalStateException(e);
         }

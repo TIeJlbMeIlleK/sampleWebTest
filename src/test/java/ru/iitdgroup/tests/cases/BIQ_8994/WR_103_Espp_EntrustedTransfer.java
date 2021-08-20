@@ -6,7 +6,7 @@ import ru.iitdgroup.intellinx.crosschannel.tranantifraudcheckrequest.ServicePaym
 import ru.iitdgroup.intellinx.crosschannel.tranantifraudcheckrequest.TranAntiFraudCheckType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.TransactionEspp;
-import ru.iitdgroup.tests.cases.RSHBCaseTest;
+import ru.iitdgroup.tests.cases.EsppRSHBCaseTest;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -17,7 +17,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class WR_103_Espp_EntrustedTransfer extends RSHBCaseTest {
+public class WR_103_Espp_EntrustedTransfer extends EsppRSHBCaseTest {
 
     private static final String RULE_NAME_ESPP = "R01_WR_103_Espp_EntrustedTransfer";
     private static final String RULE_NAME_AttentionClient_ESPP = "R01_ExR_08_ESPP_AttentionClient";
@@ -130,7 +130,7 @@ public class WR_103_Espp_EntrustedTransfer extends RSHBCaseTest {
     public void step3() {
         time.add(Calendar.MINUTE, 11);
         TransactionEspp transactionEspp = getTransactionEspp();
-        sendAndAssert(transactionEspp);
+        sendEsppAndAssert(transactionEspp);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Сработало персональное исключение 'ExR_08_ESPP_AttentionClient' белого правила");
         assertRuleResultForTheLastTransaction(RULE_NAME_AttentionClient_ESPP, TRIGGERED, "Клиент с пометкой Особое внимание");
     }

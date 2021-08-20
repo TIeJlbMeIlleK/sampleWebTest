@@ -24,7 +24,6 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.junit.Assert.assertThat;
 import static org.testng.AssertJUnit.*;
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -173,6 +172,9 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_YOUNG_MAN = "Заявка на выпуск карты(цифровая , 15 лет)";
     protected static final String RESULT_OLD_MAN = "Тип транзакции «Заявка на выпуск карты» (тип карты «виртуальная», возраст клиента больше 18)";
     protected static final String RESULT_TRIGGERED = "Количество однотипных транзакций больше допустимой длины серии";
+
+    private static final String DBO_NAME_TABLE_INCIDENTS   = "INCIDENT_WRAP";
+    private static final String DBO_NAME_TABLE_TRANSACTION = "PAYMENT_TRANSACTION";
 
     private DBOAntiFraudWS ws;
     private ESPP2AntiFraudWS esppWs;
@@ -335,13 +337,17 @@ public abstract class RSHBCaseTest {
         return new Database(getProps());
     }
 
+    protected String getNameTableIncidents() {
+        return DBO_NAME_TABLE_INCIDENTS;
+    }
+
     protected String[][] getIncidentWrapByRule(String ruleName) {
         try {
              return getDatabase()
                     .select()
                     .field("EXECUTION_TYPE")
                     .field("DESCRIPTION")
-                    .from("INCIDENT_WRAP")
+                    .from(getNameTableIncidents())
                     .with("RULE_TITLE", "=", "'" + ruleName + "'")
                     .sort("id", false)
                     .limit(1)
@@ -413,13 +419,17 @@ public abstract class RSHBCaseTest {
         }
     }
 
+    protected String getNameTableTransactions() {
+        return DBO_NAME_TABLE_TRANSACTION;
+    }
+
     protected void assertTransactionAdditionalFieldApply(String transactionID, String fieldId, String fieldName, String fieldValue) {
         try {
             Thread.sleep(1000);
             String[][] id = getDatabase()
                     .select()
                     .field("id")
-                    .from("PAYMENT_TRANSACTION")
+                    .from(getNameTableTransactions())
                     .with("TRANSACTION_ID", "=", "'" + transactionID + "'")
                     .sort("timestamp", false)
                     .limit(1)

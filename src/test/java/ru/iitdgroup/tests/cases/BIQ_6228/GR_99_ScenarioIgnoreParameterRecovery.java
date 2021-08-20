@@ -115,7 +115,7 @@ public class GR_99_ScenarioIgnoreParameterRecovery extends RSHBCaseTest {
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withPasswordRecoveryDateTime(time)
+                        .withPasswordRecoveryDateTime(new XMLGregorianCalendarImpl(time))
                         .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
