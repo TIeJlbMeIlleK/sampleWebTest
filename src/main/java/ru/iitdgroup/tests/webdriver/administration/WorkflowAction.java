@@ -1,5 +1,6 @@
 package ru.iitdgroup.tests.webdriver.administration;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
@@ -142,6 +143,7 @@ public class WorkflowAction extends AbstractEdit<WorkflowAction> {
     }
 
     public WorkflowAction addFieldMapping(String transactionField, String value, String condition) {
+        sleep(1);
         driver.findElementById("mapFieldsBtnCreate").click();
         sleep(1);
         List<WebElement> fieldMappingRows = driver.findElementsByXPath("//div[@id='fieldsMappingTbl:innerTbl']//table[@class='af_table_content']//tr");
@@ -163,6 +165,24 @@ public class WorkflowAction extends AbstractEdit<WorkflowAction> {
             // TODO: добавить проверку что система разрешила сохранить этот condition, не появилась ошибка на странице
             sleep(0.5);
         }
+        return getSelf();
+    }
+
+
+    /**
+     * Удаляет поля в WF Клиента в Field Mappings
+     *
+     * @return
+     */
+
+    public WorkflowAction clearFieldMappings(){
+        if (driver.findElementsByXPath("//*[text()='No Fields Mapping Defined']").size() > 0){
+            return getSelf();
+        }else {
+            driver.findElementByXPath("//*[@id='fieldsMappingTbl:innerTbl']/table/tbody/tr/td/table/tbody/tr[1]/th[1]/div/input").click();
+            driver.findElementByXPath("//*[@id='mapFieldsBtnDelete']").click();
+        }
+        sleep(1);
         return getSelf();
     }
 

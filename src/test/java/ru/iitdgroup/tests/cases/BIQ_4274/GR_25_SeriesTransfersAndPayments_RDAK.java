@@ -19,91 +19,58 @@ public class GR_25_SeriesTransfersAndPayments_RDAK extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_GR_25_SeriesTransfersAndPayments";
     private static final String RULE_NAME_2 = "R01_GR_15_NonTypicalGeoPosition";
     private static final String RDAK = "(Policy_parameters) Перечень статусов для которых применять РДАК";
-
-    private static Random rand = new Random();
-
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 10, 0, 0, 0);
+    private final static Random rand = new Random();
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-
+    private final String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
 
     @Test(
             description = "Настройка и включение правил"
     )
     public void enableRules() {
-        System.out.println("\"Проверка не включения в серию переводов  транзакций, классифицированных как «Правомочно» при РДАК\" -- BIQ4274" + " ТК№19");
+        System.out.println("'Проверка не включения в серию переводов  транзакций, классифицированных как «Правомочно» при РДАК' -- BIQ4274 и ТК№19");
 
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .sleep(3);
-
-        getIC().locateRules()
+                .selectRule(RULE_NAME_2)
+                .activate()
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
                 .fillInputText("Период серии в минутах:","60")
                 .fillInputText("Сумма оплаты услуг:","2000")
                 .fillInputText("Сумма серии:","2000")
                 .save()
-                .sleep(5);
-        getIC().locateRules()
-                .editRule(RULE_NAME_2)
-                .fillCheckBox("Active:", true)
-                .save()
-                .sleep(5);
-
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test(
-            description = "Настроить WF для попадания первой транзакции на РДАК",
-            dependsOnMethods = "enableRules"
-    )
-    public void refactorWF(){
-
-        getIC().locateWorkflows()
-                .openRecord("Alert Workflow").openAction("Взять в работу для выполнения РДАК")
-                .clearAllStates()
-                .addFromState("На разбор")
-                .addFromState("Ожидаю выполнения РДАК")
-                .addToState("На выполнении РДАК")
-                .save();
-
-
-
-
-//        TODO возможно данная таблица будет заполнена ранее.
-        Table.Formula rows = getIC().locateTable(RDAK).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
-        getIC().locateTable(RDAK).addRecord().fillInputText("Текущий статус:","rdak_underfire")
-                .fillInputText("Новый статус:","RDAK_Done").save();
-        getIC().locateTable(RDAK).addRecord().fillInputText("Текущий статус:","Wait_RDAK")
-                .fillInputText("Новый статус:","RDAK_Done").save();
+                .sleep(25);
     }
 
     @Test(
             description = "Создаем клиента",
-            dependsOnMethods = "refactorWF"
+            dependsOnMethods = "enableRules"
     )
     public void client() {
         try {
             for (int i = 0; i < 1; i++) {
-                //FIXME Добавить проверку на существование клиента в базе
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+                client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
                 sendAndAssert(client);
                 clientIds.add(dboId);
+                System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
@@ -115,33 +82,30 @@ public class GR_25_SeriesTransfersAndPayments_RDAK extends RSHBCaseTest {
             dependsOnMethods = "client"
     )
     public void transaction1() {
+        time.add(Calendar.MINUTE, -20);
         Transaction transaction = getTransactionOUTER_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getOuterTransfer().setAmountInSourceCurrency(new BigDecimal("2000.00"));
-        transactionData.getClientDevice().getPC().setIpAddress("121.152.13."+rand.nextInt(100));
+                .getOuterTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(2000));
+        transactionData
+                .getClientDevice()
+                .getPC()
+                .withIpAddress("121.152.13."+rand.nextInt(100));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
 
-        getIC().locateAlerts().openFirst().action("Подтвердить").sleep(3);
+        getIC().locateAlerts()
+                .openFirst()
+                .action("Подтвердить")
+                .sleep(1);
         assertTableField("Resolution:","Правомочно");
         assertTableField("Идентификатор клиента:",clientIds.get(0));
         getIC().locateRules()
-                .editRule(RULE_NAME_2)
-                .fillCheckBox("Active:", false)
-                .save()
-                .sleep(5);
+                .selectRule(RULE_NAME_2)
+                .deactivate()
+                .sleep(25);
         getIC().close();
-
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
     }
 
     @Test(
@@ -151,12 +115,10 @@ public class GR_25_SeriesTransfersAndPayments_RDAK extends RSHBCaseTest {
     public void transaction2() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getPhoneNumberTransfer().setAmountInSourceCurrency(new BigDecimal("500.00"));
+                .getPhoneNumberTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500.00));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
 
@@ -169,13 +131,10 @@ public class GR_25_SeriesTransfersAndPayments_RDAK extends RSHBCaseTest {
     public void transaction3() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionCARD_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getCardTransfer().setAmountInSourceCurrency(new BigDecimal("1499.00"));
-
+                .getCardTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1499.00));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
     }
@@ -187,13 +146,10 @@ public class GR_25_SeriesTransfersAndPayments_RDAK extends RSHBCaseTest {
     public void transaction4() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionOUTER_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getOuterTransfer().setAmountInSourceCurrency(new BigDecimal("1.00"));
-
+                .getOuterTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1.00));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
     }
@@ -205,13 +161,10 @@ public class GR_25_SeriesTransfersAndPayments_RDAK extends RSHBCaseTest {
     public void transaction5() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionSERVICE_PAYMENT();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getServicePayment().setAmountInSourceCurrency(new BigDecimal("1999.00"));
-
+                .getServicePayment()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1999.00));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY_BY_CONF_GR_25);
     }
@@ -222,13 +175,10 @@ public class GR_25_SeriesTransfersAndPayments_RDAK extends RSHBCaseTest {
     public void transaction6() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionSERVICE_PAYMENT();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getServicePayment().setAmountInSourceCurrency(new BigDecimal("1.00"));
-
+                .getServicePayment()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(1.00));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, RESULT_RULE_APPLY_BY_SUM_GR_25);
     }
@@ -240,31 +190,51 @@ public class GR_25_SeriesTransfersAndPayments_RDAK extends RSHBCaseTest {
 
     private Transaction getTransactionSERVICE_PAYMENT() {
         Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 
     private Transaction getTransactionOUTER_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
     private Transaction getTransactionCARD_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
     private Transaction getTransactionPHONE_NUMBER_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
         return transaction;
     }
 }

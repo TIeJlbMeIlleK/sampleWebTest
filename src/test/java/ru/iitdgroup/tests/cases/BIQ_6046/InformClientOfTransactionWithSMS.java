@@ -1,6 +1,7 @@
 package ru.iitdgroup.tests.cases.BIQ_6046;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import net.bytebuddy.utility.RandomString;
 import org.junit.Assert;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.client.ContactChannelType;
@@ -23,6 +24,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
+//TODO перед запуском теста должен быть установлен SECRET KEY
 
 public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
 
@@ -34,76 +36,94 @@ public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
     private static final String REFERENCE_ITEM2 = "(System_parameters) Интеграционные параметры";
     private static final String AUTH_PHONE = "79250252525";
     private static final String NOTIFICATION_PHONE = "79250333333";
-
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
+    private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
+    private final String[][] names = {{"Павел", "Петушков", "Павлович"}};
+
+
+    @Test(
+            description = "Включить все правила и установить cutting score 1"
+    )
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .activate()
+                .sleep(15);
+        getIC().locateScoringModels()
+                .openRecord("Подозрительная транзакция")
+                .edit()
+                .fillInputText("Cutting score:", "1")
+                .save();
+
+        getIC().locateTable(REFERENCE_TABLE)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод на карту другому лицу")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+    }
 
     @Test(
             description = " Создать в справочнике \"Шаблоны СМС\" шаблон для отправки СМС, " +
-                    "Привязать шаблон к статусу Complete, резолюции CONTINUE и  включить LOG_SMS = 1"
-
+                    "Привязать шаблон к статусу Complete, резолюции CONTINUE и  включить LOG_SMS = 1",
+            dependsOnMethods = "enableRules"
     )
 
     public void editReferenceData() {
         Table.Formula rows = getIC().locateTable(REFERENCE_ITEM).findRowsBy();
 
         if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
+            rows.click().edit()
+                    .fillInputText("AlertStatus:", "Complete")
+                    .fillInputText("AlertResolution:", "CONTINUE")
+                    .fillInputText("Template:", SMS_TEMPLATE)
+                    .save();
+        } else {
+
+            getIC().locateTable(REFERENCE_ITEM)
+                    .addRecord()
+                    .fillInputText("AlertStatus:", "Complete")
+                    .fillInputText("AlertResolution:", "CONTINUE")
+                    .fillInputText("Template:", SMS_TEMPLATE)
+                    .save();
         }
-
-        getIC().locateTable(REFERENCE_ITEM)
-                .addRecord()
-                .fillInputText("AlertStatus:", "Complete")
-                .fillInputText("AlertResolution:", "CONTINUE")
-                .fillInputText("Template:", SMS_TEMPLATE)
-                .save();
-
         getIC().locateTable(REFERENCE_ITEM2)
                 .findRowsBy()
                 .match("Описание", "Логирование сообщений SMS шлюза (in/out)")
                 .click()
                 .edit()
-                .fillInputText("Значение:", "1").save();
-    }
-
-    @Test(
-            description = "Включить все правила и установить cutting score 1",
-            dependsOnMethods = "editReferenceData"
-    )
-    public void enableRules() {
-        getIC().locateRules()
-                .selectVisible()
-                .activate()
-                .sleep(5);
-        getIC().locateScoringModels()
-                .openRecord("Подозрительная транзакция")
-                .edit()
-                .fillInputText("Cutting score:", "1")
+                .fillInputText("Значение:", "1")
                 .save();
     }
-
 
     @Test(
             description = "Создаем клиента и меняем телефон для уведомления" +
                     "(указываем новый отличный от аутентификации, если уже был указан)",
-            dependsOnMethods = "enableRules"
+            dependsOnMethods = "editReferenceData"
     )
-    public void step0() {
+    public void addClient() {
         try {
             for (int i = 0; i < 1; i++) {
-                //FIXME Добавить проверку на существование клиента в базе
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
+
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withFirstName("Ольга")
-                        .withLastName("Кузина")
-                        .withMiddleName("Васильевна")
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
 
-                updatePhones(client);
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -113,22 +133,19 @@ public class InformClientOfTransactionWithSMS extends RSHBCaseTest {
         }
     }
 
-
     @Test(
             description = "Отправить транзакцю. Открыть алерт и выполнить созданный Action (отправить СМС)",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "addClient"
     )
 
     public void step1() {
         String lastSMSId = getLastSentSMSInformation()[0];
-
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(false);
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
         sendAndAssert(transaction);
 
         getIC().locateAlerts()

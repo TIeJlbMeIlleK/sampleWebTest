@@ -26,12 +26,12 @@ public class WR_07_TransferToOtherBankOwnAccount_NumberPhone extends RSHBCaseTes
 
     private static final String RULE_NAME = "R01_WR_07_TransferToOtherBankOwnAccount";
     //private static final String REFERENCE_ITEM = "(Rule_tables) Запрещенные получатели БИКСЧЕТ";
-    private static final String phoneNumberAuth = "79101111111";
-    private static final String phoneNumberNotis = "79102222222";
+    private static final String phoneNumberAuth = "79101111777";
+    private static final String phoneNumberNotis = "79102222333";
 
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-
+    private String[][] names = {{"Иван", "Иванов", "Иванович"}};
 
     @Test(
             description = "Настройка и включение правила"
@@ -42,27 +42,34 @@ public class WR_07_TransferToOtherBankOwnAccount_NumberPhone extends RSHBCaseTes
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(15);
+                .sleep(25);
     }
 
     @Test(
             description = "Создаем клиента",
             dependsOnMethods = "enableRules"
     )
-    public void step0() {
+    public void addClient() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+
+                client.getData()
                         .getClientData()
                         .getClient()
-                        .withFirstName("Иван")
-                        .withLastName("Иванов")
-                        .withMiddleName("Иванович")
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
 
                 for (ContactType c : client.getData().getClientData().getContactInfo().getContact()) {
                     if (c.getContactKind().value().equals("AUTH")) {
@@ -84,7 +91,7 @@ public class WR_07_TransferToOtherBankOwnAccount_NumberPhone extends RSHBCaseTes
 
     @Test(
             description = "Отправить транзакцию №1 Перевод по номеру телефона с  PayeeName = \"Иванов Иван И\" и PayeePhone = Номер телефона №1",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "addClient"
     )
 
     public void step1() {

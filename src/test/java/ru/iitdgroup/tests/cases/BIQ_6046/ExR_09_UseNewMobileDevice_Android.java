@@ -43,53 +43,14 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
     private static final String LOGIN1 = "korobka888";
     private static final String LOGIN_HASH2 = "999";
     private static final String LOGIN2 = "korobka963";
+    private String[][] names = {{"Ирина", "Муркина", "Сергеевна"}, {"Петр", "Урин", "Семенович"}};
 
-
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
 
     @Test(
-            description = "Создаем клиента"
-
-    )
-    public void addClient() {
-        try {
-            for (int i = 0; i < 2; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
-                Client client = new Client("testCases/Templates/client.xml");
-
-                if (i == 0) {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH1);
-                    client.getData().getClientData().getClient()
-                            .withFirstName("Марина")
-                            .withLastName("Иванова")
-                            .withMiddleName("Ильинична")
-                            .withLogin(LOGIN1)
-                            .getClientIds()
-                            .withDboId(dboId);
-                } else {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH2);
-                    client.getData().getClientData().getClient()
-                            .withFirstName("Ольга")
-                            .withLastName("Петровна")
-                            .withMiddleName("Михайловна")
-                            .withLogin(LOGIN2)
-                            .getClientIds()
-                            .withDboId(dboId);
-                }
-                sendAndAssert(client);
-                clientIds.add(dboId);
-                System.out.println(dboId);
-            }
-        } catch (JAXBException | IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    @Test(
             description = "EXR_09 включено/По умолчанию включены флаги в настройке правила" +
-                    " \"Использовать информацию из ВЭС\" и \"Использовать информацию из САФ\"",
-            dependsOnMethods = "addClient"
+                    " \"Использовать информацию из ВЭС\" и \"Использовать информацию из САФ\""
     )
     public void enableRules() {
         getIC().locateRules()
@@ -102,10 +63,46 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
                 .save().sleep(15);
     }
 
+    @Test(
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
+    )
+
+    public void addClient() {
+        try {
+            for (int i = 0; i < 2; i++) {
+                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                Client client = new Client("testCases/Templates/client.xml");
+
+
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
+                        .getClientIds()
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+
+                sendAndAssert(client);
+                clientIds.add(dboId);
+                System.out.println(dboId);
+            }
+        } catch (JAXBException | IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
     @Test(
             description = "Включена IntegrVES2 (1)",
-            dependsOnMethods = "enableRules"
+            dependsOnMethods = "addClient"
     )
     public void enableVES2() {
 
@@ -141,8 +138,7 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
                 .fillInputText("Серийный номер устройства:", DEVICE_NUMBER1)
                 .fillInputText("DeviceFingerPrint:", DEVICE_FINGER_PRINT1)
                 .fillUser("Клиент:", clientIds.get(0))
-                .save().sleep(5);
-
+                .save();
     }
 
     @Test(
@@ -155,8 +151,8 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
         try {
             String vesResponse = getRabbit().getVesResponse();
             JSONObject json = new JSONObject(vesResponse);
-            json.put("login", LOGIN1);
-            json.put("login_hash", LOGIN_HASH1);
+            json.put("login", clientIds.get(0));
+            json.put("login_hash", clientIds.get(0));
             json.put("session_id", DEVICE_FINGER_PRINT1);
             json.put("device_hash", DEVICE_FINGER_PRINT1);
             String newStr = json.toString();
@@ -169,75 +165,74 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
 
     }
 
-//    @Test(
-//            description = "Изменить в устройстве № 1 IMEI (устройство № 3)",
-//            dependsOnMethods = "step4"
-//    )
-//
-//    public void overwriteIMEIinTrustedDevice() {
-//
-//        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
-//
-//        if (rows.calcMatchedRows().getTableRowNums().size() == 1) {
-//            rows.click().edit()
-//                    .fillCheckBox("Доверенный:", true)
-//                    .fillInputText("IMEI:", IMEI3)
-//                    .save().sleep(5);
-//        }
-//    }
-//
-//    @Test(
-//            description = "Изменить в устройстве № 1 IMSI (устройство № 4)",
-//            dependsOnMethods = "step5"
-//    )
-//
-//    public void overwriteIMSIinTrustedDevice() {
-//
-//        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
-//
-//        if (rows.calcMatchedRows().getTableRowNums().size() == 1) {
-//            rows.click().edit()
-//                    .fillCheckBox("Доверенный:", true)
-//                    .fillInputText("IMSI:", IMSI3)
-//                    .save().sleep(5);
-//        }
-//    }
-//
-//    @Test(
-//            description = "Изменить в устройстве № 1 серийный номер устройства (устройство № 5)",
-//            dependsOnMethods = "step6"
-//    )
-//
-//    public void overwriteNumberDeviceInTrustedDevice() {
-//
-//        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
-//
-//        if (rows.calcMatchedRows().getTableRowNums().size() == 1) {
-//            rows.click().edit()
-//                    .fillCheckBox("Доверенный:", true)
-//                    .fillInputText("Серийный номер устройства:", DEVICE_NUMBER3)
-//                    .save().sleep(5);
-//        }
-//    }
-//
-//    @Test(
-//            description = "Изменить в устройстве № 1 серийный номер SIM (устройство № 6)",
-//            dependsOnMethods = "step7"
-//    )
-//
-//    public void overwriteSIMinTrustedDevice() {
-//
-//        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
-//
-//        if (rows.calcMatchedRows().getTableRowNums().size() == 1) {
-//            rows.click().edit()
-//                    .fillCheckBox("Доверенный:", true)
-//                    .fillInputText("Серийный номер SIM:", SIM_NUMBER3)
-//                    .save().sleep(5);
-//        }
-//        getIC().close();
-//    }
-//
+    @Test(
+            description = "Изменить в устройстве № 1 IMEI (устройство № 3)",
+            dependsOnMethods = "step4"
+    )
+
+    public void overwriteIMEIinTrustedDevice() {
+
+        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
+
+        if (rows.calcMatchedRows().getTableRowNums().size() == 1) {
+            rows.click().edit()
+                    .fillCheckBox("Доверенный:", true)
+                    .fillInputText("IMEI:", IMEI3)
+                    .save().sleep(5);
+        }
+    }
+
+    @Test(
+            description = "Изменить в устройстве № 1 IMSI (устройство № 4)",
+            dependsOnMethods = "step5"
+    )
+
+    public void overwriteIMSIinTrustedDevice() {
+
+        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
+
+        if (rows.calcMatchedRows().getTableRowNums().size() == 1) {
+            rows.click().edit()
+                    .fillCheckBox("Доверенный:", true)
+                    .fillInputText("IMSI:", IMSI3)
+                    .save().sleep(5);
+        }
+    }
+
+    @Test(
+            description = "Изменить в устройстве № 1 серийный номер устройства (устройство № 5)",
+            dependsOnMethods = "step6"
+    )
+
+    public void overwriteNumberDeviceInTrustedDevice() {
+
+        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
+
+        if (rows.calcMatchedRows().getTableRowNums().size() == 1) {
+            rows.click().edit()
+                    .fillCheckBox("Доверенный:", true)
+                    .fillInputText("Серийный номер устройства:", DEVICE_NUMBER3)
+                    .save().sleep(5);
+        }
+    }
+
+    @Test(
+            description = "Изменить в устройстве № 1 серийный номер SIM (устройство № 6)",
+            dependsOnMethods = "step7"
+    )
+
+    public void overwriteSIMinTrustedDevice() {
+
+        Table.Formula rows = getIC().locateTable(REFERENCE_ITEM2).findRowsBy();
+
+        if (rows.calcMatchedRows().getTableRowNums().size() == 1) {
+            rows.click().edit()
+                    .fillCheckBox("Доверенный:", true)
+                    .fillInputText("Серийный номер SIM:", SIM_NUMBER3)
+                    .save().sleep(5);
+        }
+        getIC().close();
+    }
 
     @Test(
             description = "Провести транзакцию № 1 с устройства № 1 от клиента № 1",
@@ -309,7 +304,6 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
         transactionData.getClientDevice().getAndroid().withSimSerial(SIM_NUMBER2);
         transactionData.getClientDevice().getAndroid().withSerial(DEVICE_NUMBER2);
 
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "У клиента новое устройство");
     }
@@ -332,7 +326,6 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
         transactionData.getClientDevice().getAndroid().withDeviceID(DEVICE_NUMBER2);
         transactionData.getClientDevice().getAndroid().withSimSerial(SIM_NUMBER2);
         transactionData.getClientDevice().getAndroid().withSerial(DEVICE_NUMBER2);
-
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(FEW_DATA, "Отсутствуют доверенные устройства");
@@ -358,7 +351,6 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
         transactionData.getClientDevice().getAndroid().withSimSerial(SIM_NUMBER1);
         transactionData.getClientDevice().getAndroid().withSerial(DEVICE_NUMBER1);
 
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Устройство клиента найдено в списке ранее использовавшихся");
     }
@@ -382,7 +374,6 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
         transactionData.getClientDevice().getAndroid().withDeviceID(DEVICE_NUMBER1);
         transactionData.getClientDevice().getAndroid().withSimSerial(SIM_NUMBER1);
         transactionData.getClientDevice().getAndroid().withSerial(DEVICE_NUMBER1);
-
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Устройство клиента найдено в списке ранее использовавшихся");
@@ -457,7 +448,6 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
         transactionData.getClientDevice().getAndroid().withSimSerial(SIM_NUMBER1);
         transactionData.getClientDevice().getAndroid().withSerial(null);
 
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, MISSING_DEVICE_1);
     }
@@ -481,7 +471,6 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
         transactionData.getClientDevice().getAndroid().withDeviceID(DEVICE_NUMBER1);
         transactionData.getClientDevice().getAndroid().withSimSerial(null);
         transactionData.getClientDevice().getAndroid().withSerial(DEVICE_NUMBER1);
-
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, MISSING_DEVICE_1);
@@ -507,7 +496,6 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
         transactionData.getClientDevice().getAndroid().withSimSerial(SIM_NUMBER1);
         transactionData.getClientDevice().getAndroid().withSerial(DEVICE_NUMBER1);
 
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, MISSING_DEVICE_1);
     }
@@ -530,7 +518,6 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
         transactionData.getClientDevice().getAndroid().withDeviceID(null);
         transactionData.getClientDevice().getAndroid().withSimSerial(null);
         transactionData.getClientDevice().getAndroid().withSerial(null);
-
 
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "В системе нет данных об устройстве клиента");
@@ -555,7 +542,6 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
         transactionData.getClientDevice().getAndroid().withSimSerial(null);
         transactionData.getClientDevice().getAndroid().withSerial(null);
 
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "В системе нет данных об устройстве клиента");
     }
@@ -579,11 +565,9 @@ public class ExR_09_UseNewMobileDevice_Android extends RSHBCaseTest {
         transactionData.getClientDevice().getAndroid().withSimSerial(null);
         transactionData.getClientDevice().getAndroid().withSerial(null);
 
-
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Устройство клиента найдено в списке ранее использовавшихся");
     }
-
 
     @Override
     protected String getRuleName() {

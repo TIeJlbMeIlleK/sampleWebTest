@@ -1,10 +1,11 @@
 <ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
     <ns4:ServerInfo>
-        <Ip>localhost</Ip>
-        <Port>8089</Port>
+        <ns2:Ip>localhost</ns2:Ip>
+        <ns2:Port>8050</ns2:Port>
     </ns4:ServerInfo>
     <ns4:TransactionData>
         <ns4:TransactionId>17</ns4:TransactionId>
+        <ns4:Version>1</ns4:Version>
         <ns4:ClientIds>
             <ns2:DboId>5117630342759914973</ns2:DboId>
             <ns2:CifId>DA97B20B-1CF0-4f34-BBC6-FC3C24548821</ns2:CifId>

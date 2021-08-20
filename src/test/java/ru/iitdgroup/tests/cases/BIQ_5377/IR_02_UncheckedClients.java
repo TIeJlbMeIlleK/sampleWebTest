@@ -1,15 +1,11 @@
 package ru.iitdgroup.tests.cases.BIQ_5377;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.bytebuddy.utility.RandomString;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -19,21 +15,13 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class IR_02_UncheckedClients extends RSHBCaseTest {
 
-
     private static final String RULE_NAME = "R01_IR_02_UncheckedClients";
-    private static String TABLE_NAME = "(Policy_parameters) Не проверяемые клиенты";
-
+    private static final String TABLE_NAME = "(Policy_parameters) Не проверяемые клиенты";
     private final GregorianCalendar time = new GregorianCalendar();
-
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Ольга", "Петушкова", "Ильинична"}};
-    private static final String LOGIN1 = new RandomString(5).nextString();
-    private static final String LOGIN2 = new RandomString(5).nextString();
-    private static final String LOGIN_HASH1 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-    private static final String LOGIN_HASH2 = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}, {"Ирина", "Зимина", "Игоревна"}};
 
     @Test(
             description = "Включаем правило"
@@ -43,10 +31,9 @@ public class IR_02_UncheckedClients extends RSHBCaseTest {
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true)
-                .save()
-                .sleep(5);
+                .selectRule(RULE_NAME)
+                .activate()
+                .sleep(20);
     }
 
     @Test(
@@ -58,23 +45,16 @@ public class IR_02_UncheckedClients extends RSHBCaseTest {
             for (int i = 0; i < 2; i++) {
                 String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
                 Client client = new Client("testCases/Templates/client.xml");
-                if (i == 0) {
-                    client.getData().getClientData().getClient().withLogin(LOGIN1);
-                } else {
-                    client.getData().getClientData().getClient().withLogin(LOGIN2);
-                }
-                if (i == 0) {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH1);
-                } else {
-                    client.getData().getClientData().getClient().getClientIds().withLoginHash(LOGIN_HASH2);
-                }
+
                 client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -90,11 +70,8 @@ public class IR_02_UncheckedClients extends RSHBCaseTest {
             throw new IllegalStateException(e);
         }
 
-        Table.Formula rows = getIC().locateTable(TABLE_NAME).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
         getIC().locateTable(TABLE_NAME)
+                .deleteAll()
                 .addRecord()
                 .fillUser("ФИО клиента:", clientIds.get(0))
                 .save();
@@ -108,14 +85,6 @@ public class IR_02_UncheckedClients extends RSHBCaseTest {
 
     public void transaction1() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Клиент исключен из проверки");
     }
@@ -127,14 +96,10 @@ public class IR_02_UncheckedClients extends RSHBCaseTest {
 
     public void transaction2() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Клиент не иcключён из проверки");
     }
@@ -146,9 +111,18 @@ public class IR_02_UncheckedClients extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_IOS.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         return transaction;
     }
 }

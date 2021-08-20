@@ -6,7 +6,6 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -21,51 +20,58 @@ public class GR_20_NewPayee extends RSHBCaseTest {
 
     private static final String TABLE_QUARANTINE = "(Rule_tables) Карантин получателей";
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
-    private static final BigDecimal MAX_AMMOUNT = BigDecimal.valueOf(11);
-
     private final GregorianCalendar time = new GregorianCalendar(Calendar.getInstance().getTimeZone());
     private final List<String> clientIds = new ArrayList<>();
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
+    private final String destinationCardNumber = "42965358" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String destinationCardNumber2 = "42774455" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String payeeAccount = "4288" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String payeeAccount2 = "4288" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private final String payeeINN = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
 
+    //        TODO требуется реализовать настройку блока Alert Scoring Model по правилу + Alert Scoring Model общие настройки
 
     @Test(
             description = "Настройка и включение правила"
     )
     public void enableRules() {
         getIC().locateRules()
-                .editRule(RULE_NAME)
-                .save();
-
-//        TODO требуется реализовать настройку блока Alert Scoring Model по правилу + Alert Scoring Model общие настройки
-
-        getIC().locateRules()
                 .selectVisible()
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(5);
+                .sleep(25);
 
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.delete();}
-
+        getIC().locateTable(TABLE_QUARANTINE)
+                .deleteAll();
     }
 
     @Test(
             description = "Создаем клиента",
             dependsOnMethods = "enableRules"
     )
-    public void step0() {
+    public void addClient() {
         try {
             for (int i = 0; i < 1; i++) {
-                //FIXME Добавить проверку на существование клиента в базе
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+                client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
                 sendAndAssert(client);
+                System.out.println(dboId);
                 clientIds.add(dboId);
             }
         } catch (JAXBException | IOException e) {
@@ -74,160 +80,114 @@ public class GR_20_NewPayee extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Провести транзакции № 1 Оплата услуг, сумма 10",
-            dependsOnMethods = "step0"
+            description = "1. Провести транзакции от имени Клиента № 1" +
+                    "1.1. Перевод на карту",
+            dependsOnMethods = "addClient"
     )
     public void step1() {
         Transaction transaction = getTransactionCARD_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         transactionData.getCardTransfer()
-                .setDestinationCardNumber("4378723743757555");
-
+                .withDestinationCardNumber(destinationCardNumber);
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.click();}
-        assertTableField("Номер Карты получателя:","4378723743757555");
+
+        getIC().locateTable(TABLE_QUARANTINE)
+                .setTableFilter("Номер Карты получателя", "Equals", destinationCardNumber)
+                .refreshTable()
+                .delete(2);
     }
 
     @Test(
-            description = "Провести транзакции № 2 Перевод на карту, сумма 10",
+            description = "1.2. Перевод через систему денежных переводов",
             dependsOnMethods = "step1"
     )
     public void step2() {
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();}
 
-        Transaction transaction = getTransactionSDP();
+        Transaction transaction = getMTSystemTransfer();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         transactionData.getMTSystemTransfer()
                 .withReceiverName("Иванов Иван Иванович")
-                .setReceiverCountry("РОССИЯ");
-
+                .withReceiverCountry("РОССИЯ");
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-        Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
-        assertTableField("Наименование получателя в системе денежных переводов:","Иванов Иван Иванович");
-        assertTableField("Страна получателя в системе денежных переводов:","РОССИЯ");
 
+        getIC().locateTable(TABLE_QUARANTINE)
+                .setTableFilter("Наименование получателя в системе денежных переводов", "Equals", "Иванов Иван Иванович")
+                .addTableFilter("1", "Страна получателя в системе денежных переводов", "Equals", "РОССИЯ")
+                .refreshTable()
+                .delete(2);
     }
 
     @Test(
-            description = "Провести транзакции № 3 Перевод на счет, сумма 10",
+            description = "1.3. Изменение перевода, отправленного через систему денежных переводов (изменение перевода 1.2) с изменением получателя",
             dependsOnMethods = "step2"
     )
     public void step3() {
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.delete();}
-
-        Transaction transaction = getTransactionSDP_REFACTOR();
+        Transaction transaction = getMTSystemTransferEdit();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         transactionData.getMTTransferEdit()
-                .getSystemTransferCont().setReceiverName("Григорьев Николай Петрович");
-        transactionData.getMTTransferEdit()
-                .getSystemTransferCont().setReceiverCountry("США");
-
+                .getSystemTransferCont().withReceiverName("Григорьев Николай Петрович")
+                .withReceiverCountry("США");
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-        Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
-        assertTableField("Наименование получателя в системе денежных переводов:","Григорьев Николай Петрович");
-        assertTableField("Страна получателя в системе денежных переводов:","США");
+
+
+        getIC().locateTable(TABLE_QUARANTINE)
+                .setTableFilter("Наименование получателя в системе денежных переводов", "Equals", "Григорьев Николай Петрович")
+                .addTableFilter("1", "Страна получателя в системе денежных переводов", "Equals", "США")
+                .refreshTable()
+                .delete(2);
     }
 
     @Test(
-            description = "Провести транзакции № 4 Перевод в бюджет, сумма 10",
+            description = "1.4. Перевод на счет другому лицу",
             dependsOnMethods = "step3"
     )
     public void step4() {
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.delete();}
-
         Transaction transaction = getTransactionOUTER_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
         transactionData.getOuterTransfer()
-                .getPayeeProps().setPayeeAccount("4081710835620000888");
-        transactionData.getOuterTransfer()
-                .getPayeeProps().setPayeeINN("0987654321");
-        transactionData.getOuterTransfer()
-                .getPayeeProps().setPayeeName("Иванов Иван Иванович");
-
+                .getPayeeProps()
+                .withPayeeAccount(payeeAccount)
+                .withPayeeINN(payeeINN)
+                .withPayeeName("Иванов Иван Иванович");
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-        Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
-        assertTableField("Имя получателя:","Иванов Иван Иванович");
-        assertTableField("Счет получателя:","4081710835620000888");
-        assertTableField("ИНН получателя:","0987654321");
 
+        getIC().locateTable(TABLE_QUARANTINE)
+                .setTableFilter("Имя получателя", "Equals", "Иванов Иван Иванович")
+                .addTableFilter("1", "ИНН получателя", "Equals", payeeINN)
+                .addTableFilter("2", "Номер банковского счета получателя", "Equals", payeeAccount)
+                .refreshTable()
+                .delete(2);
     }
 
     @Test(
-            description = "Провести транзакцию № 5 Оплата услуг, сумма 11",
+            description = "1.5 Перевод по номеру телефона",
             dependsOnMethods = "step4"
     )
     public void step5() {
-//        TODO ТРЕБУЕТСЯ РЕАЛИЗОВАТЬ ИЗМЕНЕНИЕ ПОЛЕЙ В REFERENCE TABLE
-        Table.Formula rows = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows.delete();}
-
         Transaction transaction = getTransactionTELEPHON_VALUE();
         TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeAccount("4081710835620000888");
-        transactionData.getPhoneNumberTransfer()
-                .setPayeeName("Иванов Иван Иванович");
-
+                .getPhoneNumberTransfer()
+                .withPayeePhone("79250957202")
+                .withDestinationCardNumber(destinationCardNumber2)
+                .withBIK("421569877")
+                .withPayeeAccount(payeeAccount2)
+                .withPayeeName("Андрей");
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        assertLastTransactionRuleApply(TRIGGERED, ADD_TO_QUARANTINE_LIST);
-        Table.Formula rows1 = getIC().locateTable(TABLE_QUARANTINE).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) { rows1.click();}
-        assertTableField("Имя получателя:","Иванов Иван Иванович");
-        assertTableField("Счет получателя:","4081710835620000888");
-    }
 
+        getIC().locateTable(TABLE_QUARANTINE)
+                .setTableFilter("Имя получателя", "Equals", "Андрей")
+                .addTableFilter("1", "Номер банковского счета получателя", "Equals", payeeAccount2)
+                .addTableFilter("2", "БИК банка получателя", "Equals", "421569877")
+                .addTableFilter("3", "Номер Карты получателя", "Equals", destinationCardNumber2)
+                .addTableFilter("4", "Номер лицевого счёта/Телефон/Номер договора с сервис провайдером", "Equals", "79250957202")
+                .refreshTable()
+                .delete(2);
+    }
 
     @Override
     protected String getRuleName() {
@@ -236,37 +196,82 @@ public class GR_20_NewPayee extends RSHBCaseTest {
 
     private Transaction getTransactionOUTER_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/OUTER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
+                .getOuterTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
         return transaction;
     }
+
     private Transaction getTransactionCARD_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
+                .getCardTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
         return transaction;
     }
-    private Transaction getTransactionSDP() {
-        Transaction transaction = getTransaction("testCases/Templates/SDP.xml");
+
+    private Transaction getMTSystemTransfer() {
+        Transaction transaction = getTransaction("testCases/Templates/MT_SYSTEM_TRANSFER_Android.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
+                .getMTSystemTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
         return transaction;
     }
-    private Transaction getTransactionSDP_REFACTOR() {
-        Transaction transaction = getTransaction("testCases/Templates/SDP_Refactor.xml");
+
+    private Transaction getMTSystemTransferEdit() {
+        Transaction transaction = getTransaction("testCases/Templates/MT_TRANSFER_EDIT_Android.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
+                .getMTTransferEdit()
+                .getSystemTransferCont()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
         return transaction;
     }
+
     private Transaction getTransactionTELEPHON_VALUE() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData().getTransactionData()
+                .getClientIds().withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
+                .getPhoneNumberTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
         return transaction;
     }
 }

@@ -6,6 +6,7 @@
             targetNamespace="http://www.iitdgroup.ru/Intellinx/DBO/Client"
             elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
 
+
     <xsd:import namespace="http://www.iitdgroup.ru/Intellinx/DBO/Common" schemaLocation="Common.xsd"/>
 
     <xsd:element name="SendClientDataRequest" type="safc:SendClientDataRequestType"/>
@@ -52,19 +53,19 @@
             <xsd:element name="AuthIMSIDateChange" type="xsd:dateTime" minOccurs="0"/>
             <xsd:element name="ConfirmationISCode" type="safc:ConfirmationISCodeType" minOccurs="0"/>
             <xsd:element name="ConfirmationDate" type="xsd:dateTime" minOccurs="0"/>
-            <xsd:element name="PasswordRecoveryPoint" type="xsd:string" nillable="true" minOccurs="0"/>
-            <xsd:element name="PasswordRecoveryDateTime" type="xsd:dateTime" nillable="true" minOccurs="0"/>
-            <xsd:element name="PasswordRecoveryInformation" type="xsd:string" nillable="true" minOccurs="0">
+            <xsd:element name="PasswordRecoveryPoint" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="PasswordRecoveryDateTime" type="xsd:dateTime" minOccurs="0"/>
+            <xsd:element name="PasswordRecoveryInformation" type="xsd:string" minOccurs="0">
                 <xsd:annotation>
                     <xsd:documentation>Значение, которое использовалось для восстановления пароля</xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
-            <xsd:element name="DboConnectionMethod" type="xsd:string" nillable="true" minOccurs="0">
+            <xsd:element name="DboConnectionMethod" type="xsd:string" minOccurs="0">
                 <xsd:annotation>
                     <xsd:documentation>Способ подключения ДБО</xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
-            <xsd:element name="DboConnectionInformation" type="xsd:string" nillable="true" minOccurs="0">
+            <xsd:element name="DboConnectionInformation" type="xsd:string" minOccurs="0">
                 <xsd:annotation>
                     <xsd:documentation>Способ подключения ДБО. Дополнительная информация</xsd:documentation>
                 </xsd:annotation>

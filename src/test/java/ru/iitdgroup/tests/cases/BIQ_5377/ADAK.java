@@ -7,7 +7,7 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-
+import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -22,90 +22,88 @@ public class ADAK extends RSHBCaseTest {
     private static final String REFERENCE_ITEM2 = "(Policy_parameters) Вопросы для проведения ДАК";
     private static final String REFERENCE_ITEM3 = "(Policy_parameters) Параметры проведения ДАК";
     private static String TRANSACTION_ID;
-
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-    private static Random rand = new Random();
+    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
 
     private final GregorianCalendar time = new GregorianCalendar();
-    private GregorianCalendar time2;
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
-    private Client client = null;
+    private final String namesAdak = "Ольга";
+    private final String[][] names = {{namesAdak, "Петушкова", "Ильинична"}};
+    private final String ipAdress = "178.219.186.12";
 
 //TODO для прохождения теста в Alert должны быть внесены поля:Идентификатор клиента, Status (Алерта), Статус РДАК, status(транзакции)
-
-//    @Test(
-//            description = "Заполнить \"Вопросы для проведения ДАК\": codePhrase, birthDay, birthYear с установленными флагами \"Включено\" и \"Учавствует в РДАК\"" +
-//                    "В справочник \"Параметры обработки событий\" внести транзакцию с клиентами по умолчанию, учавствуют РДАК и АДАК." +
-//                    "в справочник Проверяемые Типы транзакции и Каналы ДБО внести тип транзакции" +
-//                    "2. Заполнить \"Вопросы для проведения ДАК\": firstname с установленными флагами \"Включено\" и \"Учавствует в РДАК\". Ограничить количество символов 15"
-//    )
-//    public void enableRules() {
-//
-//        getIC().locateRules()
-//                .selectVisible()
-//                .deactivate()
-//                .editRule(RULE_NAME)
-//                .fillCheckBox("Active:", true)
-//                .save()
-//                .sleep(10);
-//
-//        getIC().locateTable(REFERENCE_ITEM)
-//                .deleteAll()
-//                .addRecord()
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
-//                .select("Наименование канала:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_ITEM1)
-//                .deleteAll()
-//                .addRecord()
-//                .fillFromExistingValues("Наименование группы клиентов:", "Имя группы", "Equals", "По умолчанию")
-//                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
-//                .fillCheckBox("Требуется выполнение АДАК:", true)
-//                .fillCheckBox("Требуется выполнение РДАК:", true)
-//                .select("Наименование канала ДБО:", "Мобильный банк")
-//                .save();
-//        getIC().locateTable(REFERENCE_ITEM2)
-//                .setTableFilter("Текст вопроса клиенту", "Equals", "Ваше имя")
-//                .refreshTable()
-//                .click(2)
-//                .edit()
-//                .fillCheckBox("Включено:", true)
-//                .fillCheckBox("Участвует в АДАК:", true)
-//                .fillCheckBox("Участвует в РДАК:", true).save()
-//                .sleep(2);
-//
-//        getIC().locateTable(REFERENCE_ITEM3)
-//                .findRowsBy()
-//                .match("Код значения", "AUTHORISATION_QUESTION_CODE")
-//                .click()
-//                .edit()
-//                .fillInputText("Значение:", "20000")
-//                .save();
-//    }
+    //TODO должен быть включен только один вопрос в справочнике Вопросы ДАК : Ваше имя. Остальные вопросы не активны.(выключены)
 
     @Test(
-            description = "В САФ завести клиента № 1"
-            //  dependsOnMethods = "enableRules"
+            description = "Заполнить \"Вопросы для проведения ДАК\": codePhrase, birthDay, birthYear с установленными флагами \"Включено\" и \"Учавствует в РДАК\"" +
+                    "В справочник \"Параметры обработки событий\" внести транзакцию с клиентами по умолчанию, учавствуют РДАК и АДАК." +
+                    "в справочник Проверяемые Типы транзакции и Каналы ДБО внести тип транзакции" +
+                    "2. Заполнить \"Вопросы для проведения ДАК\": firstname с установленными флагами \"Включено\" и \"Учавствует в РДАК\". Ограничить количество символов 15"
+    )
+    public void enableRules() {
+
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .selectRule(RULE_NAME)
+                .activate()
+                .sleep(15);
+
+        getIC().locateTable(REFERENCE_ITEM)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_ITEM1)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Наименование группы клиентов:", "Имя группы", "Equals", "Группа по умолчанию")
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Запрос на выдачу кредита")
+                .fillCheckBox("Требуется выполнение АДАК:", true)
+                .fillCheckBox("Требуется выполнение РДАК:", true)
+                .select("Наименование канала ДБО:", "Мобильный банк")
+                .save();
+        getIC().locateTable(REFERENCE_ITEM2)
+                .setTableFilter("Текст вопроса клиенту", "Equals", "Ваше имя")
+                .refreshTable()
+                .click(2)
+                .edit()
+                .fillCheckBox("Включено:", true)
+                .fillCheckBox("Участвует в АДАК:", true)
+                .fillCheckBox("Участвует в РДАК:", true).save()
+                .sleep(2);
+
+        getIC().locateTable(REFERENCE_ITEM3)
+                .findRowsBy()
+                .match("Код значения", "AUTHORISATION_QUESTION_CODE")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "10000")
+                .save();
+        commandServiceMock.run();
+    }
+
+    @Test(
+            description = "В САФ завести клиента № 1",
+            dependsOnMethods = "enableRules"
     )
 
     public void addClient() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -128,28 +126,21 @@ public class ADAK extends RSHBCaseTest {
     )
     public void transaction1() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getGettingCredit()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
-        transactionData.getClientDevice().getAndroid().setIpAddress("178.219.186.12");
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         TRANSACTION_ID = transactionData.getTransactionId();
         sendAndAssert(transaction);
 
         getIC().locateAlerts()
                 .openFirst()
                 .action("Выполнить АДАК")
-                .sleep(30);//не отвечать на АДАК больше 20сек
+                .sleep(25);//не отвечать на АДАК больше 20сек
 
         getIC().locateAlerts()
+                .openFirst().sleep(2);
+        getIC().locateAlerts()
                 .openFirst();
-        assertTableField("Идентификатор клиента:", clientIds.get(0));
         assertTableField("Статус АДАК:", "TIMEOUT");
-
+        assertTableField("Идентификатор клиента:", clientIds.get(0));
     }
 
     @Test(
@@ -158,20 +149,7 @@ public class ADAK extends RSHBCaseTest {
     )
     public void transaction2() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getGettingCredit()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .withIpAddress("178.219.186.12");
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         TRANSACTION_ID = transactionData.getTransactionId();
         sendAndAssert(transaction);
 
@@ -187,18 +165,12 @@ public class ADAK extends RSHBCaseTest {
     )
     public void adak2() {
         Transaction adak = getAdak();
-        TransactionDataType transactionData = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        TransactionDataType transactionData = adak.getData().getTransactionData();
         transactionData
-                .getAdditionalAnswer().withAdditionalAuthCancel(true);//отказаться от АДАК
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .getAdditionalAnswer()
+                .withAdditionalAuthCancel(true);//отказаться от АДАК
         transactionData
                 .withTransactionId(TRANSACTION_ID);
-        transactionData.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Ольга");
         sendAndAssert(adak);
 
         getIC().locateAlerts()
@@ -214,18 +186,7 @@ public class ADAK extends RSHBCaseTest {
     )
     public void transaction3() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getGettingCredit()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .withIpAddress("178.219.186.12");
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         TRANSACTION_ID = transactionData.getTransactionId();
         sendAndAssert(transaction);
 
@@ -241,12 +202,7 @@ public class ADAK extends RSHBCaseTest {
     )
     public void adak3() {
         Transaction adak = getAdak();
-        TransactionDataType transactionData = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = adak.getData().getTransactionData();
         transactionData
                 .withTransactionId(TRANSACTION_ID);
         transactionData.getAdditionalAnswer()
@@ -265,18 +221,7 @@ public class ADAK extends RSHBCaseTest {
     )
     public void transaction4() {
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getGettingCredit()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
-        transactionData
-                .getClientDevice()
-                .getAndroid()
-                .withIpAddress("178.219.186.12");
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         TRANSACTION_ID = transactionData.getTransactionId();
         sendAndAssert(transaction);
 
@@ -292,22 +237,26 @@ public class ADAK extends RSHBCaseTest {
     )
     public void adak4() {
         Transaction adak = getAdak();
-        TransactionDataType transactionData = adak.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = adak.getData().getTransactionData();
         transactionData
                 .withTransactionId(TRANSACTION_ID);
         transactionData.getAdditionalAnswer()
-                .withAdditionalAuthAnswer("Ольга");
+                .withAdditionalAuthAnswer(namesAdak);
         sendAndAssert(adak);
 
         getIC().locateAlerts()
                 .openFirst();
         assertTableField("Идентификатор клиента:", clientIds.get(0));
         assertTableField("Статус АДАК:", "SUCCESS");
+    }
+
+    @Test(
+            description = "Выключить мок ДБО",
+            dependsOnMethods = "adak4"
+    )
+
+    public void disableCommandServiceMock() {
+        commandServiceMock.stop();
     }
 
     @Override
@@ -317,17 +266,37 @@ public class ADAK extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/GETTING_CREDIT_Android.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds().withDboId(clientIds.get(0));
+        transactionData
+                .getGettingCredit()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(100.00));
+        transactionData
+                .getClientDevice()
+                .getAndroid()
+                .withIpAddress(ipAdress);
         return transaction;
     }
 
     private Transaction getAdak() {
         Transaction adak = getTransaction("testCases/Templates/ADAK.xml");
-        adak.getData().getTransactionData()
+        adak.getData().getServerInfo().withPort(8050);
+        TransactionDataType adakDate = adak.getData().getTransactionData()
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        adakDate
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        adakDate
+                .getAdditionalAnswer()
+                .withAdditionalAuthAnswer(namesAdak);
         return adak;
     }
 }

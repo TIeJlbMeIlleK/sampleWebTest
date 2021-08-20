@@ -2,7 +2,7 @@
         <ClientAuthenticationRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
             <ServerInfo>
                 <ns2:Ip>localhost</ns2:Ip>
-                <ns2:Port>8089</ns2:Port>
+                <ns2:Port>8050</ns2:Port>
             </ServerInfo>
             <ClientAuthentication>
                 <Login>serg</Login>

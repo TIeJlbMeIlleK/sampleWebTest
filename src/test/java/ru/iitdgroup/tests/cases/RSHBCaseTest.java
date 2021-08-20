@@ -1,5 +1,6 @@
 package ru.iitdgroup.tests.cases;
 
+import net.bytebuddy.utility.RandomString;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteMessaging;
 import org.apache.ignite.cluster.ClusterGroup;
@@ -23,7 +24,6 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.junit.Assert.assertThat;
 import static org.testng.AssertJUnit.*;
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -37,7 +37,7 @@ public abstract class RSHBCaseTest {
     protected static final String REGULAR_TRANSACTION_1 = "Правило не применяется для регулярных транзакций.";
     protected static final String RESULT_RULE_NOT_APPLY = "Правило не применилось";
     protected static final String RESULT_RULE_NOT_APPLY_EXR_07 = "Правило не применилось.";
-    protected static final String RESULT_RULE_NOT_APPLY_BY_CONF = "Правило не применилось (проверка по настрокам правила)";
+    protected static final String RESULT_RULE_NOT_APPLY_BY_CONF = "Правило не применилось (проверка по настройкам правила)";
     protected static final String RESULT_RULE_NOT_APPLY_EMPTY = "В выборке только анализируемая транзакция";
     protected static final String RESULT_RULE_APPLY_BY_LENGTH = "Количество транзакций больше параметра Длина серии";
     protected static final String RESULT_RULE_APPLY_BY_SUM = "Общая сумма транзакций больше допустимой величины";
@@ -171,13 +171,10 @@ public abstract class RSHBCaseTest {
     protected static final String RESULT_RULE_APPLY = "Найдены необработаные события для этого клиента";
     protected static final String RESULT_YOUNG_MAN = "Заявка на выпуск карты(цифровая , 15 лет)";
     protected static final String RESULT_OLD_MAN = "Тип транзакции «Заявка на выпуск карты» (тип карты «виртуальная», возраст клиента больше 18)";
-    protected static final  String RESULT_TRIGGERED = "Количество однотипных транзакций больше допустимой длины серии";
+    protected static final String RESULT_TRIGGERED = "Количество однотипных транзакций больше допустимой длины серии";
 
-
-
-
-
-
+    private static final String DBO_NAME_TABLE_INCIDENTS   = "INCIDENT_WRAP";
+    private static final String DBO_NAME_TABLE_TRANSACTION = "PAYMENT_TRANSACTION";
 
     private DBOAntiFraudWS ws;
     private ESPP2AntiFraudWS esppWs;
@@ -200,6 +197,10 @@ public abstract class RSHBCaseTest {
                 getProps().getWSUrl(),
                 getProps().getWSUser(),
                 getProps().getWSPassword());
+        esppWs = new ESPP2AntiFraudWS(
+                getProps().getEsppWSUrl(),
+                getProps().getWSUser(),
+                getProps().getWSPassword());
     }
 
     @AfterClass
@@ -212,9 +213,9 @@ public abstract class RSHBCaseTest {
 
     protected IgniteMessaging getMsg() {
         ClusterGroup clients = ignite
-            .cluster()
-            .forClients()
-            .forAttribute("ROLE", "clientNode");
+                .cluster()
+                .forClients()
+                .forAttribute("ROLE", "clientNode");
         return ignite.message(clients);
     }
 
@@ -234,13 +235,14 @@ public abstract class RSHBCaseTest {
         }
     }
 
-    protected ESPP2AntiFraudWS sendESPP(Template template) {
+    protected ESPP2AntiFraudWS sendEspp(Template template) {
         try {
             return getWsEspp().send(template);
         } catch (SOAPException e) {
             throw new IllegalStateException(e);
         }
     }
+
 
     protected DBOAntiFraudWS sendAndAssert(Template template) {
         DBOAntiFraudWS result = send(template);
@@ -250,16 +252,34 @@ public abstract class RSHBCaseTest {
         return result;
     }
 
-    protected ESPP2AntiFraudWS sendAndAssertESPP(Template template) {
-        ESPP2AntiFraudWS result = sendESPP(template);
+    protected ESPP2AntiFraudWS sendEsppAndAssert(Template template) {
+        ESPP2AntiFraudWS result = sendEspp(template);
         assertTrue(
                 String.format("Ошибка на стороне AntiFraudWS: %s", result.getResponse().getErrorMessage()),
                 result.isSuccessResponse());
         return result;
     }
 
+    protected String[] getScenarioBlock() {
+        try {
+            String[][] id = getDatabase()
+                    .select()
+                    .field("id")
+                    .from("SCENARIO_BLOCK")
+                    .sort("id", false)
+                    .limit(2)
+                    .get();
+            return new String[]{id[0][0], id[1][0]};
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
     /**
      * Возвращает поцизию (широта, долгота) клиента
+     *
      * @param DBO_Id dbo-id клиента
      * @return массив их двух чисел (latitude, longitude)
      */
@@ -285,7 +305,7 @@ public abstract class RSHBCaseTest {
                     .get();
             String latitude = result[0][0].replace('.', ',');
             String longitude = result[0][1].replace('.', ',');
-            return new String[] {latitude, longitude};
+            return new String[]{latitude, longitude};
 
         } catch (InterruptedException | SQLException e) {
             e.printStackTrace();
@@ -317,15 +337,19 @@ public abstract class RSHBCaseTest {
         return new Database(getProps());
     }
 
-    protected String[][] getResults(String ruleName) {
+    protected String getNameTableIncidents() {
+        return DBO_NAME_TABLE_INCIDENTS;
+    }
+
+    protected String[][] getIncidentWrapByRule(String ruleName) {
         try {
-            return getDatabase()
+             return getDatabase()
                     .select()
                     .field("EXECUTION_TYPE")
                     .field("DESCRIPTION")
-                    .from("INCIDENT_WRAP")
+                    .from(getNameTableIncidents())
                     .with("RULE_TITLE", "=", "'" + ruleName + "'")
-                    .sort("timestamp", false)
+                    .sort("id", false)
                     .limit(1)
                     .get();
         } catch (SQLException e) {
@@ -341,13 +365,27 @@ public abstract class RSHBCaseTest {
             e.printStackTrace();
             throw new IllegalStateException(e);
         }
-        String[][] dbResult = getResults(getRuleName());
+        String[][] dbResult = getIncidentWrapByRule(getRuleName());
+
+        assertEquals(ruleResult, dbResult[0][0]);
+        assertEquals(description, dbResult[0][1]);
+    }
+
+    protected void assertRuleResultForTheLastTransaction(String ruleName, String ruleResult, String description) {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+        String[][] dbResult = getIncidentWrapByRule(ruleName);
         assertEquals(ruleResult, dbResult[0][0]);
         assertEquals(description, dbResult[0][1]);
     }
 
     /**
      * Возвращает информацию о последнем отправленном СМС
+     *
      * @return массив:
      * [id,
      * JMS_CORRELATION_ID,
@@ -360,7 +398,7 @@ public abstract class RSHBCaseTest {
      */
     protected String[] getLastSentSMSInformation() {
         try {
-             String[][] results = getDatabase()
+            String[][] results = getDatabase()
                     .select()
                     .field("id")
                     .field("JMS_CORRELATION_ID")
@@ -374,11 +412,15 @@ public abstract class RSHBCaseTest {
                     .sort("MESSAGE_DATE", false)
                     .limit(1)
                     .get();
-             return results[0];
+            return results[0];
         } catch (SQLException e) {
             e.printStackTrace();
             throw new IllegalStateException(e);
         }
+    }
+
+    protected String getNameTableTransactions() {
+        return DBO_NAME_TABLE_TRANSACTION;
     }
 
     protected void assertTransactionAdditionalFieldApply(String transactionID, String fieldId, String fieldName, String fieldValue) {
@@ -387,7 +429,7 @@ public abstract class RSHBCaseTest {
             String[][] id = getDatabase()
                     .select()
                     .field("id")
-                    .from("PAYMENT_TRANSACTION")
+                    .from(getNameTableTransactions())
                     .with("TRANSACTION_ID", "=", "'" + transactionID + "'")
                     .sort("timestamp", false)
                     .limit(1)
@@ -406,6 +448,30 @@ public abstract class RSHBCaseTest {
             assertEquals(fieldName, result[0][1]);
             assertEquals(fieldValue, result[0][2]);
         } catch (InterruptedException | SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Возвращает значение поля fieldName из таблицы tableName с последним (максимальным) id
+     *
+     * @param tableName название таблицы
+     * @param fieldName название поля
+     * @return пара (value,id), где value - значение поля fieldName, id - последний id в таблице, которому соответствует value
+     */
+    protected String[] getFieldWithLastId(String tableName, String fieldName) {
+        try {
+            String[][] result = getDatabase()
+                    .select()
+                    .field(fieldName)
+                    .field("id")
+                    .from(tableName)
+                    .sort("id", false)
+                    .limit(1)
+                    .get();
+            return result[0];
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new IllegalStateException(e);
         }
@@ -479,6 +545,27 @@ public abstract class RSHBCaseTest {
         }
     }
 
+    protected void assertPaymentMaxAmountVersionDoc(String clientId, String documentVersion, String transactionId, String txType, BigDecimal amount) {
+        try {
+            String[][] result = getDatabase()
+                    .select()
+                    .field("CLIENT_DBO_ID")
+                    .field("MAX_AMOUNT")
+                    .from("PAYMENT_MAX_AMOUNT")
+                    .with("object_type", "=", "'" + txType + "'")
+                    .with("DOCUMENT_VERSION", "=", documentVersion)
+                    .with("TRANSACTION_ID", "=", transactionId)
+                    .with("CLIENT_DBO_ID", "=", clientId)
+                    .with("MAX_AMOUNT", "=", amount.toString())
+                    .sort("CLIENT_DBO_ID", true)
+                    .setFormula("AND")
+                    .get();
+            assertEquals(1, result.length);
+        } catch (SQLException e) {
+            fail(e.getMessage());
+        }
+    }
+
     protected void assertTableField(String fieldName, String expectedValue) {
         assertEquals(
                 expectedValue,
@@ -495,7 +582,7 @@ public abstract class RSHBCaseTest {
                         .getText());
     }
 
-    protected String copyThisLine(String fieldName){
+    protected String copyThisLine(String fieldName) {
         String result = String.format("//span[text()='%s']/../following::td", fieldName);
         return getIC().getDriver().findElementByXPath(result).getText();
     }
@@ -507,7 +594,7 @@ public abstract class RSHBCaseTest {
             transaction.getData()
                     .getTransactionData()
                     .withTransactionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
-                    .withSessionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
+                    .withSessionId(new RandomString(40).nextString())
                     .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
             return transaction;
         } catch (JAXBException | IOException e) {
@@ -515,14 +602,12 @@ public abstract class RSHBCaseTest {
         }
     }
 
-    protected Transaction getTransactionESPP(String filePath) {
+    protected TransactionEspp getTransactionESPP(String filePath) {
         try {
-            //FIXME Добавить проверку на существование клиента в базе
-            Transaction transaction = new Transaction(filePath);
-//            transaction.getData()
-//                    .getTransactionData()
-//                    .withTransactionId(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "")
-//                    .withDocumentNumber(ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "");
+            TransactionEspp transaction = new TransactionEspp(filePath);
+            transaction.getData()
+                    .withTransactionId((ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7))
+                    .withDocumentNumber((ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5));
             return transaction;
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);

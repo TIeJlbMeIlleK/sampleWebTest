@@ -1,55 +1,48 @@
 package ru.iitdgroup.tests.cases.BIQ_5377;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Performances_RDAK extends RSHBCaseTest {
 
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
-    private static final String RDAK = "(Policy_parameters) Перечень статусов для которых применять РДАК";
     private static final String REFERENCE_ITEM = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
     private static final String REFERENCE_ITEM1 = "(Policy_parameters) Параметры обработки событий";
     private static final String REFERENCE_ITEM2 = "(Policy_parameters) Вопросы для проведения ДАК";
-
-    private static Random rand = new Random();
-
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
+    private static final String TSP_TYPE = new RandomString(7).nextString();// создает рандомное значение Типа ТСП
     private final GregorianCalendar time = new GregorianCalendar();
-    private GregorianCalendar time2;
-
     private final List<String> clientIds = new ArrayList<>();
-    private Client client = null;
 
-//TODO для прохождения теста в Alert должны быть внесены поля:Идентификатор клиента, Status (Алерта), Статус РДАК, status(транзакции)
+//TODO для прохождения теста в Alert должны быть внесены поля: Идентификатор клиента, Status (Алерта), Статус РДАК, status(транзакции)
+//TODO В справочнике "Перечень статусов для которых применять РДАК" должны быть прописаны статусы:
+// из rdak_underfire в RDAK_Done и из "Wait_RDAK" в "RDAK_Done"
 
     @Test(
             description = "Занести транзакция в проверяемые, " +
                     "в справочнике событий выбрать клиентов по умолчанию и применить РДАК. " +
                     "Выбрать правило GR_20." +
-                    "Заполнить \"Вопросы для проведения ДАК\": " +
-                    "registrationHouse, registrationStreet, birthDate с установленными флагами \"Включено\" и \"Учавствует в РДАК\""
+                    "Заполнить Вопросы для проведения ДАК: " +
+                    "registrationHouse, registrationStreet, birthDate с установленными флагами Включено и Учавствует в РДАК"
     )
     public void enableRules() {
 
         getIC().locateRules()
                 .selectVisible()
-                .deactivate();
-        getIC().locateRules()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true)
-                .save()
+                .deactivate()
+                .selectRule(RULE_NAME)
+                .activate()
                 .sleep(10);
 
         getIC().locateTable(REFERENCE_ITEM)
@@ -61,7 +54,7 @@ public class Performances_RDAK extends RSHBCaseTest {
         getIC().locateTable(REFERENCE_ITEM1)
                 .deleteAll()
                 .addRecord()
-                .fillFromExistingValues("Наименование группы клиентов:", "Имя группы", "Equals", "По умолчанию")
+                .fillFromExistingValues("Наименование группы клиентов:", "Имя группы", "Equals", "Группа по умолчанию")
                 .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Платеж по QR-коду через СБП")
                 .fillCheckBox("Требуется выполнение АДАК:", true)
                 .fillCheckBox("Требуется выполнение РДАК:", true)
@@ -74,69 +67,38 @@ public class Performances_RDAK extends RSHBCaseTest {
                 .edit()
                 .fillCheckBox("Включено:", true)
                 .fillCheckBox("Участвует в АДАК:", true)
-                .fillCheckBox("Участвует в РДАК:", true).save().sleep(2);
-        getIC().locateTable(REFERENCE_ITEM2)
-                .setTableFilter("Текст вопроса клиенту", "Equals", "Дата вашего рождения полностью")
-                .refreshTable()
-                .click(2)
-                .edit()
-                .fillCheckBox("Включено:", true)
-                .fillCheckBox("Участвует в АДАК:", true)
-                .fillCheckBox("Участвует в РДАК:", true).save().sleep(2);
-    }
-
-    @Test(
-            description = "Настроить WF для попадания первой транзакции на РДАК и" +
-                    "Заполнить справочник \"Перечень статусов для которых применять РДАК\" из rdak_underfire в RDAK_Done",
-            dependsOnMethods = "enableRules"
-    )
-    public void refactorWF() {
-
-        getIC().locateWorkflows()
-                .openRecord("Alert Workflow")
-                .openAction("Взять в работу для выполнения РДАК")
-                .clearAllStates()
-                .addFromState("На разбор")
-                .addFromState("Ожидаю выполнения РДАК")
-                .addToState("На выполнении РДАК")
+                .fillCheckBox("Участвует в РДАК:", true)
                 .save();
-
-//Заполнение справочника "Перечень статусов для которых применять РДАК" из rdak_underfire в RDAK_Done: 2 варианта
-        //1й вариант через браузер:
-//        Table.Formula rows = getIC().locateTable(RDAK).findRowsBy();
-//        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-//            rows.delete();
-//        }
-//        getIC().locateTable(RDAK).addRecord().fillInputText("Текущий статус:","rdak_underfire")
-//                .fillInputText("Новый статус:","RDAK_Done").save();
-//        getIC().locateTable(RDAK).addRecord().fillInputText("Текущий статус:","Wait_RDAK")
-//                .fillInputText("Новый статус:","RDAK_Done").save();
-
-        //2й вариант через БД:
-        getDatabase().deleteWhere("LIST_APPLY_RDAKSTATUS", "");
-        getDatabase().insertRows("LIST_APPLY_RDAKSTATUS", new String[]{"'rdak_underfire', 'RDAK_Done'", "'Wait_RDAK', 'RDAK_Done'"});
     }
 
     @Test(
             description = "Создаем клиента",
-            dependsOnMethods = "refactorWF"
+            dependsOnMethods = "enableRules"
     )
     public void addClient() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
-                client.getData().getClientData().getClient()
-                        .withFirstName("Наталья")
-                        .withLastName("Сколкина")
-                        .withMiddleName("Олеговна")
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
 
                 sendAndAssert(client);
                 clientIds.add(dboId);
-                this.client = client;
                 System.out.println(dboId);
             }
         } catch (JAXBException | IOException e) {
@@ -149,19 +111,7 @@ public class Performances_RDAK extends RSHBCaseTest {
             dependsOnMethods = "addClient"
     )
     public void transaction1() {
-        time.add(Calendar.MINUTE, 1);
-        time2 = (GregorianCalendar) time.clone();
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
         sendAndAssert(transaction);
 
         getIC().locateAlerts()
@@ -182,19 +132,7 @@ public class Performances_RDAK extends RSHBCaseTest {
             dependsOnMethods = "transaction1"
     )
     public void transaction2() {
-        time.add(Calendar.MINUTE, 1);
-        time2 = (GregorianCalendar) time.clone();
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
         sendAndAssert(transaction);
 
         getIC().locateAlerts()
@@ -214,19 +152,7 @@ public class Performances_RDAK extends RSHBCaseTest {
             dependsOnMethods = "transaction1"
     )
     public void transaction3() {
-        time.add(Calendar.MINUTE, 1);
-        time2 = (GregorianCalendar) time.clone();
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(100));
         sendAndAssert(transaction);
 
         getIC().locateAlerts()
@@ -259,9 +185,20 @@ public class Performances_RDAK extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(100))
+                .withTSPName(TSP_TYPE)
+                .withTSPType(TSP_TYPE);
         return transaction;
     }
 }

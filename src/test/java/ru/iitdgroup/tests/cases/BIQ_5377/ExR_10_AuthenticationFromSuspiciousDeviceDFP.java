@@ -6,12 +6,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
-import ru.iitdgroup.tests.apidriver.Authentication;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
-
+import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,9 +21,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ExR_10_AuthenticationFromSuspiciousDeviceDFP extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
-
+    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Иван", "Сидоров", "Петрович"}};
+    private final String[][] names = {{"Иван", "Сидоров", "Петрович"}};
 
     private static final String RULE_NAME = "R01_ExR_10_AuthenticationFromSuspiciousDevice";
     private static final String TABLE = "(System_parameters) Интеграционные параметры";
@@ -33,12 +31,37 @@ public class ExR_10_AuthenticationFromSuspiciousDeviceDFP extends RSHBCaseTest {
 
     private static final String TSP_TYPE = new RandomString(7).nextString();// создает рандомное значение Типа ТСП
     private static final String DFP = new RandomString(15).nextString();
-    private static final String LOGIN = new RandomString(7).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
-
 
     @Test(
-            description = "Создаем клиента"
+            description = "Включить правило R01_ExR_10_AuthenticationFromSuspiciousDevice"
+    )
+
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .selectRule(RULE_NAME)
+                .activate()
+                .sleep(5);
+
+        getIC().locateTable(REFERENCE_ITEM)
+                .addRecord()
+                .fillInputText("DeviceFingerPrint:", DFP)
+                .save();
+        getIC().locateTable(TABLE)
+                .findRowsBy()
+                .match("Код значения", "IntegrVES2")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1")
+                .save();
+
+        commandServiceMock.run();
+    }
+
+    @Test(
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
     )
     public void addClient() {
         try {
@@ -51,9 +74,9 @@ public class ExR_10_AuthenticationFromSuspiciousDeviceDFP extends RSHBCaseTest {
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -70,79 +93,27 @@ public class ExR_10_AuthenticationFromSuspiciousDeviceDFP extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Включить правило R01_ExR_10_AuthenticationFromSuspiciousDevice",
+            description = "Отправить аутентификацию с сессией № 1 для клиента № 1 с подозрительного DFP," +
+                    "(отправка сообщения с Раббита), проверить карточку клиента и отправить транзакцию",
             dependsOnMethods = "addClient"
     )
 
-    public void enableRules() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true)
-                .save()
-                .sleep(5);
-    }
-
-    @Test(
-            description = "Занести DFP в справочник подозрительных",
-            dependsOnMethods = "enableRules"
-    )
-
-    public void addRecipients() {
-        Table.Formula dfp = getIC().locateTable(REFERENCE_ITEM).findRowsBy();
-        if (dfp.calcMatchedRows().getTableRowNums().size() > 0) {
-            dfp.delete();
-        }
-        getIC().locateTable(REFERENCE_ITEM)
-                .addRecord()
-                .fillInputText("DeviceFingerPrint:", DFP)
-                .save();
-    }
-
-    @Test(
-            description = "Включить IntegrVES2",
-            dependsOnMethods = "addRecipients"
-    )
-    public void enableVES() {
-
-        getIC().locateTable(TABLE)
-                .findRowsBy()
-                .match("Код значения", "IntegrVES2")
-                .click()
-                .edit()
-                .fillInputText("Значение:", "1")
-                .save();
-    }
-
-    @Test(
-            description = "Отправить аутентификацию с сессией № 1 для клиента № 1 с подозрительного DFP," +
-                    "(отправка сообщения с Раббита), проверить карточку клиента и отправить транзакцию",
-            dependsOnMethods = "enableVES"
-    )
-
     public void sendResponseFromVES() {
-//        try { //нужно перепроверить
-//            String vesResponse = getRabbit().getVesResponse();
-//            JSONObject json = new JSONObject(vesResponse);
-//            json.put("login", LOGIN);
-//            json.put("login_hash", LOGIN_HASH);
-//            json.put("session_id", DFP);
-//            json.put("device_hash", DFP);
-//            String newStr = json.toString();
-//            getRabbit().setVesResponse(newStr);
-//            getRabbit().sendMessage();
-//            getRabbit().close();
-//        } catch (JSONException e) {
-//            throw new IllegalStateException();
-//        }
 
-        getRabbit().setVesResponse(getRabbit().getVesResponse()
-                .replaceAll("ilushka305", clientIds.get(0))
-                .replaceAll("305", clientIds.get(0))
-                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf", DFP));
-        getRabbit().sendMessage();
-        getRabbit().close();
+        try {
+            String vesResponse = getRabbit().getVesResponse();
+            JSONObject json = new JSONObject(vesResponse);
+            json.put("login", clientIds.get(0));
+            json.put("login_hash", clientIds.get(0));
+            json.put("session_id", DFP);
+            json.put("device_hash", DFP);
+            String newStr = json.toString();
+            getRabbit().setVesResponse(newStr);
+            getRabbit().sendMessage();
+            getRabbit().close();
+        } catch (JSONException e) {
+            throw new IllegalStateException();
+        }
 
         getIC()
                 .locateReports()
@@ -155,8 +126,33 @@ public class ExR_10_AuthenticationFromSuspiciousDeviceDFP extends RSHBCaseTest {
         getIC().close();
 
         Transaction transaction = getTransactionPC();
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(TRIGGERED, SUSPICIOUS_DEVICE);
+    }
+
+    @Test(
+            description = "Выключить мок ДБО",
+            dependsOnMethods = "sendResponseFromVES"
+    )
+
+    public void disableCommandServiceMock() {
+        commandServiceMock.stop();
+    }
+
+
+    @Override
+    protected String getRuleName() {
+        return RULE_NAME;
+    }
+
+    private Transaction getTransactionPC() {
+        Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_PC.xml");
+        transaction.getData().getServerInfo().withPort(8050);
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+                .withVersion(1L)
+                .withRegular(false)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
@@ -165,25 +161,6 @@ public class ExR_10_AuthenticationFromSuspiciousDeviceDFP extends RSHBCaseTest {
                 .withAmountInSourceCurrency(BigDecimal.valueOf(300))
                 .withTSPName(TSP_TYPE)
                 .withTSPType(TSP_TYPE);
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, SUSPICIOUS_DEVICE);
-    }
-
-    @Override
-    protected String getRuleName() {
-        return RULE_NAME;
-    }
-
-    private Authentication getAuthenticationPC() {
-        Authentication authentication = super.getAuthentication("testCases/Templates/Autentification_PC.xml");
-        return authentication;
-    }
-
-    private Transaction getTransactionPC() {
-        Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_PC.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
         return transaction;
     }
 }

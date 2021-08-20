@@ -23,24 +23,35 @@ public class PaymentServicesVetka extends RSHBCaseTest {
 
     private static final String RULE_NAME = "";
 
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
+    private String[][] names = {{"Петр", "Урин", "Семенович"}};
 
     @Test(
             description = "Создаем клиента"
     )
-    public void step0() {
+    public void addClients() {
         try {
             for (int i = 0; i < 1; i++) {
-                //FIXME Добавить проверку на существование клиента в базе
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+
+                client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -54,7 +65,7 @@ public class PaymentServicesVetka extends RSHBCaseTest {
             description = "Отправить транзакции №1" +
                     "-- «Parameter.Name» =  vetka" +
                     "-- «Parameter.Value» = 1",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "addClients"
     )
 
     public void step1() {
@@ -71,7 +82,6 @@ public class PaymentServicesVetka extends RSHBCaseTest {
         sendAndAssert(transaction);
         assertTransactionAdditionalFieldApply(transactionData.getTransactionId(), "ACCOUNT", "vetka", "1");
     }
-
 
     @Test(
             description = "Отправить транзакции №2" +

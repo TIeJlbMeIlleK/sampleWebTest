@@ -1,6 +1,9 @@
 package ru.iitdgroup.tests.cases.BIQ_7739;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import net.bytebuddy.utility.RandomString;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.client.IOSDevice;
 import ru.iitdgroup.intellinx.dbo.client.PlatformKind;
@@ -8,7 +11,6 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
@@ -26,11 +28,12 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
     private static final String TABLE_IMEI = "(Rule_tables) Подозрительные устройства IMEI";
     private static final String TABLE_IFV = "(Rule_tables) Подозрительные устройства IdentifierForVendor";
     private static final String TABLE_DFP = "(Rule_tables) Подозрительные устройства DeviceFingerPrint";
-    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
+    private static final String IMEI = "863" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private static final String IMSI = "250" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 12);
+    private static final String IFV = new RandomString(20).nextString();
+    private static final String DFP = new RandomString(30).nextString();
 
-
-
-    private final GregorianCalendar time = new GregorianCalendar(2019, Calendar.JULY, 4, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
 
     @Test(
@@ -40,88 +43,54 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .sleep(2);
-
-        getIC().locateRules()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true)
-                .save()
-                .sleep(30);
-
-
+                .selectRule(RULE_NAME)
+                .activate()
+                .sleep(20);
     }
+
     @Test(
-            description = "Добавить в справочник подозрительных IMSI",
+            description = "Добавить в справочник подозрительных IMSI, Добавить в справочник подозрительных IMEI," +
+                    "Добавить в справочник подозрительных IFV, Добавить в справочник подозрительных DFP",
             dependsOnMethods = "enableRules"
     )
-    public void editTableIMSI() {
-        Table.Formula rows = getIC().locateTable(TABLE_IMSI).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
+    public void editTable() {
         getIC().locateTable(TABLE_IMSI)
+                .deleteAll()
                 .addRecord()
-                .fillMasked("imsi:", "250015038779300")
+                .fillMasked("imsi:", IMSI)
                 .save();
-    }
-    @Test(
-            description = "Добавить в справочник подозрительных IMEI",
-            dependsOnMethods = "editTableIMSI"
-    )
-    public void editTableIMEI() {
-        Table.Formula rows = getIC().locateTable(TABLE_IMEI).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
         getIC().locateTable(TABLE_IMEI)
+                .deleteAll()
+                .deleteAll()
                 .addRecord()
-                .fillMasked("imei:", "863313032529520")
+                .fillMasked("imei:", IMEI)
                 .save();
-    }
-    @Test(
-            description = "Добавить в справочник подозрительных IFV",
-            dependsOnMethods = "editTableIMEI"
-    )
-    public void editTableIFV() {
-        Table.Formula rows = getIC().locateTable(TABLE_IFV).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
         getIC().locateTable(TABLE_IFV)
+                .deleteAll()
                 .addRecord()
-                .fillMasked("Identifier for vendor:", "3213-5F97-4B54-9A98-748B1CF8AB8C")
+                .fillMasked("Identifier for vendor:", IFV)
                 .save();
-    }
-
-    @Test(
-            description = "Добавить в справочник подозрительных DFP",
-            dependsOnMethods = "editTableIFV"
-    )
-    public void editTableDFP() {
-        Table.Formula rows = getIC().locateTable(TABLE_DFP).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
         getIC().locateTable(TABLE_DFP)
+                .deleteAll()
                 .addRecord()
-                .fillMasked("DeviceFingerPrint:", "dfsngfljknssdfg1605sd7fg56d1f")
+                .fillMasked("DeviceFingerPrint:", DFP)
                 .save();
-        getIC().close();
     }
 
     @Test(
             description = "Создаем клиента",
-            dependsOnMethods = "editTableDFP"
+            dependsOnMethods = "editTable"
     )
     public void step0() {
         try {
             for (int i = 0; i < 2; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
                 client
                         .getData()
                         .getClientData()
-                        .getClient().withLogin(dboId)
+                        .getClient()
+                        .withLogin(dboId)
                         .getClientIds()
                         .withLoginHash(dboId)
                         .withDboId(dboId)
@@ -137,12 +106,12 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
             throw new IllegalStateException(e);
         }
     }
+
     @Test(
             description = "Выполнить регулярную транзакцию № 1 с подозрительного устройства (IMEI/IMSI/IFV)",
             dependsOnMethods = "step0"
     )
     public void step1() {
-        commandServiceMock.run();
         Transaction transaction = getTransactionREQUEST_CARD_ISSUE_Android();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withRegular(true);
@@ -152,13 +121,8 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMEI("863313032529520");
+                .setIMEI(IMEI);
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(NOT_TRIGGERED, REGULAR_TRANSACTION);
     }
 
@@ -176,13 +140,8 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMEI("863313032529520");
+                .withIMEI(IMEI);
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IMEI);
     }
 
@@ -200,13 +159,8 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMSI("250015038779300");
+                .setIMSI(IMSI);
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IMSI);
     }
 
@@ -224,17 +178,12 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMEI("863313032529520");
+                .setIMEI(IMEI);
         transactionData
                 .getClientDevice()
                 .getAndroid()
-                .setIMSI("250015038779300");
+                .setIMSI(IMSI);
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IMSI_AMD_IMEI);
     }
 
@@ -249,22 +198,12 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-        transactionData.getClientDevice().setAndroid(null);
-        transactionData.getClientDevice().setIOS(new IOSDevice());
-        transactionData.getClientDevice()
-                .setPlatform(PlatformKind.IOS);
-        transactionData.getClientDevice().getIOS().setIpAddress("192.158.11.48");
-        transactionData.getClientDevice().getIOS().setIdentifierForVendor("3213-5F97-4B54-9A98-748B1CF8AB8C");
-        transactionData.getClientDevice().getIOS().setOSVersion("9.1");
-        transactionData.getClientDevice().getIOS().setModel("10");
-        transactionData.getClientDevice().getIOS().setAuthByFingerprint(false);
-
+        transactionData
+                .getClientDevice()
+                .getIOS()
+                .withIpAddress("192.158.11.48")
+                .withIdentifierForVendor(IFV);
         sendAndAssert(transaction);
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_IFV);
     }
 
@@ -280,25 +219,18 @@ public class ExR_06_GrayDevice extends RSHBCaseTest {
                 .getClientIds()
                 .withDboId(clientIds.get(1));
         transactionData
-                .setSessionId("dfsngfljknssdfg1605sd7fg56d1f");
+                .setSessionId(DFP);
 
         getRabbit().setVesResponse(getRabbit().getVesResponse()
                 .replaceAll("46","46")
                 .replaceAll("ilushka305",clientIds.get(1))
                 .replaceAll("305",clientIds.get(1))
-                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf","dfsngfljknssdfg1605sd7fg56d1f"));
+                .replaceAll("dfgjnsdfgnfdkjsgnlfdgfdhkjdf",DFP));
         getRabbit()
                 .sendMessage();
         getRabbit().close();
         sendAndAssert(transaction);
-
-        try {
-            Thread.sleep(12_000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         assertLastTransactionRuleApply(TRIGGERED, RESULT_GREY_DFP);
-        commandServiceMock.stop();
     }
 
     @Override

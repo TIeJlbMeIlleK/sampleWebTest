@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<VBox prefHeight="747.0" prefWidth="1097.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.iitdgroup.tests.testsrunner.Main">
+  <children>
+    <MenuBar VBox.vgrow="NEVER">
+      <menus>
+        <Menu mnemonicParsing="false" text="File">
+          <items>
+            <MenuItem mnemonicParsing="false" text="New" />
+            <MenuItem mnemonicParsing="false" text="Open…" />
+            <Menu mnemonicParsing="false" text="Open Recent" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Close" />
+            <MenuItem mnemonicParsing="false" text="Save" />
+            <MenuItem mnemonicParsing="false" text="Save As…" />
+            <MenuItem mnemonicParsing="false" text="Revert" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Preferences…" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Quit" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Edit">
+          <items>
+            <MenuItem mnemonicParsing="false" text="Undo" />
+            <MenuItem mnemonicParsing="false" text="Redo" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Cut" />
+            <MenuItem mnemonicParsing="false" text="Copy" />
+            <MenuItem mnemonicParsing="false" text="Paste" />
+            <MenuItem mnemonicParsing="false" text="Delete" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Select All" />
+            <MenuItem mnemonicParsing="false" text="Unselect All" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+          <items>
+            <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+      <GridPane hgap="10.0" prefHeight="761.0" prefWidth="1115.0" vgap="10.0" VBox.vgrow="ALWAYS">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="190.0" minWidth="10.0" prefWidth="191.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="190.0" minWidth="10.0" prefWidth="194.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="99999.0" minWidth="6.0" prefWidth="330.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="99999.0" minWidth="10.0" prefWidth="337.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="230.0" minHeight="20.0" prefHeight="193.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="440.0" minHeight="10.0" prefHeight="362.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="351.0" minHeight="10.0" prefHeight="126.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <ListView fx:id="outputView" GridPane.columnIndex="2" GridPane.rowSpan="2" />
+            <SplitPane dividerPositions="0.5, 0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" GridPane.columnSpan="2" GridPane.halignment="LEFT" GridPane.rowSpan="3">
+              <items>
+                  <Label text="Открыть пакеты с тестами:" textFill="#3812d0">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font></Label>
+                  <SplitPane dividerPositions="0.5, 0.5" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="385.0">
+                    <items>
+                        <TextField fx:id="testsPath" onAction="#findBtnClick" text="src/test/java/ru/iitdgroup/tests/cases">
+                           <font>
+                              <Font size="14.0" />
+                           </font></TextField>
+                        <Button mnemonicParsing="false" onAction="#browseTestsFolder" text="Browse">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font></Button>
+                        <Button mnemonicParsing="false" onAction="#findBtnClick" text="Find">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font></Button>
+                    </items>
+                  </SplitPane>
+                  <ListView fx:id="testsList" prefHeight="442.0" prefWidth="385.0" />
+              </items>
+            </SplitPane>
+            <Button fx:id="runTestsBtn" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#runTestsBtnClick" style="-fx-background-color: #00c200; -fx-background-radius: 10;" text="Run selected tests" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+               <GridPane.margin>
+                  <Insets />
+               </GridPane.margin></Button>
+            <Button contentDisplay="RIGHT" mnemonicParsing="false" onAction="#clearResult" style="-fx-background-color: #6164ff; -fx-background-radius: 10;" text="Очистить результат" textAlignment="CENTER" textFill="#e8e8f2" translateX="183.0" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Button>
+            <Button contentDisplay="CENTER" mnemonicParsing="false" onAction="#testStop" style="-fx-background-color: red; -fx-background-radius: 10;" text="STOP" textAlignment="CENTER" textFill="WHITE" translateX="130.0" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Button>
+            <TextArea fx:id="console" editable="false" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowSpan="2" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </GridPane>
+  </children>
+</VBox>

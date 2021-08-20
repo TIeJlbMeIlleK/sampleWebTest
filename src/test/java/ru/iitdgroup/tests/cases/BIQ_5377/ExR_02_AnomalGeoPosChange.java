@@ -1,13 +1,13 @@
 package ru.iitdgroup.tests.cases.BIQ_5377;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.bytebuddy.utility.RandomString;
+
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-
+import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -22,12 +22,11 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
     private static final String RULE_NAME = "R01_ExR_02_AnomalGeoPosChange";
     private static final String TABLE = "(System_parameters) Интеграционные параметры";
-
-    private final GregorianCalendar time = new GregorianCalendar(2021, Calendar.JANUARY, 22, 0, 0, 0);
+    private static final String IP_MOSCOOW = "77.51.50.211";
+    public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Зуля", "Закирова", "Муратовна"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private final String[][] names = {{"Зуля", "Закирова", "Муратовна"}};
 
     @Test(
             description = "Настройка интеграционных параметров и включение правила R01_ExR_02_AnomalGeoPosChange"
@@ -38,7 +37,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
                 .deactivate()
                 .selectRule(RULE_NAME)
                 .activate()
-                .sleep(10);
+                .sleep(15);
 
         getIC().locateTable(TABLE)
                 .findRowsBy()
@@ -48,6 +47,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
                 .fillInputText("Значение:", "1")
                 .save();
         getIC().close();
+        commandServiceMock.run();
     }
 
     @Test(
@@ -63,12 +63,12 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -90,19 +90,8 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
             dependsOnMethods = "addClient"
     )
     public void step1() {
+        time.add(Calendar.HOUR, -50);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .getClientDevice()
-                .getIOS()
-                .withIpAddress("77.51.50.211");
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет данных о предыдущей транзакции");
     }
@@ -114,14 +103,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
     public void step2() {
         time.add(Calendar.SECOND, 1);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientDevice()
                 .getIOS()
@@ -137,18 +119,6 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
     public void step3() {
         time.add(Calendar.HOUR, 24);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .getClientDevice()
-                .getIOS()
-                .withIpAddress("77.51.50.211");
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
     }
@@ -160,14 +130,7 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
     public void step4() {
         time.add(Calendar.SECOND, 1);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientDevice()
                 .getIOS()
@@ -183,18 +146,6 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
     public void step5() {
         time.add(Calendar.HOUR, 24);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .getClientDevice()
-                .getIOS()
-                .withIpAddress("77.51.50.211");
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, RESULT_RULE_NOT_APPLY);
     }
@@ -206,20 +157,22 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
     public void step6() {
         time.add(Calendar.SECOND, 1);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getClientDevice()
                 .getIOS()
                 .withIpAddress("109.229.254.103");
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Растояние/время между транзакциями превышает 150км/ч");
+    }
+
+    @Test(
+            description = "Выключить мок ДБО",
+            dependsOnMethods = "step6"
+    )
+
+    public void disableCommandServiceMock() {
+        commandServiceMock.stop();
     }
 
     @Override
@@ -229,9 +182,21 @@ public class ExR_02_AnomalGeoPosChange extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_IOS.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds().withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+        transactionData
+                .getClientDevice()
+                .getIOS()
+                .withIpAddress(IP_MOSCOOW);
         return transaction;
     }
 }

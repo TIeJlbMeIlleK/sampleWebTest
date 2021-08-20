@@ -35,56 +35,57 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
     private static final String SESSION_ID = "555krl345";
     private static final String UNIQUENAME = "SEND_FROM_VES1";
 
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
     private String[][] names = {{"Лариса", "Каримова", "Игоревна"}, {"Ольга", "Петрова", "Ивановна"}};
     private String workflowRecordUniqueName;
     private String lastVESFeedbackIdBeforeTest;
 
+    //TODO  по Мошеннической транзакции создан ACTION на отправку сообщения в ВЭС
+
+//    @Test(
+//            description = "Создать Action в TransactionWF с указанием ExternalApi на отправку сообщения в ВЭС по мошеннической транзакции (Send_from_VES).\n" +
+//                    "Condition: Transaction_object.status == 'Complete' AND" +
+//                    "Transaction_object.resolution == 'Fraud'" +
+//                    "FieldMapping: fraudReason = \"Указать причину признания транзакции мошеннической\""
+//    )
+//
+//    public void createActionInTransactionWF() {
+//
+//        WorkflowAction record = getIC()
+//                .locateWorkflows()
+//                .openRecord("Транзакция Workflow")
+//                .addAction()
+//                .addFromState(WorkflowAction.WorkflowActionState.ANY_STATE)
+//                .addToState(WorkflowAction.WorkflowActionState.PROCESSED, WorkflowAction.WorkflowActionResolution.FRAUD)
+//                .setCondition("Transaction_object.status == 'Complete' AND\nTransaction_object.resolution == 'Fraud'")
+//                .addFieldMapping("Причина признания транзакции мошеннической", "\"Мошенничество\"", null)
+//                .setCustomExternalAPIsSendVESfeedback();
+//
+//        String recordUniqueName = UNIQUENAME;
+//        Boolean savedSuccessfully = false;
+//        while (!savedSuccessfully) {
+//            try {
+//                record.setDisplayName(recordUniqueName);
+//                record.getUniqueName();
+//                record.setUniqueName(recordUniqueName);
+//                record.save();
+//                savedSuccessfully = true;
+//            } catch (TimeoutException e) { //если сохранение не удалось и такой unique name уже существует
+//                recordUniqueName = recordUniqueName + "1";
+//            }
+//        }
+//        workflowRecordUniqueName = recordUniqueName;
+//    }
 
     @Test(
-            description = "Создать Action в TransactionWF с указанием ExternalApi на отправку сообщения в ВЭС по мошеннической транзакции (Send_from_VES).\n" +
-                    "Condition: Transaction_object.status == 'Complete' AND\n" +
-                    "Transaction_object.resolution == 'Fraud'\n" +
-                    "FieldMapping: fraudReason = \"Указать причину признания транзакции мошеннической\""
-    )
-
-    public void createActionInTransactionWF() {
-
-        WorkflowAction record = getIC()
-                .locateWorkflows()
-                .openRecord("Транзакция Workflow")
-                .addAction()
-                .addFromState(WorkflowAction.WorkflowActionState.ANY_STATE)
-                .addToState(WorkflowAction.WorkflowActionState.PROCESSED, WorkflowAction.WorkflowActionResolution.FRAUD)
-                .setCondition("Transaction_object.status == 'Complete' AND\nTransaction_object.resolution == 'Fraud'")
-                .addFieldMapping("Причина признания транзакции мошеннической", "\"Мошенничество\"", null)
-                .setCustomExternalAPIsSendVESfeedback();
-
-        String recordUniqueName = UNIQUENAME;
-        Boolean savedSuccessfully = false;
-        while (!savedSuccessfully) {
-            try {
-                record.setDisplayName(recordUniqueName);
-                record.getUniqueName();
-                record.setUniqueName(recordUniqueName);
-                record.save();
-                savedSuccessfully = true;
-            } catch (TimeoutException e) { //если сохранение не удалось и такой unique name уже существует
-                recordUniqueName = recordUniqueName + "1";
-            }
-        }
-        workflowRecordUniqueName = recordUniqueName;
-    }
-
-    @Test(
-            description = "Создаем клиента",
-            dependsOnMethods = "createActionInTransactionWF"
+            description = "Создаем клиента"
+            //dependsOnMethods = "createActionInTransactionWF"
     )
     public void addClient() {
         try {
             for (int i = 0; i < 2; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9);
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
@@ -159,8 +160,8 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
     }
 
     @Test(
-            description = "Включить: 1. VES_FFEDBACK = 1\n" +
-                    "2. Включить LOG_VES\n" +
+            description = "Включить: 1. VES_FFEDBACK = 1" +
+                    "2. Включить LOG_VES" +
                     "3. IntegrVES2 = 1",
             dependsOnMethods = "enableRules"
     )
@@ -187,7 +188,7 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
                 .edit()
                 .fillInputText("Значение:", "1")
                 .save()
-                .sleep(5);
+                .sleep(2);
     }
 
     @Test(
@@ -202,7 +203,6 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
                 .openRecord("Логированные сообщения")
                 .setTableFilter("Тип сервиса", "Equals", "VES_FEEDBACK")
                 .getLastRecordIdentificator();
-
     }
 
     @Test(
@@ -233,10 +233,11 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(0));
-
-        transactionData.getClientIds().withLoginHash(LOGIN_HASH);
-        transactionData.withSessionId(SESSION_ID);
-
+        transactionData
+                .getClientIds()
+                .withLoginHash(LOGIN_HASH);
+        transactionData
+                .withSessionId(SESSION_ID);
         sendAndAssert(transaction);
     }
 
@@ -252,9 +253,11 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
-        transactionData.getClientIds().withLoginHash(LOGIN_HASH + "1");
-        transactionData.withSessionId(SESSION_ID + "1");
-
+        transactionData
+                .getClientIds()
+                .withLoginHash(LOGIN_HASH + "1");
+        transactionData
+                .withSessionId(SESSION_ID + "1");
         sendAndAssert(transaction);
     }
 
@@ -270,7 +273,8 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
                 .openFirst()
                 .action("Мошенничество")
                 .goToTransactionPage()
-                .action(workflowRecordUniqueName)
+               // .action(workflowRecordUniqueName)
+                .action("Отправить сообщение в ВЭС")
                 .sleep(3);
     }
 
@@ -286,7 +290,8 @@ public class VerificationOfSendingMessagesVESFraudulentTransaction extends RSHBC
                 .openFirst()
                 .action("Мошенничество")
                 .goToTransactionPage()
-                .action(workflowRecordUniqueName)
+               // .action(workflowRecordUniqueName)
+                .action("Отправить сообщение в ВЭС")
                 .sleep(3);
     }
 

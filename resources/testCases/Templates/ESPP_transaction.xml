@@ -24,10 +24,10 @@
         <!--Optional:-->
         <tran:PaymentParameters>
             <!--1 or more repetitions:-->
-            <tran:Parameter Name="PayeeAccount" Value="${=org.apache.commons.lang.RandomStringUtils.randomNumeric(10)}"/>
-            <tran:Parameter Name="R_CorpBIC" Value="${=org.apache.commons.lang.RandomStringUtils.randomNumeric(9)}"/>
-            <tran:Parameter Name="R_CorpBankAccount" Value="${=org.apache.commons.lang.RandomStringUtils.randomNumeric(20)}"/>
-            <tran:Parameter Name="R_CorpINN" Value="${=org.apache.commons.lang.RandomStringUtils.randomNumeric(10)}"/>
+<!--            <tran:Parameter Name="PayeeAccount" Value="${=org.apache.commons.lang.RandomStringUtils.randomNumeric(11)}"/>-->
+<!--            <tran:Parameter Name="R_CorpBIC" Value="${=org.apache.commons.lang.RandomStringUtils.randomNumeric(9)}"/>-->
+<!--            <tran:Parameter Name="R_CorpBankAccount" Value="${=org.apache.commons.lang.RandomStringUtils.randomNumeric(20)}"/>-->
+<!--            <tran:Parameter Name="R_CorpINN" Value="${=org.apache.commons.lang.RandomStringUtils.randomNumeric(10)}"/>-->
             <tran:Parameter Name="vetka" Value="0"/>
         </tran:PaymentParameters>
     </tran:ServicePayment>

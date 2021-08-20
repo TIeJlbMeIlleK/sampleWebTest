@@ -1,0 +1,66 @@
+<ns4:SendTransactionDataRequest xmlns="http://www.iitdgroup.ru/Intellinx/DBO/Auth" xmlns:ns2="http://www.iitdgroup.ru/Intellinx/DBO/Common" xmlns:ns3="http://www.iitdgroup.ru/Intellinx/DBO/Client" xmlns:ns4="http://www.iitdgroup.ru/Intellinx/DBO/Transaction">
+	<ns4:ServerInfo>
+		<ns2:Ip>localhost</ns2:Ip>
+		<ns2:Port>8050</ns2:Port>
+	</ns4:ServerInfo>
+	<ns4:TransactionData>
+		<ns4:TransactionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns4:TransactionId>
+		<ns4:Version>1</ns4:Version>
+		<ns4:ClientIds>
+			<ns2:DboId>5</ns2:DboId>
+			<ns2:CifId>5</ns2:CifId>
+			<ns2:ExpertSystemId>5</ns2:ExpertSystemId>
+			<ns2:LoginHash>5</ns2:LoginHash>
+			<!-- данные поля тянутся в\из Client -->
+			<ns2:EksId>5</ns2:EksId>
+			<ns2:PcId>PcIdTest</ns2:PcId>
+		</ns4:ClientIds>
+		<ns4:Limit>100</ns4:Limit>
+		<ns4:DocumentSaveTimestamp>2021-03-06T13:00:00.000+03:00</ns4:DocumentSaveTimestamp>
+		<ns4:DocumentNumber>35</ns4:DocumentNumber>
+		<ns4:Type>CREATE_SUBSCRIPTION</ns4:Type>
+		<ns4:Regular>false</ns4:Regular>
+		<ns4:DocumentConfirmationTimestamp>2021-03-06T13:00:00.000+03:00</ns4:DocumentConfirmationTimestamp>
+		<ns4:CreateSubscription>
+			<!--  Новые поля в транзакции -->
+			<ns4:Subscriptionid>test</ns4:Subscriptionid>
+			<ns4:SubscriptionDBOId>10011001555</ns4:SubscriptionDBOId>
+			<ns4:SubscriptionStatus>CREATE</ns4:SubscriptionStatus>
+			<ns4:ActionType>1</ns4:ActionType>
+			<ns4:SubsType>BY_INVOICE</ns4:SubsType>
+			<ns4:PaymentType>SERVICE_PAYMENT</ns4:PaymentType>
+			<!-- Новая сущность AutoPaymentParameters (Параметры автоплатежа)  -->
+			<ns4:AccuredPayment>
+				<ns4:MaxAmount>10000</ns4:MaxAmount>
+				<ns4:Period>WEEK</ns4:Period>
+			</ns4:AccuredPayment>
+			<!-- Новая сущность AutoPaymentData (Данные автоплатежа)  -->
+			<ns4:ServicePayment>
+				<ns4:ServiceKind>101</ns4:ServiceKind>
+				<ns4:ProviderName>МТС</ns4:ProviderName>
+				<ns4:ServiceName>МТС</ns4:ServiceName>
+				<ns4:SourceProduct>string</ns4:SourceProduct>
+				<ns4:AdditionalField>
+					<ns4:Id>ACCOUNT</ns4:Id>
+					<ns4:Name>1111</ns4:Name>
+					<ns4:Value>9660000001</ns4:Value>
+				</ns4:AdditionalField>
+			</ns4:ServicePayment>
+		</ns4:CreateSubscription>
+		<ns4:InitialSourceAmount>1000000</ns4:InitialSourceAmount>
+		<ns4:SessionId>klyTRwKKhtFVaf15g6gdfг5456уty60j71001</ns4:SessionId>
+		<ns4:Channel>MOBILE_BANK</ns4:Channel>
+		<ns4:ClientDevice>
+			<ns3:Platform>Android</ns3:Platform>
+			<ns3:Android>
+				<ns3:IpAddress>58.25.1.101</ns3:IpAddress>
+				<ns3:IMSI>250016501901001</ns3:IMSI>
+				<ns3:IMEI>351612062171001</ns3:IMEI>
+				<ns3:IMEISV>01</ns3:IMEISV>
+				<ns3:MSISDN/>
+				<ns3:SPN>MTS RUS</ns3:SPN>
+				<ns3:OSVersion>4.4.2</ns3:OSVersion>
+			</ns3:Android>
+		</ns4:ClientDevice>
+	</ns4:TransactionData>
+</ns4:SendTransactionDataRequest>

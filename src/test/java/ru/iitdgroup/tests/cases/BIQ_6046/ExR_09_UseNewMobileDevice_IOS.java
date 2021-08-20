@@ -39,9 +39,26 @@ public class ExR_09_UseNewMobileDevice_IOS extends RSHBCaseTest {
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
     private final List<String> clientIds = new ArrayList<>();
 
+    @Test(
+            description = "EXR_09 включено/По умолчанию включены флаги в настройке правила" +
+                    " \"Использовать информацию из ВЭС\" и \"Использовать информацию из САФ\""
+
+    )
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillCheckBox("Использовать информацию из ВЭС:", true)
+                .fillCheckBox("Использовать информацию из САФ:", true)
+                .save()
+                .sleep(15);
+    }
 
     @Test(
-            description = "Создаем клиента"
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
 
     )
     public void addClient() {
@@ -54,7 +71,7 @@ public class ExR_09_UseNewMobileDevice_IOS extends RSHBCaseTest {
                         .getClientData()
                         .getClient()
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH);
+                        .withLoginHash(dboId);
                 client
                         .getData()
                         .getClientData()
@@ -62,7 +79,7 @@ public class ExR_09_UseNewMobileDevice_IOS extends RSHBCaseTest {
                         .withFirstName("Наталья")
                         .withLastName("Иванова")
                         .withMiddleName("Ильинична")
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .getClientIds()
                         .withDboId(dboId);
                 sendAndAssert(client);
@@ -75,29 +92,11 @@ public class ExR_09_UseNewMobileDevice_IOS extends RSHBCaseTest {
     }
 
 
-    @Test(
-            description = "EXR_09 включено/По умолчанию включены флаги в настройке правила" +
-                    " \"Использовать информацию из ВЭС\" и \"Использовать информацию из САФ\"",
-            dependsOnMethods = "addClient"
-    )
-    public void enableRules() {
-        getIC().locateRules()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Использовать информацию из ВЭС:", true)
-                .fillCheckBox("Использовать информацию из САФ:", true)
-                .save();
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .selectRule(RULE_NAME)
-                .activate()
-                .sleep(15);
-    }
 
 
     @Test(
             description = "Включена IntegrVES2 (1)",
-            dependsOnMethods = "enableRules"
+            dependsOnMethods = "addClient"
     )
     public void enableVES2() {
 
@@ -130,8 +129,8 @@ public class ExR_09_UseNewMobileDevice_IOS extends RSHBCaseTest {
                 .fillInputText("IdentifierForVendor:", IFV1)
                 .fillInputText("DeviceFingerPrint:", DFP1)
                 .fillUser("Клиент:", clientIds.get(0))
-                .save().sleep(5);
-
+                .save()
+                .sleep(5);
     }
 
     @Test(
@@ -144,8 +143,8 @@ public class ExR_09_UseNewMobileDevice_IOS extends RSHBCaseTest {
         try {
             String vesResponse = getRabbit().getVesResponse();
             JSONObject json = new JSONObject(vesResponse);
-            json.put("login", LOGIN);
-            json.put("login_hash", LOGIN_HASH);
+            json.put("login", clientIds.get(0));
+            json.put("login_hash", clientIds.get(0));
             json.put("session_id", DFP1);
             json.put("device_hash", DFP1);
             String newStr = json.toString();

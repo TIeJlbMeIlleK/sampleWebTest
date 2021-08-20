@@ -99,7 +99,10 @@ public class AlertRecord extends AbstractEdit<AlertRecord> {
         return getSelf();
     }
 
+    /**
+     * берет дату Timestamp: в последнем Алерте
+     */
     public String getLastDate() {
-        return driver.findElementByXPath("//tbody[@id='j_id226:0:j_id229:tbody_element']/tr[1]/td[4]/table/tbody/tr/td/table/tbody/tr/td[2]").getText();
+        return driver.findElementByXPath("//tbody[@id='j_id2475:0:j_id2478:tbody_element']/tr[1]/td[4]/table/tbody/tr/td/table/tbody/tr/td[2]").getText();
     }
 }

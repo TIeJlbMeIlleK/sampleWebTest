@@ -48,7 +48,7 @@ public class GR_99_Scenario extends RSHBCaseTest {
                         .getData()
                         .getClientData()
                         .getClient()
-                        .setPasswordRecoveryDateTime(time_1);
+                        .setPasswordRecoveryDateTime(new XMLGregorianCalendarImpl(time_1));
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);

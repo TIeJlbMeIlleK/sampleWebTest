@@ -8,7 +8,6 @@ import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.webdriver.jobconfiguration.JobRunEdit;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -20,40 +19,73 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class JOB_PayeeToWhiteList extends RSHBCaseTest {
 
     private final GregorianCalendar time = new GregorianCalendar();
     private GregorianCalendar time2;
     private GregorianCalendar time3;
     private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-
     private final List<String> clientIds = new ArrayList<>();
     private Client client = null;
-
     private static final String RULE_NAME = "R01_GR_20_NewPayee";
     private static final String REFERENCE_ITEM = "(Policy_parameters) Параметры обработки справочников и флагов";
     private static final String REFERENCE_ITEM1 = "(Rule_tables) Карантин получателей";
     private static final String REFERENCE_ITEM2 = "(Rule_tables) Доверенные получатели";
     private static final String TYPE_TSP = new RandomString(8).nextString();
     private static final String TYPE_TSP1 = new RandomString(8).nextString();
-
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
 
     @Test(
-            description = "Создаем клиента"
+            description = "Включить и настроить правило GR_20 и " +
+                    "Очистить справочник «Карантин Получателей» и «Доверенные Получатели»" +
+                    "Установить CLAIM_PERIOD = 1  (справочник Параметры обработки справочников и флагов)"
+    )
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .selectRule(RULE_NAME)
+                .activate()
+                .sleep(10);
+
+        getIC().locateTable(REFERENCE_ITEM1).deleteAll();
+
+        getIC().locateTable(REFERENCE_ITEM2).deleteAll();
+
+        getIC().locateTable(REFERENCE_ITEM)
+                .findRowsBy()
+                .match("код значения", "CLAIM_PERIOD")
+                .click()
+                .edit()
+                .fillInputText("Значение:", "1")
+                .save();
+    }
+
+    @Test(
+            description = "Создаем клиента",
+            dependsOnMethods = "enableRules"
     )
     public void addClient() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
                 Client client = new Client("testCases/Templates/client.xml");
 
-                client.getData().getClientData().getClient()
-                        .withFirstName("Мила")
-                        .withLastName("Зыкина")
-                        .withMiddleName("Олеговна")
+                client.getData()
+                        .getClientData()
+                        .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
 
                 sendAndAssert(client);
                 clientIds.add(dboId);
@@ -65,51 +97,15 @@ public class JOB_PayeeToWhiteList extends RSHBCaseTest {
         }
     }
 
-    @Test(
-            description = "Включить и настроить правило GR_20 и " +
-                    "Очистить справочник «Карантин Получателей» и «Доверенные Получатели»\"" +
-                    "\"Установить CLAIM_PERIOD = 1  (справочник \"Параметры обработки справочников и флагов\")",
-            dependsOnMethods = "addClient"
-    )
-    public void enableRules() {
-        getIC().locateTable(REFERENCE_ITEM1).deleteAll();
-
-        getIC().locateTable(REFERENCE_ITEM2).deleteAll();
-
-        getIC().locateTable(REFERENCE_ITEM)
-                .findRowsBy().match("код значения", "CLAIM_PERIOD").click()
-                .edit().fillInputText("Значение:", "1").save().sleep(1);
-
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillCheckBox("Active:", true)
-                .save()
-                .sleep(15);
-    }
 
     @Test(
             description = " Отправить транзакцию №1 от Клиента №1 \"Платеж по QR-коду через СБП\" -- Получатель №1" +
                     "и проверить справочник Карантин Получателей",
-            dependsOnMethods = "enableRules"
+            dependsOnMethods = "addClient"
     )
 
     public void step1() {
-
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(10))
-                .withTSPName(TYPE_TSP)
-                .withTSPType(TYPE_TSP);
         sendAndAssert(transaction);
 
         String name = client.getData().getClientData().getClient().getLastName() + ' ' +
@@ -147,14 +143,9 @@ public class JOB_PayeeToWhiteList extends RSHBCaseTest {
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2));
         transactionData
                 .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(10))
                 .withTSPName(TYPE_TSP1)
                 .withTSPType(TYPE_TSP1);
         sendAndAssert(transaction);
@@ -178,12 +169,10 @@ public class JOB_PayeeToWhiteList extends RSHBCaseTest {
     )
 
     public void runJobStep() {
-
         getIC().locateJobs()
                 .selectJob("PayeeToWhiteList")
                 .run()
                 .waitStatus(JobRunEdit.JobStatus.SUCCESS);
-
         getIC().home();
     }
 
@@ -196,18 +185,9 @@ public class JOB_PayeeToWhiteList extends RSHBCaseTest {
         time.add(Calendar.MINUTE, 1);
         time3 = (GregorianCalendar) time.clone();
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
+        transaction.getData().getTransactionData()
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time3))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time3))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(10))
-                .withTSPName(TYPE_TSP)
-                .withTSPType(TYPE_TSP);
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time3));
         sendAndAssert(transaction);
     }
 
@@ -247,9 +227,20 @@ public class JOB_PayeeToWhiteList extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE.xml");
-        transaction.getData().getTransactionData()
+        transaction.getData().getServerInfo().withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
                 .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(10))
+                .withTSPName(TYPE_TSP)
+                .withTSPType(TYPE_TSP);
         return transaction;
     }
 }

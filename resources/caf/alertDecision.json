@@ -1,0 +1,7 @@
+{"msgtype":"alertDecision",
+        "rrn":"s67i11611061034",
+        "transactionId":"161106034",
+        "isFraud":"2",
+        "comment":"Заметки",
+        "operatorName":"ФИО оператора"
+}

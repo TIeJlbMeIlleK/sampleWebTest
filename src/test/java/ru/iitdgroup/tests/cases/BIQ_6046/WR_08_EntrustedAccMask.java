@@ -26,52 +26,57 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class WR_08_EntrustedAccMask extends RSHBCaseTest {
-
 
     private static final String RULE_NAME = "R01_WR_08_EntrustedAccMask";
     private static final String PAYMENT_MASK = "464512";
     private static final String WRONG_PAYMENT_MASK = "464515";
-
-    private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 11, 0, 0, 0);
+    private String[][] names = {{"Петр", "Урин", "Семенович"}, {"Ольга", "Румянцева", "Григорьевна"}};
+    private final GregorianCalendar time = new GregorianCalendar();
     private final List<String> clientIds = new ArrayList<>();
-
 
     @Test(
             description = "Настройка и включение правила"
     )
     public void enableRules() {
         getIC().locateRules()
-                .openRecord(RULE_NAME)
-                .detachWithoutRecording("Маски счетов")
-                .attachAddingValue("Маски счетов", "Маски счетов доверенных получателей", "Equals", PAYMENT_MASK)
-                .sleep(3);
-        getIC().locateRules()
                 .selectVisible()
                 .deactivate()
                 .selectRule(RULE_NAME)
-                .activate()
-                .sleep(15);
-
+                .activate();
+        getIC().locateRules()
+                .openRecord(RULE_NAME)
+                .detachWithoutRecording("Маски счетов")
+                .attachAddingValue("Маски счетов", "Маски счетов доверенных получателей", "Equals", PAYMENT_MASK)
+                .sleep(30);
     }
 
     @Test(
             description = "Создаем клиента",
             dependsOnMethods = "enableRules"
     )
-    public void step0() {
+    public void addClients() {
         try {
             for (int i = 0; i < 1; i++) {
-                //FIXME Добавить проверку на существование клиента в базе
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+
+                client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
+
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -83,7 +88,7 @@ public class WR_08_EntrustedAccMask extends RSHBCaseTest {
 
     @Test(
             description = "Отправить транзакцию №1 Перевод между счетами где первые цифры SourceProduct = 464512",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "addClients"
     )
 
     public void step1() {
@@ -127,7 +132,6 @@ public class WR_08_EntrustedAccMask extends RSHBCaseTest {
     protected String getRuleName() {
         return RULE_NAME;
     }
-
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/TRANSFER_BETWEEN_ACCOUNTS.xml");

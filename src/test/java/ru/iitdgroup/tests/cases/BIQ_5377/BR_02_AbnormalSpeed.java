@@ -1,7 +1,6 @@
 package ru.iitdgroup.tests.cases.BIQ_5377;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
@@ -17,22 +16,14 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class BR_02_AbnormalSpeed extends RSHBCaseTest {
-
 
     private static final String RULE_NAME = "R01_BR_02_AbnormalSpeed";
 
-    private final GregorianCalendar time1 = new GregorianCalendar(2021, Calendar.JANUARY, 26, 0, 0, 0);
-    private final GregorianCalendar time2 = new GregorianCalendar(2021, Calendar.JANUARY, 26, 0, 0, 55);
-    private final GregorianCalendar time3 = new GregorianCalendar(2021, Calendar.JANUARY, 26, 0, 01, 05);
-    private final GregorianCalendar time4 = new GregorianCalendar(2021, Calendar.JANUARY, 26, 0, 02, 05);
-    private final GregorianCalendar time5 = new GregorianCalendar(2021, Calendar.JANUARY, 26, 0, 03, 06);
+    private final GregorianCalendar time = new GregorianCalendar();
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 7);
+    private final String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
 
     @Test(
             description = "Включаем правило"
@@ -45,7 +36,7 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
                 .editRule(RULE_NAME)
                 .fillCheckBox("Active:", true)
                 .fillInputText("Интервал между операциями (в секундах, пример 2):", "60")
-                .save().sleep(10);
+                .save().sleep(25);
     }
 
     @Test(
@@ -61,12 +52,12 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -89,16 +80,11 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
     )
 
     public void transaction1() {
+        time.add(Calendar.MINUTE, -15);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000))
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Промежуток времени между транзакциями больше интервала");
     }
@@ -109,18 +95,10 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
     )
 
     public void transaction2() {
+        time.add(Calendar.SECOND, 55);
         Transaction transaction = getTransaction();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time2))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time2))
                 .withRegular(true);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(9500))
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Правило не применяется для регулярных транзакций");
     }
@@ -131,18 +109,8 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
     )
 
     public void transaction3() {
+        time.add(Calendar.SECOND, 10);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time3))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time3))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(9500))
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Промежуток времени между транзакциями больше интервала");
     }
@@ -153,18 +121,8 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
     )
 
     public void transaction4() {
+        time.add(Calendar.SECOND, 60);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time4))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time4))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(9500))
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(TRIGGERED, "Промежуток времени между транзакциями меньше интервала");
     }
@@ -175,18 +133,8 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
     )
 
     public void transaction5() {
+        time.add(Calendar.SECOND, 61);
         Transaction transaction = getTransaction();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time5))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time5))
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(9500))
-                .getPaymentC2B()
-                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
         assertLastTransactionRuleApply(NOT_TRIGGERED, "Промежуток времени между транзакциями больше интервала");
     }
@@ -198,9 +146,17 @@ public class BR_02_AbnormalSpeed extends RSHBCaseTest {
 
     private Transaction getTransaction() {
         Transaction transaction = getTransaction("testCases/Templates/PAYMENTC2B_QRCODE_IOS.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time1))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time1));
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withVersion(1L)
+                .withRegular(false)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(9500));
+        transactionData
+                .getClientIds().withDboId(clientIds.get(0));
+        transactionData
+                .getPaymentC2B()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         return transaction;
     }
 }

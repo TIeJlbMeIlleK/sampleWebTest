@@ -7,7 +7,6 @@ import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
 import ru.iitdgroup.tests.mock.commandservice.CommandServiceMock;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -18,36 +17,76 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class IR_03_RepeatApprovedTransaction_PhoneTransfer extends RSHBCaseTest {
-
 
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String PAYEE_WHITE_LIST = "(Rule_tables) Доверенные получатели";
     private static final String PAYEE_QUARANTINE_LIST = "(Rule_tables) Карантин получателей";
-    private static final String PAYEE_1 = "79599958564";
-    private static final String PAYEE_2 = "79599958565";
+    private static final String PHONE_1 = "79" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9);
+    private static final String PHONE_2 = "79" + (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 9);
+    private static final String PAYEE_1 = (ThreadLocalRandom.current().nextLong(100000000000000L, Long.MAX_VALUE) + "").substring(0, 11);
+
     public CommandServiceMock commandServiceMock = new CommandServiceMock(3005);
     private final GregorianCalendar time = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
     private final GregorianCalendar time_new = new GregorianCalendar(2020, Calendar.NOVEMBER, 1, 0, 0, 0);
-
+    private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
     private final List<String> clientIds = new ArrayList<>();
-
+    private final String[][] names = {{"Леонид", "Жуков", "Игоревич"}, {"Петр", "Серебряков", "Иванович"}};
 
     @Test(
-            description = "Создание клиентов"
+            description = "Включаем правило и выполняем преднастройки"
+    )
+    public void enableRules() {
+        getIC().locateRules()
+                .selectVisible()
+                .deactivate()
+                .editRule(RULE_NAME)
+                .fillCheckBox("Active:", true)
+                .fillCheckBox("АДАК выполнен:", false)
+                .fillCheckBox("РДАК выполнен:", false)
+                .fillCheckBox("Требовать совпадения остатка на счете:", false)
+                .fillInputText("Длина серии:", "3")
+                .fillInputText("Период серии в минутах:", "10")
+                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
+                .save()
+                .detachWithoutRecording("Типы транзакций")
+                .attachTransactionIR03("Типы транзакций", "Перевод по номеру телефона")
+                .sleep(10);
+
+        getIC().locateTable(REFERENCE_TABLE)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Перевод по номеру телефона")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
+
+        commandServiceMock.run();
+    }
+
+    @Test(
+            description = "Создание клиентов",
+            dependsOnMethods = "enableRules"
     )
     public void createClients() {
         try {
-            for (int i = 0; i < 5; i++) {
-                String dboId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "";
+            for (int i = 0; i < 2; i++) {
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
-                client
-                        .getData()
+                client.getData()
                         .getClientData()
                         .getClient()
+                        .withLogin(dboId)
+                        .withFirstName(names[i][0])
+                        .withLastName(names[i][1])
+                        .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withDboId(dboId);
+                        .withLoginHash(dboId)
+                        .withDboId(dboId)
+                        .withCifId(dboId)
+                        .withExpertSystemId(dboId)
+                        .withEksId(dboId)
+                        .getAlfaIds()
+                        .withAlfaId(dboId);
                 sendAndAssert(client);
                 clientIds.add(dboId);
                 System.out.println(dboId);
@@ -55,76 +94,31 @@ public class IR_03_RepeatApprovedTransaction_PhoneTransfer extends RSHBCaseTest 
         } catch (JAXBException | IOException e) {
             throw new IllegalStateException(e);
         }
-    }
 
-    @Test(
-            description = "Включаем правило и выполняем преднастройки",
-            dependsOnMethods = "createClients"
-    )
-    public void step0() {
-        getIC().locateRules()
-                .selectVisible()
-                .deactivate()
-                .editRule(RULE_NAME)
-                .fillInputText("Длина серии:","3")
-                .fillInputText("Период серии в минутах:","10")
-                .fillCheckBox("РДАК выполнен:",false)
-                .fillCheckBox("АДАК выполнен:",false)
-                .fillCheckBox("Требовать совпадения остатка на счете:",false)
-                .select("Тип транзакции:","PHONE_NUMBER_TRANSFER")
-                .fillCheckBox("Active:",true)
-                .save()
-                .sleep(30);
-
-        Table.Formula rows = getIC().locateTable(PAYEE_WHITE_LIST).findRowsBy();
-        if (rows.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows.delete();
-        }
         getIC().locateTable(PAYEE_WHITE_LIST)
+                .deleteAll()
                 .addRecord()
                 .fillUser("ФИО Клиента:",clientIds.get(0))
-                .fillInputText("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером:",PAYEE_1)
+                .fillInputText("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером:", PHONE_1)
                 .save();
 
-        Table.Formula rows1 = getIC().locateTable(PAYEE_QUARANTINE_LIST).findRowsBy();
-        if (rows1.calcMatchedRows().getTableRowNums().size() > 0) {
-            rows1.delete();
-        }
         getIC().locateTable(PAYEE_QUARANTINE_LIST)
+                .deleteAll()
                 .addRecord()
                 .fillUser("ФИО Клиента:",clientIds.get(1))
-                .fillInputText("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером:",PAYEE_2)
+                .fillInputText("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером:", PHONE_2)
                 .save();
-        commandServiceMock.run();
     }
 
     @Test(
             description = "Отправить Транзакцию №1 в обработку -- Получатель №1, сумма 500, остаток 10000",
-            dependsOnMethods = "step0"
+            dependsOnMethods = "createClients"
     )
 
     public void step1() {
         Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setPayeePhone(PAYEE_1);
-        transactionData
-                .getPhoneNumberTransfer()
-                .setBankName("РОССЕЛЬХОЗБАНК");
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, PHONE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод по номеру телефона», условия правила не выполнены");
     }
 
     @Test(
@@ -134,54 +128,27 @@ public class IR_03_RepeatApprovedTransaction_PhoneTransfer extends RSHBCaseTest 
     public void step2() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setPayeePhone(PAYEE_1);
-        transactionData
-                .getPhoneNumberTransfer()
-                .setBankName("РОССЕЛЬХОЗБАНК");
-        transactionData
-                .getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(BigDecimal.valueOf(500));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .withInitialSourceAmount(BigDecimal.valueOf(9500));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, TRIGGERED_TRUE);
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод по номеру телефона» транзакция с совпадающими реквизитами");
     }
 
     @Test(
-            description = "Отправить Транзакцию №3 в обработку -- Получатель №1, сумма 501",
+            description = "Отправить Транзакцию №3 в обработку -- Получатель №1, сумма 800",
             dependsOnMethods = "step2"
     )
 
     public void step3() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPhoneNumberTransfer()
-                .setPayeePhone(PAYEE_1);
-        transactionData
-                .getPhoneNumberTransfer()
-                .setBankName("РОССЕЛЬХОЗБАНК");
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(BigDecimal.valueOf(501));
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+                .withAmountInSourceCurrency(BigDecimal.valueOf(800));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, PHONE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод по номеру телефона» условия правила не выполнены");
     }
 
     @Test(
@@ -192,26 +159,12 @@ public class IR_03_RepeatApprovedTransaction_PhoneTransfer extends RSHBCaseTest 
     public void step4() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPhoneNumberTransfer()
-                .setPayeePhone("79469634578");
-        transactionData
-                .getPhoneNumberTransfer()
-                .setBankName("РОССЕЛЬХОЗБАНК");
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+                .withPayeePhone("79469634578");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, PHONE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод по номеру телефона» условия правила не выполнены");
     }
 
     @Test(
@@ -222,120 +175,66 @@ public class IR_03_RepeatApprovedTransaction_PhoneTransfer extends RSHBCaseTest 
     public void step5() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPhoneNumberTransfer()
-                .setPayeePhone(PAYEE_1);
-        transactionData
-                .getPhoneNumberTransfer()
-                .setBankName("ВЭБ Банк");
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+                .withBankName("ВЭБ Банк");
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, PHONE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод по номеру телефона» условия правила не выполнены");
     }
 
     @Test(
-            description = " Отправить Транзакцию №6 от нового клиента №2 в обработку -- Получатель №1, сумма 500",
+            description = "Отправить Транзакцию №7 от прежнего клиента №1 в обработку -- Получатель №1, сумма 500",
             dependsOnMethods = "step5"
     )
 
     public void step6() {
         time.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(4));
+        TransactionDataType transactionData = transaction.getData().getTransactionData();
         transactionData
                 .getPhoneNumberTransfer()
-                .setPayeePhone(PAYEE_1);
-        transactionData
-                .getPhoneNumberTransfer()
-                .setBankName("ВЭБ Банк");
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
+                .withAmountInSourceCurrency(BigDecimal.valueOf(372.25));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, PHONE_CONDITIONS_NOT_MET);
-    }
-
-    @Test(
-            description = "Отправить Транзакцию №7 от прежнего клиента №1 в обработку -- Получатель №1, сумма 500",
-            dependsOnMethods = "step6"
-    )
-
-    public void step7() {
-        time.add(Calendar.MINUTE, 1);
-        Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setPayeePhone(PAYEE_1);
-        transactionData
-                .getPhoneNumberTransfer()
-                .setBankName("РОССЕЛЬХОЗБАНК");
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time));
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, TRIGGERED_TRUE);
-
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод по номеру телефона» транзакция с совпадающими реквизитами");
     }
 
     @Test(
             description = "Отправить Транзакцию №8 от прежнего клиента №1 в обработку -- Получатель №1, сумма 500, спустя 11 минут",
-            dependsOnMethods = "step7"
+            dependsOnMethods = "step6"
     )
 
-    public void step8() {
+    public void step7() {
         Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setPayeePhone(PAYEE_1);
-        transactionData
-                .getPhoneNumberTransfer()
-                .setBankName("РОССЕЛЬХОЗБАНК");
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time_new));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time_new))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time_new));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, PHONE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Перевод по номеру телефона» условия правила не выполнены");
     }
 
     @Test(
             description = "Отправить Транзакцию №9 от Клиента №3 в обработку -- Получатель №2, сумма 500",
+            dependsOnMethods = "step7"
+    )
+
+    public void step8() {
+        time_new.add(Calendar.MINUTE, 1);
+        Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time_new));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(1));
+        transactionData
+                .getPhoneNumberTransfer()
+                .withPayeePhone(PHONE_2);
+        sendAndAssert(transaction);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Перевод по номеру телефона», условия правила не выполнены");
+    }
+
+    @Test(
+            description = "Отправить Транзакцию №10 от Клиента №3 в обработку -- Получатель №2, сумма 500",
             dependsOnMethods = "step8"
     )
 
@@ -343,109 +242,43 @@ public class IR_03_RepeatApprovedTransaction_PhoneTransfer extends RSHBCaseTest 
         time_new.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
         TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time_new));
         transactionData
                 .getClientIds()
                 .withDboId(clientIds.get(1));
         transactionData
                 .getPhoneNumberTransfer()
-                .setPayeePhone(PAYEE_2);
-        transactionData
-                .getPhoneNumberTransfer()
-                .setBankName("РОССЕЛЬХОЗБАНК");
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time_new));
+                .setPayeePhone(PHONE_2);
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, PHONE_CONDITIONS_NOT_MET);
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Перевод по номеру телефона» транзакция с совпадающими реквизитами");
     }
 
     @Test(
-            description = "Отправить Транзакцию №10 от Клиента №3 в обработку -- Получатель №2, сумма 500",
+            description = "Отправить Транзакцию №11 и 12 Запрос на выдачу кредита и Перевод на карту",
             dependsOnMethods = "step9"
     )
 
     public void step10() {
         time_new.add(Calendar.MINUTE, 1);
-        Transaction transaction = getTransactionPHONE_NUMBER_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(1));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setPayeePhone(PAYEE_2);
-        transactionData
-                .getPhoneNumberTransfer()
-                .setBankName("РОССЕЛЬХОЗБАНК");
-        transactionData
-                .withInitialSourceAmount(BigDecimal.valueOf(10000));
-        transactionData
-                .getPhoneNumberTransfer()
-                .setAmountInSourceCurrency(BigDecimal.valueOf(500));
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time_new));
-        sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, TRIGGERED_TRUE);
-    }
-
-    @Test(
-            description = "Отправить Транзакцию №11 и 12 Запрос на выдачу кредита и Перевод на карту",
-            dependsOnMethods = "step10"
-    )
-
-    public void step11() {
-        time_new.add(Calendar.MINUTE, 1);
         Transaction transaction = getTransactionCARD_TRANSFER();
-        TransactionDataType transactionData = transaction.getData().getTransactionData()
-                .withRegular(false);
-        transactionData
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionData
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time_new));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
 
         Transaction transactionServicePayment = getTransactionServicePayment();
-        TransactionDataType transactionDataServicePayment = transactionServicePayment.getData().getTransactionData()
-                .withRegular(false);
-        transactionDataServicePayment
-                .getClientIds()
-                .withDboId(clientIds.get(0));
-        transactionDataServicePayment
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time_new));
         sendAndAssert(transactionServicePayment);
-        assertLastTransactionRuleApply(NOT_TRIGGERED, ANOTHER_TRANSACTION);
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Непроверяемый тип транзакции");
     }
 
     @Test(
             description = "Проверить даты в справочниках карантина и доверенных получателях",
-            dependsOnMethods = "step11"
+            dependsOnMethods = "step9"
     )
 
     public void assertTables() {
         getIC().locateTable(PAYEE_WHITE_LIST)
                 .findRowsBy()
-                .match("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером",PAYEE_1).click();
-        assertTableField("Дата последней авторизованной транзакции:", "01.11.2020 00:06:00");
-
-//        SimpleDateFormat formatter = new SimpleDateFormat("dd.mm.yyyy HH:mm:ss"); // здесь формат д.б. как на экране
-//        getIC().locateTable(PAYEE_WHITE_LIST)
-//                .findRowsBy()
-//                .match("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером",PAYEE_1).click();
-//        assertTableField("Дата последней авторизованной транзакции:", formatter.format(time.getTime()));
-
-        //TODO раскоменнтировать после исправления ошибки обновления даты последней транзакции в карантике получателей
-//        getIC().locateTable(PAYEE_QUARANTINE_LIST)
-//                .findRowsBy()
-//                .match("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером",PAYEE_2).click();
-//        assertTableField("Дата последней авторизованной транзакции:", formatter.format(time_new.getTime()));
+                .match("Номер лицевого счёта/Телефон/Номер договора с сервис провайдером", PHONE_1).click();
+        assertTableField("Дата последней авторизованной транзакции:", "01.11.2020 00:05:00");
         getIC().close();
     }
 
@@ -465,25 +298,62 @@ public class IR_03_RepeatApprovedTransaction_PhoneTransfer extends RSHBCaseTest 
 
     private Transaction getTransactionPHONE_NUMBER_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/PHONE_NUMBER_TRANSFER.xml");
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
         transaction.getData().getTransactionData()
+                .withRegular(false)
                 .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transaction.getData().getTransactionData()
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
+                .getPhoneNumberTransfer()
+                .withPayeePhone(PHONE_1);
+        transaction.getData().getTransactionData()
+                .getPhoneNumberTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500))
+                .withBankName("РОССЕЛЬХОЗБАНК");
         return transaction;
     }
 
     private Transaction getTransactionCARD_TRANSFER() {
         Transaction transaction = getTransaction("testCases/Templates/CARD_TRANSFER.xml");
-        transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
+        TransactionDataType transactionData = transaction.getData().getTransactionData()
+                .withRegular(false)
+                .withVersion(1L)
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time_new))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time_new))
+                .withInitialSourceAmount(BigDecimal.valueOf(10000));
+        transactionData
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transactionData
+                .getCardTransfer()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500))
+                .withDestinationCardNumber(PAYEE_1);
         return transaction;
     }
 
     private Transaction getTransactionServicePayment() {
         Transaction transaction = getTransaction("testCases/Templates/SERVICE_PAYMENT.xml");
+        transaction.getData()
+                .getServerInfo()
+                .withPort(8050);
         transaction.getData().getTransactionData()
-                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time))
-                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time));
+                .withDocumentSaveTimestamp(new XMLGregorianCalendarImpl(time_new))
+                .withDocumentConfirmationTimestamp(new XMLGregorianCalendarImpl(time_new));
+        transaction.getData().getTransactionData()
+                .getClientIds()
+                .withDboId(clientIds.get(0));
+        transaction.getData().getTransactionData()
+                .getServicePayment()
+                .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         return transaction;
     }
 }

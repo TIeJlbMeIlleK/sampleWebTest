@@ -5,6 +5,7 @@
             </ns4:ServerInfo>
             <ns4:TransactionData>
                 <ns4:TransactionId>${=org.apache.commons.lang.RandomStringUtils.randomNumeric(7)}</ns4:TransactionId>
+                <ns4:Version>1</ns4:Version>
                 <ns4:ClientIds>
                     <ns2:DboId>42</ns2:DboId>
                     <ns2:CifId>42</ns2:CifId>

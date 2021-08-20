@@ -1,13 +1,11 @@
 package ru.iitdgroup.tests.cases.BIQ_5377;
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.bytebuddy.utility.RandomString;
 import org.testng.annotations.Test;
 import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.referencetable.Table;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -18,20 +16,16 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
-
 
     private static final String RULE_NAME = "R01_IR_03_RepeatApprovedTransaction";
     private static final String RULE_NAME1 = "R01_GR_20_NewPayee";
     private static String TRANSACTION_ID;
-
+    private static final String REFERENCE_TABLE = "(Policy_parameters) Проверяемые Типы транзакции и Каналы ДБО";
     private final GregorianCalendar time = new GregorianCalendar();
 
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private final String[][] names = {{"Вероника", "Жукова", "Игоревна"}};
 
     @Test(
             description = "Включаем правило"
@@ -41,21 +35,29 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
         getIC().locateRules()
                 .selectVisible()
                 .deactivate()
-                .editRule(RULE_NAME)
+                .selectRule(RULE_NAME1)
+                .activate();
+        getIC().locateRules()
+                .openRecord(RULE_NAME)
+                .edit()
                 .fillCheckBox("Active:", true)
                 .fillCheckBox("АДАК выполнен:", false)
                 .fillCheckBox("РДАК выполнен:", false)
                 .fillCheckBox("Требовать совпадения остатка на счете:", false)
                 .fillInputText("Длина серии:", "3")
                 .fillInputText("Период серии в минутах:", "10")
-                .select("Тип транзакции:", "PAYMENT_C2B")
-                .save().sleep(5);
-        getIC().GoToTheListRule()
-                .selectVisible()
-                .editRule(RULE_NAME1)
-                .fillCheckBox("Active:", true)
+                .fillInputText("Отклонение суммы (процент 15.04):", "25,55")
                 .save()
-                .sleep(5);
+                .detachWithoutRecording("Типы транзакций")
+                .attachTransactionIR03("Типы транзакций", "Платеж по QR-коду через СБП")
+                .sleep(20);
+
+        getIC().locateTable(REFERENCE_TABLE)
+                .deleteAll()
+                .addRecord()
+                .fillFromExistingValues("Тип транзакции:", "Наименование типа транзакции", "Equals", "Платеж по QR-коду через СБП")
+                .select("Наименование канала:", "Мобильный банк")
+                .save();
     }
 
     @Test(
@@ -71,12 +73,12 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withLogin(LOGIN)
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -112,7 +114,7 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
         TRANSACTION_ID = transactionData.getTransactionId();
-        assertLastTransactionRuleApply(NOT_TRIGGERED, "Для типа «Платеж по QR-коду через СБП» условия правила не выполнены");
+        assertLastTransactionRuleApply(NOT_TRIGGERED, "Нет подтвержденных транзакций для типа «Платеж по QR-коду через СБП», условия правила не выполнены");
 
         getIC().locateAlerts().openFirst().action("Подтвердить").sleep(1);
         assertTableField("Resolution:","Правомочно");
@@ -138,7 +140,7 @@ public class IR_03_RepeatApprovedTransaction extends RSHBCaseTest {
                 .getPaymentC2B()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная транзакция с совпадающими реквизитами");
+        assertLastTransactionRuleApply(TRIGGERED, "Найдена подтвержденная «Платеж по QR-коду через СБП» транзакция с совпадающими реквизитами");
     }
 
 

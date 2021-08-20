@@ -1,10 +1,13 @@
 package ru.iitdgroup.tests.apidriver;
 
-import ru.iitdgroup.intellinx.dbo.common.ObjectFactory;
-import ru.iitdgroup.intellinx.dbo.common.ResultType;
+
+
+
+import ru.iitdgroup.intellinx.crosschannel.tranantifraudcheckresponse.ObjectFactory;
+import ru.iitdgroup.intellinx.crosschannel.tranantifraudcheckresponse.TranAntiFraudCheckResponseType;
+
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,7 +32,7 @@ public class ESPP2AntiFraudWS {
     private final Unmarshaller responseUnmarshaller;
 
     private Integer lastResponseCode;
-    private ResultType lastResponse;
+    private TranAntiFraudCheckResponseType lastResponse;
 
     /**
      * @param urlESPP адрес WS
@@ -94,12 +97,12 @@ public class ESPP2AntiFraudWS {
             SOAPMessage responseMessage = MessageFactory
                     .newInstance()
                     .createMessage(new MimeHeaders(), conn.getInputStream());
-            lastResponse = (ResultType) ((JAXBElement) this.responseUnmarshaller
-                    .unmarshal(responseMessage.getSOAPBody().getFirstChild())).getValue();
+            lastResponse = this.responseUnmarshaller
+                    .unmarshal(responseMessage.getSOAPBody().getFirstChild(), TranAntiFraudCheckResponseType.class)
+                    .getValue();
         } catch (IOException | JAXBException | ParserConfigurationException e) {
             throw new IllegalStateException(e);
         }
-
         return this;
     }
 
@@ -113,7 +116,7 @@ public class ESPP2AntiFraudWS {
     /**
      * @return последний ответ (nullable)
      */
-    public ResultType getResponse() {
+    public TranAntiFraudCheckResponseType getResponse() {
         return lastResponse;
     }
 
@@ -144,5 +147,4 @@ public class ESPP2AntiFraudWS {
         }
         return "Basic " + Base64.getEncoder().encodeToString(rawBasicAuth);
     }
-
 }

@@ -83,7 +83,7 @@ public class GR_101_CC_Fake_Passport extends RSHBCaseTest {
             getRabbit().setCafClientResponse(newStr);
             getRabbit()
                     .getAllQueues()
-                    .getQueue("ClientsFromCAF_VE")
+                    .getQueue(getProps().getRabbitCafClientQueueName())
                     .sendMessage(Rabbit.ResponseType.CAF_CLIENT_RESPONSE);
         } catch (JSONException e) {
             throw new IllegalStateException();
@@ -185,7 +185,7 @@ public class GR_101_CC_Fake_Passport extends RSHBCaseTest {
             getRabbit().setCafClientResponse(newStr);
             getRabbit()
                     .getAllQueues()
-                    .getQueue("ClientsFromCAF_VE")
+                    .getQueue(getProps().getRabbitCafClientQueueName())
                     .sendMessage(Rabbit.ResponseType.CAF_CLIENT_RESPONSE);
         } catch (JSONException e) {
             throw new IllegalStateException();

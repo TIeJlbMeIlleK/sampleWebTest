@@ -9,35 +9,27 @@ import ru.iitdgroup.intellinx.dbo.transaction.TransactionDataType;
 import ru.iitdgroup.tests.apidriver.Client;
 import ru.iitdgroup.tests.apidriver.Transaction;
 import ru.iitdgroup.tests.cases.RSHBCaseTest;
-import ru.iitdgroup.tests.webdriver.rabbit.Rabbit;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 public class WR_06_Whiterule_VES extends RSHBCaseTest {
 
-
     private static final String RULE_NAME = "R01_WR_06_VES";
-    private static String TABLE_NAME = "(System_parameters) Интеграционные параметры";
-
+    private static final String TABLE_NAME = "(System_parameters) Интеграционные параметры";
     private final GregorianCalendar time = new GregorianCalendar();
-
     private final List<String> clientIds = new ArrayList<>();
-    private String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
-    private static final String LOGIN = new RandomString(5).nextString();
-    private static final String LOGIN_HASH = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+    private final String[][] names = {{"Ольга", "Петушкова", "Ильинична"}};
     private static final String SESSION_ID = new RandomString(13).nextString();
-
-    private static final String COD_ANSWER = "22";
+    private static final String CODE_ANSWER = "22";
 
     @Test(
+
             description = "Включаем правило и настраиваем справочники"
     )
 
@@ -47,7 +39,7 @@ public class WR_06_Whiterule_VES extends RSHBCaseTest {
                 .deactivate()
                 .openRecord(RULE_NAME)
                 .detachWithoutRecording("Коды ответов ВЭС")
-                .attach("Коды ответов ВЭС", "Идентификатор кода", "Equals", COD_ANSWER)
+                .attach("Коды ответов ВЭС", "Идентификатор кода", "Equals", CODE_ANSWER)
                 .edit()
                 .fillCheckBox("Active:", true)
                 .fillInputText("Крупный перевод:", "5000")
@@ -73,19 +65,19 @@ public class WR_06_Whiterule_VES extends RSHBCaseTest {
     public void addClients() {
         try {
             for (int i = 0; i < 1; i++) {
-                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 5);
+                String dboId = (ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE) + "").substring(0, 6);
                 Client client = new Client("testCases/Templates/client.xml");
 
                 client.getData()
                         .getClientData()
                         .getClient()
-                        .withPasswordRecoveryDateTime(time)
-                        .withLogin(LOGIN)
+                        .withPasswordRecoveryDateTime(new XMLGregorianCalendarImpl(time))
+                        .withLogin(dboId)
                         .withFirstName(names[i][0])
                         .withLastName(names[i][1])
                         .withMiddleName(names[i][2])
                         .getClientIds()
-                        .withLoginHash(LOGIN_HASH)
+                        .withLoginHash(dboId)
                         .withDboId(dboId)
                         .withCifId(dboId)
                         .withExpertSystemId(dboId)
@@ -110,10 +102,10 @@ public class WR_06_Whiterule_VES extends RSHBCaseTest {
         try {
             String vesResponse = getRabbit().getVesResponse();
             JSONObject js = new JSONObject(vesResponse);
-            js.put("type_id", COD_ANSWER);
+            js.put("type_id", CODE_ANSWER);
             js.put("customer_id", clientIds.get(0));
-            js.put("login_hash", LOGIN_HASH);
-            js.put("login", LOGIN);
+            js.put("login_hash", clientIds.get(0));
+            js.put("login", clientIds.get(0));
             js.put("session_id", SESSION_ID);
             js.put("device_hash", SESSION_ID);
             String newStr1 = js.toString();
@@ -127,7 +119,7 @@ public class WR_06_Whiterule_VES extends RSHBCaseTest {
     }
 
     @Test(
-            description = "Отправить транзакцию №1 \"Платеж по QR-коду через СБП\"",
+            description = "Отправить транзакцию №1 Платеж по QR-коду через СБП",
             dependsOnMethods = "addClientCAF"
     )
 
@@ -143,7 +135,7 @@ public class WR_06_Whiterule_VES extends RSHBCaseTest {
                 .getPaymentC2B()
                 .withAmountInSourceCurrency(BigDecimal.valueOf(500));
         sendAndAssert(transaction);
-        assertLastTransactionRuleApply(TRIGGERED, "ВЭС не обнаружил опасных воздействий на устройство");
+        assertLastTransactionRuleApply(TRIGGERED, "Удаленное подключение (смена разрешения)");
     }
 
     @Override

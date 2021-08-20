@@ -4,7 +4,6 @@ import java.util.Properties;
 
 public class TestProperties extends Properties {
 
-
     public String getICUrl() {
         return getProperty("ic.url");
     }
@@ -21,17 +20,13 @@ public class TestProperties extends Properties {
         return getProperty("rabbit.user");
     }
 
-    public String getRabbitCafClientQueueName() {
-        return getProperty("rabbit.cafClientQueueName");
-    }
+    public String getRabbitCafClientQueueName() { return getProperty("rabbit.cafClientQueueName"); }
 
-    public String getRabbitCafAlertQueueName() {
-        return getProperty("rabbit.cafAlertQueueName");
-    }
+    public String getRabbitCafAlertQueueName() { return getProperty("rabbit.cafAlertQueueName"); }
 
-    public String getRabbitCafFactsQueueName() {
-        return getProperty("rabbit.cafFactsQueueName");
-    }
+    public String getRabbitCafFactsQueueName() { return getProperty("rabbit.cafFactsQueueName"); }
+
+    public String getRabbitAlertFromCAFClassified() { return getProperty("rabbit.cafAlertFromCAFClassifiedQueueName"); }
 
     public String getICUser() {
         return getProperty("ic.user");
@@ -54,13 +49,11 @@ public class TestProperties extends Properties {
         return getProperty("pictures.folder");
     }
 
-    public String getWSUrl() {
-        return getProperty("ws.url");
-    }
+    public String getWSUrl() { return getProperty("ws.url"); }
 
-    public String getWSUser() {
-        return getProperty("ws.user");
-    }
+    public String getEsppWSUrl() { return getProperty("ws.urlEspp"); }
+
+    public String getWSUser() { return getProperty("ws.user"); }
 
     public String getWSPassword() {
         return getProperty("ws.password");
@@ -81,6 +74,5 @@ public class TestProperties extends Properties {
     public String getDbPassword() {
         return getProperty("db.password");
     }
-
 
 }

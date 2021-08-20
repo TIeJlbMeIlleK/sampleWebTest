@@ -32,6 +32,7 @@ public class JobRunEdit extends AbstractEdit<JobRunEdit> {
         // Собрали параметры и описание
         fillTextArea(PARAMETERS_TEXT_AREA, Joiner.on("\n").withKeyValueSeparator("=").join(parameters));
         fillTextArea(DESCRIPTION_TEXT_AREA, description);
+        sleep(2);
         // Submit запуска Job
         driver.findElementByXPath("//button[@type='submit']").click();
 
